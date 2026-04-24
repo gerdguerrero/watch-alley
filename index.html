@@ -2,8 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Watch Alley PH — Pre-owned &amp; Brand New Timepieces</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#070b14">
+  <title>The Watch Alley PH — Pre-owned &amp; Brand New Timepieces in Manila</title>
+  <meta name="description" content="Curated pre-owned and brand-new watches in Manila. Seiko, Omega, Hamilton, Tissot. Every piece photographed in daylight, disclaimed where it counts, shipped worldwide.">
+  <link rel="canonical" href="https://watchalley.ph/">
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+  <link rel="apple-touch-icon" href="assets/logo.jpg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Watch Alley PH — Pre-owned &amp; Brand New Timepieces">
+  <meta property="og:description" content="Curated pre-owned and brand-new watches in Manila. Seiko, Omega, Hamilton, Tissot.">
+  <meta property="og:image" content="assets/alpinist.png">
+  <meta property="og:url" content="https://watchalley.ph/">
+  <meta property="og:locale" content="en_PH">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -26,7 +40,24 @@
       background: var(--navy-deep);
       color: var(--cream);
       font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
+    }
+
+    /* Accessibility — visible focus ring for keyboard users */
+    :focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    /* Respect reduced-motion user preference */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .ticker-track { animation: none !important; }
     }
 
     /* ── Typography helpers ── */
@@ -251,7 +282,7 @@
     #mobile-drawer {
       position: fixed;
       top: 0;
-      right: -100%;
+      right: 0;
       width: min(340px, 85vw);
       height: 100vh;
       background: var(--navy-deep);
@@ -260,9 +291,11 @@
       padding: 32px;
       display: flex;
       flex-direction: column;
-      transition: right 0.35s ease;
+      transform: translateX(100%);
+      transition: transform 0.35s ease;
+      will-change: transform;
     }
-    #mobile-drawer.open { right: 0; }
+    #mobile-drawer.open { transform: translateX(0); }
 
     .drawer-close {
       align-self: flex-end;
@@ -343,37 +376,38 @@
       gap: clamp(24px, 4vw, 40px);
       align-items: center;
     }
-    .hero-eyebrow { margin-bottom: 24px; }
+    .hero-eyebrow { margin-bottom: 20px; }
     .hero-headline {
-      font-size: clamp(64px, 7.5vw, 112px);
-      line-height: 0.92;
+      font-size: clamp(36px, min(7.5vw, 13vh), 88px);
+      line-height: 0.98;
       letter-spacing: -0.02em;
       font-weight: 400;
       margin: 0;
+      overflow-wrap: break-word;
     }
     .hero-body {
-      font-size: 18px;
-      line-height: 1.6;
-      margin-top: 32px;
+      font-size: clamp(14px, 1.3vw, 18px);
+      line-height: 1.55;
+      margin-top: 22px;
       max-width: 540px;
       color: var(--cream-80);
     }
     .hero-ctas {
       display: flex;
-      gap: 16px;
-      margin-top: 44px;
+      gap: 14px;
+      margin-top: 28px;
       flex-wrap: wrap;
     }
     .hero-stats {
       display: flex;
       gap: 40px;
-      margin-top: 56px;
-      padding-top: 40px;
+      margin-top: 36px;
+      padding-top: 28px;
       border-top: 1px solid var(--gold-20);
     }
     .hero-stat-val {
       font-family: 'Playfair Display', serif;
-      font-size: 36px;
+      font-size: clamp(24px, 2.4vw, 32px);
       font-weight: 500;
       color: var(--gold);
       line-height: 1;
@@ -487,16 +521,18 @@
     .section-header {
       display: flex;
       align-items: flex-end;
+      flex-wrap: wrap;
       gap: 32px;
       margin-bottom: 56px;
     }
-    .section-header-text { flex: 1; padding-bottom: 12px; }
+    .section-header-text { flex: 1; min-width: 0; padding-bottom: 12px; }
     .section-eyebrow { /* .mono already styles */ }
     .section-title {
-      font-size: clamp(36px, 4vw, 64px);
+      font-size: clamp(28px, 5vw, 64px);
       font-weight: 500;
-      line-height: 1;
+      line-height: 1.05;
       margin-top: 8px;
+      overflow-wrap: break-word;
     }
     .section-view-all {
       padding-bottom: 12px;
@@ -546,10 +582,11 @@
     }
     .news-feature-title {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(28px, 2.5vw, 40px);
+      font-size: clamp(22px, 3.5vw, 40px);
       font-weight: 500;
-      line-height: 1.05;
+      line-height: 1.1;
       margin-top: 16px;
+      overflow-wrap: break-word;
     }
     .news-feature-body {
       font-size: 14px;
@@ -615,6 +652,7 @@
     .arrivals-header {
       display: flex;
       align-items: flex-end;
+      flex-wrap: wrap;
       gap: 32px;
       margin-bottom: 48px;
     }
@@ -797,7 +835,7 @@
       text-align: center;
       margin-top: 10px;
     }
-    .viber-headline { font-family: 'Playfair Display', serif; font-size: clamp(36px, 4vw, 56px); font-weight: 500; line-height: 1; margin-top: 16px; }
+    .viber-headline { font-family: 'Playfair Display', serif; font-size: clamp(28px, 5vw, 56px); font-weight: 500; line-height: 1.05; margin-top: 16px; overflow-wrap: break-word; }
     .viber-body { font-size: 16px; margin-top: 16px; max-width: 580px; color: var(--cream-80); line-height: 1.6; }
 
     /* ── 06 Instagram ── */
@@ -865,7 +903,7 @@
     #contact { padding: clamp(48px, 8vw, 96px) clamp(20px, 6vw, 80px); border-top: 1px solid var(--gold-20); border-bottom: 1px solid var(--gold-20); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
     .contact-info { display: flex; flex-direction: column; gap: 32px; }
-    .contact-address { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 500; line-height: 1.1; margin-top: 10px; }
+    .contact-address { font-family: 'Playfair Display', serif; font-size: clamp(24px, 5vw, 36px); font-weight: 500; line-height: 1.1; margin-top: 10px; overflow-wrap: break-word; }
     .contact-details { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 24px; border-top: 1px solid var(--gold-20); }
     .contact-detail-text { font-size: 14px; margin-top: 10px; line-height: 1.7; color: var(--cream-80); }
     .contact-status {
@@ -913,7 +951,7 @@
       background: linear-gradient(180deg, var(--navy-deep) 0%, #060910 100%);
       text-align: center;
     }
-    .cta-headline { font-size: clamp(64px, 8vw, 128px); line-height: 0.92; letter-spacing: -0.02em; font-weight: 400; margin-top: 24px; }
+    .cta-headline { font-size: clamp(44px, 10vw, 128px); line-height: 0.95; letter-spacing: -0.02em; font-weight: 400; margin-top: 24px; overflow-wrap: break-word; }
     .cta-body { font-size: 18px; max-width: 640px; margin: 32px auto 0; line-height: 1.6; color: var(--cream-80); }
     .cta-buttons { display: flex; gap: 20px; margin-top: 48px; justify-content: center; flex-wrap: wrap; }
     .cta-btn-viber {
@@ -1087,8 +1125,8 @@
     <a href="#news">Journal</a>
     <a href="#contact" data-section="contact">Service</a>
   </div>
-  <a href="#" class="nav-logo">
-    <img src="assets/logo.jpg" alt="The Watch Alley logo">
+  <a href="#" class="nav-logo" aria-label="The Watch Alley — home">
+    <img src="assets/logo.jpg" alt="" width="50" height="50" fetchpriority="high" decoding="async">
     <span class="nav-logo-text">The Watch Alley</span>
   </a>
   <div class="nav-right">
@@ -1103,7 +1141,7 @@
 <!-- 02 Hero -->
 <section id="hero">
   <div class="hero-bg" id="hero-bg">
-    <video autoplay muted loop playsinline>
+    <video id="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/hero-seiko-landmaster.png">
       <source src="assets/hero-bg.mp4" type="video/mp4">
     </video>
   </div>
@@ -1116,8 +1154,7 @@
         <span class="chip">◉ ISSUE Nº 47 · APRIL 2026</span>
       </div>
       <h1 class="serif hero-headline">
-        Honest<br>
-        watches,<br>
+        Honest watches,<br>
         <em class="gold" style="font-style:italic;">honestly</em> sold.
       </h1>
       <p class="hero-body">
@@ -1200,12 +1237,12 @@
       <div class="mono">DISPATCHES</div>
       <div class="serif section-title">News &amp; promos.</div>
     </div>
-    <a class="section-view-all reveal">VIEW ALL →</a>
+    <a href="#arrivals" class="section-view-all reveal">VIEW ALL →</a>
   </div>
 
   <div class="news-grid">
     <div class="news-feature reveal">
-      <img src="assets/alpinist.png" alt="Seiko Prospex Alpinist Philippine Limited Edition">
+      <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist Philippine Limited Edition">
       <div class="news-feature-overlay"></div>
       <div class="news-feature-content">
         <span class="chip" style="background:rgba(201,162,75,0.15);">★ INDUSTRY NEWS</span>
@@ -1219,8 +1256,8 @@
 
     <div class="news-stack stagger">
       <a class="news-card" href="#">
-        <div class="news-card-bg"><img src="assets/sarx001.png" alt=""></div>
-        <div class="news-card-thumb"><img src="assets/sarx001.png" alt="Seiko SARX001"></div>
+        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
+        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
         <div class="news-card-body">
           <div class="mono">Nº 02 · INDUSTRY</div>
           <div class="news-card-title">Omega marks 75 years of the Seamaster</div>
@@ -1229,8 +1266,8 @@
         <span class="news-card-arrow">→</span>
       </a>
       <a class="news-card" href="#">
-        <div class="news-card-bg"><img src="assets/moonswatch.png" alt=""></div>
-        <div class="news-card-thumb"><img src="assets/moonswatch.png" alt="MoonSwatch"></div>
+        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
+        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
         <div class="news-card-body">
           <div class="mono">Nº 03 · INDUSTRY</div>
           <div class="news-card-title">Swatch Group posts record Omega sales in Asia</div>
@@ -1239,8 +1276,8 @@
         <span class="news-card-arrow">→</span>
       </a>
       <a class="news-card" href="#">
-        <div class="news-card-bg"><img src="assets/srpe81k1.png" alt=""></div>
-        <div class="news-card-thumb"><img src="assets/srpe81k1.png" alt="Seiko SRPE81K1"></div>
+        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
+        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko SRPE81K1"></div>
         <div class="news-card-body">
           <div class="mono">Nº 04 · COLLECTOR</div>
           <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
@@ -1272,7 +1309,7 @@
       <!-- 01 MoonSwatch -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/moonswatch.png" alt="Omega × Swatch MoonSwatch Mission to Mars">
+          <img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Omega × Swatch MoonSwatch Mission to Mars">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">COLLAB</span>
           <span class="watch-num">01/10</span>
@@ -1294,7 +1331,7 @@
       <!-- 02 Snowflakes -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/srpe81k1.png" alt="Seiko 5 Sports SRPE81K1 Snowflakes">
+          <img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko 5 Sports SRPE81K1 Snowflakes">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">LIMITED</span>
           <span class="watch-num">02/10</span>
@@ -1316,7 +1353,7 @@
       <!-- 03 SARX001 -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/sarx001.png" alt="Seiko Presage SARX001 JDM White">
+          <img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko Presage SARX001 JDM White">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">RARE</span>
           <span class="watch-num">03/10</span>
@@ -1338,7 +1375,7 @@
       <!-- 04 Alpinist -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/alpinist.png" alt="Seiko Prospex Alpinist Whiskered Pitta SPB491J1">
+          <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist Whiskered Pitta SPB491J1">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge brand-new">BRAND NEW</span>
           <span class="watch-num">04/10</span>
@@ -1360,7 +1397,7 @@
       <!-- 05 Brightz Ananta -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/chatgpt-watch.png" alt="Seiko JDM Brightz Ananta SAEC011">
+          <img loading="lazy" decoding="async" src="assets/chatgpt-watch.png" alt="Seiko JDM Brightz Ananta SAEC011">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">HI-BEAT</span>
           <span class="watch-num">05/10</span>
@@ -1382,7 +1419,7 @@
       <!-- 06 Salmon Pink -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/watch-extra.png" alt="Seiko Presage Araigaki SARX125 Salmon Pink">
+          <img loading="lazy" decoding="async" src="assets/watch-extra.png" alt="Seiko Presage Araigaki SARX125 Salmon Pink">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge brand-new">BRAND NEW</span>
           <span class="watch-num">06/10</span>
@@ -1404,7 +1441,7 @@
       <!-- 07 SARG015 Blue -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/5sports-sla.png" alt="Seiko JDM SARG015 Blue">
+          <img loading="lazy" decoding="async" src="assets/5sports-sla.png" alt="Seiko JDM SARG015 Blue">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">RARE</span>
           <span class="watch-num">07/10</span>
@@ -1426,7 +1463,7 @@
       <!-- 08 Hiwadairo -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/sarx001-alt.png" alt="Seiko Presage SARX008 Hiwadairo Brown Enamel">
+          <img loading="lazy" decoding="async" src="assets/sarx001-alt.png" alt="Seiko Presage SARX008 Hiwadairo Brown Enamel">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">LIMITED</span>
           <span class="watch-num">08/10</span>
@@ -1448,7 +1485,7 @@
       <!-- 09 Kodama -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/moonswatch-alt.png" alt="Seiko JDM JR West Kodama Chronograph">
+          <img loading="lazy" decoding="async" src="assets/moonswatch-alt.png" alt="Seiko JDM JR West Kodama Chronograph">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">COLLAB</span>
           <span class="watch-num">09/10</span>
@@ -1470,7 +1507,7 @@
       <!-- 10 Fast & Furious -->
       <div class="watch-card">
         <div class="watch-card-img">
-          <img src="assets/alpinist-alt.png" alt="Seiko JDM Fast &amp; Furious Fire Boost">
+          <img loading="lazy" decoding="async" src="assets/alpinist-alt.png" alt="Seiko JDM Fast &amp; Furious Fire Boost">
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge other">COLLAB</span>
           <span class="watch-num">10/10</span>
@@ -1515,7 +1552,7 @@
         Early access. Member prices. Direct line to us. The fastest way to catch a piece before it's gone.
       </p>
     </div>
-    <a href="#" class="btn-primary reveal">Join →</a>
+    <a href="viber://pa?chatURI=watchalley" class="btn-primary reveal">Join →</a>
   </div>
 </section>
 
@@ -1533,53 +1570,53 @@
   <!-- Story highlights -->
   <div class="ig-stories">
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/alpinist.png" alt="Available"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Available"></div></div>
       <div class="ig-story-label">AVAILABLE!</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/sarx001.png" alt="Apr 2026"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Apr 2026"></div></div>
       <div class="ig-story-label">APR 2026</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/moonswatch.png" alt="Mar 2026"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Mar 2026"></div></div>
       <div class="ig-story-label">MAR 2026</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/srpe81k1.png" alt="Feb 2026"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Feb 2026"></div></div>
       <div class="ig-story-label">FEB 2026</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/alpinist.png" alt="Jan 2026"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Jan 2026"></div></div>
       <div class="ig-story-label">JAN 2026</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/sarx001.png" alt="Quick VLOGs"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Quick VLOGs"></div></div>
       <div class="ig-story-label">VLOGS</div>
     </div>
     <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/moonswatch.png" alt="Dec 2025"></div></div>
+      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Dec 2025"></div></div>
       <div class="ig-story-label">DEC 2025</div>
     </div>
   </div>
 
   <!-- 8-column photo grid (16 tiles) -->
   <div class="ig-grid stagger">
-    <div class="ig-tile"><img src="assets/alpinist.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/moonswatch.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/srpe81k1.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/sarx001.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/hero-seiko-landmaster.png" alt="" style="object-position:center 20%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:40% 60%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:60% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/srpe81k1.png" alt="" style="object-position:center 80%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/sarx001.png" alt="" style="object-position:30% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/hero-seiko-landmaster.png" alt="" style="object-position:70% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:center 30%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:center 70%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/srpe81k1.png" alt="" style="object-position:50% 20%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/sarx001.png" alt="" style="object-position:center 50%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:80% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:20% 80%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/hero-seiko-landmaster.png" alt="" style="object-position:center 20%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:40% 60%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:60% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="" style="object-position:center 80%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="" style="object-position:30% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/hero-seiko-landmaster.png" alt="" style="object-position:70% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:center 30%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:center 70%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="" style="object-position:50% 20%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="" style="object-position:center 50%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:80% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:20% 80%"><div class="ig-tile-overlay"></div></div>
   </div>
 </section>
 
@@ -1683,7 +1720,7 @@
 <!-- 09 Footer -->
 <footer>
   <a href="#" class="footer-logo">
-    <img src="assets/logo.jpg" alt="The Watch Alley">
+    <img loading="lazy" decoding="async" src="assets/logo.jpg" alt="The Watch Alley">
     <span class="footer-logo-text">The Watch Alley</span>
   </a>
   <div class="footer-copy">© MMXXVI · THE WATCH ALLEY PH · MANILA</div>
@@ -1703,11 +1740,8 @@ const drawer = document.getElementById('mobile-drawer');
 const drawerOverlay = document.getElementById('drawer-overlay');
 const drawerClose = document.getElementById('drawer-close');
 
-let lastScroll = 0;
 window.addEventListener('scroll', () => {
-  const y = window.scrollY;
-  nav.classList.toggle('scrolled', y > 60);
-  lastScroll = y;
+  nav.classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
 // Hamburger
@@ -1744,19 +1778,33 @@ const sectionObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
 
 
-// ── Hero parallax ─────────────────────────────────────────────────────────
+// ── Hero parallax (rAF-throttled, respects reduced-motion) ───────────────
 
 const heroBg = document.getElementById('hero-bg');
 const hero = document.getElementById('hero');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-function updateParallax() {
+let parallaxTicking = false;
+function applyParallax() {
   const scrolled = window.scrollY;
   const heroBottom = hero.offsetTop + hero.offsetHeight;
   if (scrolled < heroBottom) {
-    heroBg.style.transform = `translateY(${scrolled * 0.35}px)`;
+    heroBg.style.transform = `translate3d(0, ${scrolled * 0.35}px, 0)`;
   }
+  parallaxTicking = false;
 }
-window.addEventListener('scroll', updateParallax, { passive: true });
+
+if (!reducedMotion.matches) {
+  window.addEventListener('scroll', () => {
+    if (!parallaxTicking) {
+      requestAnimationFrame(applyParallax);
+      parallaxTicking = true;
+    }
+  }, { passive: true });
+} else {
+  const heroVideo = document.getElementById('hero-video');
+  if (heroVideo) { heroVideo.pause(); heroVideo.removeAttribute('autoplay'); }
+}
 
 
 // ── Scroll-reveal animations ───────────────────────────────────────────────
@@ -1826,6 +1874,26 @@ carousel.addEventListener('mouseleave', () => {
 carousel.addEventListener('click', e => {
   if (Math.abs(carousel.scrollLeft - scrollStartLeft) > 4) e.preventDefault();
 }, true);
+
+
+// ── Prefill inquiry links with the watch name ────────────────────────────
+
+const INQUIRY_EMAIL = 'hello@watchalley.ph';
+document.querySelectorAll('.watch-card').forEach(card => {
+  const nameEl = card.querySelector('.watch-card-name');
+  const brandEl = card.querySelector('.watch-card-brand');
+  const priceEl = card.querySelector('.watch-card-price');
+  const inquire = card.querySelector('.watch-card-inquire');
+  if (!nameEl || !inquire) return;
+  const name = nameEl.textContent.trim();
+  const brand = brandEl ? brandEl.textContent.trim() : '';
+  const price = priceEl ? priceEl.textContent.trim() : '';
+  const subject = encodeURIComponent(`Inquiry: ${brand} ${name}`.trim());
+  const body = encodeURIComponent(
+    `Hi Watch Alley,\n\nI'm interested in the ${name}${price ? ` (${price})` : ''}.\nCould you share more details and availability?\n\nThanks!`
+  );
+  inquire.href = `mailto:${INQUIRY_EMAIL}?subject=${subject}&body=${body}`;
+});
 </script>
 </body>
 </html>
