@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Read(//c/Users/gerdg/Downloads/**)",
+      "Bash(unzip -o \"Watch Alley-handoff.zip\" -d \"Watch Alley-handoff\")",
+      "Bash(cp 'C:/Users/gerdg/Downloads/Watch Alley-handoff/watch-alley/project/uploads/5 Sports - Limited Edition _SLA_.png' C:/GitHub/watch-alley/assets/5sports-sla.png)",
+      "Bash(cp 'C:/Users/gerdg/Downloads/Watch Alley-handoff/watch-alley/project/uploads/ChatGPT Image Apr 23, 2026, 11_22_32 PM.png' C:/GitHub/watch-alley/assets/chatgpt-watch.png)",
+      "Bash(cp 'C:/Users/gerdg/Downloads/Watch Alley-handoff/watch-alley/project/uploads/MoonSwatch - Mission to Mars.png' C:/GitHub/watch-alley/assets/moonswatch-alt.png)",
+      "Bash(cp 'C:/Users/gerdg/Downloads/Watch Alley-handoff/watch-alley/project/uploads/Presage - SARX001 JDM - White.png' C:/GitHub/watch-alley/assets/sarx001-alt.png)",
+      "Bash(cp 'C:/Users/gerdg/Downloads/Watch Alley-handoff/watch-alley/project/uploads/Prospex - Alpinist.png' C:/GitHub/watch-alley/assets/alpinist-alt.png)",
+      "Bash(npm --version)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm init *)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm dev *)",
+      "Bash(npx kill-port *)",
+      "Bash(ffmpeg -version)",
+      "Bash(ffprobe -v quiet -print_format json -show_format -show_streams \"C:/Users/gerdg/Downloads/hf_20260424_025834_35e83084-2103-4420-8497-0c3897c0fdca.mp4\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); f=d['format']; s=next\\(x for x in d['streams'] if x['codec_type']=='video'\\); print\\(f'Size: {int\\(f[\\\\\"size\\\\\"]\\)//1024//1024}MB, Duration: {float\\(f[\\\\\"duration\\\\\"]\\):.1f}s, Resolution: {s[\\\\\"width\\\\\"]}x{s[\\\\\"height\\\\\"]}, Codec: {s[\\\\\"codec_name\\\\\"]}'\\)\")",
+      "Bash(ffmpeg -i C:/Users/gerdg/Downloads/hf_20260424_025834_35e83084-2103-4420-8497-0c3897c0fdca.mp4 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:\\(ow-iw\\)/2:\\(oh-ih\\)/2' -c:v libx264 -crf 23 -preset slow -profile:v high -level 4.1 -movflags +faststart -an -y C:/GitHub/watch-alley/assets/hero-bg.mp4)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

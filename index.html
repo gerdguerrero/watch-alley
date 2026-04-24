@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Watch Alley PH — Pre-owned &amp; Brand New Timepieces</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-deep: #070b14;
+      --navy: #0b1220;
+      --cream: #ece4d3;
+      --cream-80: rgba(236,228,211,0.85);
+      --cream-60: rgba(236,228,211,0.60);
+      --gold: #c9a24b;
+      --gold-30: rgba(201,162,75,0.30);
+      --gold-20: rgba(201,162,75,0.20);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--navy-deep);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography helpers ── */
+    .serif { font-family: 'Playfair Display', serif; }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .gold { color: var(--gold); }
+
+    .chip {
+      display: inline-block;
+      padding: 5px 12px;
+      border: 1px solid var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(201,162,75,0.06);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 32px;
+      background: var(--gold);
+      color: var(--navy-deep);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.25s ease, box-shadow 0.25s ease;
+    }
+    .btn-primary:hover {
+      background: #d4ae5e;
+      box-shadow: 0 8px 32px rgba(201,162,75,0.35);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 32px;
+      background: rgba(236,228,211,0.06);
+      color: var(--cream);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(236,228,211,0.3);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      background: rgba(201,162,75,0.08);
+    }
+
+    .big-num {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--gold);
+      font-size: 180px;
+      line-height: 0.8;
+      opacity: 0.35;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    /* ── 00 Top Bar ── */
+    #top-bar {
+      background: var(--navy-deep);
+      border-bottom: 1px solid var(--gold-20);
+      padding: 8px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #top-bar span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── 01 Nav ── */
+    #main-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 22px 80px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      border-bottom: 1px solid var(--gold-20);
+      background: rgba(7,11,20,0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: padding 0.35s ease;
+    }
+    #main-nav.scrolled { padding: 13px 80px; }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .nav-links a {
+      color: var(--cream-80);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+      transition: color 0.2s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      justify-content: center;
+    }
+    .nav-logo img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: width 0.35s ease, height 0.35s ease;
+    }
+    #main-nav.scrolled .nav-logo img { width: 34px; height: 34px; }
+    .nav-logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--cream);
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 20px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .nav-right .mono { font-size: 10px; }
+
+    .nav-viber-chip {
+      padding: 6px 14px;
+      background: var(--gold);
+      color: var(--navy-deep);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-viber-chip:hover { opacity: 0.85; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1.5px;
+      background: var(--cream);
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 199;
+    }
+    .drawer-overlay.open { display: block; }
+
+    #mobile-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: min(340px, 85vw);
+      height: 100vh;
+      background: var(--navy-deep);
+      border-left: 1px solid var(--gold-20);
+      z-index: 200;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.35s ease;
+    }
+    #mobile-drawer.open { right: 0; }
+
+    .drawer-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      color: var(--cream);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-top: 48px;
+      flex: 1;
+    }
+    .drawer-links a {
+      font-size: 32px;
+      font-family: 'Playfair Display', serif;
+      color: var(--cream);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .drawer-links a:hover { color: var(--gold); }
+    .drawer-viber {
+      margin-top: auto;
+      padding-top: 32px;
+      border-top: 1px solid var(--gold-20);
+    }
+
+    /* ── 02 Hero ── */
+    #hero {
+      position: relative;
+      min-height: 820px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--gold-20);
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      will-change: transform;
+    }
+    .hero-bg img,
+    .hero-bg video {
+      width: 100%;
+      height: 115%;
+      object-fit: cover;
+      object-position: center right;
+      display: block;
+    }
+    .hero-overlay-lr {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+        rgba(6,10,22,.88) 0%,
+        rgba(6,10,22,.75) 30%,
+        rgba(6,10,22,.35) 55%,
+        rgba(6,10,22,.05) 75%,
+        rgba(6,10,22,.1) 100%);
+    }
+    .hero-overlay-tb {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(6,10,22,.35) 0%,
+        rgba(6,10,22,.05) 20%,
+        rgba(6,10,22,.05) 65%,
+        rgba(6,10,22,.55) 100%);
+    }
+    .hero-content {
+      position: relative;
+      padding: 88px 80px 130px;
+      min-height: 820px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-eyebrow { margin-bottom: 24px; }
+    .hero-headline {
+      font-size: clamp(64px, 7.5vw, 112px);
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      font-weight: 400;
+      margin: 0;
+    }
+    .hero-body {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-top: 32px;
+      max-width: 540px;
+      color: var(--cream-80);
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      margin-top: 44px;
+      flex-wrap: wrap;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--gold-20);
+    }
+    .hero-stat-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+      margin-top: 6px;
+    }
+
+    /* Featured card */
+    .hero-featured-card {
+      justify-self: end;
+      width: min(360px, 100%);
+      background: rgba(6,10,22,.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--gold);
+      padding: 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+      opacity: 0;
+      transform: translateX(40px);
+      animation: slideInRight 0.6s cubic-bezier(0.16,1,0.3,1) 0.6s forwards;
+      overflow: hidden;
+    }
+    @keyframes slideInRight {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .hero-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .hero-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 1.1;
+      margin-top: 8px;
+    }
+    .hero-card-divider { height: 1px; background: var(--gold-20); margin: 20px 0; }
+    .hero-card-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--cream-60);
+    }
+    .spec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .hero-card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .hero-card-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      color: var(--gold);
+    }
+    .hero-card-inquire {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 2px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Ticker */
+    #hero-ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 0;
+      border-top: 1px solid var(--gold-20);
+      background: rgba(8,12,20,.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 30s linear infinite;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    .ticker-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      padding: 0 40px;
+    }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── 03 News & Promos ── */
+    #news {
+      padding: 96px 80px;
+      border-bottom: 1px solid var(--gold-20);
+    }
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 32px;
+      margin-bottom: 56px;
+    }
+    .section-header-text { flex: 1; padding-bottom: 12px; }
+    .section-eyebrow { /* .mono already styles */ }
+    .section-title {
+      font-size: clamp(36px, 4vw, 64px);
+      font-weight: 500;
+      line-height: 1;
+      margin-top: 8px;
+    }
+    .section-view-all {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      align-self: flex-end;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 32px;
+    }
+    .news-feature {
+      border: 1px solid var(--gold-30);
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+    }
+    .news-feature > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      position: absolute;
+      inset: 0;
+      display: block;
+    }
+    .news-feature-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(6,10,22,.97) 0%, rgba(6,10,22,0) 55%);
+    }
+    .news-feature-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 32px;
+    }
+    .news-feature-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 2.5vw, 40px);
+      font-weight: 500;
+      line-height: 1.05;
+      margin-top: 16px;
+    }
+    .news-feature-body {
+      font-size: 14px;
+      margin-top: 14px;
+      max-width: 500px;
+      line-height: 1.65;
+      color: var(--cream-80);
+    }
+
+    .news-stack { display: flex; flex-direction: column; gap: 16px; }
+    .news-card {
+      border: 1px solid var(--gold-20);
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-decoration: none;
+    }
+    .news-card:hover { background: rgba(201,162,75,0.06); }
+    .news-card-bg { position: absolute; inset: 0; z-index: 0; }
+    .news-card-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: brightness(0.18);
+    }
+    .news-card-thumb {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      border: 1px solid var(--gold-30);
+    }
+    .news-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .news-card-body { position: relative; z-index: 1; }
+    .news-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.15;
+      color: var(--cream);
+      margin-top: 4px;
+    }
+    .news-card-sub { font-size: 12px; margin-top: 6px; color: var(--cream-60); line-height: 1.5; }
+    .news-card-arrow { font-size: 20px; flex-shrink: 0; position: relative; z-index: 1; color: var(--gold); }
+
+    /* ── 04 New Arrivals ── */
+    #arrivals {
+      padding: 96px 80px;
+      border-top: 1px solid var(--gold-20);
+      border-bottom: 1px solid var(--gold-20);
+      background: var(--navy);
+    }
+    .arrivals-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+    .arrivals-nav-btns { display: flex; gap: 12px; padding-bottom: 12px; }
+    .carousel-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s ease;
+      line-height: 1;
+    }
+    .carousel-btn-prev {
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+    }
+    .carousel-btn-prev:hover { background: var(--gold); color: var(--navy-deep); }
+    .carousel-btn-next { background: var(--gold); color: var(--navy-deep); border: none; }
+    .carousel-btn-next:hover { background: #d4ae5e; }
+
+    .carousel-wrapper {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+    }
+    .carousel-wrapper:active { cursor: grabbing; }
+    .carousel-wrapper::-webkit-scrollbar { display: none; }
+    .carousel-wrapper { scrollbar-width: none; -ms-overflow-style: none; }
+
+    .carousel-track { display: flex; gap: 24px; padding-bottom: 4px; }
+
+    .watch-card {
+      flex: 0 0 320px;
+      border: 1px solid var(--gold-20);
+      background: var(--navy-deep);
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.2s ease;
+    }
+    .watch-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+
+    .watch-card-img {
+      position: relative;
+      height: 320px;
+      background: #080c14;
+      overflow: hidden;
+    }
+    .watch-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .watch-card-img .watch-svg-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .watch-card-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(6,10,22,.7) 0%, rgba(6,10,22,0) 50%);
+    }
+    .watch-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      padding: 5px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+    .watch-badge.brand-new { background: var(--gold); color: var(--navy-deep); border: 1px solid var(--gold); }
+    .watch-badge.other { background: rgba(6,10,22,.82); color: var(--gold); border: 1px solid var(--gold); backdrop-filter: blur(4px); }
+
+    .watch-num {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(6,10,22,.75);
+      padding: 4px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .watch-card-info { padding: 20px 22px; }
+    .watch-card-info-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .watch-card-brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .watch-card-cond { font-size: 11px; color: var(--cream-60); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+    .watch-card-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 500; line-height: 1.2; margin-top: 6px; }
+    .watch-card-meta { font-size: 10px; margin-top: 8px; color: rgba(236,228,211,0.5); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+    .watch-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--gold-20);
+    }
+    .watch-card-price { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
+    .watch-card-inquire {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 2px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .carousel-progress {
+      height: 1px;
+      background: var(--gold-20);
+      margin-top: 28px;
+      position: relative;
+    }
+    .carousel-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--gold);
+      transition: width 0.15s ease;
+    }
+
+    /* ── 05 Viber ── */
+    #viber {
+      border-top: 1px solid var(--gold);
+      border-bottom: 1px solid var(--gold);
+      background: linear-gradient(90deg, var(--navy-deep) 0%, rgba(201,162,75,0.08) 50%, var(--navy-deep) 100%);
+    }
+    .viber-inner {
+      padding: 80px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 48px;
+      align-items: center;
+    }
+    .viber-qr { display: grid; place-items: center; }
+    .viber-qr-box {
+      width: 160px;
+      height: 160px;
+      background: var(--cream);
+      padding: 14px;
+    }
+    .viber-qr-grid {
+      width: 100%;
+      height: 100%;
+      background-image:
+        repeating-linear-gradient(0deg, var(--navy-deep) 0 3px, transparent 3px 6px),
+        repeating-linear-gradient(90deg, var(--navy-deep) 0 3px, transparent 3px 6px);
+    }
+    .viber-qr-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .viber-headline { font-family: 'Playfair Display', serif; font-size: clamp(36px, 4vw, 56px); font-weight: 500; line-height: 1; margin-top: 16px; }
+    .viber-body { font-size: 16px; margin-top: 16px; max-width: 580px; color: var(--cream-80); line-height: 1.6; }
+
+    /* ── 06 Instagram ── */
+    #instagram { padding: 96px 80px; border-bottom: 1px solid var(--gold-20); }
+    .ig-header { display: flex; align-items: flex-end; gap: 32px; margin-bottom: 32px; }
+    .ig-follow-link {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      align-self: flex-end;
+      margin-bottom: 12px;
+    }
+    .ig-stories {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--gold-20);
+      overflow-x: auto;
+    }
+    .ig-stories::-webkit-scrollbar { display: none; }
+    .ig-story { text-align: center; flex-shrink: 0; cursor: pointer; }
+    .ig-story-ring {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      padding: 2px;
+      background: conic-gradient(from 45deg, #c9a24b, #d66b5c, #b87e3d, #c9a24b);
+    }
+    .ig-story-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--navy-deep);
+      padding: 3px;
+      overflow: hidden;
+    }
+    .ig-story-inner img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .ig-story-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+      margin-top: 8px;
+    }
+    .ig-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+    .ig-tile { aspect-ratio: 1; overflow: hidden; cursor: pointer; position: relative; }
+    .ig-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .ig-tile:hover img { transform: scale(1.06); }
+    .ig-tile-overlay {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      transition: background 0.3s ease;
+    }
+    .ig-tile:hover .ig-tile-overlay { background: rgba(201,162,75,0.2); }
+
+    /* ── 07 Contact ── */
+    #contact { padding: 96px 80px; border-top: 1px solid var(--gold-20); border-bottom: 1px solid var(--gold-20); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
+    .contact-info { display: flex; flex-direction: column; gap: 32px; }
+    .contact-address { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 500; line-height: 1.1; margin-top: 10px; }
+    .contact-details { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 24px; border-top: 1px solid var(--gold-20); }
+    .contact-detail-text { font-size: 14px; margin-top: 10px; line-height: 1.7; color: var(--cream-80); }
+    .contact-status {
+      padding: 20px 24px;
+      border: 1px solid var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(201,162,75,0.05);
+    }
+    .contact-status-label { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 500; margin-top: 4px; }
+    .contact-map {
+      position: relative;
+      min-height: 460px;
+      background: #080c14;
+      border: 1px solid var(--gold-30);
+      cursor: pointer;
+    }
+    .contact-map svg { width: 100%; height: 100%; position: absolute; inset: 0; }
+    .map-pin { position: absolute; top: 48%; left: 55%; transform: translate(-50%, -100%); }
+    .map-pin-label {
+      background: var(--gold);
+      color: var(--navy-deep);
+      padding: 10px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .map-pin-stem { width: 2px; height: 28px; background: var(--gold); margin: 0 auto; }
+    .map-corner-label {
+      position: absolute;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(201,162,75,0.4);
+    }
+
+    /* ── 08 CTA ── */
+    #cta {
+      padding: 128px 80px;
+      border-top: 1px solid var(--gold);
+      background: linear-gradient(180deg, var(--navy-deep) 0%, #060910 100%);
+      text-align: center;
+    }
+    .cta-headline { font-size: clamp(64px, 8vw, 128px); line-height: 0.92; letter-spacing: -0.02em; font-weight: 400; margin-top: 24px; }
+    .cta-body { font-size: 18px; max-width: 640px; margin: 32px auto 0; line-height: 1.6; color: var(--cream-80); }
+    .cta-buttons { display: flex; gap: 20px; margin-top: 48px; justify-content: center; flex-wrap: wrap; }
+    .cta-btn-viber {
+      padding: 26px 44px;
+      background: var(--gold);
+      color: var(--navy-deep);
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 500;
+      transition: background 0.25s, box-shadow 0.25s;
+    }
+    .cta-btn-viber:hover { background: #d4ae5e; box-shadow: 0 8px 32px rgba(201,162,75,0.35); }
+    .cta-btn-gmail {
+      padding: 26px 44px;
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid var(--gold);
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 500;
+      transition: background 0.25s;
+    }
+    .cta-btn-gmail:hover { background: rgba(201,162,75,0.08); }
+    .cta-note { margin-top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); }
+
+    /* ── 09 Footer ── */
+    footer {
+      padding: 48px 80px;
+      border-top: 1px solid var(--gold-20);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 40px;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-logo img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .footer-logo-text { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 500; color: var(--cream); }
+    .footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); text-align: center; }
+    .footer-links { display: flex; gap: 24px; justify-content: flex-end; }
+    .footer-links a { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── Scroll reveal animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+    }
+    .reveal-scale.visible { opacity: 0.35; transform: scale(1); }
+
+    .gold-rule { height: 1px; background: var(--gold); width: 0; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .gold-rule.visible { width: 100%; }
+
+    /* stagger children */
+    .stagger > * { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+    .stagger.visible > * { opacity: 1; transform: translateY(0); }
+    .stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
+    .stagger.visible > *:nth-child(2) { transition-delay: 80ms; }
+    .stagger.visible > *:nth-child(3) { transition-delay: 160ms; }
+    .stagger.visible > *:nth-child(4) { transition-delay: 240ms; }
+    .stagger.visible > *:nth-child(5) { transition-delay: 320ms; }
+    .stagger.visible > *:nth-child(6) { transition-delay: 400ms; }
+    .stagger.visible > *:nth-child(7) { transition-delay: 480ms; }
+    .stagger.visible > *:nth-child(8) { transition-delay: 560ms; }
+    .stagger.visible > *:nth-child(9) { transition-delay: 640ms; }
+    .stagger.visible > *:nth-child(10) { transition-delay: 720ms; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      #top-bar { padding: 8px 32px; }
+      #top-bar span:not(:first-child) { display: none; }
+      #main-nav, #main-nav.scrolled { padding: 18px 32px; }
+      .nav-links { display: none; }
+      .nav-right .mono, .nav-right .nav-viber-chip { display: none; }
+      .hamburger { display: flex; }
+      .hero-content { padding: 60px 32px 120px; grid-template-columns: 1fr; }
+      .hero-featured-card { justify-self: stretch; width: 100%; }
+      .hero-stats { flex-wrap: wrap; gap: 24px; }
+      #news, #arrivals, #instagram, #contact, #cta { padding: 64px 32px; }
+      .viber-inner { padding: 60px 32px; grid-template-columns: 1fr; text-align: center; }
+      .viber-qr { display: none; }
+      .viber-body { max-width: 100%; }
+      .news-grid { grid-template-columns: 1fr; }
+      .news-feature { min-height: 360px; }
+      .ig-grid { grid-template-columns: repeat(4, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; }
+      .cta-buttons { flex-direction: column; align-items: center; }
+      .cta-btn-viber, .cta-btn-gmail { width: 100%; max-width: 400px; justify-content: center; }
+      footer { padding: 40px 32px; grid-template-columns: 1fr; text-align: center; gap: 24px; }
+      .footer-links { justify-content: center; }
+      .big-num { font-size: 100px; }
+    }
+
+    @media (max-width: 768px) {
+      #top-bar { padding: 8px 20px; }
+      #main-nav, #main-nav.scrolled { padding: 14px 20px; }
+      .hero-content { padding: 40px 20px 110px; }
+      .hero-stats { display: none; }
+      #news, #arrivals, #instagram, #contact, #cta { padding: 48px 20px; }
+      .viber-inner { padding: 48px 20px; }
+      .section-header { flex-wrap: wrap; }
+      .arrivals-nav-btns { display: none; }
+      .watch-card { flex: 0 0 85vw; }
+      .ig-grid { grid-template-columns: repeat(4, 1fr); }
+      footer { padding: 36px 20px; }
+      .big-num { font-size: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Drawer overlay -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<!-- Mobile drawer -->
+<div id="mobile-drawer">
+  <button class="drawer-close" id="drawer-close" aria-label="Close menu">×</button>
+  <nav class="drawer-links">
+    <a href="#arrivals">Available</a>
+    <a href="#news">Brands</a>
+    <a href="#news">Journal</a>
+    <a href="#contact">Service</a>
+  </nav>
+  <div class="drawer-viber">
+    <a href="#viber" class="btn-primary" style="width:100%;justify-content:center;">◆ Join Viber</a>
+  </div>
+</div>
+
+<!-- 00 Top Bar -->
+<div id="top-bar">
+  <span>✦ 10 Pieces Available</span>
+  <span>✦ BGC, Taguig · Manila</span>
+  <span>✦ @the.watch.alley</span>
+</div>
+
+<!-- 01 Nav -->
+<nav id="main-nav">
+  <div class="nav-links">
+    <a href="#arrivals" data-section="arrivals">Available</a>
+    <a href="#news" data-section="news">Brands</a>
+    <a href="#news">Journal</a>
+    <a href="#contact" data-section="contact">Service</a>
+  </div>
+  <a href="#" class="nav-logo">
+    <img src="assets/logo.jpg" alt="The Watch Alley logo">
+    <span class="nav-logo-text">The Watch Alley</span>
+  </a>
+  <div class="nav-right">
+    <span class="mono">EN · ₱ PHP</span>
+    <a href="#viber" class="nav-viber-chip">◆ VIBER</a>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- 02 Hero -->
+<section id="hero">
+  <div class="hero-bg" id="hero-bg">
+    <video autoplay muted loop playsinline>
+      <source src="assets/hero-bg.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-overlay-lr"></div>
+  <div class="hero-overlay-tb"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="chip">◉ ISSUE Nº 47 · APRIL 2026</span>
+      </div>
+      <h1 class="serif hero-headline">
+        Honest<br>
+        watches,<br>
+        <em class="gold" style="font-style:italic;">honestly</em> sold.
+      </h1>
+      <p class="hero-body">
+        Pre-owned and brand-new timepieces curated in Manila. Seiko. Omega. Hamilton. Tissot. Every piece photographed in daylight, disclaimed where it counts, and shipped worldwide.
+      </p>
+      <div class="hero-ctas">
+        <a href="#arrivals" class="btn-primary">Shop Available ↗</a>
+        <a href="#viber" class="btn-ghost">Join Viber Community</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">10+</div>
+          <div class="hero-stat-label">Pieces in Stock</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">9.6K</div>
+          <div class="hero-stat-label">IG Followers</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">2.4K</div>
+          <div class="hero-stat-label">Viber Members</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">100%</div>
+          <div class="hero-stat-label">Authentic</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Glassmorphism featured card -->
+    <div class="hero-featured-card">
+      <div class="hero-card-header">
+        <div>
+          <div class="mono">FEATURED · AVAILABLE NOW</div>
+          <div class="hero-card-name serif">Seiko Prospex<br>Alpinist "Whiskered Pitta"</div>
+        </div>
+        <span class="gold" style="font-size:24px;line-height:1;">●</span>
+      </div>
+      <div class="hero-card-divider"></div>
+      <div class="hero-card-specs">
+        <div><div class="spec-label">Edition</div>5th PH L.E.</div>
+        <div><div class="spec-label">Case</div>39.5 mm steel</div>
+        <div><div class="spec-label">Movement</div>6R35 Auto</div>
+        <div><div class="spec-label">Condition</div>Brand New</div>
+      </div>
+      <div class="hero-card-divider"></div>
+      <div class="hero-card-footer">
+        <div class="hero-card-price serif gold">₱ 54,000</div>
+        <a href="#arrivals" class="hero-card-inquire">INQUIRE →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticker -->
+  <div id="hero-ticker">
+    <div class="ticker-track">
+      <span class="ticker-item">✦ 10 PIECES AVAILABLE</span>
+      <span class="ticker-item">✦ SHIPPED WORLDWIDE</span>
+      <span class="ticker-item">✦ 9.6K IG FOLLOWERS</span>
+      <span class="ticker-item">✦ 2.4K VIBER MEMBERS</span>
+      <span class="ticker-item">✦ 100% AUTHENTIC</span>
+      <span class="ticker-item">✦ SINCE 2019</span>
+      <span class="ticker-item">✦ BGC, TAGUIG · MANILA</span>
+      <span class="ticker-item">✦ 10 PIECES AVAILABLE</span>
+      <span class="ticker-item">✦ SHIPPED WORLDWIDE</span>
+      <span class="ticker-item">✦ 9.6K IG FOLLOWERS</span>
+      <span class="ticker-item">✦ 2.4K VIBER MEMBERS</span>
+      <span class="ticker-item">✦ 100% AUTHENTIC</span>
+      <span class="ticker-item">✦ SINCE 2019</span>
+      <span class="ticker-item">✦ BGC, TAGUIG · MANILA</span>
+    </div>
+  </div>
+</section>
+
+<!-- 03 News & Promos -->
+<section id="news">
+  <div class="section-header">
+    <div class="big-num reveal-scale">02</div>
+    <div class="section-header-text reveal">
+      <div class="mono">DISPATCHES</div>
+      <div class="serif section-title">News &amp; promos.</div>
+    </div>
+    <a class="section-view-all reveal">VIEW ALL →</a>
+  </div>
+
+  <div class="news-grid">
+    <div class="news-feature reveal">
+      <img src="assets/alpinist.png" alt="Seiko Prospex Alpinist Philippine Limited Edition">
+      <div class="news-feature-overlay"></div>
+      <div class="news-feature-content">
+        <span class="chip" style="background:rgba(201,162,75,0.15);">★ INDUSTRY NEWS</span>
+        <div class="news-feature-title serif">Seiko launches 5th Philippine Limited Edition.</div>
+        <p class="news-feature-body">
+          The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — celebrates the Philippines' iconic bird and marks Seiko's growing commitment to the Philippine collector community. We have one in stock.
+        </p>
+        <a href="#arrivals" class="btn-primary" style="margin-top:24px;">See it in our shop →</a>
+      </div>
+    </div>
+
+    <div class="news-stack stagger">
+      <a class="news-card" href="#">
+        <div class="news-card-bg"><img src="assets/sarx001.png" alt=""></div>
+        <div class="news-card-thumb"><img src="assets/sarx001.png" alt="Seiko SARX001"></div>
+        <div class="news-card-body">
+          <div class="mono">Nº 02 · INDUSTRY</div>
+          <div class="news-card-title">Omega marks 75 years of the Seamaster</div>
+          <div class="news-card-sub">Watches &amp; Wonders 2025 · commemorative editions announced across the professional lineup.</div>
+        </div>
+        <span class="news-card-arrow">→</span>
+      </a>
+      <a class="news-card" href="#">
+        <div class="news-card-bg"><img src="assets/moonswatch.png" alt=""></div>
+        <div class="news-card-thumb"><img src="assets/moonswatch.png" alt="MoonSwatch"></div>
+        <div class="news-card-body">
+          <div class="mono">Nº 03 · INDUSTRY</div>
+          <div class="news-card-title">Swatch Group posts record Omega sales in Asia</div>
+          <div class="news-card-sub">Demand for the Aqua Terra and Seamaster 300m surges in the Philippines and SEA markets.</div>
+        </div>
+        <span class="news-card-arrow">→</span>
+      </a>
+      <a class="news-card" href="#">
+        <div class="news-card-bg"><img src="assets/srpe81k1.png" alt=""></div>
+        <div class="news-card-thumb"><img src="assets/srpe81k1.png" alt="Seiko SRPE81K1"></div>
+        <div class="news-card-body">
+          <div class="mono">Nº 04 · COLLECTOR</div>
+          <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
+          <div class="news-card-sub">Secondary prices for the Bioceramic collab have settled. "Mission to Mars" now trading near retail.</div>
+        </div>
+        <span class="news-card-arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 04 New Arrivals -->
+<section id="arrivals">
+  <div class="arrivals-header">
+    <div class="big-num reveal-scale">03</div>
+    <div class="section-header-text reveal">
+      <div class="mono">THIS WEEK · NEW IN</div>
+      <div class="serif section-title">Fresh <em class="gold" style="font-style:italic;">off the bench.</em></div>
+    </div>
+    <div class="arrivals-nav-btns">
+      <button class="carousel-btn carousel-btn-prev" id="carousel-prev" aria-label="Previous">←</button>
+      <button class="carousel-btn carousel-btn-next" id="carousel-next" aria-label="Next">→</button>
+    </div>
+  </div>
+
+  <div class="carousel-wrapper" id="carousel">
+    <div class="carousel-track stagger" id="carousel-track">
+
+      <!-- 01 MoonSwatch -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/moonswatch.png" alt="Omega × Swatch MoonSwatch Mission to Mars">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">COLLAB</span>
+          <span class="watch-num">01/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">OMEGA × SWATCH</div>
+            <div class="watch-card-cond">Like New 9.2/10</div>
+          </div>
+          <div class="watch-card-name serif">MoonSwatch — Mission to Mars</div>
+          <div class="watch-card-meta">BIOCERAMIC · 42mm · COMPLETE SET</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 13,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 Snowflakes -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/srpe81k1.png" alt="Seiko 5 Sports SRPE81K1 Snowflakes">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">LIMITED</span>
+          <span class="watch-num">02/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO</div>
+            <div class="watch-card-cond">Pre-owned 8.5/10</div>
+          </div>
+          <div class="watch-card-name serif">5 Sports SRPE81K1 "Snowflakes"</div>
+          <div class="watch-card-meta">4R36 AUTO · 42.5mm · LTD 2,020 PCS</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 12,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 SARX001 -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/sarx001.png" alt="Seiko Presage SARX001 JDM White">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">RARE</span>
+          <span class="watch-num">03/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO PRESAGE</div>
+            <div class="watch-card-cond">Pre-owned 7.5/10</div>
+          </div>
+          <div class="watch-card-name serif">SARX001 JDM White</div>
+          <div class="watch-card-meta">6R15 AUTO · 40mm · DISCONTINUED</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 16,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 Alpinist -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/alpinist.png" alt="Seiko Prospex Alpinist Whiskered Pitta SPB491J1">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge brand-new">BRAND NEW</span>
+          <span class="watch-num">04/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO PROSPEX</div>
+            <div class="watch-card-cond">Brand New 10/10</div>
+          </div>
+          <div class="watch-card-name serif">Alpinist "Whiskered Pitta" SPB491J1</div>
+          <div class="watch-card-meta">6R35 AUTO · 39.5mm · 5TH PH L.E.</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 54,000</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 Brightz Ananta -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/chatgpt-watch.png" alt="Seiko JDM Brightz Ananta SAEC011">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">HI-BEAT</span>
+          <span class="watch-num">05/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO JDM</div>
+            <div class="watch-card-cond">Pre-owned 8.8/10</div>
+          </div>
+          <div class="watch-card-name serif">Brightz Ananta SAEC011</div>
+          <div class="watch-card-meta">6R21 HI-BEAT · 42.5mm · W/ BOX</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 32,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 Salmon Pink -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/watch-extra.png" alt="Seiko Presage Araigaki SARX125 Salmon Pink">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge brand-new">BRAND NEW</span>
+          <span class="watch-num">06/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO PRESAGE</div>
+            <div class="watch-card-cond">Brand New 10/10</div>
+          </div>
+          <div class="watch-card-name serif">"Araigaki" SARX125 Salmon Pink</div>
+          <div class="watch-card-meta">6R55 AUTO · 40.2mm · 72HR RESERVE</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 42,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 07 SARG015 Blue -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/5sports-sla.png" alt="Seiko JDM SARG015 Blue">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">RARE</span>
+          <span class="watch-num">07/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO JDM</div>
+            <div class="watch-card-cond">Pre-owned 8.5/10</div>
+          </div>
+          <div class="watch-card-name serif">SARG015 Blue</div>
+          <div class="watch-card-meta">6R15 AUTO · 42mm · DISCONTINUED</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 19,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 08 Hiwadairo -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/sarx001-alt.png" alt="Seiko Presage SARX008 Hiwadairo Brown Enamel">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">LIMITED</span>
+          <span class="watch-num">08/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO PRESAGE</div>
+            <div class="watch-card-cond">Pre-owned 8.8/10</div>
+          </div>
+          <div class="watch-card-name serif">SARX008 "Hiwadairo" Brown Enamel</div>
+          <div class="watch-card-meta">6R15 AUTO · 40.5mm · 300PCS L.E.</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 34,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 09 Kodama -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/moonswatch-alt.png" alt="Seiko JDM JR West Kodama Chronograph">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">COLLAB</span>
+          <span class="watch-num">09/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO JDM</div>
+            <div class="watch-card-cond">Pre-owned 8.5/10</div>
+          </div>
+          <div class="watch-card-name serif">JR West Kodama 500 Chronograph</div>
+          <div class="watch-card-meta">8T63 QUARTZ · 39.8mm · LTD 5,000</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 21,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10 Fast & Furious -->
+      <div class="watch-card">
+        <div class="watch-card-img">
+          <img src="assets/alpinist-alt.png" alt="Seiko JDM Fast &amp; Furious Fire Boost">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge other">COLLAB</span>
+          <span class="watch-num">10/10</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">SEIKO JDM</div>
+            <div class="watch-card-cond">Like New 9.5/10</div>
+          </div>
+          <div class="watch-card-name serif">Fast &amp; Furious Fire Boost #0027/2000</div>
+          <div class="watch-card-meta">8T63 QUARTZ · 39.8mm · LOW SERIAL</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">₱ 24,800</div>
+            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="carousel-progress">
+    <div class="carousel-progress-fill" id="carousel-progress-fill"></div>
+  </div>
+</section>
+
+<!-- 05 Viber Community -->
+<section id="viber">
+  <div class="viber-inner">
+    <div class="viber-qr reveal">
+      <div class="viber-qr-box">
+        <div class="viber-qr-grid"></div>
+      </div>
+      <div class="viber-qr-label">SCAN TO JOIN</div>
+    </div>
+    <div class="reveal">
+      <span class="chip">◆ 2,400 MEMBERS</span>
+      <div class="viber-headline serif">
+        Join the <em class="gold" style="font-style:italic;">Viber community.</em>
+      </div>
+      <p class="viber-body">
+        Early access. Member prices. Direct line to us. The fastest way to catch a piece before it's gone.
+      </p>
+    </div>
+    <a href="#" class="btn-primary reveal">Join →</a>
+  </div>
+</section>
+
+<!-- 06 Instagram Feed -->
+<section id="instagram">
+  <div class="ig-header">
+    <div class="big-num reveal-scale">04</div>
+    <div class="section-header-text reveal">
+      <div class="mono">@THE.WATCH.ALLEY · 9,669 FOLLOWERS</div>
+      <div class="serif section-title">On the <em class="gold" style="font-style:italic;">feed.</em></div>
+    </div>
+    <a href="https://instagram.com/the.watch.alley" target="_blank" rel="noopener" class="ig-follow-link reveal">FOLLOW ↗</a>
+  </div>
+
+  <!-- Story highlights -->
+  <div class="ig-stories">
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/alpinist.png" alt="Available"></div></div>
+      <div class="ig-story-label">AVAILABLE!</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/sarx001.png" alt="Apr 2026"></div></div>
+      <div class="ig-story-label">APR 2026</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/moonswatch.png" alt="Mar 2026"></div></div>
+      <div class="ig-story-label">MAR 2026</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/srpe81k1.png" alt="Feb 2026"></div></div>
+      <div class="ig-story-label">FEB 2026</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/alpinist.png" alt="Jan 2026"></div></div>
+      <div class="ig-story-label">JAN 2026</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/sarx001.png" alt="Quick VLOGs"></div></div>
+      <div class="ig-story-label">VLOGS</div>
+    </div>
+    <div class="ig-story">
+      <div class="ig-story-ring"><div class="ig-story-inner"><img src="assets/moonswatch.png" alt="Dec 2025"></div></div>
+      <div class="ig-story-label">DEC 2025</div>
+    </div>
+  </div>
+
+  <!-- 8-column photo grid (16 tiles) -->
+  <div class="ig-grid stagger">
+    <div class="ig-tile"><img src="assets/alpinist.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/moonswatch.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/srpe81k1.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/sarx001.png" alt=""><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/hero-seiko-landmaster.png" alt="" style="object-position:center 20%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:40% 60%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:60% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/srpe81k1.png" alt="" style="object-position:center 80%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/sarx001.png" alt="" style="object-position:30% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/hero-seiko-landmaster.png" alt="" style="object-position:70% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:center 30%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:center 70%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/srpe81k1.png" alt="" style="object-position:50% 20%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/sarx001.png" alt="" style="object-position:center 50%"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/alpinist.png" alt="" style="object-position:80% center"><div class="ig-tile-overlay"></div></div>
+    <div class="ig-tile"><img src="assets/moonswatch.png" alt="" style="object-position:20% 80%"><div class="ig-tile-overlay"></div></div>
+  </div>
+</section>
+
+<!-- 07 Contact / Find Us -->
+<section id="contact">
+  <div class="section-header">
+    <div class="big-num reveal-scale">05</div>
+    <div class="section-header-text reveal">
+      <div class="mono">VISIT · BY APPOINTMENT</div>
+      <div class="serif section-title">Come see them <em class="gold" style="font-style:italic;">in person.</em></div>
+    </div>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <div>
+        <div class="mono">METRO MANILA</div>
+        <div class="contact-address serif">
+          Bonifacio Global City<br>
+          <span style="color:var(--cream-60)">Taguig, Philippines</span>
+        </div>
+      </div>
+      <div class="contact-details">
+        <div>
+          <div class="mono">HOURS</div>
+          <div class="contact-detail-text">
+            Mon–Fri · 11–19<br>
+            Saturday · 12–17<br>
+            Sunday · by request
+          </div>
+        </div>
+        <div>
+          <div class="mono">DIRECT</div>
+          <div class="contact-detail-text">
+            <a href="tel:+639170000000" style="color:inherit;text-decoration:none;">+63 917 000 0000</a><br>
+            <a href="mailto:hello@watchalley.ph" style="color:inherit;text-decoration:none;">hello@watchalley.ph</a><br>
+            <a href="https://instagram.com/the.watch.alley" target="_blank" style="color:inherit;text-decoration:none;">@the.watch.alley</a>
+          </div>
+        </div>
+      </div>
+      <div class="contact-status">
+        <div>
+          <div class="mono">STATUS</div>
+          <div class="contact-status-label serif">Booking appointments</div>
+        </div>
+        <span class="gold" style="font-size:22px;">●</span>
+      </div>
+    </div>
+
+    <a class="contact-map reveal" href="https://maps.google.com/?q=Bonifacio+Global+City+Taguig+Philippines" target="_blank" rel="noopener" style="text-decoration:none;display:block;">
+      <svg viewBox="0 0 600 460" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <pattern id="grid-map" width="50" height="50" patternUnits="userSpaceOnUse">
+            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(201,162,75,0.07)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid-map)"/>
+        <path d="M 0 180 Q 200 160, 400 220 T 600 260" stroke="rgba(201,162,75,0.35)" stroke-width="2" fill="none"/>
+        <path d="M 0 320 L 600 300" stroke="rgba(201,162,75,0.2)" stroke-width="1.5" fill="none"/>
+        <path d="M 300 0 L 340 460" stroke="rgba(201,162,75,0.3)" stroke-width="1.5" fill="none"/>
+        <rect x="360" y="230" width="90" height="70" fill="rgba(201,162,75,0.06)" stroke="rgba(201,162,75,0.2)"/>
+        <rect x="460" y="200" width="70" height="90" fill="rgba(201,162,75,0.06)" stroke="rgba(201,162,75,0.2)"/>
+        <rect x="200" y="140" width="80" height="60" fill="rgba(201,162,75,0.04)" stroke="rgba(201,162,75,0.15)"/>
+        <rect x="120" y="240" width="60" height="80" fill="rgba(201,162,75,0.04)" stroke="rgba(201,162,75,0.15)"/>
+      </svg>
+      <div class="map-pin">
+        <div class="map-pin-label">● THE WATCH ALLEY</div>
+        <div class="map-pin-stem"></div>
+      </div>
+      <div class="map-corner-label" style="top:20px;left:20px;">26TH ST.</div>
+      <div class="map-corner-label" style="bottom:20px;right:20px;">BGC →</div>
+    </a>
+  </div>
+</section>
+
+<!-- 08 Full-width CTA -->
+<section id="cta">
+  <span class="chip reveal">◆ 06 · SEND A MESSAGE</span>
+  <h2 class="serif cta-headline reveal">
+    Say hello.<br>
+    <em class="gold" style="font-style:italic;">We'll reply.</em>
+  </h2>
+  <p class="cta-body reveal">
+    Hunting a specific reference? Trading in? Curious about authentication? Pick a channel — a real person on the other side.
+  </p>
+  <div class="cta-buttons reveal">
+    <a href="viber://pa?chatURI=watchalley" class="cta-btn-viber">
+      <span style="font-size:22px;">✦</span>
+      <span>Message on Viber</span>
+      <span style="font-size:22px;">↗</span>
+    </a>
+    <a href="mailto:hello@watchalley.ph" class="cta-btn-gmail">
+      <span class="gold" style="font-size:22px;">✉</span>
+      <span>Send via Gmail</span>
+      <span class="gold" style="font-size:22px;">↗</span>
+    </a>
+  </div>
+  <div class="cta-note reveal">↑ BOTH OPEN NATIVE APP · TYPICAL REPLY WITHIN 2 HOURS</div>
+</section>
+
+<!-- 09 Footer -->
+<footer>
+  <a href="#" class="footer-logo">
+    <img src="assets/logo.jpg" alt="The Watch Alley">
+    <span class="footer-logo-text">The Watch Alley</span>
+  </a>
+  <div class="footer-copy">© MMXXVI · THE WATCH ALLEY PH · MANILA</div>
+  <div class="footer-links">
+    <a href="#">PRIVACY</a>
+    <a href="#">TERMS</a>
+    <a href="#">AUTHENTICITY</a>
+  </div>
+</footer>
+
+<script>
+// ── Nav: scroll-shrink + active section ───────────────────────────────────
+
+const nav = document.getElementById('main-nav');
+const hamburgerBtn = document.getElementById('hamburger');
+const drawer = document.getElementById('mobile-drawer');
+const drawerOverlay = document.getElementById('drawer-overlay');
+const drawerClose = document.getElementById('drawer-close');
+
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  nav.classList.toggle('scrolled', y > 60);
+  lastScroll = y;
+}, { passive: true });
+
+// Hamburger
+function openDrawer() {
+  drawer.classList.add('open');
+  drawerOverlay.classList.add('open');
+  hamburgerBtn.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  drawer.classList.remove('open');
+  drawerOverlay.classList.remove('open');
+  hamburgerBtn.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+hamburgerBtn.addEventListener('click', openDrawer);
+drawerClose.addEventListener('click', closeDrawer);
+drawerOverlay.addEventListener('click', closeDrawer);
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+
+// Active nav section via IntersectionObserver
+const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.dataset.section === entry.target.id);
+      });
+    }
+  });
+}, { threshold: 0.35 });
+
+document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
+
+
+// ── Hero parallax ─────────────────────────────────────────────────────────
+
+const heroBg = document.getElementById('hero-bg');
+const hero = document.getElementById('hero');
+
+function updateParallax() {
+  const scrolled = window.scrollY;
+  const heroBottom = hero.offsetTop + hero.offsetHeight;
+  if (scrolled < heroBottom) {
+    heroBg.style.transform = `translateY(${scrolled * 0.35}px)`;
+  }
+}
+window.addEventListener('scroll', updateParallax, { passive: true });
+
+
+// ── Scroll-reveal animations ───────────────────────────────────────────────
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .reveal-scale, .gold-rule, .stagger').forEach(el => {
+  revealObserver.observe(el);
+});
+
+
+// ── Carousel ──────────────────────────────────────────────────────────────
+
+const carousel = document.getElementById('carousel');
+const carouselTrack = document.getElementById('carousel-track');
+const progressFill = document.getElementById('carousel-progress-fill');
+const prevBtn = document.getElementById('carousel-prev');
+const nextBtn = document.getElementById('carousel-next');
+
+function updateProgress() {
+  const { scrollLeft, scrollWidth, clientWidth } = carousel;
+  const max = scrollWidth - clientWidth;
+  const pct = max > 0 ? (scrollLeft / max) * 100 : 0;
+  progressFill.style.width = pct + '%';
+}
+
+carousel.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+const CARD_W = 320 + 24; // card width + gap
+prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -CARD_W, behavior: 'smooth' }));
+nextBtn.addEventListener('click', () => carousel.scrollBy({ left: CARD_W, behavior: 'smooth' }));
+
+// Drag-to-scroll
+let isDragging = false, dragStartX = 0, scrollStartLeft = 0;
+
+carousel.addEventListener('mousedown', e => {
+  isDragging = true;
+  dragStartX = e.clientX;
+  scrollStartLeft = carousel.scrollLeft;
+  carousel.style.scrollBehavior = 'auto';
+});
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = e.clientX - dragStartX;
+  carousel.scrollLeft = scrollStartLeft - dx;
+});
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  carousel.style.scrollBehavior = 'smooth';
+});
+carousel.addEventListener('mouseleave', () => {
+  if (isDragging) {
+    isDragging = false;
+    carousel.style.scrollBehavior = 'smooth';
+  }
+});
+
+// Prevent link clicks on drag
+carousel.addEventListener('click', e => {
+  if (Math.abs(carousel.scrollLeft - scrollStartLeft) > 4) e.preventDefault();
+}, true);
+</script>
+</body>
+</html>
