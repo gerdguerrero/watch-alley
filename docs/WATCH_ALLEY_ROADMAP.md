@@ -50,6 +50,7 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Inventory is now documented in `public/data/watches.json` and validated with `pnpm test`.
 - Inventory images use stable public URLs under `/watch-assets/` for future data-driven rendering.
 - Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
+- Product detail modal now opens from inventory-rendered cards and surfaces trust-critical listing fields.
 
 ## Operating rule
 
@@ -73,11 +74,11 @@ Checklist:
 - [x] Add inventory validation script and `pnpm test` command.
 - [x] Add stable public watch image assets for inventory-driven rendering.
 - [x] Generate homepage watch cards from inventory data instead of hardcoded HTML.
-- [ ] Add product detail modal or product detail pages.
-- [ ] Add stronger per-watch inquiry CTA.
-- [ ] Add availability states: Available, Reserved, Sold.
+- [x] Add product detail modal or product detail pages.
+- [x] Add stronger per-watch inquiry CTA.
+- [x] Add availability states: Available, Reserved, Sold.
 - [ ] Add box/papers/service history fields visibly in the UI.
-- [ ] Add disclosure/condition notes visibly in the UI.
+- [x] Add disclosure/condition notes visibly in the UI.
 - [ ] Add real Authenticity page.
 - [ ] Add real Terms page.
 - [ ] Add real Privacy page.
@@ -266,6 +267,9 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Hardened generated inquiry links with safe email validation and escaped `mailto:` href interpolation after independent review.
 - Verified browser preview loads 10 data-driven cards and per-watch mailto inquiry links.
 - Verified `pnpm test` and `pnpm build` pass.
+- Added product detail modal with inventory-driven gallery, specs, availability, disclosure, price, and per-watch inquiry CTA.
+- Added `scripts/validate-product-detail-modal.mjs` and expanded `pnpm test` to protect the modal rendering contract.
+- Verified modal opening, content population, inquiry CTA, and Escape close behavior in browser preview.
 
 ## Commands
 

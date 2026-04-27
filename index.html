@@ -782,17 +782,33 @@
       border-top: 1px solid var(--gold-20);
     }
     .watch-card-price { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
-    .watch-card-inquire {
+    .watch-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .watch-card-inquire,
+    .watch-card-details {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--gold);
+      border: 0;
       border-bottom: 1px solid var(--gold);
-      padding-bottom: 2px;
+      padding: 0 0 2px;
       cursor: pointer;
       text-decoration: none;
+      background: transparent;
     }
+    .watch-card-details {
+      color: var(--cream-80);
+      border-bottom-color: rgba(236,228,211,0.42);
+    }
+    .watch-card-details:hover,
+    .watch-card-inquire:hover { color: var(--gold); border-bottom-color: var(--gold); }
     .watch-card-description {
       margin-top: 10px;
       color: var(--cream-80);
@@ -811,6 +827,174 @@
       align-items: center;
     }
     .inventory-error { border-color: rgba(201,162,75,0.55); }
+
+    body.modal-open { overflow: hidden; }
+    .product-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 4vw, 48px);
+    }
+    .product-modal.open { display: flex; }
+    .product-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.76);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .product-modal-panel {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100vw - 32px));
+      max-height: min(860px, calc(100vh - 32px));
+      overflow: auto;
+      background: linear-gradient(135deg, rgba(7,11,20,0.98), rgba(11,18,32,0.98));
+      border: 1px solid var(--gold);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+    }
+    .product-modal-close {
+      position: sticky;
+      top: 16px;
+      float: right;
+      z-index: 2;
+      width: 42px;
+      height: 42px;
+      margin: 16px 16px 0 0;
+      border: 1px solid var(--gold-30);
+      background: rgba(7,11,20,0.88);
+      color: var(--cream);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .product-modal-close:hover { border-color: var(--gold); color: var(--gold); }
+    .product-modal-body { clear: both; padding: clamp(24px, 4vw, 48px); }
+    .product-modal-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+      gap: clamp(24px, 4vw, 48px);
+      align-items: start;
+    }
+    .product-modal-gallery { display: grid; gap: 14px; }
+    .product-modal-hero-image {
+      position: relative;
+      min-height: 440px;
+      background: #080c14;
+      border: 1px solid var(--gold-20);
+      overflow: hidden;
+    }
+    .product-modal-hero-image img,
+    .product-modal-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .product-modal-thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 10px;
+    }
+    .product-modal-thumb {
+      height: 86px;
+      border: 1px solid var(--gold-20);
+      background: #080c14;
+      overflow: hidden;
+    }
+    .product-modal-meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .product-modal-status {
+      padding: 6px 12px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .product-modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(30px, 5vw, 58px);
+      font-weight: 500;
+      line-height: 1.03;
+      margin: 8px 0 14px;
+    }
+    .product-modal-description {
+      color: var(--cream-80);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 640px;
+    }
+    .product-modal-price {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold);
+      font-size: clamp(28px, 4vw, 42px);
+      margin-top: 22px;
+    }
+    .product-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--gold-20);
+      border-left: 1px solid var(--gold-20);
+      margin-top: 26px;
+    }
+    .product-detail-row {
+      min-height: 86px;
+      padding: 16px;
+      border-right: 1px solid var(--gold-20);
+      border-bottom: 1px solid var(--gold-20);
+    }
+    .product-detail-label {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .product-detail-value {
+      color: var(--cream-80);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .product-modal-disclosure {
+      margin-top: 24px;
+      padding: 20px;
+      border: 1px solid rgba(201,162,75,0.45);
+      background: rgba(201,162,75,0.06);
+    }
+    .product-modal-disclosure p {
+      color: var(--cream-80);
+      line-height: 1.65;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .product-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .product-modal-secondary-note {
+      color: var(--cream-60);
+      font-size: 12px;
+      line-height: 1.6;
+      max-width: 420px;
+    }
+    .product-modal-loading { color: var(--cream-80); padding: 24px; }
 
     .carousel-progress {
       height: 1px;
@@ -1079,6 +1263,8 @@
       .news-feature { min-height: 400px; }
       .ig-grid { grid-template-columns: repeat(4, 1fr); }
       .contact-grid { grid-template-columns: 1fr; }
+      .product-modal-layout { grid-template-columns: 1fr; }
+      .product-modal-hero-image { min-height: 360px; }
       .cta-buttons { flex-direction: column; align-items: center; }
       .cta-btn-viber, .cta-btn-gmail { width: 100%; max-width: 420px; justify-content: center; }
       footer { grid-template-columns: 1fr; text-align: center; gap: 20px; }
@@ -1095,6 +1281,14 @@
       .section-title { font-size: clamp(28px, 7vw, 48px); }
       .arrivals-nav-btns { display: none; }
       .watch-card { flex: 0 0 80vw; }
+      .watch-card-footer { align-items: flex-start; gap: 12px; }
+      .watch-card-actions { justify-content: flex-start; }
+      .product-modal { align-items: stretch; padding: 10px; }
+      .product-modal-panel { width: 100%; max-height: calc(100vh - 20px); }
+      .product-modal-body { padding: 20px; }
+      .product-modal-hero-image { min-height: 280px; }
+      .product-detail-grid { grid-template-columns: 1fr; }
+      .product-modal-actions .btn-primary { width: 100%; justify-content: center; }
       .news-card { grid-template-columns: auto 1fr; }
       .news-card-arrow { display: none; }
       .news-card-thumb { width: 64px; height: 64px; }
@@ -1531,6 +1725,17 @@
   <div class="cta-note reveal">↑ BOTH OPEN NATIVE APP · TYPICAL REPLY WITHIN 2 HOURS</div>
 </section>
 
+<!-- Product Detail Modal -->
+<div class="product-modal" id="product-detail-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" aria-hidden="true">
+  <div class="product-modal-backdrop" id="product-modal-backdrop"></div>
+  <div class="product-modal-panel" role="document">
+    <button type="button" class="product-modal-close" id="product-modal-close" aria-label="Close product details">×</button>
+    <div class="product-modal-body" id="product-modal-body">
+      <div class="product-modal-loading" role="status">Select a watch to view details.</div>
+    </div>
+  </div>
+</div>
+
 <!-- 09 Footer -->
 <footer>
   <a href="#" class="footer-logo">
@@ -1645,6 +1850,12 @@ const progressFill = document.getElementById('carousel-progress-fill');
 const prevBtn = document.getElementById('carousel-prev');
 const nextBtn = document.getElementById('carousel-next');
 const inventorySource = carouselTrack.dataset.inventorySource || '/data/watches.json';
+const productModal = document.getElementById('product-detail-modal');
+const productModalBackdrop = document.getElementById('product-modal-backdrop');
+const productModalClose = document.getElementById('product-modal-close');
+const productModalBody = document.getElementById('product-modal-body');
+const watchInventoryCache = { watches: [] };
+let lastFocusedElement = null;
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -1691,6 +1902,119 @@ function buildInquiryHref(watch, inventory) {
   return `mailto:${email}?subject=${subject}&body=${body}`;
 }
 
+function renderProductDetailRow(label, value) {
+  if (!value) return '';
+  return `
+          <div class="product-detail-row">
+            <div class="product-detail-label">${escapeHtml(label)}</div>
+            <div class="product-detail-value">${escapeHtml(value)}</div>
+          </div>`;
+}
+
+function renderProductDetailModal(watch, inventory) {
+  const images = Array.isArray(watch.images) && watch.images.length > 0
+    ? watch.images
+    : [watch.primaryImage].filter(Boolean);
+  const inquiryHref = buildInquiryHref(watch, inventory);
+  const price = formatPrice(watch);
+  const status = statusLabel(watch.status);
+  const galleryMarkup = images.map((image, index) => `
+          <div class="product-modal-thumb">
+            <img loading="lazy" decoding="async" src="${escapeHtml(image)}" alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}">
+          </div>`).join('');
+  const detailRows = [
+    renderProductDetailRow('Reference', watch.reference),
+    renderProductDetailRow('Condition', watch.conditionLabel),
+    renderProductDetailRow('Set / Inclusions', watch.set),
+    renderProductDetailRow('Material', watch.material),
+    renderProductDetailRow('Movement', watch.movement),
+    renderProductDetailRow('Case Size', watch.caseSize),
+    renderProductDetailRow('Edition', watch.edition),
+    renderProductDetailRow('Availability', status)
+  ].join('');
+
+  return `
+        <div class="product-modal-layout">
+          <div class="product-modal-gallery" aria-label="${escapeHtml(watch.name)} image gallery">
+            <div class="product-modal-hero-image">
+              <img loading="eager" decoding="async" src="${escapeHtml(images[0] || watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+            </div>
+            <div class="product-modal-thumbs">${galleryMarkup}</div>
+          </div>
+          <div class="product-modal-copy">
+            <div class="product-modal-meta-row">
+              <span class="chip">${escapeHtml(watch.badge)}</span>
+              <span class="product-modal-status">${escapeHtml(status)}</span>
+            </div>
+            <div class="mono">${escapeHtml(watch.brand)} · ${escapeHtml(watch.reference)}</div>
+            <h2 class="product-modal-title" id="product-modal-title">${escapeHtml(watch.name)}</h2>
+            <p class="product-modal-description">${escapeHtml(watch.description)}</p>
+            <div class="product-modal-price">${escapeHtml(price)}</div>
+            <div class="product-detail-grid">${detailRows}</div>
+            <div class="product-modal-disclosure">
+              <div class="product-detail-label">Disclosure / Buyer Note</div>
+              <p>${escapeHtml(watch.disclosure)}</p>
+            </div>
+            <div class="product-modal-actions">
+              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Inquire About This Watch ↗</a>
+              <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
+            </div>
+          </div>
+        </div>`;
+}
+
+function openProductDetailModal(watch) {
+  if (!watch) return;
+  lastFocusedElement = document.activeElement;
+  productModalBody.innerHTML = renderProductDetailModal(watch, watchInventoryCache);
+  productModal.classList.add('open');
+  productModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  productModalClose.focus();
+}
+
+function closeProductDetailModal() {
+  productModal.classList.remove('open');
+  productModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+    lastFocusedElement.focus();
+  }
+}
+
+function getFocusableModalElements() {
+  return Array.from(productModal.querySelectorAll([
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(','))).filter((element) => element.offsetParent !== null);
+}
+
+function trapProductModalFocus(event) {
+  if (event.key !== 'Tab' || !productModal.classList.contains('open')) return;
+
+  const focusableElements = getFocusableModalElements();
+  if (focusableElements.length === 0) {
+    event.preventDefault();
+    productModalClose.focus();
+    return;
+  }
+
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === firstFocusable) {
+    event.preventDefault();
+    lastFocusable.focus();
+  } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+    event.preventDefault();
+    firstFocusable.focus();
+  }
+}
+
 function renderWatchCard(watch, index, total, inventory) {
   const status = String(watch.status || 'available').toLowerCase();
   const itemNum = String(index + 1).padStart(2, '0');
@@ -1699,7 +2023,7 @@ function renderWatchCard(watch, index, total, inventory) {
   const ctaLabel = status === 'available' ? 'INQUIRE →' : `${statusLabel(status)} →`;
 
   return `
-      <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-status="${escapeHtml(status)}">
+      <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="${escapeHtml(status)}">
         <div class="watch-card-img">
           <img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
           <div class="watch-card-img-overlay"></div>
@@ -1716,7 +2040,10 @@ function renderWatchCard(watch, index, total, inventory) {
           <p class="watch-card-description">${escapeHtml(watch.description)}</p>
           <div class="watch-card-footer">
             <div class="watch-card-price serif">${formatPrice(watch)}</div>
-            <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}">${escapeHtml(ctaLabel)}</a>
+            <div class="watch-card-actions">
+              <button type="button" class="watch-card-details" data-product-modal-trigger data-watch-slug="${escapeHtml(watch.slug)}" aria-label="View details for ${escapeHtml(watch.name)}">DETAILS →</button>
+              <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}">${escapeHtml(ctaLabel)}</a>
+            </div>
           </div>
         </div>
       </article>`;
@@ -1748,6 +2075,10 @@ async function loadWatchInventory() {
     const watches = Array.isArray(inventory.watches) ? inventory.watches : [];
     if (watches.length === 0) throw new Error('Inventory returned zero watches');
 
+    watchInventoryCache.watches = watches;
+    watchInventoryCache.inquiryEmail = inventory.inquiryEmail;
+    watchInventoryCache.currency = inventory.currency;
+
     carouselTrack.innerHTML = watches
       .map((watch, index) => renderWatchCard(watch, index, watches.length, inventory))
       .join('');
@@ -1773,10 +2104,20 @@ prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -CARD_W, behav
 nextBtn.addEventListener('click', () => carousel.scrollBy({ left: CARD_W, behavior: 'smooth' }));
 
 // Drag-to-scroll
-let isDragging = false, dragStartX = 0, scrollStartLeft = 0;
+let isDragging = false, dragStartX = 0, scrollStartLeft = 0, dragMoved = false;
+let dragResetTimer;
+
+function scheduleDragReset() {
+  window.clearTimeout(dragResetTimer);
+  dragResetTimer = window.setTimeout(() => {
+    dragMoved = false;
+  }, 160);
+}
 
 carousel.addEventListener('mousedown', e => {
   isDragging = true;
+  dragMoved = false;
+  window.clearTimeout(dragResetTimer);
   dragStartX = e.clientX;
   scrollStartLeft = carousel.scrollLeft;
   carousel.style.scrollBehavior = 'auto';
@@ -1784,23 +2125,50 @@ carousel.addEventListener('mousedown', e => {
 window.addEventListener('mousemove', e => {
   if (!isDragging) return;
   const dx = e.clientX - dragStartX;
+  if (Math.abs(dx) > 4) dragMoved = true;
   carousel.scrollLeft = scrollStartLeft - dx;
 });
 window.addEventListener('mouseup', () => {
   isDragging = false;
   carousel.style.scrollBehavior = 'smooth';
+  scheduleDragReset();
 });
 carousel.addEventListener('mouseleave', () => {
   if (isDragging) {
     isDragging = false;
     carousel.style.scrollBehavior = 'smooth';
+    scheduleDragReset();
   }
 });
 
-// Prevent link clicks on drag
+// Prevent link/detail clicks on drag
 carousel.addEventListener('click', e => {
-  if (Math.abs(carousel.scrollLeft - scrollStartLeft) > 4) e.preventDefault();
+  if (!dragMoved) return;
+  e.preventDefault();
+  e.stopPropagation();
+  scheduleDragReset();
 }, true);
+
+productModalClose.addEventListener('click', closeProductDetailModal);
+productModalBackdrop.addEventListener('click', closeProductDetailModal);
+productModal.addEventListener('keydown', trapProductModalFocus);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && productModal.classList.contains('open')) {
+    closeProductDetailModal();
+  }
+});
+
+carouselTrack.addEventListener('click', (event) => {
+  const trigger = event.target.closest('[data-product-modal-trigger]');
+  if (!trigger) return;
+
+  event.preventDefault();
+  if (dragMoved) return;
+
+  const slug = trigger.dataset.watchSlug;
+  const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
+  if (watch) openProductDetailModal(watch);
+});
 
 </script>
 </body>
