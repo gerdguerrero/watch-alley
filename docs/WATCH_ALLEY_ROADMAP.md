@@ -258,6 +258,8 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Added `pnpm test` script to validate watch data.
 - Verified inventory validation passes for 10 watches.
 - Verified production build passes with `pnpm build`.
+- Opened PR #1: `https://github.com/gerdguerrero/watch-alley/pull/1`.
+- Confirmed Vercel checks are passing on PR #1.
 
 ## Commands
 
