@@ -51,6 +51,7 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Inventory images use stable public URLs under `/watch-assets/` for future data-driven rendering.
 - Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
 - Product detail modal now opens from inventory-rendered cards and surfaces trust-critical listing fields.
+- Each watch is now individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
 
 ## Operating rule
 
@@ -270,6 +271,11 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Added product detail modal with inventory-driven gallery, specs, availability, disclosure, price, and per-watch inquiry CTA.
 - Added `scripts/validate-product-detail-modal.mjs` and expanded `pnpm test` to protect the modal rendering contract.
 - Verified modal opening, content population, inquiry CTA, and Escape close behavior in browser preview.
+- Added shareable watch deep links: `/#/watch/<slug>` opens the matching product detail modal automatically.
+- Added Copy share link action inside the modal with clipboard API + textarea fallback and an aria-live status.
+- Wired `history.pushState`/`replaceState`, `popstate`, and `hashchange` so browser back/forward correctly toggles the modal and preserves scroll position.
+- Added `scripts/validate-shareable-watch-urls.mjs` and expanded `pnpm test` to protect the deep-link contract.
+- Browser-verified deep link, back/forward, card click URL update, copy link, and graceful no-op on unknown slugs.
 
 ## Commands
 

@@ -983,10 +983,31 @@
     }
     .product-modal-actions {
       display: flex;
-      align-items: center;
-      gap: 14px;
       flex-wrap: wrap;
-      margin-top: 28px;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn-secondary.product-modal-share {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .product-modal-share:hover { border-color: var(--gold); color: var(--gold); }
+    .product-modal-share-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      min-height: 12px;
     }
     .product-modal-secondary-note {
       color: var(--cream-60);
@@ -1856,6 +1877,32 @@ const productModalClose = document.getElementById('product-modal-close');
 const productModalBody = document.getElementById('product-modal-body');
 const watchInventoryCache = { watches: [] };
 let lastFocusedElement = null;
+let pendingDeepLinkSlug = null;
+let isApplyingHistoryNavigation = false;
+let preModalScrollY = 0;
+let activeWatchSlug = null;
+let shareCopyResetTimer = null;
+
+const WATCH_HASH_PREFIX = '#/watch/';
+
+function getWatchHashSlug(hash) {
+  const value = typeof hash === 'string' ? hash : (typeof window !== 'undefined' ? window.location.hash : '');
+  if (!value || !value.startsWith(WATCH_HASH_PREFIX)) return null;
+  const rest = value.slice(WATCH_HASH_PREFIX.length);
+  if (!rest) return null;
+  try {
+    return decodeURIComponent(rest);
+  } catch (error) {
+    return null;
+  }
+}
+
+function buildWatchShareUrl(slug) {
+  const safeSlug = encodeURIComponent(slug == null ? '' : String(slug));
+  if (typeof window === 'undefined' || !window.location) return `${WATCH_HASH_PREFIX}${safeSlug}`;
+  const { origin, pathname } = window.location;
+  return `${origin}${pathname}${WATCH_HASH_PREFIX}${safeSlug}`;
+}
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -1957,28 +2004,75 @@ function renderProductDetailModal(watch, inventory) {
             </div>
             <div class="product-modal-actions">
               <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Inquire About This Watch ↗</a>
+              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
+              <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
               <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
             </div>
           </div>
         </div>`;
 }
 
-function openProductDetailModal(watch) {
+function openProductDetailModal(watch, options = {}) {
   if (!watch) return;
-  lastFocusedElement = document.activeElement;
+  const { source = 'user' } = options;
+
+  if (!productModal.classList.contains('open')) {
+    lastFocusedElement = document.activeElement;
+    preModalScrollY = window.scrollY;
+  }
+
   productModalBody.innerHTML = renderProductDetailModal(watch, watchInventoryCache);
   productModal.classList.add('open');
   productModal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('modal-open');
   productModalClose.focus();
+  activeWatchSlug = watch.slug;
+
+  if (source === 'history') return;
+
+  const targetUrl = buildWatchShareUrl(watch.slug);
+  const currentSlug = getWatchHashSlug();
+
+  if (source === 'deep-link' || currentSlug === watch.slug) {
+    history.replaceState({ watchSlug: watch.slug }, '', targetUrl);
+  } else {
+    history.pushState({ watchSlug: watch.slug }, '', targetUrl);
+  }
 }
 
-function closeProductDetailModal() {
+function openWatchBySlug(slug, options = {}) {
+  if (!slug) return false;
+  const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
+  if (!watch) return false;
+  openProductDetailModal(watch, options);
+  return true;
+}
+
+function closeProductDetailModal(options = {}) {
+  const { source = 'user' } = options;
+  const wasOpen = productModal.classList.contains('open');
+
   productModal.classList.remove('open');
   productModal.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-open');
+  activeWatchSlug = null;
+
   if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
     lastFocusedElement.focus();
+  }
+
+  if (wasOpen && typeof preModalScrollY === 'number') {
+    window.scrollTo({ top: preModalScrollY, left: 0, behavior: 'auto' });
+  }
+
+  if (source === 'history') return;
+
+  if (getWatchHashSlug()) {
+    if (typeof window.location.pathname === 'string') {
+      history.pushState({ watchSlug: null }, '', window.location.pathname + window.location.search);
+    } else {
+      history.pushState({ watchSlug: null }, '', '#');
+    }
   }
 }
 
@@ -2083,6 +2177,10 @@ async function loadWatchInventory() {
       .map((watch, index) => renderWatchCard(watch, index, watches.length, inventory))
       .join('');
     updateProgress();
+
+    const slug = pendingDeepLinkSlug || getWatchHashSlug();
+    pendingDeepLinkSlug = null;
+    if (slug) openWatchBySlug(slug, { source: 'deep-link' });
   } catch (error) {
     renderInventoryError(error);
   }
@@ -2097,6 +2195,7 @@ function updateProgress() {
 
 carousel.addEventListener('scroll', updateProgress, { passive: true });
 updateProgress();
+pendingDeepLinkSlug = getWatchHashSlug();
 loadWatchInventory();
 
 const CARD_W = 320 + 24; // card width + gap
@@ -2149,12 +2248,82 @@ carousel.addEventListener('click', e => {
   scheduleDragReset();
 }, true);
 
-productModalClose.addEventListener('click', closeProductDetailModal);
-productModalBackdrop.addEventListener('click', closeProductDetailModal);
+productModalClose.addEventListener('click', () => closeProductDetailModal());
+productModalBackdrop.addEventListener('click', () => closeProductDetailModal());
 productModal.addEventListener('keydown', trapProductModalFocus);
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && productModal.classList.contains('open')) {
     closeProductDetailModal();
+  }
+});
+
+async function copyShareLinkToClipboard(text, statusEl) {
+  let copied = false;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch (error) {
+      copied = false;
+    }
+  }
+  if (!copied) {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', 'readonly');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+    } catch (error) {
+      copied = false;
+    }
+  }
+
+  if (statusEl) {
+    statusEl.textContent = copied ? 'Link copied' : 'Copy failed — long-press to copy';
+    window.clearTimeout(shareCopyResetTimer);
+    shareCopyResetTimer = window.setTimeout(() => {
+      statusEl.textContent = '';
+    }, 2400);
+  }
+  return copied;
+}
+
+productModalBody.addEventListener('click', (event) => {
+  const trigger = event.target.closest('[data-share-watch-url]');
+  if (!trigger) return;
+  event.preventDefault();
+  const slug = trigger.dataset.watchSlug || activeWatchSlug;
+  if (!slug) return;
+  const url = buildWatchShareUrl(slug);
+  const statusEl = productModalBody.querySelector('[data-share-status]');
+  copyShareLinkToClipboard(url, statusEl);
+});
+
+window.addEventListener('popstate', (event) => {
+  isApplyingHistoryNavigation = true;
+  const slug = getWatchHashSlug();
+  if (slug) {
+    if (!openWatchBySlug(slug, { source: 'history' })) {
+      closeProductDetailModal({ source: 'history' });
+    }
+  } else if (productModal.classList.contains('open')) {
+    closeProductDetailModal({ source: 'history' });
+  }
+  isApplyingHistoryNavigation = false;
+});
+
+window.addEventListener('hashchange', () => {
+  if (isApplyingHistoryNavigation) return;
+  const slug = getWatchHashSlug();
+  if (slug) {
+    openWatchBySlug(slug, { source: 'history' });
+  } else if (productModal.classList.contains('open')) {
+    closeProductDetailModal({ source: 'history' });
   }
 });
 

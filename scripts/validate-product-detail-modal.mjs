@@ -95,7 +95,7 @@ assert(
   'modal inquiry CTA href must be HTML-escaped before attribute interpolation'
 );
 assert(
-  /function openProductDetailModal\s*\(watch\)/.test(indexHtml),
+  /function openProductDetailModal\s*\(watch\b[^)]*\)/.test(indexHtml),
   'missing openProductDetailModal(watch) helper'
 );
 assert(
@@ -103,7 +103,7 @@ assert(
   'openProductDetailModal() must render selected watch from cached inventory'
 );
 assert(
-  /function closeProductDetailModal\s*\(\)/.test(indexHtml),
+  /function closeProductDetailModal\s*\([^)]*\)/.test(indexHtml),
   'missing closeProductDetailModal() helper'
 );
 assert(
@@ -115,15 +115,15 @@ assert(
   'closing modal must unlock page scroll'
 );
 assert(
-  /productModalClose\.addEventListener\('click', closeProductDetailModal\)/.test(indexHtml),
+  /productModalClose\.addEventListener\('click',\s*(?:closeProductDetailModal|\(\s*\)\s*=>\s*closeProductDetailModal\([^)]*\))\)/.test(indexHtml),
   'close button must close the modal'
 );
 assert(
-  /productModalBackdrop\.addEventListener\('click', closeProductDetailModal\)/.test(indexHtml),
+  /productModalBackdrop\.addEventListener\('click',\s*(?:closeProductDetailModal|\(\s*\)\s*=>\s*closeProductDetailModal\([^)]*\))\)/.test(indexHtml),
   'backdrop click must close the modal'
 );
 assert(
-  /document\.addEventListener\('keydown',[\s\S]*event\.key === 'Escape'[\s\S]*closeProductDetailModal\(\)/.test(indexHtml),
+  /document\.addEventListener\('keydown',[\s\S]*event\.key === 'Escape'[\s\S]*closeProductDetailModal\([^)]*\)/.test(indexHtml),
   'Escape key must close the modal'
 );
 assert(
@@ -155,7 +155,7 @@ assert(
   'product detail trigger must not gate opening on stale carousel scrollLeft comparisons'
 );
 assert(
-  /carouselTrack\.addEventListener\('click',[\s\S]*data-product-modal-trigger[\s\S]*openProductDetailModal\(watch\)/.test(indexHtml),
+  /carouselTrack\.addEventListener\('click',[\s\S]*data-product-modal-trigger[\s\S]*openProductDetailModal\(watch[^)]*\)/.test(indexHtml),
   'carousel must open modal through delegated product detail trigger'
 );
 
