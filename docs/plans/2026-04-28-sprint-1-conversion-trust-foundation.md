@@ -102,6 +102,10 @@ Manual preview confirmed 10 cards render from `/data/watches.json`, with MoonSwa
 
 **Files:**
 - Modify: `index.html`
+- Create: `scripts/validate-product-detail-modal.mjs`
+- Modify: `package.json`
+- Modify: `docs/WATCH_ALLEY_ROADMAP.md`
+- Create: `docs/plans/2026-04-28-product-detail-modal.md`
 
 **Steps:**
 
@@ -115,7 +119,16 @@ Manual preview confirmed 10 cards render from `/data/watches.json`, with MoonSwa
 8. Run `pnpm test` and `pnpm build`.
 9. Preview desktop and mobile.
 
-**Status:** Pending.
+**Verification completed on 2026-04-28:**
+
+```bash
+pnpm test
+pnpm build
+```
+
+Browser preview confirmed the modal opens from an inventory-rendered card, displays the selected watch's gallery/specs/condition/disclosure/availability/price, uses a per-watch escaped inquiry `mailto:` CTA, and closes with Escape.
+
+**Status:** Done on 2026-04-28.
 
 ---
 
