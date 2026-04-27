@@ -66,6 +66,8 @@ Watch inventory valid: 10 watches (10 available).
 
 **Files:**
 - Modify: `index.html`
+- Create: `scripts/validate-inventory-rendering.mjs`
+- Modify: `package.json`
 - Modify: `scripts/validate-watch-data.mjs` if schema gaps appear
 
 **Steps:**
@@ -81,7 +83,16 @@ Watch inventory valid: 10 watches (10 available).
 9. Run `pnpm build`.
 10. Manually preview homepage and verify all 10 cards appear.
 
-**Status:** Pending.
+**Verification completed on 2026-04-28:**
+
+```bash
+pnpm test
+pnpm build
+```
+
+Manual preview confirmed 10 cards render from `/data/watches.json`, with MoonSwatch first, Fast & Furious Fire Boost last, and per-watch `mailto:` inquiry links populated from inventory copy. Independent review caught an href-attribute hardening gap; the final implementation escapes generated `mailto:` hrefs and validates `inquiryEmail` with a conservative whitelist.
+
+**Status:** Done on 2026-04-28.
 
 ---
 

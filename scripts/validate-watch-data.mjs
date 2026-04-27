@@ -58,7 +58,7 @@ for (const field of requiredTopLevelFields) {
 assert(data.schemaVersion === 1, 'schemaVersion must be 1');
 assert(/^\d{4}-\d{2}-\d{2}$/.test(data.updatedAt), 'updatedAt must be YYYY-MM-DD');
 assert(data.currency === 'PHP', 'currency must be PHP');
-assert(/^.+@.+\..+$/.test(data.inquiryEmail), 'inquiryEmail must look like an email address');
+assert(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(data.inquiryEmail), 'inquiryEmail must be a conservative email address');
 assert(Array.isArray(data.watches), 'watches must be an array');
 assert(data.watches.length >= 1, 'watches must contain at least one watch');
 

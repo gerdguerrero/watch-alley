@@ -49,6 +49,7 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Build passes with `pnpm build`.
 - Inventory is now documented in `public/data/watches.json` and validated with `pnpm test`.
 - Inventory images use stable public URLs under `/watch-assets/` for future data-driven rendering.
+- Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
 
 ## Operating rule
 
@@ -71,7 +72,7 @@ Checklist:
 - [x] Create structured watch inventory data file.
 - [x] Add inventory validation script and `pnpm test` command.
 - [x] Add stable public watch image assets for inventory-driven rendering.
-- [ ] Generate homepage watch cards from inventory data instead of hardcoded HTML.
+- [x] Generate homepage watch cards from inventory data instead of hardcoded HTML.
 - [ ] Add product detail modal or product detail pages.
 - [ ] Add stronger per-watch inquiry CTA.
 - [ ] Add availability states: Available, Reserved, Sold.
@@ -260,6 +261,11 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Verified production build passes with `pnpm build`.
 - Opened PR #1: `https://github.com/gerdguerrero/watch-alley/pull/1`.
 - Confirmed Vercel checks are passing on PR #1.
+- Rendered homepage arrivals carousel from `public/data/watches.json` instead of hardcoded watch-card HTML.
+- Added `scripts/validate-inventory-rendering.mjs` and expanded `pnpm test` to validate the data-driven rendering contract.
+- Hardened generated inquiry links with safe email validation and escaped `mailto:` href interpolation after independent review.
+- Verified browser preview loads 10 data-driven cards and per-watch mailto inquiry links.
+- Verified `pnpm test` and `pnpm build` pass.
 
 ## Commands
 

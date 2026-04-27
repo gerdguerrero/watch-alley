@@ -793,6 +793,24 @@
       cursor: pointer;
       text-decoration: none;
     }
+    .watch-card-description {
+      margin-top: 10px;
+      color: var(--cream-80);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .watch-card[data-watch-status="reserved"] .watch-card-img img,
+    .watch-card[data-watch-status="sold"] .watch-card-img img {
+      filter: grayscale(1);
+      opacity: 0.72;
+    }
+    .inventory-loading,
+    .inventory-error {
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+    }
+    .inventory-error { border-color: rgba(201,162,75,0.55); }
 
     .carousel-progress {
       height: 1px;
@@ -1314,228 +1332,14 @@
   </div>
 
   <div class="carousel-wrapper" id="carousel">
-    <div class="carousel-track stagger" id="carousel-track">
-
-      <!-- 01 MoonSwatch -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Omega × Swatch MoonSwatch Mission to Mars">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">COLLAB</span>
-          <span class="watch-num">01/10</span>
-        </div>
+    <div class="carousel-track stagger" id="carousel-track" data-inventory-source="/data/watches.json" aria-live="polite">
+      <div class="watch-card inventory-loading" role="status">
         <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">OMEGA × SWATCH</div>
-            <div class="watch-card-cond">Like New 9.2/10</div>
-          </div>
-          <div class="watch-card-name serif">MoonSwatch — Mission to Mars</div>
-          <div class="watch-card-meta">BIOCERAMIC · 42mm · COMPLETE SET</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 13,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
+          <div class="watch-card-brand">LOADING INVENTORY</div>
+          <div class="watch-card-name serif">Preparing the current drop…</div>
+          <div class="watch-card-meta">WATCH DATA · LIVE CATALOG</div>
         </div>
       </div>
-
-      <!-- 02 Snowflakes -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko 5 Sports SRPE81K1 Snowflakes">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">LIMITED</span>
-          <span class="watch-num">02/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO</div>
-            <div class="watch-card-cond">Pre-owned 8.5/10</div>
-          </div>
-          <div class="watch-card-name serif">5 Sports SRPE81K1 "Snowflakes"</div>
-          <div class="watch-card-meta">4R36 AUTO · 42.5mm · LTD 2,020 PCS</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 12,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 03 SARX001 -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko Presage SARX001 JDM White">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">RARE</span>
-          <span class="watch-num">03/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO PRESAGE</div>
-            <div class="watch-card-cond">Pre-owned 7.5/10</div>
-          </div>
-          <div class="watch-card-name serif">SARX001 JDM White</div>
-          <div class="watch-card-meta">6R15 AUTO · 40mm · DISCONTINUED</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 16,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 04 Alpinist -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist Whiskered Pitta SPB491J1">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge brand-new">BRAND NEW</span>
-          <span class="watch-num">04/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO PROSPEX</div>
-            <div class="watch-card-cond">Brand New 10/10</div>
-          </div>
-          <div class="watch-card-name serif">Alpinist "Whiskered Pitta" SPB491J1</div>
-          <div class="watch-card-meta">6R35 AUTO · 39.5mm · 5TH PH L.E.</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 54,000</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 05 Brightz Ananta -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/chatgpt-watch.png" alt="Seiko JDM Brightz Ananta SAEC011">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">HI-BEAT</span>
-          <span class="watch-num">05/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO JDM</div>
-            <div class="watch-card-cond">Pre-owned 8.8/10</div>
-          </div>
-          <div class="watch-card-name serif">Brightz Ananta SAEC011</div>
-          <div class="watch-card-meta">6R21 HI-BEAT · 42.5mm · W/ BOX</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 32,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 06 Salmon Pink -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/watch-extra.png" alt="Seiko Presage Araigaki SARX125 Salmon Pink">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge brand-new">BRAND NEW</span>
-          <span class="watch-num">06/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO PRESAGE</div>
-            <div class="watch-card-cond">Brand New 10/10</div>
-          </div>
-          <div class="watch-card-name serif">"Araigaki" SARX125 Salmon Pink</div>
-          <div class="watch-card-meta">6R55 AUTO · 40.2mm · 72HR RESERVE</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 42,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 07 SARG015 Blue -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/5sports-sla.png" alt="Seiko JDM SARG015 Blue">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">RARE</span>
-          <span class="watch-num">07/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO JDM</div>
-            <div class="watch-card-cond">Pre-owned 8.5/10</div>
-          </div>
-          <div class="watch-card-name serif">SARG015 Blue</div>
-          <div class="watch-card-meta">6R15 AUTO · 42mm · DISCONTINUED</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 19,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 08 Hiwadairo -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/sarx001-alt.png" alt="Seiko Presage SARX008 Hiwadairo Brown Enamel">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">LIMITED</span>
-          <span class="watch-num">08/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO PRESAGE</div>
-            <div class="watch-card-cond">Pre-owned 8.8/10</div>
-          </div>
-          <div class="watch-card-name serif">SARX008 "Hiwadairo" Brown Enamel</div>
-          <div class="watch-card-meta">6R15 AUTO · 40.5mm · 300PCS L.E.</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 34,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 09 Kodama -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/moonswatch-alt.png" alt="Seiko JDM JR West Kodama Chronograph">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">COLLAB</span>
-          <span class="watch-num">09/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO JDM</div>
-            <div class="watch-card-cond">Pre-owned 8.5/10</div>
-          </div>
-          <div class="watch-card-name serif">JR West Kodama 500 Chronograph</div>
-          <div class="watch-card-meta">8T63 QUARTZ · 39.8mm · LTD 5,000</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 21,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 10 Fast & Furious -->
-      <div class="watch-card">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="assets/alpinist-alt.png" alt="Seiko JDM Fast &amp; Furious Fire Boost">
-          <div class="watch-card-img-overlay"></div>
-          <span class="watch-badge other">COLLAB</span>
-          <span class="watch-num">10/10</span>
-        </div>
-        <div class="watch-card-info">
-          <div class="watch-card-info-top">
-            <div class="watch-card-brand">SEIKO JDM</div>
-            <div class="watch-card-cond">Like New 9.5/10</div>
-          </div>
-          <div class="watch-card-name serif">Fast &amp; Furious Fire Boost #0027/2000</div>
-          <div class="watch-card-meta">8T63 QUARTZ · 39.8mm · LOW SERIAL</div>
-          <div class="watch-card-footer">
-            <div class="watch-card-price serif">₱ 24,800</div>
-            <a href="#cta" class="watch-card-inquire">INQUIRE →</a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -1833,13 +1637,125 @@ document.querySelectorAll('.reveal, .reveal-scale, .gold-rule, .stagger').forEac
 });
 
 
-// ── Carousel ──────────────────────────────────────────────────────────────
+// ── Inventory-driven arrivals carousel ────────────────────────────────────
 
 const carousel = document.getElementById('carousel');
 const carouselTrack = document.getElementById('carousel-track');
 const progressFill = document.getElementById('carousel-progress-fill');
 const prevBtn = document.getElementById('carousel-prev');
 const nextBtn = document.getElementById('carousel-next');
+const inventorySource = carouselTrack.dataset.inventorySource || '/data/watches.json';
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function formatPrice(watch) {
+  const price = Number.isFinite(watch.price) ? watch.price : Number(watch.price || 0);
+  const formatted = price.toLocaleString('en-PH', { maximumFractionDigits: 0 });
+  return `${watch.currency === 'PHP' ? '₱' : escapeHtml(watch.currency)} ${formatted}`;
+}
+
+function formatWatchMeta(watch) {
+  return [watch.movement, watch.caseSize, watch.edition || watch.set]
+    .filter(Boolean)
+    .map(value => String(value).replace(/\s+/g, ' ').trim().toUpperCase())
+    .join(' · ');
+}
+
+function badgeClass(watch) {
+  return String(watch.badge || '').toLowerCase().includes('brand new') ? 'brand-new' : 'other';
+}
+
+function statusLabel(status) {
+  return String(status || 'available').replace(/^./, char => char.toUpperCase());
+}
+
+function safeEmail(email) {
+  const candidate = String(email || '').trim();
+  return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(candidate)
+    ? candidate
+    : 'hello@watchalley.ph';
+}
+
+function buildInquiryHref(watch, inventory) {
+  const email = safeEmail(inventory.inquiryEmail);
+  const subject = encodeURIComponent(watch.inquirySubject);
+  const body = encodeURIComponent(watch.inquiryBody);
+  return `mailto:${email}?subject=${subject}&body=${body}`;
+}
+
+function renderWatchCard(watch, index, total, inventory) {
+  const status = String(watch.status || 'available').toLowerCase();
+  const itemNum = String(index + 1).padStart(2, '0');
+  const totalNum = String(total).padStart(2, '0');
+  const inquiryHref = buildInquiryHref(watch, inventory);
+  const ctaLabel = status === 'available' ? 'INQUIRE →' : `${statusLabel(status)} →`;
+
+  return `
+      <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-status="${escapeHtml(status)}">
+        <div class="watch-card-img">
+          <img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+          <div class="watch-card-img-overlay"></div>
+          <span class="watch-badge ${badgeClass(watch)}">${escapeHtml(watch.badge)}</span>
+          <span class="watch-num">${itemNum}/${totalNum}</span>
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">${escapeHtml(watch.brand)}</div>
+            <div class="watch-card-cond">${escapeHtml(watch.conditionLabel)}</div>
+          </div>
+          <div class="watch-card-name serif">${escapeHtml(watch.name)}</div>
+          <div class="watch-card-meta">${escapeHtml(formatWatchMeta(watch))}</div>
+          <p class="watch-card-description">${escapeHtml(watch.description)}</p>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">${formatPrice(watch)}</div>
+            <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}">${escapeHtml(ctaLabel)}</a>
+          </div>
+        </div>
+      </article>`;
+}
+
+function renderInventoryError(error) {
+  console.error('Watch inventory failed to load:', error);
+  carouselTrack.innerHTML = `
+      <div class="watch-card inventory-error" role="alert">
+        <div class="watch-card-info">
+          <div class="watch-card-brand">INVENTORY UNAVAILABLE</div>
+          <div class="watch-card-name serif">We could not load the current drop.</div>
+          <div class="watch-card-meta">PLEASE REFRESH · OR MESSAGE WATCH ALLEY</div>
+          <div class="watch-card-footer">
+            <div class="watch-card-price serif">—</div>
+            <a href="mailto:hello@watchalley.ph" class="watch-card-inquire">EMAIL US →</a>
+          </div>
+        </div>
+      </div>`;
+  updateProgress();
+}
+
+async function loadWatchInventory() {
+  try {
+    const response = await fetch(inventorySource);
+    if (!response.ok) throw new Error(`Inventory request failed with ${response.status}`);
+
+    const inventory = await response.json();
+    const watches = Array.isArray(inventory.watches) ? inventory.watches : [];
+    if (watches.length === 0) throw new Error('Inventory returned zero watches');
+
+    carouselTrack.innerHTML = watches
+      .map((watch, index) => renderWatchCard(watch, index, watches.length, inventory))
+      .join('');
+    updateProgress();
+  } catch (error) {
+    renderInventoryError(error);
+  }
+}
 
 function updateProgress() {
   const { scrollLeft, scrollWidth, clientWidth } = carousel;
@@ -1850,6 +1766,7 @@ function updateProgress() {
 
 carousel.addEventListener('scroll', updateProgress, { passive: true });
 updateProgress();
+loadWatchInventory();
 
 const CARD_W = 320 + 24; // card width + gap
 prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -CARD_W, behavior: 'smooth' }));
@@ -1885,25 +1802,6 @@ carousel.addEventListener('click', e => {
   if (Math.abs(carousel.scrollLeft - scrollStartLeft) > 4) e.preventDefault();
 }, true);
 
-
-// ── Prefill inquiry links with the watch name ────────────────────────────
-
-const INQUIRY_EMAIL = 'hello@watchalley.ph';
-document.querySelectorAll('.watch-card').forEach(card => {
-  const nameEl = card.querySelector('.watch-card-name');
-  const brandEl = card.querySelector('.watch-card-brand');
-  const priceEl = card.querySelector('.watch-card-price');
-  const inquire = card.querySelector('.watch-card-inquire');
-  if (!nameEl || !inquire) return;
-  const name = nameEl.textContent.trim();
-  const brand = brandEl ? brandEl.textContent.trim() : '';
-  const price = priceEl ? priceEl.textContent.trim() : '';
-  const subject = encodeURIComponent(`Inquiry: ${brand} ${name}`.trim());
-  const body = encodeURIComponent(
-    `Hi Watch Alley,\n\nI'm interested in the ${name}${price ? ` (${price})` : ''}.\nCould you share more details and availability?\n\nThanks!`
-  );
-  inquire.href = `mailto:${INQUIRY_EMAIL}?subject=${subject}&body=${body}`;
-});
 </script>
 </body>
 </html>
