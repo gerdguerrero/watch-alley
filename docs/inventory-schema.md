@@ -16,7 +16,7 @@ The homepage and trust pages still read inventory from `public/data/watches.json
 2. Open the SQL editor and paste `docs/migrations/0001-watch-alley-bootstrap.sql`. It is idempotent — schema, table, RLS, view, allowlist, and admin RPCs all in one file.
 3. Insert your admin email: `insert into watch_alley.admin_emails (email, note) values ('you@example.com', 'Owner');`
 4. Copy your project's **URL** and **publishable anon key** into `.env.local` and into the placeholder constants near the top of `scripts/admin.js`.
-5. Visit `/admin.html`, sign up, sign in, then add inventory rows.
+5. Visit `/admin`, sign up, sign in, then add inventory rows.
 6. Locally, run `pnpm sync:watches` and commit the regenerated `public/data/watches.json`.
 
 ## Sync workflow
@@ -49,7 +49,7 @@ For a future "live fetch directly from Supabase in the browser" mode, the same a
 
 | Column | Type | Notes |
 | --- | --- | --- |
-| `id` | text PK | Stable id (e.g. `wa-001`). Kept as a text PK for backward compatibility with the historical JSON. |
+| `id` | text PK | Stable id (e.g. `twa-001`). "twa" = the-watch-alley. Kept as a text PK for backward compatibility with the historical JSON. |
 | `slug` | text unique | URL-safe kebab-case. Powers `/#/watch/<slug>` deep links and Copy share link. |
 | `brand` | text | Display brand (e.g. `SEIKO PROSPEX`). |
 | `model` | text | Display model (e.g. `5 Sports SRPE81K1 "Snowflakes"`). |
@@ -109,7 +109,7 @@ When adding a new listing, drop the source PNG into `public/watch-assets/`, run 
 
 ## Admin update workflow
 
-Admin operations happen at `/admin.html` (Vercel serves it from the same site). The page is private:
+Admin operations happen at `/admin` (Vercel serves it from the same site, mapped to `/admin/index.html`). The page is private:
 
 1. **Authentication.** Supabase Auth with email + password. Sessions persisted in localStorage.
 2. **Authorization.** Server-side allowlist in `watch_alley.admin_emails`. The browser never sees the list.

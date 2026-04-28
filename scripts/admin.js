@@ -42,6 +42,15 @@ const els = {
   deleteBtn: document.getElementById('delete-btn'),
   markSoldBtn: document.getElementById('mark-sold-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
+  // Admins tab
+  adminTabs: document.querySelectorAll('.admin-tab'),
+  tabpanelInventory: document.getElementById('tabpanel-inventory'),
+  tabpanelAdmins: document.getElementById('tabpanel-admins'),
+  inviteForm: document.getElementById('invite-admin-form'),
+  inviteEmail: document.getElementById('invite-email'),
+  inviteNote: document.getElementById('invite-note'),
+  inviteStatus: document.getElementById('invite-status'),
+  adminsList: document.getElementById('admins-list'),
 };
 
 // Track state.
@@ -434,3 +443,132 @@ function formatPrice(value) {
 
 // kick off
 renderForCurrentSession();
+
+// ---------------- Tabs ----------------
+
+const adminTabsArr = Array.from(els.adminTabs);
+adminTabsArr.forEach((tab, index) => {
+  tab.addEventListener('click', () => activateTab(tab.dataset.tab, { focus: false }));
+  tab.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft' || event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % adminTabsArr.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + adminTabsArr.length) % adminTabsArr.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = adminTabsArr.length - 1;
+      activateTab(adminTabsArr[next].dataset.tab, { focus: true });
+    }
+  });
+});
+
+function activateTab(name, { focus = false } = {}) {
+  adminTabsArr.forEach((t) => {
+    const active = t.dataset.tab === name;
+    t.classList.toggle('is-active', active);
+    t.setAttribute('aria-selected', active ? 'true' : 'false');
+    t.setAttribute('tabindex', active ? '0' : '-1');
+    if (active && focus) t.focus();
+  });
+  if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
+  if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
+  if (name === 'admins') loadAdminsList();
+}
+
+// ---------------- Admins tab ----------------
+
+async function loadAdminsList() {
+  if (!els.adminsList) return;
+  els.adminsList.innerHTML = '<li class="admin-meta">Loading admins…</li>';
+  const { data, error } = await supabase.rpc('admin_list_admin_emails');
+  if (error) {
+    els.adminsList.innerHTML = `<li class="admin-meta" data-tone="error">Failed to load: ${escapeHtml(error.message)}</li>`;
+    return;
+  }
+  if (!data || !data.length) {
+    els.adminsList.innerHTML = '<li class="admin-meta">No admins yet. Invite the first one above.</li>';
+    return;
+  }
+  els.adminsList.innerHTML = '';
+  for (const row of data) {
+    const li = document.createElement('li');
+    const safeEmail = escapeHtml(row.email);
+    const safeNote = escapeHtml(row.note || '');
+    const addedDate = row.added_at ? new Date(row.added_at).toLocaleDateString('en-PH') : '';
+    li.innerHTML = `
+      <div class="admin-row-name">${safeEmail}</div>
+      <div class="admin-row-meta">
+        <span>${safeNote}</span>
+        <span>${escapeHtml(addedDate)}</span>
+        <button type="button" class="btn-ghost" data-remove-email="${escapeAttr(row.email)}">Remove</button>
+      </div>
+    `;
+    els.adminsList.appendChild(li);
+  }
+}
+
+if (els.adminsList) {
+  els.adminsList.addEventListener('click', async (event) => {
+    const btn = event.target.closest('button[data-remove-email]');
+    if (!btn) return;
+    const email = btn.dataset.removeEmail;
+    if (!confirm(`Remove ${email} from admin allowlist? They will lose admin access immediately.`)) return;
+    btn.disabled = true;
+    const { error } = await supabase.rpc('admin_remove_admin_email', { target_email: email });
+    btn.disabled = false;
+    if (error) {
+      setStatus(`Remove failed: ${error.message}`, 'error');
+      return;
+    }
+    setStatus(`Removed ${email}.`, 'success');
+    await loadAdminsList();
+  });
+}
+
+if (els.inviteForm) {
+  els.inviteForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+    const email = (els.inviteEmail.value || '').trim().toLowerCase();
+    const note = (els.inviteNote.value || '').trim() || null;
+    if (!email) return;
+
+    const submitBtn = els.inviteForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    setInviteStatus('Sending invite…');
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) throw new Error('No active session — sign in again.');
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/invite-admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'apikey': SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ email, note }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || `Invite failed (HTTP ${response.status})`);
+      }
+      setInviteStatus(`Invite sent to ${email}. They'll receive an email with a one-time link.`, 'success');
+      els.inviteEmail.value = '';
+      els.inviteNote.value = '';
+      await loadAdminsList();
+    } catch (error) {
+      setInviteStatus(error.message || 'Invite failed', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
+function setInviteStatus(message, tone) {
+  if (!els.inviteStatus) return;
+  els.inviteStatus.textContent = message || '';
+  if (tone) els.inviteStatus.dataset.tone = tone;
+  else els.inviteStatus.removeAttribute('data-tone');
+}

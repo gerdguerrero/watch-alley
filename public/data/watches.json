@@ -5,7 +5,7 @@
   "inquiryEmail": "hello@watchalley.ph",
   "watches": [
     {
-      "id": "wa-001",
+      "id": "twa-001",
       "slug": "omega-swatch-moonswatch-mission-to-mars",
       "brand": "OMEGA × SWATCH",
       "model": "MoonSwatch — Mission to Mars",
@@ -32,7 +32,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the MoonSwatch — Mission to Mars (₱13,800). Could you share current availability, condition photos, and included set details?"
     },
     {
-      "id": "wa-002",
+      "id": "twa-002",
       "slug": "seiko-5-sports-srpe81k1-snowflakes",
       "brand": "SEIKO",
       "model": "5 Sports SRPE81K1 \"Snowflakes\"",
@@ -58,7 +58,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko 5 Sports SRPE81K1 Snowflakes (₱12,800). Could you share current availability, condition photos, and set inclusions?"
     },
     {
-      "id": "wa-003",
+      "id": "twa-003",
       "slug": "seiko-presage-sarx001-jdm-white",
       "brand": "SEIKO PRESAGE",
       "model": "SARX001 JDM White",
@@ -85,7 +85,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko Presage SARX001 JDM White (₱16,800). Could you share current availability, detailed condition photos, and inclusions?"
     },
     {
-      "id": "wa-004",
+      "id": "twa-004",
       "slug": "seiko-prospex-alpinist-whiskered-pitta-spb491j1",
       "brand": "SEIKO PROSPEX",
       "model": "Alpinist \"Whiskered Pitta\" SPB491J1",
@@ -112,7 +112,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko Prospex Alpinist Whiskered Pitta SPB491J1 (₱54,000). Could you confirm availability, full set details, and warranty status?"
     },
     {
-      "id": "wa-005",
+      "id": "twa-005",
       "slug": "seiko-jdm-brightz-ananta-saec011",
       "brand": "SEIKO JDM",
       "model": "Brightz Ananta SAEC011",
@@ -138,7 +138,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko JDM Brightz Ananta SAEC011 (₱32,800). Could you share current availability, condition photos, and box/inclusion details?"
     },
     {
-      "id": "wa-006",
+      "id": "twa-006",
       "slug": "seiko-presage-araigaki-sarx125-salmon-pink",
       "brand": "SEIKO PRESAGE",
       "model": "\"Araigaki\" SARX125 Salmon Pink",
@@ -164,7 +164,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko Presage Araigaki SARX125 Salmon Pink (₱42,800). Could you confirm availability, full set details, and warranty status?"
     },
     {
-      "id": "wa-007",
+      "id": "twa-007",
       "slug": "seiko-jdm-sarg015-blue",
       "brand": "SEIKO JDM",
       "model": "SARG015 Blue",
@@ -190,7 +190,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko JDM SARG015 Blue (₱19,800). Could you share current availability, condition photos, and inclusions?"
     },
     {
-      "id": "wa-008",
+      "id": "twa-008",
       "slug": "seiko-presage-sarx008-hiwadairo-brown-enamel",
       "brand": "SEIKO PRESAGE",
       "model": "SARX008 \"Hiwadairo\" Brown Enamel",
@@ -217,7 +217,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko Presage SARX008 Hiwadairo Brown Enamel (₱34,800). Could you share current availability, condition photos, and limited-edition inclusions?"
     },
     {
-      "id": "wa-009",
+      "id": "twa-009",
       "slug": "seiko-jdm-jr-west-kodama-500-chronograph",
       "brand": "SEIKO JDM",
       "model": "JR West Kodama 500 Chronograph",
@@ -244,7 +244,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko JDM JR West Kodama 500 Chronograph (₱21,800). Could you share current availability, condition photos, and inclusions?"
     },
     {
-      "id": "wa-010",
+      "id": "twa-010",
       "slug": "seiko-jdm-fast-and-furious-fire-boost-0027",
       "brand": "SEIKO JDM",
       "model": "Fast & Furious Fire Boost #0027/2000",
@@ -271,7 +271,7 @@
       "inquiryBody": "Hi Watch Alley, I'm interested in the Seiko JDM Fast & Furious Fire Boost #0027/2000 (₱24,800). Could you share current availability, condition photos, serial proof, and inclusions?"
     },
     {
-      "id": "wa-101",
+      "id": "twa-101",
       "slug": "seiko-prospex-sla-5-sports-archive",
       "brand": "SEIKO PROSPEX",
       "model": "5 Sports SLA Anniversary",
@@ -299,7 +299,7 @@
       "soldPrice": 31500
     },
     {
-      "id": "wa-102",
+      "id": "twa-102",
       "slug": "watch-alley-curated-archive-piece",
       "brand": "SEIKO",
       "model": "Curated Archive Piece",
@@ -327,7 +327,7 @@
       "soldPrice": 18200
     },
     {
-      "id": "wa-103",
+      "id": "twa-103",
       "slug": "experimental-archive-listing",
       "brand": "WATCH ALLEY",
       "model": "Experimental Archive Listing",

@@ -311,3 +311,48 @@ code {
   font-size: 14px;
 }
 .admin-setup-list li { margin-bottom: 6px; }
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(231, 215, 191, 0.12);
+  margin-bottom: 16px;
+}
+.admin-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--cream-80);
+  padding: 10px 14px;
+  font: 500 13px/1 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.admin-tab:hover { color: var(--cream); }
+.admin-tab.is-active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+.admin-tab:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.admin-tabpanel { display: block; }
+.admin-tabpanel[hidden] { display: none; }
+
+/* Admins list rows */
+#admins-list .admin-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#admins-list .btn-ghost {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 12px;
+}
