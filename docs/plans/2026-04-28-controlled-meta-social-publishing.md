@@ -154,6 +154,8 @@ DM The Watch Alley to inquire.
 - Captions are editable before posting.
 - Caption generation does not require Meta credentials.
 
+**Implementation status:** Phase A first slice shipped in `/admin` as browser-side preview generation from the current listing form. Captions are placed into editable textareas via `.value`, not HTML interpolation, and can be copied manually while the secure Meta connection is still pending.
+
 ## Secure Meta integration
 
 ### Task 3: Build Meta connection flow
@@ -252,6 +254,8 @@ Avoid developer/platform jargon in normal owner workflow:
 - Browser QA confirms the panel is clear to a non-technical owner.
 - Admin copy validator blocks password/token/API-secret instructions from appearing in the owner-facing flow.
 
+**Implementation status:** Phase A first slice shipped as an owner-facing Social Publishing panel in the Inventory form. It generates Facebook and Instagram previews, exposes editable captions, shows the selected cover image, and provides copy buttons. Actual Post to Facebook / Post to Instagram buttons remain blocked on the secure Meta account connection.
+
 ### Task 7: Add audit trail and reporting
 
 **Objective:** Connect social posts to business outcomes.
@@ -274,12 +278,12 @@ Future metric:
 
 ### Phase A: Preview-only MVP
 
-- Generate Facebook/Instagram captions inside admin.
-- Store social draft state in Supabase.
-- No Meta API posting yet.
-- Owner can copy/paste manually.
+- [x] Generate Facebook/Instagram captions inside admin.
+- [ ] Store social draft state in Supabase.
+- [x] No Meta platform posting yet.
+- [x] Owner can copy/paste manually.
 
-This gives immediate value with almost zero platform risk.
+This gives immediate value with almost zero platform risk. The first shipped slice intentionally keeps draft storage local to the current admin form; persistent draft state moves into Supabase with the social publishing tables.
 
 ### Phase B: Facebook Page posting
 

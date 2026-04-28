@@ -50,6 +50,13 @@ const els = {
   deleteBtn: document.getElementById('delete-btn'),
   markSoldBtn: document.getElementById('mark-sold-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
+  socialGeneratePreviewBtn: document.getElementById('social-generate-preview-btn'),
+  socialPrimaryImagePreview: document.getElementById('social-primary-image-preview'),
+  socialFacebookCaption: document.getElementById('social-facebook-caption'),
+  socialInstagramCaption: document.getElementById('social-instagram-caption'),
+  socialCopyFacebookBtn: document.getElementById('social-copy-facebook-btn'),
+  socialCopyInstagramBtn: document.getElementById('social-copy-instagram-btn'),
+  socialPreviewStatus: document.getElementById('social-preview-status'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelInbox: document.getElementById('tabpanel-inbox'),
@@ -364,6 +371,18 @@ els.watchForm.addEventListener('submit', async (event) => {
   await saveCurrentForm();
 });
 
+if (els.socialGeneratePreviewBtn) {
+  els.socialGeneratePreviewBtn.addEventListener('click', () => {
+    renderSocialPreviewFromForm({ announce: true });
+  });
+}
+if (els.socialCopyFacebookBtn) {
+  els.socialCopyFacebookBtn.addEventListener('click', () => copySocialCaption('facebook'));
+}
+if (els.socialCopyInstagramBtn) {
+  els.socialCopyInstagramBtn.addEventListener('click', () => copySocialCaption('instagram'));
+}
+
 els.deleteBtn.addEventListener('click', async () => {
   if (!activeId) return;
   if (!confirm(`Delete ${activeId}? This cannot be undone.`)) return;
@@ -419,6 +438,7 @@ function hideForm() {
   activeId = null;
   activeWatchSnapshot = null;
   setImageList([]);
+  clearSocialPreview('Fill in listing details, then generate social previews.');
   document.querySelectorAll('.admin-watch-list li.is-active').forEach((el) => el.classList.remove('is-active'));
 }
 
@@ -463,6 +483,7 @@ function loadIntoForm(watch) {
   const isExisting = !!watch;
   els.deleteBtn.hidden = !isExisting;
   els.markSoldBtn.hidden = !isExisting || watch.status === 'sold';
+  renderSocialPreviewFromForm({ announce: false });
 
   // highlight in the sidebar
   document.querySelectorAll('.admin-watch-list li').forEach((li) => {
@@ -489,6 +510,169 @@ async function saveCurrentForm() {
     setStatus(`Save failed: ${error.message}`, 'error');
   } finally {
     if (submitBtn) submitBtn.disabled = false;
+  }
+}
+
+function readSocialPreviewListingFromForm() {
+  const images = (getField('images') || '').split('\n').map((s) => s.trim()).filter(Boolean);
+  const primaryImage = getField('primaryImage').trim() || images[0] || '';
+  return {
+    slug: getField('slug').trim(),
+    status: getField('status') || 'available',
+    brand: getField('brand').trim(),
+    model: getField('model').trim(),
+    reference: getField('reference').trim(),
+    name: getField('name').trim(),
+    price: Number(getField('price')) || 0,
+    conditionLabel: getField('conditionLabel').trim(),
+    inclusionSet: getField('set').trim(),
+    hasBox: getCheckbox('hasBox'),
+    hasPapers: getCheckbox('hasPapers'),
+    primaryImage,
+  };
+}
+
+function buildPublicWatchUrl(slug) {
+  const cleanSlug = String(slug || '').trim();
+  if (!cleanSlug) return 'https://thewatchalley.com/#arrivals';
+  const origin = window.location.hostname === 'thewatchalley.com' || window.location.hostname === 'www.thewatchalley.com'
+    ? window.location.origin
+    : 'https://thewatchalley.com';
+  return `${origin}/#/watch/${encodeURIComponent(cleanSlug)}`;
+}
+
+function socialListingDisplayName(listing) {
+  return listing.name || [listing.brand, listing.model].filter(Boolean).join(' ') || 'this timepiece';
+}
+
+function socialInclusionsText(listing) {
+  if (listing.inclusionSet) return listing.inclusionSet;
+  if (listing.hasBox && listing.hasPapers) return 'Box and papers';
+  if (listing.hasBox) return 'Original box';
+  if (listing.hasPapers) return 'Papers / warranty';
+  return 'Inquire for inclusions';
+}
+
+function socialStatusText(status) {
+  if (status === 'reserved') return 'Reserved — message us to check availability.';
+  if (status === 'sold') return 'Sold — ask about similar references.';
+  return 'Available now.';
+}
+
+function brandHashtag(brand) {
+  const compactBrand = String(brand || '').replace(/[^a-z0-9]/gi, '');
+  return compactBrand ? `#${compactBrand}PH` : '#WatchPH';
+}
+
+function buildSocialPreviewDraft(listing) {
+  const displayName = socialListingDisplayName(listing);
+  const condition = listing.conditionLabel || 'Condition available on request';
+  const inclusions = socialInclusionsText(listing);
+  const priceText = listing.price > 0 ? `₱${formatPrice(listing.price)}` : 'Price on request';
+  const publicUrl = buildPublicWatchUrl(listing.slug);
+  const facebookLines = [
+    `New arrival at The Watch Alley: ${displayName}.`,
+    listing.reference ? `Reference: ${listing.reference}` : '',
+    `Condition: ${condition}`,
+    `Includes: ${inclusions}`,
+    `Price: ${priceText}`,
+    `Status: ${socialStatusText(listing.status)}`,
+    '',
+    `View details or inquire: ${publicUrl}`,
+  ].filter((line, index, lines) => line || (index > 0 && lines[index - 1] !== ''));
+
+  const instagramLines = [
+    `New arrival: ${displayName}.`,
+    '',
+    `${condition}. ${inclusions} included.`,
+    listing.status === 'sold' ? 'This reference has sold, but you can ask The Watch Alley about similar pieces.' : 'DM The Watch Alley to inquire.',
+    '',
+    ['#TheWatchAlley', '#WatchPH', brandHashtag(listing.brand), '#PreOwnedWatchesPH']
+      .filter((tag, index, tags) => tags.indexOf(tag) === index)
+      .join(' '),
+  ];
+
+  return {
+    facebook: facebookLines.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+    instagram: instagramLines.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+  };
+}
+
+function renderSocialImagePreview(image, name) {
+  if (!els.socialPrimaryImagePreview) return;
+  if (!image) {
+    els.socialPrimaryImagePreview.hidden = true;
+    els.socialPrimaryImagePreview.removeAttribute('src');
+    return;
+  }
+  els.socialPrimaryImagePreview.src = image;
+  els.socialPrimaryImagePreview.alt = `${name || 'Selected watch'} cover image preview`;
+  els.socialPrimaryImagePreview.hidden = false;
+}
+
+function setSocialPreviewStatus(message, tone) {
+  if (!els.socialPreviewStatus) return;
+  els.socialPreviewStatus.textContent = message || '';
+  if (tone) els.socialPreviewStatus.dataset.tone = tone;
+  else els.socialPreviewStatus.removeAttribute('data-tone');
+}
+
+function clearSocialPreview(message = '') {
+  if (els.socialFacebookCaption) els.socialFacebookCaption.value = '';
+  if (els.socialInstagramCaption) els.socialInstagramCaption.value = '';
+  renderSocialImagePreview('', '');
+  setSocialPreviewStatus(message);
+}
+
+function renderSocialPreviewFromForm({ announce = true } = {}) {
+  const listing = readSocialPreviewListingFromForm();
+  if (!listing.name && !listing.brand && !listing.model && !listing.slug) {
+    clearSocialPreview('Fill in listing details, then generate social previews.');
+    return;
+  }
+  const captions = buildSocialPreviewDraft(listing);
+  if (els.socialFacebookCaption) els.socialFacebookCaption.value = captions.facebook;
+  if (els.socialInstagramCaption) els.socialInstagramCaption.value = captions.instagram;
+  renderSocialImagePreview(listing.primaryImage, socialListingDisplayName(listing));
+  if (announce) setSocialPreviewStatus('Social previews generated. Review and edit before posting.', 'success');
+  else setSocialPreviewStatus('Preview ready. Edit captions before sharing.');
+}
+
+async function copyTextWithFallback(text) {
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const helper = document.createElement('textarea');
+  helper.value = text;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.top = '-9999px';
+  document.body.appendChild(helper);
+  helper.select();
+  const copied = document.execCommand('copy');
+  helper.remove();
+  if (!copied) throw new Error('Copy failed');
+}
+
+async function copySocialCaption(platform) {
+  const target = platform === 'facebook' ? els.socialFacebookCaption : els.socialInstagramCaption;
+  const label = platform === 'facebook' ? 'Facebook' : 'Instagram';
+  if (!target) return;
+  let text = target.value.trim();
+  if (!text) {
+    renderSocialPreviewFromForm({ announce: false });
+    text = target.value.trim();
+  }
+  if (!text) {
+    setSocialPreviewStatus(`Generate the ${label} caption first.`, 'error');
+    return;
+  }
+  try {
+    await copyTextWithFallback(text);
+    setSocialPreviewStatus(`${label} caption copied.`, 'success');
+  } catch (error) {
+    setSocialPreviewStatus(`Could not copy ${label} caption. Select the text and copy manually.`, 'error');
   }
 }
 

@@ -283,6 +283,44 @@
               <input type="number" id="field-soldPrice" min="0" step="1" />
             </label>
           </fieldset>
+
+          <section class="admin-col-2 admin-social-panel" id="social-preview-panel" aria-labelledby="social-preview-heading">
+            <div class="admin-social-header">
+              <div>
+                <div class="admin-eyebrow">Social Publishing</div>
+                <h3 id="social-preview-heading">Facebook &amp; Instagram preview</h3>
+                <p class="admin-meta">Create editable captions from this listing before posting. Posting buttons will appear after social accounts are connected.</p>
+              </div>
+              <button type="button" id="social-generate-preview-btn" class="btn-secondary">Generate social previews</button>
+            </div>
+
+            <div class="social-preview-layout">
+              <figure class="social-preview-media">
+                <img id="social-primary-image-preview" alt="Selected listing cover preview" hidden />
+                <figcaption>Preview uses the first listing photo. Review captions before sharing.</figcaption>
+              </figure>
+
+              <div class="social-preview-grid">
+                <div class="social-preview-field">
+                  <label for="social-facebook-caption">Facebook caption</label>
+                  <textarea id="social-facebook-caption" rows="6" placeholder="Generate a Facebook caption from the listing details."></textarea>
+                  <div class="social-preview-field-actions">
+                    <button type="button" id="social-copy-facebook-btn" class="btn-secondary">Copy Facebook caption</button>
+                  </div>
+                </div>
+
+                <div class="social-preview-field">
+                  <label for="social-instagram-caption">Instagram caption</label>
+                  <textarea id="social-instagram-caption" rows="6" placeholder="Generate an Instagram caption from the listing details."></textarea>
+                  <div class="social-preview-field-actions">
+                    <button type="button" id="social-copy-instagram-btn" class="btn-secondary">Copy Instagram caption</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p id="social-preview-status" class="admin-hint" aria-live="polite">Fill in listing details, then generate social previews.</p>
+          </section>
         </div>
 
         <div class="admin-form-actions">

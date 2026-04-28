@@ -220,10 +220,10 @@ Checklist:
 - [ ] View inquiries in an admin Inbox.
 - [ ] View top clicked watches.
 - [ ] Export inventory.
-- [ ] Generate Facebook Page caption from listing.
-- [ ] Generate Instagram caption from listing.
+- [x] Generate Facebook Page caption from listing. (Preview-only Phase A shipped in `/admin`; no Meta credentials required.)
+- [x] Generate Instagram caption from listing. (Preview-only Phase A shipped in `/admin`; no Meta credentials required.)
 - [ ] Generate Viber drop post from listing.
-- [ ] Add Social Publishing panel in `/admin` with preview/edit/approve workflow.
+- [x] Add Social Publishing panel in `/admin` with preview/edit workflow.
 - [ ] Add secure Meta connection through server-side/Supabase Edge Functions; no Facebook/Instagram passwords and no Meta tokens in browser code.
 - [ ] Add explicit Post to Facebook and Post to Instagram buttons for published listings.
 - [ ] Store social post status, published URLs, timestamps, errors, and retry history in Supabase.
@@ -273,10 +273,18 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - [ ] What are the Facebook Page URL/name and Instagram handle for The Watch Alley?
 - [ ] Is the Instagram account Business/Creator and connected to the Facebook Page?
 - [ ] Who owns/admins the Meta Business account and can grant app access?
-- [ ] Should social publishing start as preview-only drafts while Meta App Review is in progress?
+- [x] Should social publishing start as preview-only drafts while Meta App Review is in progress? Answer: yes — Phase A starts with preview-only Facebook/Instagram captions in `/admin`, with no Meta credentials required.
 - [ ] Should the default social CTA be DM, website inquiry form, Messenger, Viber, or a combination?
 
 ## Progress log
+
+### 2026-04-28 16:00 PST (Social Publishing Phase A — preview-only MVP)
+
+- Added an owner-friendly Social Publishing panel inside `/admin` inventory editing.
+- The panel generates editable Facebook and Instagram captions from the selected listing: brand/model/name, reference, condition, inclusions, price, status, and public watch URL.
+- Added copy buttons for both captions with clipboard support and a textarea fallback.
+- Kept Phase A credential-free: no Facebook/Instagram passwords, no Meta tokens, no browser-side Meta posting, and no direct Meta calls.
+- Added `scripts/validate-admin-social-preview.mjs` and wired it into `pnpm test` to guard the preview UX, The Watch Alley brand use, editable captions, copy fallback, and credential-free browser contract.
 
 ### 2026-04-28 (Phase 7 — admin photo upload to Supabase Storage)
 
