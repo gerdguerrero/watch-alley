@@ -23,7 +23,18 @@
       "Bash(ffmpeg -i C:/Users/gerdg/Downloads/hf_20260424_025834_35e83084-2103-4420-8497-0c3897c0fdca.mp4 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:\\(ow-iw\\)/2:\\(oh-ih\\)/2' -c:v libx264 -crf 23 -preset slow -profile:v high -level 4.1 -movflags +faststart -an -y C:/GitHub/watch-alley/assets/hero-bg.mp4)",
       "Bash(gh --version)",
       "Bash(gh auth *)",
-      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm build *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(echo \"---exit $?\")",
+      "Bash(pnpm optimize:images)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }

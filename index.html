@@ -25,8 +25,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy-deep: #070b14;
-      --navy: #0b1220;
+      /* Heritage-craft palette — warm walnut/espresso anchored to the gold
+         accent. Neutrals are tinted toward the brand hue (~55-75) per the
+         OKLCH cohesion principle in .impeccable.md. */
+      --walnut-deep: oklch(0.13 0.012 55);   /* primary background */
+      --walnut: oklch(0.17 0.015 55);        /* secondary surface */
+      --walnut-card: oklch(0.21 0.018 60);   /* card surface, slightly lighter */
+      --paper: oklch(0.92 0.018 80);         /* warm parchment for occasional contrast */
+
+      /* Backwards-compatible aliases — every existing var(--navy-deep) /
+         var(--navy) reference picks up the warm tones automatically. */
+      --navy-deep: var(--walnut-deep);
+      --navy: var(--walnut);
+
       --cream: #ece4d3;
       --cream-80: rgba(236,228,211,0.85);
       --cream-60: rgba(236,228,211,0.60);
@@ -98,12 +109,18 @@
       border: none;
       cursor: pointer;
       text-decoration: none;
-      transition: background 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: inset 0 1px 0 rgba(255,247,230,0.18);
+      transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .btn-primary:hover {
+      /* Heritage tactile: the button "lifts" on press, no neon glow. */
       background: #d4ae5e;
-      box-shadow: 0 8px 32px rgba(201,162,75,0.35);
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,247,230,0.28);
     }
+    .btn-primary:active { transform: translateY(0); }
 
     .btn-ghost {
       display: inline-flex;
@@ -112,8 +129,6 @@
       padding: 20px 32px;
       background: rgba(236,228,211,0.06);
       color: var(--cream);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
       border: 1px solid rgba(236,228,211,0.3);
       font-family: 'Spectral', Georgia, serif;
       font-weight: 500;
@@ -159,6 +174,9 @@
     }
 
     /* ── 01 Nav ── */
+    /* Don't animate padding (layout property). Instead snap the padding instantly
+       and animate the logo scale on a transform so the shrink feels live without
+       triggering layout thrash. Per impeccable Motion law. */
     #main-nav {
       position: sticky;
       top: 0;
@@ -171,9 +189,13 @@
       background: rgba(7,11,20,0.96);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      transition: padding 0.35s ease;
+    }
+    #main-nav .nav-logo {
+      transform-origin: center;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
     #main-nav.scrolled { padding: 13px clamp(20px, 6vw, 80px); }
+    #main-nav.scrolled .nav-logo { transform: scale(0.92); }
 
     .nav-links {
       display: flex;
@@ -216,9 +238,10 @@
       height: 50px;
       border-radius: 50%;
       object-fit: cover;
-      transition: width 0.35s ease, height 0.35s ease;
+      /* Scale via transform on a sized element so we don't animate layout. */
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    #main-nav.scrolled .nav-logo img { width: 34px; height: 34px; }
+    #main-nav.scrolled .nav-logo img { transform: scale(0.68); }
     .nav-logo-text {
       font-family: 'Petrona', Georgia, serif;
       font-size: 14px;
@@ -408,27 +431,50 @@
       margin-top: 28px;
       flex-wrap: wrap;
     }
-    .hero-stats {
-      display: flex;
-      gap: 40px;
-      margin-top: 36px;
-      padding-top: 28px;
-      border-top: 1px solid var(--gold-20);
+    /* Quiet secondary CTA in the hero — replaces the second .btn-ghost so the
+       hero carries one primary action, with a calm prose alternative beside it. */
+    .hero-cta-quiet {
+      align-self: center;
+      font-family: 'Spectral', Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      color: var(--cream-80);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gold-20);
+      padding-bottom: 2px;
+      transition: color 0.25s ease, border-color 0.25s ease;
     }
-    .hero-stat-val {
+    .hero-cta-quiet:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Trust band — single ledger line under the hero. Mono labels, Petrona
+       figures, ample air, no card chrome. */
+    #trust-band {
+      padding: clamp(28px, 5vw, 48px) clamp(20px, 6vw, 80px);
+      border-bottom: 1px solid var(--gold-20);
+      background: var(--navy-deep);
+    }
+    .trust-band-inner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: clamp(20px, 4vw, 56px);
+      align-items: baseline;
+    }
+    .trust-band-figure { display: flex; flex-direction: column; gap: 6px; }
+    .trust-band-num {
       font-family: 'Petrona', Georgia, serif;
-      font-size: clamp(24px, 2.4vw, 32px);
+      font-size: clamp(28px, 3vw, 40px);
       font-weight: 500;
       color: var(--gold);
       line-height: 1;
+      font-variant-numeric: oldstyle-nums;
     }
-    .hero-stat-label {
+    .trust-band-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.2em;
+      font-size: 10px;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--cream-60);
-      margin-top: 6px;
     }
 
     /* Featured card */
@@ -777,7 +823,7 @@
       text-transform: uppercase;
     }
     .watch-badge.brand-new { background: var(--gold); color: var(--navy-deep); border: 1px solid var(--gold); }
-    .watch-badge.other { background: rgba(6,10,22,.82); color: var(--gold); border: 1px solid var(--gold); backdrop-filter: blur(4px); }
+    .watch-badge.other { background: rgba(6,10,22,.82); color: var(--gold); border: 1px solid var(--gold); }
 
     .watch-num {
       position: absolute;
@@ -1106,13 +1152,26 @@
       background: rgba(255, 255, 255, 0.06);
     }
     .inquiry-field textarea { resize: vertical; min-height: 96px; }
+    /* Callout — full thin border + faint paper tint, no side stripe.
+       Leads with a .mono eyebrow in markup, not a colored bar. */
     .inquiry-error {
-      color: #ff7066;
+      color: oklch(0.78 0.13 25);
       font-size: 13px;
-      margin: 8px 0 0;
-      padding: 10px 12px;
-      background: rgba(255, 96, 96, 0.08);
-      border-left: 2px solid #ff7066;
+      line-height: 1.55;
+      margin: 12px 0 0;
+      padding: 12px 14px;
+      background: oklch(0.30 0.06 25 / 0.10);
+      border: 1px solid oklch(0.55 0.14 25 / 0.55);
+    }
+    .inquiry-error::before {
+      content: "Couldn't send";
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: oklch(0.70 0.14 25);
+      margin-bottom: 4px;
     }
     .inquiry-form-actions {
       display: flex;
@@ -1152,48 +1211,138 @@
     }
     .inquiry-fallback a { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; }
     .inquiry-fallback a:hover { border-bottom-color: var(--gold); }
+
+    /* Inquiry trust block — shown above the submit button to reassure
+       buyers at the highest-anxiety moment in the funnel. */
+    .inquiry-trust {
+      margin: 18px 0 4px;
+      padding-top: 14px;
+      border-top: 1px solid var(--gold-20);
+    }
+    .inquiry-trust-pillars {
+      list-style: none;
+      margin: 0 0 8px;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .inquiry-trust-pillars li { display: inline-flex; align-items: center; gap: 8px; }
+    .inquiry-trust-pillars li::before {
+      content: "◆";
+      font-size: 8px;
+      color: var(--gold);
+    }
+    .inquiry-trust-note {
+      margin: 0;
+      font-family: 'Spectral', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--cream-80);
+      max-width: 56ch;
+    }
+
+    /* Inquiry success — atelier handwritten note on warm paper.
+       Replaces the AI feature-card icon tile + low-contrast cream-on-white
+       with a paper-toned slip, ink-toned type, and watchmaker voice. */
     .inquiry-success {
-      text-align: center;
-      padding: 32px 16px;
+      background: var(--paper);
+      color: oklch(0.28 0.02 60);
+      padding: clamp(28px, 4vw, 40px) clamp(22px, 4vw, 36px);
+      max-width: 60ch;
+      margin: 8px auto 0;
+      border: 1px solid rgba(201,162,75,0.45);
+      box-shadow: inset 0 1px 0 oklch(0.85 0.05 75), 0 22px 40px -28px oklch(0.20 0.04 50 / 0.55);
+      position: relative;
+    }
+    .inquiry-success::before {
+      content: "";
+      position: absolute;
+      left: clamp(22px, 4vw, 36px);
+      right: clamp(22px, 4vw, 36px);
+      top: clamp(56px, 6vw, 72px);
+      height: 1px;
+      background: rgba(120, 86, 36, 0.25);
+    }
+    .inquiry-success-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: oklch(0.45 0.08 70);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+    .inquiry-success-eyebrow code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: oklch(0.32 0.04 60);
+      background: transparent;
+      padding: 0;
+    }
+    .inquiry-success-headline {
+      font-family: 'Petrona', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.18;
+      color: oklch(0.22 0.02 55);
+      margin: 0 0 14px;
+    }
+    .inquiry-success-note {
+      font-family: 'Spectral', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: oklch(0.30 0.02 60);
+      margin: 0 0 8px;
+      max-width: 56ch;
+    }
+    .inquiry-success-watch {
+      font-family: 'Petrona', Georgia, serif;
+      font-size: 14px;
+      color: oklch(0.34 0.05 65);
+      font-style: italic;
+      margin: 0;
+    }
+    .inquiry-success-signoff {
+      margin-top: clamp(20px, 3vw, 28px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
     }
     .inquiry-success-mark {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: rgba(212, 175, 55, 0.15);
-      color: var(--gold);
-      font-size: 28px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      border: 1px solid var(--gold);
-    }
-    .inquiry-success h3 {
       font-family: 'Petrona', Georgia, serif;
-      font-size: clamp(20px, 3vw, 26px);
-      margin: 0 0 8px;
-      color: var(--cream);
+      font-style: italic;
+      font-size: 18px;
+      color: oklch(0.45 0.10 70);
+      letter-spacing: 0.04em;
     }
-    .inquiry-success p { color: var(--cream-80); margin: 0 0 8px; font-size: 14px; }
-    .inquiry-success-ref { font-size: 11px; letter-spacing: 0.12em; color: var(--cream-60); }
-    .inquiry-success-ref code {
-      background: rgba(255, 255, 255, 0.06);
-      padding: 2px 8px;
+    .inquiry-success-link {
       font-family: 'JetBrains Mono', monospace;
-      color: var(--gold);
-    }
-    .inquiry-success .btn-primary {
-      margin-top: 16px;
-      background: var(--gold);
-      color: var(--ink);
-      border: 1px solid var(--gold);
-      padding: 12px 24px;
-      font-size: 12px;
-      letter-spacing: 0.16em;
+      font-size: 10px;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
+      color: oklch(0.40 0.10 70);
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid oklch(0.55 0.12 70);
+      padding: 0 0 3px;
       cursor: pointer;
     }
+    .inquiry-success-link:hover { color: oklch(0.30 0.10 70); border-bottom-color: oklch(0.40 0.10 70); }
+    .inquiry-success-link:focus-visible { outline: 2px solid oklch(0.50 0.12 70); outline-offset: 4px; }
     @media (max-width: 720px) {
       .inquiry-form-grid { grid-template-columns: 1fr; }
       .inquiry-field-full { grid-column: span 1; }
@@ -1247,77 +1396,107 @@
       font-size: 13px;
       line-height: 1.65;
     }
+    /* Sold Archive — "House Records": editorial ledger rows, not graveyard
+       cards. Each row is a single line entry: brand + reference, name, sold
+       price + month, with the photo demoted to a small marginalia square. */
     .sold-archive-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .sold-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      cursor: pointer;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      margin-top: 8px;
+      border-top: 1px solid var(--gold-20);
     }
-    .sold-card:hover { border-color: var(--gold); background: rgba(201,162,75,0.06); }
-    .sold-card-img {
-      aspect-ratio: 1 / 1;
-      background: rgba(0,0,0,0.4);
-      overflow: hidden;
-      filter: grayscale(0.55);
-    }
-    .sold-card-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.78; }
-    .sold-card-status {
-      display: inline-flex;
+    .sold-card {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
       align-items: center;
-      gap: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--gold);
+      gap: clamp(16px, 3vw, 28px);
+      padding: clamp(18px, 2.5vw, 24px) 0;
+      border-bottom: 1px solid var(--gold-20);
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
-    .sold-card-name {
-      font-family: 'Petrona', Georgia, serif;
-      font-size: 18px;
-      color: var(--cream);
-      line-height: 1.3;
+    .sold-card:hover { background: rgba(201,162,75,0.04); }
+    .sold-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    .sold-card-img {
+      width: 56px;
+      height: 56px;
+      overflow: hidden;
+      filter: grayscale(0.65);
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+    .sold-card-img img,
+    .sold-card-img picture,
+    .sold-card-img picture img { width: 100%; height: 100%; object-fit: cover; }
+    .sold-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
     .sold-card-meta {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--cream-60);
     }
-    .sold-card-cta {
+    .sold-card-name {
+      font-family: 'Petrona', Georgia, serif;
+      font-size: clamp(18px, 1.6vw, 22px);
+      color: var(--cream);
+      line-height: 1.25;
+    }
+    .sold-card-status {
+      display: none;
+    }
+    .sold-card-figure {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      text-align: right;
+    }
+    .sold-card-price {
+      font-family: 'Petrona', Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(16px, 1.6vw, 20px);
+      color: var(--gold);
+      font-variant-numeric: oldstyle-nums tabular-nums;
+    }
+    .sold-card-when {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--cream);
-      align-self: flex-start;
-      border-bottom: 1px solid var(--gold);
-      padding-bottom: 4px;
-    }
-    .sold-card-empty {
-      grid-column: 1 / -1;
-      padding: 16px 0;
       color: var(--cream-60);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
+    }
+    .sold-card-cta { display: none; }
+    .sold-card-empty {
+      padding: 24px 0;
+      color: var(--cream-60);
+      font-family: 'Spectral', Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      .sold-card { grid-template-columns: 48px 1fr; row-gap: 8px; }
+      .sold-card-img { width: 48px; height: 48px; }
+      .sold-card-figure {
+        grid-column: 2 / -1;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: baseline;
+        text-align: left;
+        width: 100%;
+      }
     }
     .product-modal-sold-note {
       margin-top: 24px;
       padding: 16px 18px;
-      background: rgba(255,255,255,0.04);
-      border-left: 2px solid var(--gold);
+      background: rgba(201,162,75,0.05);
+      border: 1px solid var(--gold-20);
       color: var(--cream-80);
       font-size: 13px;
       line-height: 1.6;
@@ -1398,11 +1577,13 @@
       line-height: 1.6;
     }
 
-    /* ── 05 Viber ── */
+    /* ── 05 Viber — paper wash, walnut ink. No 90° highlight gradient.
+       Activates the previously-unused --paper token from the heritage refresh. */
     #viber {
       border-top: 1px solid var(--gold);
       border-bottom: 1px solid var(--gold);
-      background: linear-gradient(90deg, var(--navy-deep) 0%, rgba(201,162,75,0.08) 50%, var(--navy-deep) 100%);
+      background: var(--paper);
+      color: oklch(0.28 0.02 60);
     }
     .viber-inner {
       padding: clamp(48px, 7vw, 80px) clamp(20px, 6vw, 80px);
@@ -1411,31 +1592,59 @@
       gap: clamp(24px, 4vw, 48px);
       align-items: center;
     }
+    #viber .chip {
+      color: oklch(0.40 0.10 70);
+      border-color: oklch(0.50 0.12 70);
+      background: rgba(255,255,255,0.4);
+    }
+    #viber .btn-primary {
+      background: oklch(0.32 0.04 60);
+      color: var(--paper);
+    }
+    #viber .btn-primary:hover {
+      background: oklch(0.22 0.03 55);
+      box-shadow: none;
+    }
     .viber-qr { display: grid; place-items: center; }
     .viber-qr-box {
       width: 160px;
       height: 160px;
-      background: var(--cream);
+      background: oklch(0.18 0.012 55);
       padding: 14px;
     }
     .viber-qr-grid {
       width: 100%;
       height: 100%;
       background-image:
-        repeating-linear-gradient(0deg, var(--navy-deep) 0 3px, transparent 3px 6px),
-        repeating-linear-gradient(90deg, var(--navy-deep) 0 3px, transparent 3px 6px);
+        repeating-linear-gradient(0deg, var(--paper) 0 3px, transparent 3px 6px),
+        repeating-linear-gradient(90deg, var(--paper) 0 3px, transparent 3px 6px);
     }
     .viber-qr-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: oklch(0.40 0.10 70);
       text-align: center;
       margin-top: 10px;
     }
-    .viber-headline { font-family: 'Petrona', Georgia, serif; font-size: clamp(28px, 5vw, 56px); font-weight: 500; line-height: 1.05; margin-top: 16px; overflow-wrap: break-word; }
-    .viber-body { font-size: 16px; margin-top: 16px; max-width: 580px; color: var(--cream-80); line-height: 1.6; }
+    .viber-headline {
+      font-family: 'Petrona', Georgia, serif;
+      font-size: clamp(28px, 5vw, 56px);
+      font-weight: 500;
+      line-height: 1.05;
+      margin-top: 16px;
+      overflow-wrap: break-word;
+      color: oklch(0.20 0.02 55);
+    }
+    .viber-headline em.gold { color: oklch(0.42 0.12 70) !important; }
+    .viber-body {
+      font-size: 16px;
+      margin-top: 16px;
+      max-width: 580px;
+      color: oklch(0.32 0.02 60);
+      line-height: 1.6;
+    }
 
     /* ── 06 Instagram ── */
     #instagram { padding: clamp(48px, 8vw, 96px) clamp(20px, 6vw, 80px); border-bottom: 1px solid var(--gold-20); }
@@ -1564,9 +1773,10 @@
       font-family: 'Petrona', Georgia, serif;
       font-size: 26px;
       font-weight: 500;
-      transition: background 0.25s, box-shadow 0.25s;
+      transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .cta-btn-viber:hover { background: #d4ae5e; box-shadow: 0 8px 32px rgba(201,162,75,0.35); }
+    .cta-btn-viber:hover { background: #d4ae5e; transform: translateY(-1px); }
     .cta-btn-gmail {
       padding: 26px 44px;
       background: transparent;
@@ -1582,7 +1792,7 @@
       transition: background 0.25s;
     }
     .cta-btn-gmail:hover { background: rgba(201,162,75,0.08); }
-    .cta-note { margin-top: 32px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); }
+    .cta-note { margin-top: 32px; font-family: 'Spectral', Georgia, serif; font-style: italic; font-size: 14px; letter-spacing: 0.01em; color: var(--cream-60); }
 
     /* ── 09 Footer ── */
     footer {
@@ -1596,7 +1806,7 @@
     .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .footer-logo img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .footer-logo-text { font-family: 'Petrona', Georgia, serif; font-size: 13px; font-weight: 500; color: var(--cream); }
-    .footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); text-align: center; }
+    .footer-copy { font-family: 'Spectral', Georgia, serif; font-style: italic; font-size: 13px; letter-spacing: 0.01em; color: var(--cream-60); text-align: center; }
     .footer-links { display: flex; gap: 24px; justify-content: flex-end; }
     .footer-links a { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-60); text-decoration: none; transition: color 0.2s; }
     .footer-links a:hover { color: var(--gold); }
@@ -1642,7 +1852,6 @@
       .hamburger { display: flex; }
       .hero-content { grid-template-columns: 1fr; }
       .hero-featured-card { justify-self: stretch; width: 100%; margin-top: 32px; }
-      .hero-stats { flex-wrap: wrap; gap: 24px; }
       .viber-inner { grid-template-columns: 1fr; text-align: center; }
       .viber-qr { display: none; }
       .viber-body { max-width: 100%; }
@@ -1660,7 +1869,6 @@
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
-      .hero-stats { display: none; }
       .hero-headline { font-size: clamp(48px, 11vw, 80px); }
       .hero-body { font-size: 16px; }
       .btn-primary, .btn-ghost { padding: 16px 24px; font-size: 12px; }
@@ -1800,25 +2008,7 @@
       </p>
       <div class="hero-ctas">
         <a href="#arrivals" class="btn-primary">Shop Available ↗</a>
-        <a href="#viber" class="btn-ghost">Join Viber Community</a>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="hero-stat-val">10+</div>
-          <div class="hero-stat-label">Pieces in Stock</div>
-        </div>
-        <div>
-          <div class="hero-stat-val">9.6K</div>
-          <div class="hero-stat-label">IG Followers</div>
-        </div>
-        <div>
-          <div class="hero-stat-val">2.4K</div>
-          <div class="hero-stat-label">Viber Members</div>
-        </div>
-        <div>
-          <div class="hero-stat-val">100%</div>
-          <div class="hero-stat-label">Authentic</div>
-        </div>
+        <a href="#viber" class="hero-cta-quiet">or join the Viber community →</a>
       </div>
     </div>
 
@@ -1846,23 +2036,46 @@
     </div>
   </div>
 
-  <!-- Ticker -->
+  <!-- Ticker — watchmaker's voice, not feature copy -->
   <div id="hero-ticker">
     <div class="ticker-track">
-      <span class="ticker-item">✦ 10 PIECES AVAILABLE</span>
-      <span class="ticker-item">✦ SHIPPED WORLDWIDE</span>
-      <span class="ticker-item">✦ 9.6K IG FOLLOWERS</span>
-      <span class="ticker-item">✦ 2.4K VIBER MEMBERS</span>
-      <span class="ticker-item">✦ 100% AUTHENTIC</span>
-      <span class="ticker-item">✦ SINCE 2019</span>
-      <span class="ticker-item">✦ BGC, TAGUIG · MANILA</span>
-      <span class="ticker-item">✦ 10 PIECES AVAILABLE</span>
-      <span class="ticker-item">✦ SHIPPED WORLDWIDE</span>
-      <span class="ticker-item">✦ 9.6K IG FOLLOWERS</span>
-      <span class="ticker-item">✦ 2.4K VIBER MEMBERS</span>
-      <span class="ticker-item">✦ 100% AUTHENTIC</span>
-      <span class="ticker-item">✦ SINCE 2019</span>
-      <span class="ticker-item">✦ BGC, TAGUIG · MANILA</span>
+      <span class="ticker-item">✦ Authenticated, in person</span>
+      <span class="ticker-item">✦ Disclosed in writing</span>
+      <span class="ticker-item">✦ Daylight-photographed</span>
+      <span class="ticker-item">✦ Reply within four hours, Mon–Sat</span>
+      <span class="ticker-item">✦ Shipped insured, worldwide</span>
+      <span class="ticker-item">✦ BGC, Taguig · by appointment</span>
+      <span class="ticker-item">✦ Curated since 2019</span>
+      <span class="ticker-item">✦ Authenticated, in person</span>
+      <span class="ticker-item">✦ Disclosed in writing</span>
+      <span class="ticker-item">✦ Daylight-photographed</span>
+      <span class="ticker-item">✦ Reply within four hours, Mon–Sat</span>
+      <span class="ticker-item">✦ Shipped insured, worldwide</span>
+      <span class="ticker-item">✦ BGC, Taguig · by appointment</span>
+      <span class="ticker-item">✦ Curated since 2019</span>
+    </div>
+  </div>
+</section>
+
+<!-- 02b Trust band — moved out of the hero so the hero earns one decision.
+     Reads like a ledger line: small Petrona figures, mono labels, no card chrome. -->
+<section id="trust-band" aria-label="The Watch Alley by the numbers">
+  <div class="trust-band-inner">
+    <div class="trust-band-figure">
+      <span class="trust-band-num serif">10+</span>
+      <span class="trust-band-label">Pieces in rotation</span>
+    </div>
+    <div class="trust-band-figure">
+      <span class="trust-band-num serif">9.6k</span>
+      <span class="trust-band-label">On Instagram</span>
+    </div>
+    <div class="trust-band-figure">
+      <span class="trust-band-num serif">2.4k</span>
+      <span class="trust-band-label">In the Viber group</span>
+    </div>
+    <div class="trust-band-figure">
+      <span class="trust-band-num serif">2019</span>
+      <span class="trust-band-label">Curating in Manila since</span>
     </div>
   </div>
 </section>
@@ -1942,7 +2155,7 @@
   </div>
 
   <div class="carousel-wrapper" id="carousel">
-    <div class="carousel-track stagger" id="carousel-track" data-inventory-source="supabase" data-inventory-fallback="/data/watches.json" aria-live="polite">
+    <div class="carousel-track stagger" id="carousel-track" data-inventory-source="supabase" data-inventory-fallback="/data/watches.json" aria-live="polite" tabindex="0" role="region" aria-label="Available watches. Use left and right arrow keys to scroll.">
       <div class="watch-card inventory-loading" role="status">
         <div class="watch-card-info">
           <div class="watch-card-brand">LOADING INVENTORY</div>
@@ -2030,7 +2243,7 @@
   <div class="ig-header">
     <div class="big-num reveal-scale">04</div>
     <div class="section-header-text reveal">
-      <div class="mono">@THE.WATCH.ALLEY · 9,669 FOLLOWERS</div>
+      <div class="mono">ON INSTAGRAM</div>
       <div class="serif section-title">On the <em class="gold" style="font-style:italic;">feed.</em></div>
     </div>
     <a href="https://instagram.com/the.watch.alley" target="_blank" rel="noopener" class="ig-follow-link reveal">FOLLOW ↗</a>
@@ -2183,7 +2396,7 @@
       <span class="gold" style="font-size:22px;">↗</span>
     </a>
   </div>
-  <div class="cta-note reveal">↑ BOTH OPEN NATIVE APP · TYPICAL REPLY WITHIN 2 HOURS</div>
+  <div class="cta-note reveal">Both open the native app. We usually reply within two hours.</div>
 </section>
 
 <!-- Product Detail Modal -->
@@ -2251,6 +2464,15 @@
 
         <p class="inquiry-error" id="inquiry-error" role="alert" hidden></p>
 
+        <div class="inquiry-trust">
+          <ul class="inquiry-trust-pillars" aria-label="What we promise">
+            <li>Authentic</li>
+            <li>Disclosed</li>
+            <li>Documented</li>
+          </ul>
+          <p class="inquiry-trust-note">We reply within four hours, Monday to Saturday. Sending an inquiry doesn't reserve the piece.</p>
+        </div>
+
         <div class="inquiry-form-actions">
           <button type="submit" class="btn-primary" id="inquiry-submit">Send inquiry</button>
           <button type="button" class="btn-secondary" id="inquiry-cancel">Cancel</button>
@@ -2262,11 +2484,17 @@
       </form>
 
       <div class="inquiry-success" id="inquiry-success" hidden role="status" aria-live="polite">
-        <div class="inquiry-success-mark" aria-hidden="true">✓</div>
-        <h3>We've got your inquiry.</h3>
-        <p>We'll reply within 24 hours, usually faster.</p>
-        <p class="inquiry-success-ref">Reference <code id="inquiry-success-id">—</code></p>
-        <button type="button" class="btn-primary" id="inquiry-success-close">Close</button>
+        <div class="inquiry-success-eyebrow">
+          <span>Note from the bench</span>
+          <code id="inquiry-success-id">—</code>
+        </div>
+        <p class="inquiry-success-headline">Your inquiry's in good hands.</p>
+        <p class="inquiry-success-note">We reply within four hours, Monday to Saturday, usually sooner. Watch the inbox you sent this from; if it's quiet by tomorrow, send us a nudge.</p>
+        <p class="inquiry-success-watch" id="inquiry-success-watch" hidden></p>
+        <div class="inquiry-success-signoff">
+          <span class="inquiry-success-mark" aria-hidden="true">— The Watch Alley</span>
+          <button type="button" class="inquiry-success-link" id="inquiry-success-close">Close note</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2278,7 +2506,7 @@
     <img loading="lazy" decoding="async" src="assets/logo.jpg" alt="The Watch Alley">
     <span class="footer-logo-text">The Watch Alley</span>
   </a>
-  <div class="footer-copy">© MMXXVI · THE WATCH ALLEY PH · MANILA</div>
+  <div class="footer-copy">© 2026 The Watch Alley PH, Manila.</div>
   <div class="footer-links">
     <a href="./privacy.html">PRIVACY</a>
     <a href="./terms.html">TERMS</a>
@@ -2730,6 +2958,7 @@ const inquiryModalClose = document.getElementById('inquiry-modal-close');
 const inquiryForm = document.getElementById('inquiry-form');
 const inquirySuccess = document.getElementById('inquiry-success');
 const inquirySuccessId = document.getElementById('inquiry-success-id');
+const inquirySuccessWatch = document.getElementById('inquiry-success-watch');
 const inquirySuccessClose = document.getElementById('inquiry-success-close');
 const inquiryCancelBtn = document.getElementById('inquiry-cancel');
 const inquirySubmitBtn = document.getElementById('inquiry-submit');
@@ -2947,8 +3176,19 @@ if (inquiryForm) {
       const result = await postInquiryToSupabase(payload);
       const refId = (result && (result.id || (typeof result === 'string' && result))) || '';
       inquirySuccessId.textContent = refId
-        ? String(refId).slice(0, 8).toUpperCase()
-        : 'RECEIVED';
+        ? `TWA-${String(refId).slice(0, 8).toUpperCase()}`
+        : 'TWA-RECEIVED';
+      // Echo the piece they asked about, in the watchmaker's voice.
+      if (inquirySuccessWatch) {
+        const watchLabel = (inquiryWatchMeta && inquiryWatchMeta.textContent) || '';
+        if (watchLabel && watchLabel !== '—') {
+          inquirySuccessWatch.textContent = `On the bench: ${watchLabel}.`;
+          inquirySuccessWatch.hidden = false;
+        } else {
+          inquirySuccessWatch.textContent = '';
+          inquirySuccessWatch.hidden = true;
+        }
+      }
       inquiryForm.hidden = true;
       inquirySuccess.hidden = false;
       inquirySuccessClose.focus();
@@ -3000,17 +3240,43 @@ function renderWatchCard(watch, index, total, inventory) {
       </article>`;
 }
 
+function formatSoldMonth(soldAt) {
+  if (typeof soldAt !== 'string' || !/^\d{4}-\d{2}$/.test(soldAt)) return '';
+  const [year, month] = soldAt.split('-');
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const idx = Math.max(0, Math.min(11, Number(month) - 1));
+  return `${months[idx]} ${year}`;
+}
+
+function formatSoldPrice(soldPrice) {
+  if (!Number.isFinite(soldPrice) && !Number.isInteger(Number(soldPrice))) return '';
+  const value = Number(soldPrice);
+  if (!Number.isFinite(value) || value <= 0) return '';
+  return `₱ ${value.toLocaleString('en-PH', { maximumFractionDigits: 0 })}`;
+}
+
+// Sold card — ledger row, not a card. Photo demoted to marginalia, name in
+// Petrona, sold figure on the right. Keeps the class names the validator
+// pins: .sold-card, .sold-card-status (kept for the hidden sr-only line),
+// .sold-card-name, .sold-card-meta, plus data-watch-slug.
 function renderSoldCard(watch) {
   const soldAt = typeof watch.soldAt === 'string' ? watch.soldAt : '';
+  const soldMonth = formatSoldMonth(soldAt);
+  const soldPriceLabel = formatSoldPrice(watch.soldPrice);
   return `
       <article class="sold-card" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="sold" tabindex="0" role="button" aria-label="Open archived details for ${escapeHtml(watch.name)}">
-        <div class="sold-card-img">
-          ${renderResponsivePicture({ image: watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 768px) 240px, 80vw' })}
+        <span class="sold-card-status" aria-hidden="true">● Sold${soldAt ? ` · ${escapeHtml(soldAt)}` : ''}</span>
+        <div class="sold-card-img" aria-hidden="true">
+          ${renderResponsivePicture({ image: watch.primaryImage, alt: '', sizes: '56px' })}
         </div>
-        <div class="sold-card-status">● Sold${soldAt ? ` · ${escapeHtml(soldAt)}` : ''}</div>
-        <div class="sold-card-name serif">${escapeHtml(watch.name)}</div>
-        <div class="sold-card-meta">${escapeHtml(watch.brand)} · ${escapeHtml(watch.reference)}</div>
-        <div class="sold-card-cta">VIEW ARCHIVE →</div>
+        <div class="sold-card-body">
+          <div class="sold-card-meta">${escapeHtml(watch.brand)} · ${escapeHtml(watch.reference)}</div>
+          <div class="sold-card-name serif">${escapeHtml(watch.name)}</div>
+        </div>
+        <div class="sold-card-figure">
+          ${soldPriceLabel ? `<span class="sold-card-price">${escapeHtml(soldPriceLabel)}</span>` : ''}
+          ${soldMonth ? `<span class="sold-card-when">Placed ${escapeHtml(soldMonth)}</span>` : ''}
+        </div>
       </article>`;
 }
 
@@ -3186,6 +3452,32 @@ loadWatchInventory();
 const CARD_W = 320 + 24; // card width + gap
 prevBtn.addEventListener('click', () => carousel.scrollBy({ left: -CARD_W, behavior: 'smooth' }));
 nextBtn.addEventListener('click', () => carousel.scrollBy({ left: CARD_W, behavior: 'smooth' }));
+
+// Keyboard nav for serious collectors: focus the carousel, ←/→ scrolls one card.
+// Home/End jump to ends. Skip when focus is inside an input/textarea/etc.
+carouselTrack.addEventListener('keydown', (event) => {
+  const tag = (event.target && event.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault();
+      carousel.scrollBy({ left: -CARD_W, behavior: 'smooth' });
+      break;
+    case 'ArrowRight':
+      event.preventDefault();
+      carousel.scrollBy({ left: CARD_W, behavior: 'smooth' });
+      break;
+    case 'Home':
+      event.preventDefault();
+      carousel.scrollTo({ left: 0, behavior: 'smooth' });
+      break;
+    case 'End':
+      event.preventDefault();
+      carousel.scrollTo({ left: carousel.scrollWidth, behavior: 'smooth' });
+      break;
+    default: break;
+  }
+});
 
 // Drag-to-scroll
 let isDragging = false, dragStartX = 0, scrollStartLeft = 0, dragMoved = false;
