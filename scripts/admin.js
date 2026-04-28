@@ -60,13 +60,18 @@ const els = {
   socialPreviewStatus: document.getElementById('social-preview-status'),
   socialSaveDraftBtn: document.getElementById('social-save-draft-btn'),
   savedDraftsMeta: document.getElementById('social-saved-drafts-meta'),
-  socialFbMockupImage: document.getElementById('social-fb-mockup-image'),
-  socialFbMockupPlaceholder: document.getElementById('social-fb-mockup-placeholder'),
-  socialFbMockupCaption: document.getElementById('social-fb-mockup-caption'),
-  socialIgMockupImage: document.getElementById('social-ig-mockup-image'),
-  socialIgMockupPlaceholder: document.getElementById('social-ig-mockup-placeholder'),
-  socialIgMockupCaption: document.getElementById('social-ig-mockup-caption'),
-  socialIgMockupMore: document.getElementById('social-ig-mockup-more'),
+  // Compact Preview & Limits panel (replaces FB/IG impersonation mockups).
+  socialPreviewSummary: document.getElementById('social-preview-summary'),
+  socialPreviewSummaryImage: document.getElementById('social-preview-summary-image'),
+  socialPreviewSummaryImageEmpty: document.getElementById('social-preview-summary-photo-empty'),
+  socialPreviewSummaryFb: document.getElementById('social-preview-summary-fb'),
+  socialPreviewSummaryIg: document.getElementById('social-preview-summary-ig'),
+  socialPreviewSummaryFbChars: document.querySelector('[data-target="fb-chars"]'),
+  socialPreviewSummaryFbState: document.querySelector('[data-target="fb-state"]'),
+  socialPreviewSummaryIgChars: document.querySelector('[data-target="ig-chars"]'),
+  socialPreviewSummaryIgTags: document.querySelector('[data-target="ig-tags"]'),
+  socialPreviewSummaryIgState: document.querySelector('[data-target="ig-state"]'),
+  socialPreviewSummaryLink: document.getElementById('social-preview-summary-link-anchor'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelDashboard: document.getElementById('tabpanel-dashboard'),
@@ -445,10 +450,10 @@ if (els.socialSaveDraftBtn) {
   });
 }
 if (els.socialFacebookCaption) {
-  els.socialFacebookCaption.addEventListener('input', () => renderSocialMockups());
+  els.socialFacebookCaption.addEventListener('input', () => renderSocialPreviewSummary());
 }
 if (els.socialInstagramCaption) {
-  els.socialInstagramCaption.addEventListener('input', () => renderSocialMockups());
+  els.socialInstagramCaption.addEventListener('input', () => renderSocialPreviewSummary());
 }
 
 els.deleteBtn.addEventListener('click', async () => {
@@ -708,7 +713,7 @@ function clearSocialPreview(message = '') {
   if (els.socialFacebookCaption) els.socialFacebookCaption.value = '';
   if (els.socialInstagramCaption) els.socialInstagramCaption.value = '';
   renderSocialImagePreview('', '');
-  renderSocialMockups();
+  renderSocialPreviewSummary();
   setSocialPreviewStatus(message);
 }
 
@@ -722,30 +727,33 @@ function renderSocialPreviewFromForm({ announce = true } = {}) {
   if (els.socialFacebookCaption) els.socialFacebookCaption.value = captions.facebook;
   if (els.socialInstagramCaption) els.socialInstagramCaption.value = captions.instagram;
   renderSocialImagePreview(listing.primaryImage, socialListingDisplayName(listing));
-  renderSocialMockups();
+  renderSocialPreviewSummary();
   if (announce) setSocialPreviewStatus('Social previews generated. Review and edit before posting.', 'success');
   else setSocialPreviewStatus('Preview ready. Edit captions before sharing.');
 }
 
-// IG visually truncates captions at roughly 125 characters and shows a
-// "more" affordance. We mirror that so the owner sees how their first
-// few lines will read on the feed.
-const IG_TRUNCATION_CHARS = 125;
+// Platform character + hashtag limits used by the Preview & Limits panel.
+// These mirror the public Meta caps; treat them as advisory — going over
+// renders an over-limit pill so the operator sees it before posting.
+const SOCIAL_LIMITS = {
+  facebook: { chars: 63206 },
+  instagram: { chars: 2200, hashtags: 30 },
+};
 
 // Defense-in-depth: only allow http(s), data:image/, and same-origin
-// (absolute or relative) URLs as mockup image sources. Owner is the
+// (absolute or relative) URLs as the preview image source. Owner is the
 // only writer (admin allowlist + RLS), and `<img src="javascript:…">`
 // is inert per the HTML spec, but this filter rejects exotic schemes
 // before they ever reach the DOM.
 const SAFE_MOCKUP_IMAGE_SCHEME = /^(https?:|data:image\/|\/|\.)/i;
 
-function applyMockupImage(imgEl, placeholderEl, image, altText) {
+function applyPreviewImage(imgEl, placeholderEl, image, altText) {
   if (!imgEl || !placeholderEl) return;
   const safe = typeof image === 'string' && SAFE_MOCKUP_IMAGE_SCHEME.test(image) ? image : '';
   if (safe) {
     // Fall back to the placeholder if the image fails to load (typo'd
-    // path, 404, broken upload). Without this, the mockup shows a
-    // generic broken-image glyph which feels unfinished.
+    // path, 404, broken upload). Without this, the panel shows a generic
+    // broken-image glyph which feels unfinished.
     imgEl.onerror = () => {
       imgEl.hidden = true;
       imgEl.removeAttribute('src');
@@ -763,82 +771,115 @@ function applyMockupImage(imgEl, placeholderEl, image, altText) {
   }
 }
 
-// Renders the live Facebook + Instagram post mockups from the current
-// captions and primary image. Captions are written via textContent so
-// user-controlled fields cannot inject markup. The image is set via
-// the .src DOM property — same XSS posture as the existing preview.
-function renderSocialMockups() {
-  // Resolve the primary image once. Prefer the image preview that
-  // renderSocialImagePreview already validated, fall back to the form
-  // field so live typing still updates the mockup.
-  let image = '';
-  if (els.socialPrimaryImagePreview && !els.socialPrimaryImagePreview.hidden) {
-    image = els.socialPrimaryImagePreview.getAttribute('src') || '';
-  }
-  if (!image) {
-    image = (getField('primaryImage') || '').trim();
-  }
-
-  // --- Facebook mockup -----------------------------------------------------
-  if (els.socialFbMockupCaption) {
-    const fbText = (els.socialFacebookCaption?.value || '').trim();
-    if (fbText) {
-      els.socialFbMockupCaption.textContent = fbText;
-      els.socialFbMockupCaption.removeAttribute('data-empty');
-    } else {
-      els.socialFbMockupCaption.textContent = 'Your Facebook caption preview will appear here.';
-      els.socialFbMockupCaption.setAttribute('data-empty', 'true');
-    }
-  }
-  applyMockupImage(els.socialFbMockupImage, els.socialFbMockupPlaceholder, image, 'Facebook post image preview');
-
-  // --- Instagram mockup ----------------------------------------------------
-  if (els.socialIgMockupCaption) {
-    const igText = (els.socialInstagramCaption?.value || '').trim();
-    const captionTextNode = els.socialIgMockupCaption.querySelector('.social-mockup-ig-text');
-    const moreBtn = els.socialIgMockupMore;
-    if (captionTextNode) {
-      if (!igText) {
-        captionTextNode.textContent = 'Your Instagram caption preview will appear here.';
-        els.socialIgMockupCaption.setAttribute('data-empty', 'true');
-        if (moreBtn) moreBtn.hidden = true;
-      } else {
-        els.socialIgMockupCaption.removeAttribute('data-empty');
-        const expanded = els.socialIgMockupCaption.dataset.expanded === 'true';
-        if (igText.length > IG_TRUNCATION_CHARS && !expanded) {
-          // Trim at the truncation point but try to break at a word so
-          // we never split mid-word. Length cap stays conservative so
-          // truncated copy never exceeds the limit.
-          let cut = igText.slice(0, IG_TRUNCATION_CHARS);
-          const lastSpace = cut.lastIndexOf(' ');
-          if (lastSpace > IG_TRUNCATION_CHARS - 30) cut = cut.slice(0, lastSpace);
-          captionTextNode.textContent = `${cut.trim()}…`;
-          if (moreBtn) {
-            moreBtn.hidden = false;
-            moreBtn.setAttribute('aria-label', 'See more of this caption');
-          }
-        } else {
-          captionTextNode.textContent = igText;
-          if (moreBtn) moreBtn.hidden = true;
-        }
-      }
-    }
-  }
-  applyMockupImage(els.socialIgMockupImage, els.socialIgMockupPlaceholder, image, 'Instagram post image preview');
+function countHashtags(text) {
+  if (!text) return 0;
+  // Word-boundary preceded by # avoids counting URL fragments or doubled
+  // ##, then unique-ifies so the same tag twice counts once (Meta dedupes).
+  const matches = text.match(/(^|[^\w#])#([\p{L}\p{N}_]+)/gu) || [];
+  const unique = new Set();
+  for (const raw of matches) unique.add(raw.replace(/^[^#]*#/, '').toLowerCase());
+  return unique.size;
 }
 
-// "… more" toggle: when the owner clicks it, we render the full IG
-// caption inline so they can confirm the second-paragraph and hashtag
-// area still reads well.
-if (typeof document !== 'undefined') {
-  document.addEventListener('click', (event) => {
-    if (!event.target || !(event.target instanceof Element)) return;
-    if (event.target.id !== 'social-ig-mockup-more') return;
-    const captionEl = els.socialIgMockupCaption;
-    if (!captionEl) return;
-    captionEl.dataset.expanded = captionEl.dataset.expanded === 'true' ? 'false' : 'true';
-    renderSocialMockups();
-  });
+function limitState(actual, cap) {
+  if (actual > cap) return 'over';
+  if (actual >= Math.floor(cap * 0.9)) return 'warn';
+  return 'ok';
+}
+
+function limitStateLabel(state, kind) {
+  if (state === 'over') return `${kind} over limit`;
+  if (state === 'warn') return `${kind} near limit`;
+  return 'within limit';
+}
+
+// Resolve the strongest available source for the cover image. Prefer the
+// validated <img> in renderSocialImagePreview, fall back to the form field
+// so live typing still updates the panel.
+function resolvePreviewImageSource() {
+  if (els.socialPrimaryImagePreview && !els.socialPrimaryImagePreview.hidden) {
+    return els.socialPrimaryImagePreview.getAttribute('src') || '';
+  }
+  return (getField('primaryImage') || '').trim();
+}
+
+// Renders the compact Preview & Limits panel from the current captions,
+// the cover image, and the listing slug. Replaces the previous Facebook /
+// Instagram impersonation mockups with information that is actually
+// useful pre-flight: real photo, character counts vs. caps, hashtag count
+// vs. cap, and the destination URL the post will deep-link to.
+function renderSocialPreviewSummary() {
+  const fbText = (els.socialFacebookCaption && els.socialFacebookCaption.value) || '';
+  const igText = (els.socialInstagramCaption && els.socialInstagramCaption.value) || '';
+
+  // --- Cover photo --------------------------------------------------------
+  applyPreviewImage(
+    els.socialPreviewSummaryImage,
+    els.socialPreviewSummaryImageEmpty,
+    resolvePreviewImageSource(),
+    'Post photo'
+  );
+
+  // --- Facebook char count ------------------------------------------------
+  const fbChars = fbText.length;
+  const fbCap = SOCIAL_LIMITS.facebook.chars;
+  const fbState = limitState(fbChars, fbCap);
+  if (els.socialPreviewSummaryFbChars) {
+    els.socialPreviewSummaryFbChars.textContent = fbChars.toLocaleString();
+  }
+  if (els.socialPreviewSummaryFbState) {
+    els.socialPreviewSummaryFbState.textContent = limitStateLabel(fbState, 'chars');
+  }
+  if (els.socialPreviewSummaryFb) {
+    els.socialPreviewSummaryFb.dataset.state = fbState;
+  }
+
+  // --- Instagram char + hashtag count -------------------------------------
+  const igChars = igText.length;
+  const igTags = countHashtags(igText);
+  const igCap = SOCIAL_LIMITS.instagram.chars;
+  const igTagCap = SOCIAL_LIMITS.instagram.hashtags;
+  const igCharState = limitState(igChars, igCap);
+  const igTagState = limitState(igTags, igTagCap);
+  // Worst-of for the row pill so the operator sees the strictest signal.
+  const igState = igCharState === 'over' || igTagState === 'over'
+    ? 'over'
+    : (igCharState === 'warn' || igTagState === 'warn' ? 'warn' : 'ok');
+  if (els.socialPreviewSummaryIgChars) {
+    els.socialPreviewSummaryIgChars.textContent = igChars.toLocaleString();
+  }
+  if (els.socialPreviewSummaryIgTags) {
+    els.socialPreviewSummaryIgTags.textContent = String(igTags);
+  }
+  if (els.socialPreviewSummaryIgState) {
+    if (igState === 'over') {
+      els.socialPreviewSummaryIgState.textContent =
+        igCharState === 'over' ? 'chars over limit' : 'hashtags over limit';
+    } else if (igState === 'warn') {
+      els.socialPreviewSummaryIgState.textContent =
+        igCharState === 'warn' ? 'chars near limit' : 'hashtags near limit';
+    } else {
+      els.socialPreviewSummaryIgState.textContent = 'within limit';
+    }
+  }
+  if (els.socialPreviewSummaryIg) {
+    els.socialPreviewSummaryIg.dataset.state = igState;
+  }
+
+  // --- Destination link ---------------------------------------------------
+  const slug = (getField('slug') || '').trim();
+  if (els.socialPreviewSummaryLink) {
+    if (slug) {
+      const url = buildPublicWatchUrl(slug);
+      els.socialPreviewSummaryLink.setAttribute('href', url);
+      els.socialPreviewSummaryLink.textContent = url;
+      els.socialPreviewSummaryLink.removeAttribute('data-empty');
+    } else {
+      els.socialPreviewSummaryLink.setAttribute('href', '#');
+      els.socialPreviewSummaryLink.textContent = 'Save the listing to see its destination link.';
+      els.socialPreviewSummaryLink.setAttribute('data-empty', 'true');
+    }
+  }
 }
 
 async function copyTextWithFallback(text) {
