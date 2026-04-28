@@ -1,14 +1,14 @@
-# Watch Alley Product Operating Roadmap
+# The Watch Alley Product Operating Roadmap
 
 Last updated: 2026-04-28
 Project path: this repository
 Repo: `https://github.com/gerdguerrero/watch-alley`
 
-This is the living operating document for Watch Alley. Update this file every time we ship work, change direction, add backlog items, finish a phase, or learn something from users/buyers.
+This is the living operating document for The Watch Alley. Update this file every time we ship work, change direction, add backlog items, finish a phase, or learn something from users/buyers.
 
 ## Executive thesis
 
-Watch Alley should evolve from a premium static landing page into a trusted, curated watch commerce operating system for Filipino collectors.
+The Watch Alley should evolve from a premium static landing page into a trusted, curated watch commerce operating system for Filipino collectors.
 
 The brand should prove three things quickly:
 
@@ -21,7 +21,7 @@ Next system priority: trust, inquiry conversion, inventory operations, and buyer
 
 ## Product north star
 
-Make Watch Alley the trusted curated watch dealer for Filipino collectors: premium enough for serious enthusiasts, simple enough for casual buyers, and operationally strong enough to scale drops, inquiries, consignments, and community.
+Make The Watch Alley the trusted curated watch dealer for Filipino collectors: premium enough for serious enthusiasts, simple enough for casual buyers, and operationally strong enough to scale drops, inquiries, consignments, and community.
 
 ## Core metrics to track
 
@@ -38,22 +38,22 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Lost inquiry reasons
 - Waitlist signups
 - Consignment submissions
+- Social posts published per drop
+- Facebook/Instagram post-to-inquiry conversion
+- Inquiry-to-sale conversion by source: website, Facebook, Instagram, Viber, referral
 
 ## Current baseline
 
-- Static Vite website.
-- Single large `index.html`.
-- Premium editorial homepage already implemented.
-- 10 watch cards shown on the homepage.
-- Viber, Instagram, email, and appointment concepts already present.
-- Build passes with `pnpm build`.
-- Inventory is now documented in `public/data/watches.json` and validated with `pnpm test`.
-- Inventory images use stable public URLs under `/watch-assets/` for future data-driven rendering.
-- Inventory now lives in Supabase (`watch_alley.watches`). The homepage still reads `public/data/watches.json`, which is regenerated from Supabase via `pnpm sync:watches`.
-- Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
-- Product detail modal now opens from inventory-rendered cards and surfaces trust-critical listing fields.
-- Each watch is now individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
-- Sold listings now render in a homepage Sold Archive section, filtered out of the active drop carousel, and surface a sold-state product modal with no active inquire CTA.
+- Static Vite website with a premium editorial homepage and admin surface at `/admin`.
+- Single large storefront `index.html`; admin behavior currently lives mainly in `scripts/admin.js` and should be modularized later, not during urgent client-facing fixes.
+- Public/user-facing brand should be **The Watch Alley** everywhere except technical identifiers.
+- Supabase is now the inventory source of truth. The homepage reads live published inventory from Supabase first, with `public/data/watches.json` retained only as a resilience fallback.
+- Owner-facing admin copy no longer exposes terminal, Git, JSON regeneration, or deployment workflow; saved changes are framed as website updates that happen automatically.
+- Homepage arrival cards render from the live inventory path instead of hardcoded watch-card HTML.
+- Product detail modal opens from inventory-rendered cards and surfaces trust-critical listing fields.
+- Each watch is individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
+- Sold listings render in a homepage Sold Archive section, filtered out of the active drop carousel, and surface a sold-state product modal.
+- Supabase already holds inventory, structured inquiries, admin allowlist, and invite/auth workflow foundations; the next business-critical surfaces are public inquiry form, admin Inbox, canonical watch pages, and controlled social publishing.
 
 ## Operating rule
 
@@ -106,7 +106,7 @@ Status: Backlog.
 
 Checklist:
 
-- [x] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS. (Chosen: Supabase `watch_alley.watches`, synced to `public/data/watches.json` for reads.)
+- [x] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS. (Chosen: Supabase as source of truth; public storefront reads Supabase first, with `public/data/watches.json` as fallback only.)
 - [x] Add inventory schema documentation. (`docs/inventory-schema.md`)
 - [x] Add admin-friendly update workflow.
 - [x] Add Sold Archive.
@@ -161,7 +161,7 @@ Checklist:
 
 Definition of done:
 
-- Watch Alley can source inventory based on known buyer demand, not guesswork.
+- The Watch Alley can source inventory based on known buyer demand, not guesswork.
 
 ## Phase 5: Consignment + Sourcing Workflow
 
@@ -181,7 +181,7 @@ Checklist:
 
 Definition of done:
 
-- Watch Alley can accept supply without becoming an uncurated marketplace.
+- The Watch Alley can accept supply without becoming an uncurated marketplace.
 
 ## Phase 6: Content + SEO Authority
 
@@ -203,29 +203,51 @@ Checklist:
 
 Definition of done:
 
-- Watch Alley ranks for collector-intent searches and feels like an authority, not just a shop.
+- The Watch Alley ranks for collector-intent searches and feels like an authority, not just a shop.
 
 ## Phase 7: Admin + Automation
 
-Goal: make site operations fast enough for frequent drops.
+Goal: make site operations fast enough for frequent drops while keeping the owner workflow non-technical.
 
-Status: Backlog.
+Status: Backlog / staged.
 
 Checklist:
 
-- [ ] Admin add/edit watch.
+- [x] Admin add/edit watch.
 - [ ] Admin upload/reorder photos.
-- [ ] Admin mark as sold/reserved.
-- [ ] Generate IG caption from listing.
-- [ ] Generate Viber drop post from listing.
+- [x] Admin mark as sold/reserved.
 - [ ] Generate product page from listing.
-- [ ] View inquiries.
+- [ ] View inquiries in an admin Inbox.
 - [ ] View top clicked watches.
 - [ ] Export inventory.
+- [ ] Generate Facebook Page caption from listing.
+- [ ] Generate Instagram caption from listing.
+- [ ] Generate Viber drop post from listing.
+- [ ] Add Social Publishing panel in `/admin` with preview/edit/approve workflow.
+- [ ] Add secure Meta connection through server-side/Supabase Edge Functions; no Facebook/Instagram passwords and no Meta tokens in browser code.
+- [ ] Add explicit Post to Facebook and Post to Instagram buttons for published listings.
+- [ ] Store social post status, published URLs, timestamps, errors, and retry history in Supabase.
+- [ ] Prevent duplicate accidental reposts unless an admin explicitly confirms.
+- [ ] Attribute inquiries back to social source where possible.
 
 Definition of done:
 
 - The owner can run drops without asking a developer to edit files.
+- The owner can generate and approve social posts from a listing without copy/paste errors.
+- Facebook/Instagram publishing is controlled, auditable, and secure; it never blindly posts every draft/save.
+
+### Controlled Meta social publishing principle
+
+The recommended workflow is **controlled publishing**, not blind auto-posting:
+
+1. Save Draft.
+2. Publish / Update Published Listing on the website.
+3. Generate Facebook and Instagram post previews.
+4. Let the owner edit captions and confirm.
+5. Post to Facebook Page and/or Instagram Professional account.
+6. Store the post URLs, timestamps, and errors in Supabase.
+
+Plan: `docs/plans/2026-04-28-controlled-meta-social-publishing.md`.
 
 ## Later / not now
 
@@ -242,14 +264,26 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 
 - [ ] Should Viber remain the primary conversion channel, or should WhatsApp/Messenger also be supported?
 - [ ] Should the site collect leads directly, or only deep-link to messaging apps for now?
-- [ ] What are the exact authenticity and warranty claims Watch Alley is comfortable making?
+- [ ] What are the exact authenticity and warranty claims The Watch Alley is comfortable making?
 - [ ] Are current prices and watch specs final, or mock/demo data?
 - [ ] Who maintains product photos and final copy?
 - [ ] What is the preferred deployment host/domain workflow?
 - [ ] What real contact number/email should replace placeholders?
 - [ ] Should there be a sold archive immediately, or only once more watches have sold through the site?
+- [ ] What are the Facebook Page URL/name and Instagram handle for The Watch Alley?
+- [ ] Is the Instagram account Business/Creator and connected to the Facebook Page?
+- [ ] Who owns/admins the Meta Business account and can grant app access?
+- [ ] Should social publishing start as preview-only drafts while Meta App Review is in progress?
+- [ ] Should the default social CTA be DM, website inquiry form, Messenger, Viber, or a combination?
 
 ## Progress log
+
+### 2026-04-28 (Roadmap — controlled Meta social publishing decision)
+
+- Added controlled Facebook Page + Instagram publishing as a recommended future automation path for The Watch Alley admin.
+- Decision: do not auto-post on every Save. Generate social drafts/previews from published listings, require owner approval, then post through secure server-side Meta Graph API integration.
+- Added implementation plan at `docs/plans/2026-04-28-controlled-meta-social-publishing.md`.
+- Added roadmap checklist items for Meta account connection, post preview/edit/approve workflow, duplicate prevention, publish logs, retry errors, and source attribution.
 
 ### 2026-04-28 (Phase 2 — Inventory OS, source-of-truth migration)
 
@@ -267,7 +301,7 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 
 ### 2026-04-28 (Phase 1 — Conversion + Trust Foundation)
 
-- Created living roadmap/checklist for Watch Alley.
+- Created living roadmap/checklist for The Watch Alley.
 - Created Sprint 1 implementation plan under `docs/plans/`.
 - Created local Second Brain project note pointing back to this roadmap.
 - Established Phase 1 as Conversion + Trust Foundation.
