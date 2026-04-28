@@ -2690,24 +2690,48 @@ let activeWatchSlug = null;
 let shareCopyResetTimer = null;
 
 const WATCH_HASH_PREFIX = '#/watch/';
+const WATCH_PATH_PREFIX = '/watch/';
 
-function getWatchHashSlug(hash) {
-  const value = typeof hash === 'string' ? hash : (typeof window !== 'undefined' ? window.location.hash : '');
-  if (!value || !value.startsWith(WATCH_HASH_PREFIX)) return null;
-  const rest = value.slice(WATCH_HASH_PREFIX.length);
-  if (!rest) return null;
-  try {
-    return decodeURIComponent(rest);
-  } catch (error) {
-    return null;
+// Deep-link slug resolver. Two formats are accepted, in priority order:
+//   1. path-based  /watch/<slug>  (the canonical share URL, statically
+//      pre-rendered by scripts/generate-watch-pages.mjs and served by Vercel
+//      with cleanUrls; carries per-watch OG/meta + Schema.org Product)
+//   2. hash-based  /#/watch/<slug>  (legacy fallback, kept for any old links)
+function getWatchHashSlug(input) {
+  const fromArg = typeof input === 'string' ? input : null;
+  const hashValue = fromArg !== null
+    ? fromArg
+    : (typeof window !== 'undefined' ? window.location.hash : '');
+
+  if (hashValue && hashValue.startsWith(WATCH_HASH_PREFIX)) {
+    const rest = hashValue.slice(WATCH_HASH_PREFIX.length);
+    if (rest) {
+      try { return decodeURIComponent(rest); } catch { return null; }
+    }
   }
+
+  // Path form (only meaningful when reading the live URL, not when an
+  // explicit hash string was passed in).
+  if (fromArg === null && typeof window !== 'undefined' && window.location) {
+    const pathname = window.location.pathname || '';
+    if (pathname.startsWith(WATCH_PATH_PREFIX)) {
+      const tail = pathname.slice(WATCH_PATH_PREFIX.length).replace(/\/+$/, '');
+      const slug = tail.split('/')[0];
+      if (slug) {
+        try { return decodeURIComponent(slug); } catch { return null; }
+      }
+    }
+  }
+  return null;
 }
 
 function buildWatchShareUrl(slug) {
   const safeSlug = encodeURIComponent(slug == null ? '' : String(slug));
-  if (typeof window === 'undefined' || !window.location) return `${WATCH_HASH_PREFIX}${safeSlug}`;
-  const { origin, pathname } = window.location;
-  return `${origin}${pathname}${WATCH_HASH_PREFIX}${safeSlug}`;
+  if (typeof window === 'undefined' || !window.location) return `${WATCH_PATH_PREFIX}${safeSlug}`;
+  const { origin } = window.location;
+  // Canonical share URL is the path form (statically rendered, OG-meta
+  // tagged). Hash form is preserved only for in-page history transitions.
+  return `${origin}${WATCH_PATH_PREFIX}${safeSlug}`;
 }
 
 function escapeHtml(value) {
@@ -2956,12 +2980,12 @@ function closeProductDetailModal(options = {}) {
 
   if (source === 'history') return;
 
+  // If the URL still carries a watch slug (path form /watch/<slug> or hash
+  // form #/watch/<slug>), promote the URL bar back to "/" so reload doesn't
+  // re-open the modal. Preserve any query string the user might have.
   if (getWatchHashSlug()) {
-    if (typeof window.location.pathname === 'string') {
-      history.pushState({ watchSlug: null }, '', window.location.pathname + window.location.search);
-    } else {
-      history.pushState({ watchSlug: null }, '', '#');
-    }
+    const search = (window.location && window.location.search) || '';
+    history.pushState({ watchSlug: null }, '', `/${search}`);
   }
 }
 
