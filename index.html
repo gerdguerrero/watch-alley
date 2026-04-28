@@ -1727,66 +1727,86 @@
       line-height: 1.6;
     }
 
-    /* ── 06 Instagram ── */
-    #instagram { padding: clamp(48px, 8vw, 96px) clamp(20px, 6vw, 80px); border-bottom: 1px solid var(--gold-20); }
-    .ig-header { display: flex; align-items: flex-end; gap: 32px; margin-bottom: 32px; }
-    .ig-follow-link {
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--gold);
+    /* ── 06 Curator's Note — single editorial photograph + handwritten-note
+       voice. Replaces the previous 16-tile fake Instagram grid. ───────── */
+    #curator-note {
+      padding: clamp(48px, 8vw, 96px) clamp(20px, 6vw, 80px);
+      border-bottom: 1px solid var(--gold-20);
+      background: var(--navy-deep);
+    }
+    .curator-note-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: clamp(32px, 6vw, 80px);
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .curator-note-photo {
+      margin: 0;
+      position: relative;
+      border: 1px solid var(--gold-20);
+      overflow: hidden;
+      background: oklch(0.18 0.012 55);
+      aspect-ratio: 4 / 5;
+    }
+    .curator-note-photo picture,
+    .curator-note-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .curator-note-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 56ch;
+    }
+    .curator-note-copy .big-num {
+      margin-bottom: 8px;
+      font-size: clamp(48px, 8vw, 96px);
+      opacity: 0.30;
+    }
+    .curator-note-headline {
+      font-family: 'Petrona', Georgia, serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      margin: 8px 0 12px;
+    }
+    .curator-note-body {
+      font-family: 'Spectral', Georgia, serif;
+      font-size: clamp(15px, 1.2vw, 17px);
+      line-height: 1.75;
+      color: var(--cream-80);
+    }
+    .curator-note-signoff {
+      font-family: 'Petrona', Georgia, serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--gold);
+      margin: 8px 0 14px;
+    }
+    .curator-note-cta {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--gold);
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 3px;
+      align-self: flex-start;
       text-decoration: none;
-      align-self: flex-end;
-      margin-bottom: 12px;
+      transition: color 0.2s ease;
     }
-    .ig-stories {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--gold-20);
-      overflow-x: auto;
+    .curator-note-cta:hover { color: var(--cream); border-bottom-color: var(--cream); }
+    @media (max-width: 900px) {
+      .curator-note-grid { grid-template-columns: 1fr; gap: clamp(24px, 5vw, 36px); }
+      .curator-note-photo { aspect-ratio: 4 / 3; }
     }
-    .ig-stories::-webkit-scrollbar { display: none; }
-    .ig-story { text-align: center; flex-shrink: 0; cursor: pointer; }
-    .ig-story-ring {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      padding: 2px;
-      background: conic-gradient(from 45deg, #c9a24b, #d66b5c, #b87e3d, #c9a24b);
-    }
-    .ig-story-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: var(--navy-deep);
-      padding: 3px;
-      overflow: hidden;
-    }
-    .ig-story-inner img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .ig-story-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--cream-60);
-      margin-top: 8px;
-    }
-    .ig-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
-    .ig-tile { aspect-ratio: 1; overflow: hidden; cursor: pointer; position: relative; }
-    .ig-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-    .ig-tile:hover img { transform: scale(1.06); }
-    .ig-tile-overlay {
-      position: absolute;
-      inset: 0;
-      background: transparent;
-      transition: background 0.3s ease;
-    }
-    .ig-tile:hover .ig-tile-overlay { background: rgba(201,162,75,0.2); }
 
     /* ── 07 Contact ── */
     #contact { padding: clamp(48px, 8vw, 96px) clamp(20px, 6vw, 80px); border-top: 1px solid var(--gold-20); border-bottom: 1px solid var(--gold-20); }
@@ -1938,7 +1958,6 @@
       .viber-body { max-width: 100%; }
       .news-grid { grid-template-columns: 1fr; }
       .news-feature { min-height: 400px; }
-      .ig-grid { grid-template-columns: repeat(4, 1fr); }
       .contact-grid { grid-template-columns: 1fr; }
       .product-modal-layout { grid-template-columns: 1fr; }
       .product-modal-hero-image { min-height: 360px; }
@@ -1971,7 +1990,6 @@
       .contact-details { grid-template-columns: 1fr; }
       .cta-headline { font-size: clamp(48px, 11vw, 80px); }
       .cta-btn-viber, .cta-btn-gmail { font-size: 20px; padding: 20px 32px; }
-      .ig-grid { grid-template-columns: repeat(4, 1fr); }
       .viber-headline { font-size: clamp(28px, 7vw, 44px); }
       .hero-featured-card { padding: 20px; }
       .hero-card-name { font-size: 20px; }
@@ -1979,7 +1997,6 @@
 
     /* ── Small mobile ── */
     @media (max-width: 480px) {
-      .ig-grid { grid-template-columns: repeat(3, 1fr); }
       .watch-card { flex: 0 0 88vw; }
       .hero-ctas { flex-direction: column; }
       .hero-ctas .btn-primary, .hero-ctas .btn-ghost { width: 100%; justify-content: center; }
@@ -2093,17 +2110,20 @@
       </div>
     </div>
 
-    <!-- Glassmorphism featured card -->
-    <div class="hero-featured-card">
+    <!-- Hero featured card. Static content acts as a sensible fallback while
+         the inventory fetch is in flight; once watches load, the storefront
+         JS rewrites this card to whichever piece carries featured=true (and
+         falls back to the first available piece if no featured one exists). -->
+    <div class="hero-featured-card" id="hero-featured-card">
       <div class="hero-card-header">
         <div>
-          <div class="mono">FEATURED · AVAILABLE NOW</div>
-          <div class="hero-card-name serif">Seiko Prospex<br>Alpinist "Whiskered Pitta"</div>
+          <div class="mono" id="hero-card-eyebrow">FEATURED · AVAILABLE NOW</div>
+          <div class="hero-card-name serif" id="hero-card-name">Seiko Prospex<br>Alpinist "Whiskered Pitta"</div>
         </div>
         <span class="gold" style="font-size:24px;line-height:1;">●</span>
       </div>
       <div class="hero-card-divider"></div>
-      <div class="hero-card-specs">
+      <div class="hero-card-specs" id="hero-card-specs">
         <div><div class="spec-label">Edition</div>5th PH L.E.</div>
         <div><div class="spec-label">Case</div>39.5 mm steel</div>
         <div><div class="spec-label">Movement</div>6R35 Auto</div>
@@ -2111,8 +2131,8 @@
       </div>
       <div class="hero-card-divider"></div>
       <div class="hero-card-footer">
-        <div class="hero-card-price serif gold">₱ 54,000</div>
-        <a href="#arrivals" class="hero-card-inquire">INQUIRE →</a>
+        <div class="hero-card-price serif gold" id="hero-card-price">₱ 54,000</div>
+        <a href="#arrivals" id="hero-card-inquire" class="hero-card-inquire">INQUIRE →</a>
       </div>
     </div>
   </div>
@@ -2319,67 +2339,30 @@
   </div>
 </section>
 
-<!-- 06 Instagram Feed -->
-<section id="instagram">
-  <div class="ig-header">
-    <div class="big-num reveal-scale">04</div>
-    <div class="section-header-text reveal">
-      <div class="mono">ON INSTAGRAM</div>
-      <div class="serif section-title">On the <em class="gold" style="font-style:italic;">feed.</em></div>
+<!-- 06 Curator's Note — replaced the previous fake Instagram grid (16
+     stretched copies of 4 watch shots was the most "AI-mockup" element on
+     the page). This is one large editorial photograph paired with a
+     Petrona-italic line in the curator's voice and a Spectral paragraph.
+     Heritage atelier register, Hodinkee cue. -->
+<section id="curator-note">
+  <div class="curator-note-grid">
+    <figure class="curator-note-photo reveal">
+      <picture>
+        <source type="image/avif" srcset="/watch-assets/alpinist-800.avif 800w, /watch-assets/alpinist-1600.avif 1600w" sizes="(min-width: 900px) 50vw, 100vw">
+        <source type="image/webp" srcset="/watch-assets/alpinist-800.webp 800w, /watch-assets/alpinist-1600.webp 1600w" sizes="(min-width: 900px) 50vw, 100vw">
+        <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist on a walnut bench at dusk, photographed in daylight, brass dial lit warm.">
+      </picture>
+    </figure>
+    <div class="curator-note-copy reveal">
+      <div class="big-num reveal-scale">04</div>
+      <div class="mono">From the bench · This week</div>
+      <h2 class="curator-note-headline serif">A note from <em class="gold" style="font-style:italic;">the curator.</em></h2>
+      <p class="curator-note-body">
+        This week we're carrying three pieces I would put on my own wrist, and one I almost did not list. The Alpinist “Whiskered Pitta” is the loudest of the four; it is also the one with the longest service history I have personally signed off on. If you want to talk through any of them, message us on Viber. We answer within four hours, Monday to Saturday.
+      </p>
+      <p class="curator-note-signoff">— Buloy, on the bench.</p>
+      <a href="#arrivals" class="curator-note-cta">See the current drop ↗</a>
     </div>
-    <a href="https://instagram.com/the.watch.alley" target="_blank" rel="noopener" class="ig-follow-link reveal">FOLLOW ↗</a>
-  </div>
-
-  <!-- Story highlights -->
-  <div class="ig-stories">
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Available"></div></div>
-      <div class="ig-story-label">AVAILABLE!</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Apr 2026"></div></div>
-      <div class="ig-story-label">APR 2026</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Mar 2026"></div></div>
-      <div class="ig-story-label">MAR 2026</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Feb 2026"></div></div>
-      <div class="ig-story-label">FEB 2026</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Jan 2026"></div></div>
-      <div class="ig-story-label">JAN 2026</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Quick VLOGs"></div></div>
-      <div class="ig-story-label">VLOGS</div>
-    </div>
-    <div class="ig-story">
-      <div class="ig-story-ring"><div class="ig-story-inner"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="Dec 2025"></div></div>
-      <div class="ig-story-label">DEC 2025</div>
-    </div>
-  </div>
-
-  <!-- 8-column photo grid (16 tiles) -->
-  <div class="ig-grid stagger">
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/hero-seiko-landmaster.png" alt="" style="object-position:center 20%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:40% 60%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:60% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="" style="object-position:center 80%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="" style="object-position:30% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/hero-seiko-landmaster.png" alt="" style="object-position:70% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:center 30%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:center 70%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="" style="object-position:50% 20%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="" style="object-position:center 50%"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/alpinist.png" alt="" style="object-position:80% center"><div class="ig-tile-overlay"></div></div>
-    <div class="ig-tile"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="" style="object-position:20% 80%"><div class="ig-tile-overlay"></div></div>
   </div>
 </section>
 
@@ -3346,6 +3329,82 @@ function showInquiryError(message) {
   inquiryError.textContent = message;
 }
 
+// Pick the watch to feature in the hero card. Priority: marked featured
+// + available + published, then any available + published, then nothing.
+function pickFeaturedWatch(watches) {
+  if (!Array.isArray(watches) || watches.length === 0) return null;
+  const eligible = (w) => w.status === 'available' && w.published !== false;
+  return (
+    watches.find((w) => w.featured === true && eligible(w))
+    || watches.find(eligible)
+    || null
+  );
+}
+
+// Rewrites the hero featured card with a real inventory piece. Clicking the
+// card opens that watch's detail modal; the inquire link opens the inquiry
+// modal for that piece.
+function renderHeroFeaturedCard(activeWatches) {
+  const card = document.getElementById('hero-featured-card');
+  if (!card) return;
+  const watch = pickFeaturedWatch(activeWatches);
+  if (!watch) {
+    // Nothing to feature: hide the card so the hero just leans on the CTA.
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+
+  // Eyebrow: FEATURED · AVAILABLE NOW (or RESERVED if status flips).
+  const eyebrow = document.getElementById('hero-card-eyebrow');
+  if (eyebrow) {
+    eyebrow.textContent = `FEATURED · ${statusLabel(watch.status).toUpperCase()} NOW`;
+  }
+
+  // Name: keep brand on its own visual line for the heritage register.
+  const nameEl = document.getElementById('hero-card-name');
+  if (nameEl) {
+    nameEl.innerHTML = '';
+    const brandLine = document.createElement('span');
+    brandLine.textContent = watch.brand || '';
+    const lineBreak = document.createElement('br');
+    const nameLine = document.createElement('span');
+    nameLine.textContent = watch.name || '';
+    nameEl.appendChild(brandLine);
+    nameEl.appendChild(lineBreak);
+    nameEl.appendChild(nameLine);
+  }
+
+  // Specs: Edition / Case / Movement / Condition. Skip any spec that
+  // doesn't carry a value so the grid never shows blank cells.
+  const specsEl = document.getElementById('hero-card-specs');
+  if (specsEl) {
+    const rows = [
+      ['Edition', watch.edition || watch.set || ''],
+      ['Case', watch.caseSize || ''],
+      ['Movement', watch.movement || ''],
+      ['Condition', watch.conditionLabel || ''],
+    ].filter(([, value]) => value && String(value).trim().length > 0);
+    specsEl.innerHTML = rows
+      .map(([label, value]) => `<div><div class="spec-label">${escapeHtml(label)}</div>${escapeHtml(value)}</div>`)
+      .join('');
+  }
+
+  // Price.
+  const priceEl = document.getElementById('hero-card-price');
+  if (priceEl) priceEl.textContent = formatPrice(watch);
+
+  // Inquire link: deep-link into the watch detail modal at /#/watch/<slug>.
+  // The same path-aware deep-link logic that powers /watch/<slug> also
+  // handles this hash form for in-page transitions.
+  const inquireEl = document.getElementById('hero-card-inquire');
+  if (inquireEl) {
+    inquireEl.setAttribute('href', `#/watch/${encodeURIComponent(watch.slug || '')}`);
+    inquireEl.dataset.watchSlug = watch.slug || '';
+    inquireEl.textContent = 'VIEW DETAILS →';
+  }
+}
+
 function renderWatchCard(watch, index, total, inventory) {
   const status = String(watch.status || 'available').toLowerCase();
   const itemNum = String(index + 1).padStart(2, '0');
@@ -3563,6 +3622,9 @@ async function loadWatchInventory() {
           </div>
         </div>`;
     }
+    // Hero featured card: prefer the watch flagged featured=true; fall back
+    // to the first available piece. Hidden if there's nothing to show.
+    renderHeroFeaturedCard(activeWatches);
     if (soldArchiveGrid) {
       if (soldWatches.length > 0) {
         soldArchiveGrid.innerHTML = soldWatches
