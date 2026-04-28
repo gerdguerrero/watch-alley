@@ -1152,6 +1152,70 @@
       margin-top: 12px;
     }
 
+    /* ── 04c Buying Process ── */
+    #buying-process {
+      padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 80px);
+      background: var(--navy-deep);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .buying-process-header {
+      max-width: 880px;
+      margin: 0 auto 32px;
+      text-align: left;
+    }
+    .buying-process-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .buying-process-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      color: var(--cream);
+      margin: 8px 0 12px 0;
+    }
+    .buying-process-blurb {
+      max-width: 640px;
+      color: var(--cream-60);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .buying-process-grid {
+      max-width: 880px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .buying-step {
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .buying-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .buying-step-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--cream);
+      line-height: 1.2;
+    }
+    .buying-step-copy {
+      color: var(--cream-80);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     /* ── 05 Viber ── */
     #viber {
       border-top: 1px solid var(--gold);
@@ -1697,6 +1761,37 @@
   </div>
 </section>
 
+<!-- 04c Buying Process -->
+<section id="buying-process">
+  <div class="buying-process-header reveal">
+    <div class="buying-process-eyebrow">04 · How buying works</div>
+    <h2 class="buying-process-title">Browse · Inquire · Confirm · Ship.</h2>
+    <p class="buying-process-blurb">No checkout cart, no surprises. Every Watch Alley sale is a real conversation that ends in a serviced piece on your wrist.</p>
+  </div>
+  <div class="buying-process-grid">
+    <div class="buying-step reveal">
+      <span class="buying-step-num">01 · Browse</span>
+      <div class="buying-step-name">Find the piece.</div>
+      <p class="buying-step-copy">Open any watch on the homepage to see condition, set inclusions, photos, and disclosures up front.</p>
+    </div>
+    <div class="buying-step reveal">
+      <span class="buying-step-num">02 · Inquire</span>
+      <div class="buying-step-name">Message us.</div>
+      <p class="buying-step-copy">Tap Inquire to open a Viber, IG, or email thread. We confirm current availability and share extra daylight photos.</p>
+    </div>
+    <div class="buying-step reveal">
+      <span class="buying-step-num">03 · Confirm</span>
+      <div class="buying-step-name">Reserve and pay.</div>
+      <p class="buying-step-copy">Reserve with a partial deposit or pay in full via GCash or bank transfer. We never accept anonymous channels.</p>
+    </div>
+    <div class="buying-step reveal">
+      <span class="buying-step-num">04 · Ship or meet</span>
+      <div class="buying-step-name">Wrist on time.</div>
+      <p class="buying-step-copy">Insured courier with tracking, or a meet-up in Metro Manila by appointment. You confirm receipt and we close the loop.</p>
+    </div>
+  </div>
+</section>
+
 <!-- 05 Viber Community -->
 <section id="viber">
   <div class="viber-inner">
@@ -1899,9 +1994,9 @@
   </a>
   <div class="footer-copy">© MMXXVI · THE WATCH ALLEY PH · MANILA</div>
   <div class="footer-links">
-    <a href="#">PRIVACY</a>
-    <a href="#">TERMS</a>
-    <a href="#">AUTHENTICITY</a>
+    <a href="./privacy.html">PRIVACY</a>
+    <a href="./terms.html">TERMS</a>
+    <a href="./authenticity.html">AUTHENTICITY</a>
   </div>
 </footer>
 

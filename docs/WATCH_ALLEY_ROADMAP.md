@@ -81,10 +81,10 @@ Checklist:
 - [x] Add availability states: Available, Reserved, Sold.
 - [ ] Add box/papers/service history fields visibly in the UI.
 - [x] Add disclosure/condition notes visibly in the UI.
-- [ ] Add real Authenticity page.
-- [ ] Add real Terms page.
-- [ ] Add real Privacy page.
-- [ ] Add buying process section: Browse -> Inquire -> Confirm -> Ship/Meet.
+- [x] Add real Authenticity page.
+- [x] Add real Terms page.
+- [x] Add real Privacy page.
+- [x] Add buying process section: Browse -> Inquire -> Confirm -> Ship/Meet.
 - [ ] Add event tracking for important clicks.
 - [ ] Optimize images to WebP/AVIF and responsive sizes.
 - [ ] Add sitemap.xml.
