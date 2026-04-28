@@ -15,7 +15,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--navy-deep);
   color: var(--cream);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@ a:hover { color: var(--cream); }
 }
 .trust-nav a:hover { color: var(--gold); }
 .trust-nav-home {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: 18px;
   color: var(--cream);
   letter-spacing: 0.04em;
@@ -72,7 +72,7 @@ main.trust-page {
 }
 
 .trust-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: clamp(36px, 5vw, 64px);
   line-height: 1.1;
   color: var(--cream);
@@ -94,7 +94,7 @@ main.trust-page {
   margin-bottom: 48px;
 }
 .trust-page h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: clamp(22px, 3vw, 30px);
   color: var(--cream);
   margin-bottom: 16px;
@@ -121,14 +121,18 @@ main.trust-page {
 }
 .trust-page li { margin-bottom: 8px; }
 .trust-page strong { color: var(--cream); }
+/* Callout: full thin border + tinted paper-tone background. The previous
+   left-stripe accent is an over-used dashboard pattern; a contained tile
+   reads as a deliberate sidebar in editorial layout. */
 .trust-page .callout {
-  border-left: 2px solid var(--gold);
-  padding: 16px 20px;
-  background: rgba(201, 162, 75, 0.05);
+  border: 1px solid var(--gold-30);
+  padding: 18px 22px;
+  background: rgba(201, 162, 75, 0.04);
   margin: 24px 0;
   font-size: 14px;
   color: var(--cream-80);
   line-height: 1.65;
+  border-radius: 2px;
 }
 
 .trust-footer {

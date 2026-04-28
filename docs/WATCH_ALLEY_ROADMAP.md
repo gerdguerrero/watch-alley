@@ -87,7 +87,7 @@ Checklist:
 - [x] Add real Privacy page.
 - [x] Add buying process section: Browse -> Inquire -> Confirm -> Ship/Meet.
 - [x] Add event tracking for important clicks.
-- [ ] Optimize images to WebP/AVIF and responsive sizes.
+- [x] Optimize images to WebP/AVIF and responsive sizes. (Optimizer emits AVIF+WebP at 1600w/800w; storefront `<picture>` offers AVIF first, WebP second, raster fallback. Validator enforces variants on every inventory image.)
 - [x] Add sitemap.xml.
 - [x] Add robots.txt.
 - [x] Add schema.org Product and LocalBusiness metadata.
@@ -277,6 +277,18 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - [ ] Should the default social CTA be DM, website inquiry form, Messenger, Viber, or a combination?
 
 ## Progress log
+
+### 2026-04-28 (Phase 1 close-out — image pipeline + heritage-craft typography refresh)
+
+- **Image pipeline (closes the last Phase 1 box).** `scripts/optimize-images.mjs` now emits AVIF (q50, effort 4) and WebP (q76–78) variants at 1600w and 800w for every PNG/JPG in `public/watch-assets/`. AVIF compresses to ~4.5% of source, WebP to ~8.6%.
+- Storefront `renderResponsivePicture()` updated to emit `<source type="image/avif">` *before* the existing WebP source. Modern browsers pull AVIF, older browsers fall back to WebP, and oldest fall back to the raster source.
+- New validator `scripts/validate-image-pipeline.mjs` (wired into `pnpm test`) enforces that every inventory image has all four next-gen sibling variants on disk, and that the picture markup offers them in the right order.
+- Image containers already had explicit heights (`320px` cards, `min-height: 440px` modal hero) so CLS is reserved by container size; added a 0.45s `wa-img-fade-in` animation guarded by `prefers-reduced-motion` for tasteful loading.
+- Warmed the placeholder background tone behind images from cool near-black (`#080c14`) to walnut (`oklch(0.18 0.012 55)`) — first step of the heritage-craft palette evolution.
+- **Typography refresh (per `.impeccable.md` design context).** Dropped Playfair Display + Inter (the impeccable skill's reflex defaults) and adopted **Petrona** (display, wedge serif, Anton Koovit) + **Spectral** (body, screen-tuned editorial serif from Production Type). JetBrains Mono retained for tiny labels. Updated `<link>` tags in `index.html`, `admin/index.html`, `authenticity.html`, `terms.html`, `privacy.html`, and replaced `font-family` declarations across `index.html`, `styles/admin.css`, `styles/trust-page.css`.
+- Removed the `border-left: 2px solid var(--gold)` stripe from `.trust-page .callout` (banned per impeccable skill); replaced with a contained tile (full thin gold border + faint paper-tone tint).
+- Created `.impeccable.md` capturing the design context: heritage-craft / atelier brand personality, banned patterns, anti-references, typography choices, and color direction. Future design decisions should anchor to this document.
+- All 12 validators + `pnpm build` pass clean.
 
 ### 2026-04-28 17:02 PST (Social Publishing — live FB/IG post mockups)
 

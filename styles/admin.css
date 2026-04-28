@@ -33,7 +33,7 @@
   max-width: 540px;
 }
 .admin-card h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: clamp(28px, 4vw, 40px);
   color: var(--cream);
   margin-bottom: 12px;
@@ -49,7 +49,7 @@
 /* Email addresses inside .admin-meta should NOT be uppercased — keep their
    real casing. They're rendered inside <strong> tags. */
 .admin-meta strong {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 13px;
   letter-spacing: normal;
   text-transform: none;
@@ -70,7 +70,7 @@
   color: var(--gold);
 }
 .admin-count {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: 28px;
   color: var(--cream);
 }
@@ -103,7 +103,7 @@
 .admin-form input,
 .admin-form select,
 .admin-form textarea {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 14px;
   letter-spacing: normal;
   text-transform: none;
@@ -219,7 +219,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .admin-new-btn:hover { filter: brightness(1.08); }
 #watch-filter {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 13px;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -256,7 +256,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: var(--cream);
   padding: 10px 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 13px;
   cursor: pointer;
   border-radius: 2px;
@@ -343,7 +343,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .admin-social-header h3 {
   margin: 4px 0 8px;
   color: var(--cream);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Petrona', Georgia, serif;
   font-size: 24px;
   font-weight: 600;
 }
@@ -633,7 +633,7 @@ code {
   border-bottom: 2px solid transparent;
   color: var(--cream-80);
   padding: 10px 14px;
-  font: 500 13px/1 'Inter', system-ui, sans-serif;
+  font: 500 13px/1 'Spectral', Georgia, serif;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: color 160ms ease, border-color 160ms ease;
@@ -663,7 +663,7 @@ code {
   background: rgba(255, 255, 255, 0.02);
 }
 #admins-list .admin-row-name {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 13px;
   text-transform: none;
   letter-spacing: normal;
@@ -675,7 +675,7 @@ code {
   margin-top: 0;
 }
 #admins-list .admin-row-meta > span {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 12px;
   letter-spacing: normal;
   text-transform: none;
