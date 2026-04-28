@@ -58,8 +58,8 @@ assert(
   'homepage must fetch the declared inventory source'
 );
 assert(
-  /renderWatchCard\(watch, index, watches\.length, inventory\)/.test(indexHtml),
-  'inventory loader must render every watch through renderWatchCard(watch, index, watches.length, inventory)'
+  /renderWatchCard\(watch, index, (?:watches|activeWatches)\.length, inventory\)/.test(indexHtml),
+  'inventory loader must render every active watch through renderWatchCard(watch, index, activeWatches.length, inventory)'
 );
 assert(
   /encodeURIComponent\(watch\.inquirySubject\)/.test(indexHtml),

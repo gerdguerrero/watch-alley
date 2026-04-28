@@ -1032,6 +1032,126 @@
       transition: width 0.15s ease;
     }
 
+    /* ── 04b Sold Archive ── */
+    #sold-archive {
+      padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 80px);
+      background: var(--navy-deep);
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .sold-archive-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .sold-archive-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .sold-archive-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 4vw, 48px);
+      color: var(--cream);
+      margin: 8px 0 0 0;
+    }
+    .sold-archive-blurb {
+      max-width: 540px;
+      color: var(--cream-60);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .sold-archive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .sold-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .sold-card:hover { border-color: var(--gold); background: rgba(201,162,75,0.06); }
+    .sold-card-img {
+      aspect-ratio: 1 / 1;
+      background: rgba(0,0,0,0.4);
+      overflow: hidden;
+      filter: grayscale(0.55);
+    }
+    .sold-card-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.78; }
+    .sold-card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .sold-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+    .sold-card-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+    }
+    .sold-card-cta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cream);
+      align-self: flex-start;
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 4px;
+    }
+    .sold-card-empty {
+      grid-column: 1 / -1;
+      padding: 16px 0;
+      color: var(--cream-60);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .product-modal-sold-note {
+      margin-top: 24px;
+      padding: 16px 18px;
+      background: rgba(255,255,255,0.04);
+      border-left: 2px solid var(--gold);
+      color: var(--cream-80);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .product-modal-sold-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 12px;
+    }
+
     /* ── 05 Viber ── */
     #viber {
       border-top: 1px solid var(--gold);
@@ -1563,6 +1683,20 @@
   </div>
 </section>
 
+<!-- 04b Sold Archive -->
+<section id="sold-archive">
+  <div class="sold-archive-header reveal">
+    <div>
+      <div class="sold-archive-eyebrow">04 · SOLD ARCHIVE</div>
+      <h2 class="sold-archive-title">Recently honored.</h2>
+    </div>
+    <p class="sold-archive-blurb">A running record of pieces that found a home through Watch Alley. If you missed one, message us — similar references come around.</p>
+  </div>
+  <div class="sold-archive-grid" id="sold-archive-grid">
+    <div class="sold-card-empty" data-sold-empty>Loading archive…</div>
+  </div>
+</section>
+
 <!-- 05 Viber Community -->
 <section id="viber">
   <div class="viber-inner">
@@ -1875,6 +2009,7 @@ const productModal = document.getElementById('product-detail-modal');
 const productModalBackdrop = document.getElementById('product-modal-backdrop');
 const productModalClose = document.getElementById('product-modal-close');
 const productModalBody = document.getElementById('product-modal-body');
+const soldArchiveGrid = document.getElementById('sold-archive-grid');
 const watchInventoryCache = { watches: [] };
 let lastFocusedElement = null;
 let pendingDeepLinkSlug = null;
@@ -1965,6 +2100,7 @@ function renderProductDetailModal(watch, inventory) {
   const inquiryHref = buildInquiryHref(watch, inventory);
   const price = formatPrice(watch);
   const status = statusLabel(watch.status);
+  const isSold = watch.status === 'sold';
   const galleryMarkup = images.map((image, index) => `
           <div class="product-modal-thumb">
             <img loading="lazy" decoding="async" src="${escapeHtml(image)}" alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}">
@@ -1977,8 +2113,28 @@ function renderProductDetailModal(watch, inventory) {
     renderProductDetailRow('Movement', watch.movement),
     renderProductDetailRow('Case Size', watch.caseSize),
     renderProductDetailRow('Edition', watch.edition),
-    renderProductDetailRow('Availability', status)
+    renderProductDetailRow('Availability', status),
+    isSold && watch.soldAt ? renderProductDetailRow('Sold', watch.soldAt) : ''
   ].join('');
+
+  const actionsMarkup = isSold
+    ? `
+            <div class="product-modal-actions">
+              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Ask About Similar References ↗</a>
+              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
+              <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
+            </div>
+            <div class="product-modal-sold-note">
+              <span class="product-modal-sold-status">● Sold · archived listing</span>
+              <p>This piece has already found a home through Watch Alley. Message us and we will keep an eye out for similar references.</p>
+            </div>`
+    : `
+            <div class="product-modal-actions">
+              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Inquire About This Watch ↗</a>
+              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
+              <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
+              <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
+            </div>`;
 
   return `
         <div class="product-modal-layout">
@@ -2001,13 +2157,7 @@ function renderProductDetailModal(watch, inventory) {
             <div class="product-modal-disclosure">
               <div class="product-detail-label">Disclosure / Buyer Note</div>
               <p>${escapeHtml(watch.disclosure)}</p>
-            </div>
-            <div class="product-modal-actions">
-              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Inquire About This Watch ↗</a>
-              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
-              <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
-              <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
-            </div>
+            </div>${actionsMarkup}
           </div>
         </div>`;
 }
@@ -2143,6 +2293,20 @@ function renderWatchCard(watch, index, total, inventory) {
       </article>`;
 }
 
+function renderSoldCard(watch) {
+  const soldAt = typeof watch.soldAt === 'string' ? watch.soldAt : '';
+  return `
+      <article class="sold-card" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="sold" tabindex="0" role="button" aria-label="Open archived details for ${escapeHtml(watch.name)}">
+        <div class="sold-card-img">
+          <img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+        </div>
+        <div class="sold-card-status">● Sold${soldAt ? ` · ${escapeHtml(soldAt)}` : ''}</div>
+        <div class="sold-card-name serif">${escapeHtml(watch.name)}</div>
+        <div class="sold-card-meta">${escapeHtml(watch.brand)} · ${escapeHtml(watch.reference)}</div>
+        <div class="sold-card-cta">VIEW ARCHIVE →</div>
+      </article>`;
+}
+
 function renderInventoryError(error) {
   console.error('Watch inventory failed to load:', error);
   carouselTrack.innerHTML = `
@@ -2157,6 +2321,9 @@ function renderInventoryError(error) {
           </div>
         </div>
       </div>`;
+  if (soldArchiveGrid) {
+    soldArchiveGrid.innerHTML = `<div class="sold-card-empty">Sold archive unavailable right now. Please refresh.</div>`;
+  }
   updateProgress();
 }
 
@@ -2173,10 +2340,34 @@ async function loadWatchInventory() {
     watchInventoryCache.inquiryEmail = inventory.inquiryEmail;
     watchInventoryCache.currency = inventory.currency;
 
-    carouselTrack.innerHTML = watches
-      .map((watch, index) => renderWatchCard(watch, index, watches.length, inventory))
-      .join('');
+    const activeWatches = watches.filter((watch) => watch.status !== 'sold');
+    const soldWatches = watches.filter((watch) => watch.status === 'sold');
+
+    if (activeWatches.length > 0) {
+      carouselTrack.innerHTML = activeWatches
+        .map((watch, index) => renderWatchCard(watch, index, activeWatches.length, inventory))
+        .join('');
+    } else {
+      carouselTrack.innerHTML = `
+        <div class="watch-card inventory-error" role="status">
+          <div class="watch-card-info">
+            <div class="watch-card-brand">DROP IN PROGRESS</div>
+            <div class="watch-card-name serif">No active listings right now.</div>
+            <div class="watch-card-meta">CHECK SOLD ARCHIVE BELOW · OR JOIN VIBER FOR THE NEXT DROP</div>
+          </div>
+        </div>`;
+    }
     updateProgress();
+
+    if (soldArchiveGrid) {
+      if (soldWatches.length > 0) {
+        soldArchiveGrid.innerHTML = soldWatches
+          .map((watch) => renderSoldCard(watch))
+          .join('');
+      } else {
+        soldArchiveGrid.innerHTML = `<div class="sold-card-empty">Once pieces find their next collector, they will appear here.</div>`;
+      }
+    }
 
     const slug = pendingDeepLinkSlug || getWatchHashSlug();
     pendingDeepLinkSlug = null;
@@ -2338,6 +2529,25 @@ carouselTrack.addEventListener('click', (event) => {
   const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
   if (watch) openProductDetailModal(watch);
 });
+
+if (soldArchiveGrid) {
+  soldArchiveGrid.addEventListener('click', (event) => {
+    const card = event.target.closest('.sold-card[data-watch-slug]');
+    if (!card) return;
+    const slug = card.dataset.watchSlug;
+    const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
+    if (watch) openProductDetailModal(watch);
+  });
+  soldArchiveGrid.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const card = event.target.closest('.sold-card[data-watch-slug]');
+    if (!card) return;
+    event.preventDefault();
+    const slug = card.dataset.watchSlug;
+    const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
+    if (watch) openProductDetailModal(watch);
+  });
+}
 
 </script>
 </body>
