@@ -57,6 +57,10 @@ if (!supabaseUrl) {
   console.error('Sync failed: WATCH_ALLEY_SUPABASE_URL is not set. See .env.example.');
   process.exit(1);
 }
+if (supabaseUrl.includes('YOUR-NEW-PROJECT-REF')) {
+  console.error('Sync failed: WATCH_ALLEY_SUPABASE_URL is still the placeholder. Create a new Watch Alley Supabase project and update .env.local + scripts/admin.js with the real ref + anon key.');
+  process.exit(1);
+}
 if (!supabaseKey) {
   console.error(`Sync failed: ${useServiceRole ? 'WATCH_ALLEY_SUPABASE_SERVICE_ROLE_KEY' : 'WATCH_ALLEY_SUPABASE_ANON_KEY'} is not set. See .env.example.`);
   process.exit(1);

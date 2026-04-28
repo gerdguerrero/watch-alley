@@ -25,8 +25,23 @@
 <main class="admin-shell">
   <div id="admin-status" class="admin-status" role="status" aria-live="polite"></div>
 
+  <!-- Unconfigured: shown until Supabase URL + anon key are filled in -->
+  <section id="unconfigured-panel" class="admin-card" hidden>
+    <h1>Connect a Supabase project</h1>
+    <p class="admin-meta">Watch Alley admin is not wired to a Supabase project yet.</p>
+    <p>The original project was the wrong tenant and has been removed. To finish setup:</p>
+    <ol class="admin-setup-list">
+      <li>Create a new Supabase project under your own org.</li>
+      <li>Run the Watch Alley migrations from <code>docs/inventory-schema.md</code> against it.</li>
+      <li>Fill <code>WATCH_ALLEY_SUPABASE_URL</code> and <code>WATCH_ALLEY_SUPABASE_ANON_KEY</code> in <code>.env.local</code>.</li>
+      <li>Replace the placeholder <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> constants near the top of <code>scripts/admin.js</code> with the same values.</li>
+      <li>Insert your email into <code>watch_alley.admin_emails</code> via Supabase Studio.</li>
+      <li>Reload this page.</li>
+    </ol>
+  </section>
+
   <!-- Auth -->
-  <section id="auth-panel" class="admin-card">
+  <section id="auth-panel" class="admin-card" hidden>
     <h1>Sign in</h1>
     <p class="admin-meta">Watch Alley admin is private. Sign in with your allowlisted email.</p>
     <form id="auth-form" class="admin-form">

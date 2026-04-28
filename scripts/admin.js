@@ -5,12 +5,21 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
-const SUPABASE_URL = 'https://trqgzrylysybgipcejwe.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_mQQIkS7QA21VP9mNeiB-SQ_uvrv4-FK';
+// Replace these two values with the real anon credentials from your Watch Alley
+// Supabase project. They are intentionally left as placeholders right now because
+// the original project (trqgzrylysybgipcejwe) was the wrong tenant. The admin
+// page surfaces a "configure Supabase" notice until both values are filled in.
+const SUPABASE_URL = 'https://YOUR-NEW-PROJECT-REF.supabase.co';
+const SUPABASE_ANON_KEY = '';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true },
-});
+const PLACEHOLDER_URL_HOST = 'YOUR-NEW-PROJECT-REF';
+const isConfigured = !SUPABASE_URL.includes(PLACEHOLDER_URL_HOST) && SUPABASE_ANON_KEY.length > 0;
+
+const supabase = isConfigured
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    })
+  : null;
 
 const els = {
   status: document.getElementById('admin-status'),
@@ -21,6 +30,7 @@ const els = {
   forbiddenPanel: document.getElementById('forbidden-panel'),
   forbiddenEmail: document.getElementById('forbidden-email'),
   forbiddenSignout: document.getElementById('forbidden-signout'),
+  unconfiguredPanel: document.getElementById('unconfigured-panel'),
   workspace: document.getElementById('workspace-panel'),
   signoutLink: document.getElementById('admin-signout-link'),
   watchList: document.getElementById('watch-list'),
@@ -81,7 +91,7 @@ els.authForm.addEventListener('submit', async (event) => {
 });
 
 async function signOut() {
-  await supabase.auth.signOut();
+  if (supabase) await supabase.auth.signOut();
   els.authEmail.value = '';
   els.authPassword.value = '';
   setStatus('Signed out.');
@@ -91,14 +101,21 @@ async function signOut() {
 els.signoutLink.addEventListener('click', (event) => { event.preventDefault(); signOut(); });
 els.forbiddenSignout.addEventListener('click', signOut);
 
-supabase.auth.onAuthStateChange(() => {
-  // Re-render whenever the session changes (token refresh, sign-in, sign-out).
-  renderForCurrentSession();
-});
+if (supabase) {
+  supabase.auth.onAuthStateChange(() => {
+    // Re-render whenever the session changes (token refresh, sign-in, sign-out).
+    renderForCurrentSession();
+  });
+}
 
 // ---------------- Authorization gate ----------------
 
 async function renderForCurrentSession() {
+  if (!supabase) {
+    showOnly('unconfigured');
+    setStatus('Supabase project not configured yet.', 'error');
+    return;
+  }
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     showOnly('auth');
@@ -124,7 +141,8 @@ function showOnly(panel) {
   els.authPanel.hidden = panel !== 'auth';
   els.forbiddenPanel.hidden = panel !== 'forbidden';
   els.workspace.hidden = panel !== 'workspace';
-  els.signoutLink.hidden = panel === 'auth';
+  if (els.unconfiguredPanel) els.unconfiguredPanel.hidden = panel !== 'unconfigured';
+  els.signoutLink.hidden = panel === 'auth' || panel === 'unconfigured';
 }
 
 // ---------------- Inventory list ----------------

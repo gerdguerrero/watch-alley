@@ -263,6 +263,7 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - All 5 validators still pass against the regenerated JSON; `pnpm build` clean.
 - Added admin update workflow at `/admin.html`: Supabase Auth (email + password) + server-side allowlist check (`watch_alley.admin_emails` + `watch_alley.is_admin()`) + `SECURITY DEFINER` RPCs (`public.admin_upsert_watch`, `public.admin_delete_watch`, `public.admin_mark_watch_sold`, `public.admin_whoami`). The page lists, filters, creates, edits, and deletes watches without ever holding a service-role key in the browser.
 - `robots.txt` disallows `/admin` from crawlers; admin page sets `noindex,nofollow`.
+- Discovered the Supabase project we migrated into was the wrong tenant (it already hosted an unrelated `relief_posts`/`applications` app). Dropped `watch_alley` schema, `public.watches` view, and all `admin_*` RPCs from that project — confirmed zero artifacts left. Replaced the hardcoded project URL + anon key with placeholders in `.env.local`, `scripts/admin.js`, and `.env.example`. Admin page now renders a "Connect a Supabase project" notice until reconfigured. Bundled the full schema + admin RPC bootstrap as `docs/migrations/0001-watch-alley-bootstrap.sql` so the new project (in the right org) can be set up with a single SQL paste.
 
 ### 2026-04-28 (Phase 1 — Conversion + Trust Foundation)
 
