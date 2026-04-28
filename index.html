@@ -1013,6 +1013,32 @@
       line-height: 1.7;
       max-width: 640px;
     }
+    /* Provenance — the editorial story panel. Reads like a watchmaker's note
+       in the margin: thin gold rule above, .mono eyebrow, italic Spectral
+       paragraphs at narrower line-length, generous breathing room. */
+    .product-modal-provenance {
+      margin: 22px 0 0;
+      padding: 22px 0 0;
+      border-top: 1px solid var(--gold-20);
+      max-width: 60ch;
+    }
+    .product-modal-provenance-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .product-modal-provenance p {
+      font-family: 'Spectral', Georgia, serif;
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--cream-80);
+      margin: 0 0 12px;
+    }
+    .product-modal-provenance p:last-child { margin-bottom: 0; }
     .product-modal-price {
       font-family: 'Petrona', Georgia, serif;
       color: var(--gold);
@@ -2636,6 +2662,7 @@ const PUBLIC_WATCH_COLUMNS = [
   'edition',
   'description',
   'disclosure',
+  'provenance',
   'primary_image',
   'images',
   'inquiry_subject',
@@ -2780,6 +2807,28 @@ function renderProductDetailRow(label, value) {
           </div>`;
 }
 
+// Provenance — the editorial story behind a piece. Optional. When present,
+// renders an atelier "From the bench" panel between description and price.
+// Splits on blank lines into paragraphs; everything is HTML-escaped.
+function renderProductProvenance(provenance) {
+  if (!provenance || typeof provenance !== 'string') return '';
+  const trimmed = provenance.trim();
+  if (!trimmed) return '';
+  const paragraphs = trimmed
+    .split(/\n\s*\n/)
+    .map((para) => para.trim())
+    .filter(Boolean);
+  if (paragraphs.length === 0) return '';
+  const body = paragraphs
+    .map((para) => `<p>${escapeHtml(para)}</p>`)
+    .join('');
+  return `
+            <aside class="product-modal-provenance" aria-label="Provenance and curator's notes">
+              <div class="product-modal-provenance-eyebrow">From the bench</div>
+              ${body}
+            </aside>`;
+}
+
 function renderProductDetailModal(watch, inventory) {
   const images = Array.isArray(watch.images) && watch.images.length > 0
     ? watch.images
@@ -2841,6 +2890,7 @@ function renderProductDetailModal(watch, inventory) {
             <div class="mono">${escapeHtml(watch.brand)} · ${escapeHtml(watch.reference)}</div>
             <h2 class="product-modal-title" id="product-modal-title">${escapeHtml(watch.name)}</h2>
             <p class="product-modal-description">${escapeHtml(watch.description)}</p>
+            ${renderProductProvenance(watch.provenance)}
             <div class="product-modal-price">${escapeHtml(price)}</div>
             <div class="product-detail-grid">${detailRows}</div>
             <div class="product-modal-disclosure">
@@ -3301,6 +3351,7 @@ function toWatchInventoryItem(row) {
     edition: row.edition,
     description: row.description,
     disclosure: row.disclosure,
+    provenance: row.provenance || '',
     primaryImage: row.primary_image || images[0] || '',
     images,
     inquirySubject: row.inquiry_subject,

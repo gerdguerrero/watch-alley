@@ -489,6 +489,7 @@ function loadIntoForm(watch) {
   setField('edition', watch?.edition || '');
   setField('description', watch?.description || '');
   setField('disclosure', watch?.disclosure || '');
+  setField('provenance', watch?.provenance || '');
   setField('primaryImage', watch?.primary_image || '');
   setField('images', Array.isArray(watch?.images) ? watch.images.join('\n') : '');
   setImageList(Array.isArray(watch?.images) ? watch.images.slice() : []);
@@ -1000,6 +1001,7 @@ function collectFormPayload() {
     edition: getField('edition').trim(),
     description: getField('description').trim(),
     disclosure: getField('disclosure').trim(),
+    provenance: getField('provenance').trim() || null,
     primaryImage,
     images,
     inquirySubject: getField('inquirySubject').trim(),

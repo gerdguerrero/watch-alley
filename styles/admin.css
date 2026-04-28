@@ -875,6 +875,18 @@ code {
 .admin-image-paths-details label { display: block; margin-top: 8px; }
 .admin-image-paths-details .admin-meta { margin-top: 6px; }
 
+/* Inline helper text inside an admin-form label — Spectral italic, lowercase,
+   so it reads as a calm hint rather than another shouting mono label. */
+.admin-form label .admin-meta {
+  font-family: 'Spectral', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--cream-60);
+  margin-bottom: 0;
+}
+
 /* ── Inbox tab ─────────────────────────────────────────────────────── */
 #tabpanel-inbox[hidden] { display: none; }
 .inbox-header {
