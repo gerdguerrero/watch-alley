@@ -98,7 +98,32 @@ for (const [index, watch] of data.watches.entries()) {
   for (const textField of ['brand', 'model', 'reference', 'name', 'conditionLabel', 'badge', 'movement', 'caseSize', 'set', 'material', 'edition', 'description', 'disclosure', 'inquirySubject', 'inquiryBody']) {
     assert(typeof watch[textField] === 'string' && watch[textField].trim().length > 0, `${label} ${textField} must be non-empty text`);
   }
+
+  if (watch.status === 'sold') {
+    assert(
+      typeof watch.soldAt === 'string' && /^\d{4}-\d{2}$/.test(watch.soldAt),
+      `${label} sold watch must include soldAt in YYYY-MM format`
+    );
+    assert(
+      Number.isInteger(watch.soldPrice) && watch.soldPrice >= 0,
+      `${label} sold watch must include non-negative integer soldPrice`
+    );
+  } else {
+    if (Object.prototype.hasOwnProperty.call(watch, 'soldAt')) {
+      assert(
+        typeof watch.soldAt === 'string' && /^\d{4}-\d{2}$/.test(watch.soldAt),
+        `${label} soldAt must be YYYY-MM when present`
+      );
+    }
+    if (Object.prototype.hasOwnProperty.call(watch, 'soldPrice')) {
+      assert(
+        Number.isInteger(watch.soldPrice) && watch.soldPrice >= 0,
+        `${label} soldPrice must be a non-negative integer when present`
+      );
+    }
+  }
 }
 
 const availableCount = data.watches.filter((watch) => watch.status === 'available').length;
-console.log(`Watch inventory valid: ${data.watches.length} watches (${availableCount} available).`);
+const soldCount = data.watches.filter((watch) => watch.status === 'sold').length;
+console.log(`Watch inventory valid: ${data.watches.length} watches (${availableCount} available, ${soldCount} sold).`);

@@ -52,6 +52,7 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
 - Product detail modal now opens from inventory-rendered cards and surfaces trust-critical listing fields.
 - Each watch is now individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
+- Sold listings now render in a homepage Sold Archive section, filtered out of the active drop carousel, and surface a sold-state product modal with no active inquire CTA.
 
 ## Operating rule
 
@@ -107,7 +108,7 @@ Checklist:
 - [ ] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS.
 - [ ] Add inventory schema documentation.
 - [ ] Add admin-friendly update workflow.
-- [ ] Add Sold Archive.
+- [x] Add Sold Archive.
 - [ ] Add product slugs.
 - [ ] Add brand/category pages.
 - [ ] Add search/filter for brand, price, condition, status.
@@ -276,6 +277,9 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Wired `history.pushState`/`replaceState`, `popstate`, and `hashchange` so browser back/forward correctly toggles the modal and preserves scroll position.
 - Added `scripts/validate-shareable-watch-urls.mjs` and expanded `pnpm test` to protect the deep-link contract.
 - Browser-verified deep link, back/forward, card click URL update, copy link, and graceful no-op on unknown slugs.
+- Started Phase 2 Inventory OS with a Sold Archive starter: filtered active drop carousel to non-sold watches, added homepage `#sold-archive` section, sold-state product modal branch with Ask About Similar References CTA, and `scripts/validate-sold-archive.mjs`.
+- Extended `scripts/validate-watch-data.mjs` so sold listings must include `soldAt` (YYYY-MM) and `soldPrice` (non-negative integer in PHP); updated success log to report sold count.
+- Browser-verified Sold Archive renders 3 sample sold cards, deep linking to a sold slug auto-opens the sold-state modal, and the active carousel still renders 10 active watches.
 
 ## Commands
 
