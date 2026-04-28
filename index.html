@@ -724,6 +724,13 @@
       object-position: center;
       display: block;
     }
+    .watch-card-img picture,
+    .product-modal-hero-image picture,
+    .sold-card-img picture {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
     .watch-card-img .watch-svg-wrap {
       width: 100%;
       height: 100%;
@@ -2213,6 +2220,34 @@ function safeEmail(email) {
     : 'hello@watchalley.ph';
 }
 
+function responsiveSources(image) {
+  if (typeof image !== 'string' || image.length === 0) return null;
+  const dotIndex = image.lastIndexOf('.');
+  if (dotIndex <= 0) return null;
+  const ext = image.slice(dotIndex + 1).toLowerCase();
+  if (ext === 'webp' || ext === 'avif') return null;
+  const stem = image.slice(0, dotIndex);
+  return {
+    webp1600: `${stem}-1600.webp`,
+    webp800: `${stem}-800.webp`,
+    fallback: image
+  };
+}
+
+function renderResponsivePicture({ image, alt, classNames = '', sizes = '(min-width: 768px) 60vw, 100vw', loading = 'lazy', decoding = 'async', fetchpriority }) {
+  const altSafe = escapeHtml(alt || '');
+  const fetchAttr = fetchpriority ? ` fetchpriority="${escapeHtml(fetchpriority)}"` : '';
+  const classAttr = classNames ? ` class="${escapeHtml(classNames)}"` : '';
+  const sources = responsiveSources(image);
+  if (!sources) {
+    return `<img${classAttr} loading="${escapeHtml(loading)}" decoding="${escapeHtml(decoding)}"${fetchAttr} src="${escapeHtml(image)}" alt="${altSafe}">`;
+  }
+  return `<picture${classAttr}>
+            <source type="image/webp" srcset="${escapeHtml(sources.webp800)} 800w, ${escapeHtml(sources.webp1600)} 1600w" sizes="${escapeHtml(sizes)}">
+            <img loading="${escapeHtml(loading)}" decoding="${escapeHtml(decoding)}"${fetchAttr} src="${escapeHtml(sources.fallback)}" alt="${altSafe}">
+          </picture>`;
+}
+
 function buildInquiryHref(watch, inventory) {
   const email = safeEmail(inventory.inquiryEmail);
   const subject = encodeURIComponent(watch.inquirySubject);
@@ -2278,7 +2313,7 @@ function renderProductDetailModal(watch, inventory) {
         <div class="product-modal-layout">
           <div class="product-modal-gallery" aria-label="${escapeHtml(watch.name)} image gallery">
             <div class="product-modal-hero-image">
-              <img loading="eager" decoding="async" src="${escapeHtml(images[0] || watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+              ${renderResponsivePicture({ image: images[0] || watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 1024px) 60vw, 100vw', loading: 'eager', fetchpriority: 'high' })}
             </div>
             <div class="product-modal-thumbs">${galleryMarkup}</div>
           </div>
@@ -2406,8 +2441,8 @@ function renderWatchCard(watch, index, total, inventory) {
 
   return `
       <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="${escapeHtml(status)}">
-        <div class="watch-card-img">
-          <img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+          <div class="watch-card-img">
+          ${renderResponsivePicture({ image: watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 768px) 320px, 80vw' })}
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge ${badgeClass(watch)}">${escapeHtml(watch.badge)}</span>
           <span class="watch-num">${itemNum}/${totalNum}</span>
@@ -2436,7 +2471,7 @@ function renderSoldCard(watch) {
   return `
       <article class="sold-card" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="sold" tabindex="0" role="button" aria-label="Open archived details for ${escapeHtml(watch.name)}">
         <div class="sold-card-img">
-          <img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(`${watch.brand} ${watch.name}`)}">
+          ${renderResponsivePicture({ image: watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 768px) 240px, 80vw' })}
         </div>
         <div class="sold-card-status">● Sold${soldAt ? ` · ${escapeHtml(soldAt)}` : ''}</div>
         <div class="sold-card-name serif">${escapeHtml(watch.name)}</div>
