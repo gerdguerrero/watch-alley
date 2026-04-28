@@ -1517,6 +1517,35 @@
       .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
     }
   </style>
+
+  <link rel="canonical" href="https://watchalley.ph/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Watch Alley PH — Pre-owned & Brand New Timepieces in Manila">
+  <meta property="og:description" content="Curated pre-owned and brand-new watches in Manila. Daylight photos, honest grading, transparent disclosure.">
+  <meta property="og:url" content="https://watchalley.ph/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://watchalley.ph/#business",
+    "name": "The Watch Alley PH",
+    "url": "https://watchalley.ph/",
+    "description": "Curated pre-owned and brand-new watches in Manila. Daylight photos, honest grading, transparent disclosure.",
+    "areaServed": "PH",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bonifacio Global City",
+      "addressRegion": "Metro Manila",
+      "addressCountry": "PH"
+    },
+    "email": "hello@watchalley.ph",
+    "currenciesAccepted": "PHP",
+    "paymentAccepted": "GCash, Bank transfer, Cash",
+    "priceRange": "₱₱-₱₱₱"
+  }
+  </script>
 </head>
 <body>
 
@@ -2165,6 +2194,18 @@ function statusLabel(status) {
   return String(status || 'available').replace(/^./, char => char.toUpperCase());
 }
 
+function formatBoxPapers(watch) {
+  const hasBox = watch.hasBox === true;
+  const hasPapers = watch.hasPapers === true;
+  if (!hasBox && !hasPapers) {
+    if (typeof watch.set === 'string' && watch.set.trim().length > 0) return watch.set;
+    return 'Watch only';
+  }
+  if (hasBox && hasPapers) return 'Box and papers';
+  if (hasBox) return 'Box only';
+  return 'Papers only';
+}
+
 function safeEmail(email) {
   const candidate = String(email || '').trim();
   return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(candidate)
@@ -2208,6 +2249,8 @@ function renderProductDetailModal(watch, inventory) {
     renderProductDetailRow('Movement', watch.movement),
     renderProductDetailRow('Case Size', watch.caseSize),
     renderProductDetailRow('Edition', watch.edition),
+    renderProductDetailRow('Box & Papers', formatBoxPapers(watch)),
+    watch.serviceHistory ? renderProductDetailRow('Service History', watch.serviceHistory) : '',
     renderProductDetailRow('Availability', status),
     isSold && watch.soldAt ? renderProductDetailRow('Sold', watch.soldAt) : ''
   ].join('');
@@ -2215,8 +2258,8 @@ function renderProductDetailModal(watch, inventory) {
   const actionsMarkup = isSold
     ? `
             <div class="product-modal-actions">
-              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Ask About Similar References ↗</a>
-              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
+              <a href="${escapeHtml(inquiryHref)}" class="btn-primary" data-track-click="modal-similar-inquire" data-watch-slug="${escapeHtml(watch.slug)}">Ask About Similar References ↗</a>
+              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="modal-share" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
               <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
             </div>
             <div class="product-modal-sold-note">
@@ -2225,8 +2268,8 @@ function renderProductDetailModal(watch, inventory) {
             </div>`
     : `
             <div class="product-modal-actions">
-              <a href="${escapeHtml(inquiryHref)}" class="btn-primary">Inquire About This Watch ↗</a>
-              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
+              <a href="${escapeHtml(inquiryHref)}" class="btn-primary" data-track-click="modal-inquire" data-watch-slug="${escapeHtml(watch.slug)}">Inquire About This Watch ↗</a>
+              <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="modal-share" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
               <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
               <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
             </div>`;
@@ -2380,8 +2423,8 @@ function renderWatchCard(watch, index, total, inventory) {
           <div class="watch-card-footer">
             <div class="watch-card-price serif">${formatPrice(watch)}</div>
             <div class="watch-card-actions">
-              <button type="button" class="watch-card-details" data-product-modal-trigger data-watch-slug="${escapeHtml(watch.slug)}" aria-label="View details for ${escapeHtml(watch.name)}">DETAILS →</button>
-              <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}">${escapeHtml(ctaLabel)}</a>
+              <button type="button" class="watch-card-details" data-product-modal-trigger data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="card-details" aria-label="View details for ${escapeHtml(watch.name)}">DETAILS →</button>
+              <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="card-inquire">${escapeHtml(ctaLabel)}</a>
             </div>
           </div>
         </div>
@@ -2602,6 +2645,29 @@ window.addEventListener('popstate', (event) => {
   }
   isApplyingHistoryNavigation = false;
 });
+
+window.dataLayer = window.dataLayer || [];
+function trackClick(action, payload) {
+  if (!action) return;
+  const event = Object.assign({ event: 'watch_alley_click', action, ts: Date.now() }, payload || {});
+  try {
+    window.dataLayer.push(event);
+  } catch (error) {
+    /* dataLayer push must never break the user flow */
+  }
+  if (window.__watchAlleyTrackDebug) console.debug('[track]', event);
+}
+
+document.addEventListener('click', (event) => {
+  const trigger = event.target.closest('[data-track-click]');
+  if (!trigger) return;
+  const action = trigger.dataset.trackClick;
+  trackClick(action, {
+    slug: trigger.dataset.watchSlug || null,
+    href: trigger.getAttribute('href') || null,
+    text: (trigger.textContent || '').trim().slice(0, 60)
+  });
+}, true);
 
 window.addEventListener('hashchange', () => {
   if (isApplyingHistoryNavigation) return;

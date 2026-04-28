@@ -79,17 +79,17 @@ Checklist:
 - [x] Add product detail modal or product detail pages.
 - [x] Add stronger per-watch inquiry CTA.
 - [x] Add availability states: Available, Reserved, Sold.
-- [ ] Add box/papers/service history fields visibly in the UI.
+- [x] Add box/papers/service history fields visibly in the UI.
 - [x] Add disclosure/condition notes visibly in the UI.
 - [x] Add real Authenticity page.
 - [x] Add real Terms page.
 - [x] Add real Privacy page.
 - [x] Add buying process section: Browse -> Inquire -> Confirm -> Ship/Meet.
-- [ ] Add event tracking for important clicks.
+- [x] Add event tracking for important clicks.
 - [ ] Optimize images to WebP/AVIF and responsive sizes.
-- [ ] Add sitemap.xml.
-- [ ] Add robots.txt.
-- [ ] Add schema.org Product and LocalBusiness metadata.
+- [x] Add sitemap.xml.
+- [x] Add robots.txt.
+- [x] Add schema.org Product and LocalBusiness metadata.
 
 Definition of done:
 
