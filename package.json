@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node scripts/validate-watch-data.mjs && node scripts/validate-inventory-rendering.mjs && node scripts/validate-product-detail-modal.mjs && node scripts/validate-shareable-watch-urls.mjs && node scripts/validate-sold-archive.mjs && node scripts/validate-admin-layout.mjs",
+    "test": "node scripts/validate-watch-data.mjs && node scripts/validate-inventory-rendering.mjs && node scripts/validate-product-detail-modal.mjs && node scripts/validate-shareable-watch-urls.mjs && node scripts/validate-sold-archive.mjs && node scripts/validate-admin-layout.mjs && node scripts/validate-inquiry-flow.mjs && node scripts/validate-admin-image-upload.mjs",
     "sync:watches": "node scripts/sync-watches-from-supabase.mjs",
     "seed:watches": "node scripts/seed-watches-to-supabase.mjs",
     "optimize:images": "node scripts/optimize-images.mjs"

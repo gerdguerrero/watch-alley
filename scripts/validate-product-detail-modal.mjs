@@ -91,8 +91,8 @@ for (const requiredSnippet of [
   assert(renderSource.includes(requiredSnippet), `renderProductDetailModal() must use ${requiredSnippet}`);
 }
 assert(
-  /href="\$\{escapeHtml\(inquiryHref\)\}"/.test(renderSource),
-  'modal inquiry CTA href must be HTML-escaped before attribute interpolation'
+  /data-mailto-fallback="\$\{escapeHtml\(inquiryHref\)\}"/.test(renderSource),
+  'modal inquiry mailto fallback must be HTML-escaped before attribute interpolation'
 );
 assert(
   /function openProductDetailModal\s*\(watch\b[^)]*\)/.test(indexHtml),

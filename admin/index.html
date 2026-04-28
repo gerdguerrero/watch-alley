@@ -89,12 +89,60 @@
   <!-- Admin workspace -->
   <section id="workspace-panel" class="admin-workspace" hidden>
     <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
-      <button type="button" id="admin-tab-inventory" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-inventory" data-tab="inventory">Inventory</button>
+      <button type="button" id="admin-tab-inbox" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-inbox" data-tab="inbox">Inbox</button>
+      <button type="button" id="admin-tab-inventory" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inventory" tabindex="-1" data-tab="inventory">Inventory</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
       <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
 
-    <div class="admin-tabpanel" id="tabpanel-inventory" role="tabpanel" aria-labelledby="admin-tab-inventory">
+    <div class="admin-tabpanel" id="tabpanel-inbox" role="tabpanel" aria-labelledby="admin-tab-inbox">
+      <section class="admin-card">
+        <div class="inbox-header">
+          <div>
+            <div class="admin-eyebrow">Inquiries</div>
+            <p class="admin-meta">Every inquiry from the website lands here. Update the status as you reply, schedule a viewing, reserve, or close out the conversation.</p>
+          </div>
+          <button type="button" id="inbox-refresh-btn" class="btn-ghost">Refresh</button>
+        </div>
+
+        <div class="inbox-metrics" id="inbox-metrics" aria-live="polite">
+          <div class="inbox-metric"><div class="inbox-metric-label">New</div><div class="inbox-metric-value" data-metric="new">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Contacted</div><div class="inbox-metric-value" data-metric="contacted">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Viewing</div><div class="inbox-metric-value" data-metric="viewing">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Reserved</div><div class="inbox-metric-value" data-metric="reserved">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Won (30d)</div><div class="inbox-metric-value" data-metric="won">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Last 7d</div><div class="inbox-metric-value" data-metric="last7">—</div></div>
+        </div>
+
+        <div class="inbox-toolbar">
+          <label>
+            <span class="admin-eyebrow">Filter</span>
+            <select id="inbox-status-filter">
+              <option value="">All open inquiries</option>
+              <option value="new">New only</option>
+              <option value="contacted">Contacted</option>
+              <option value="viewing">Viewing</option>
+              <option value="reserved">Reserved</option>
+              <option value="sold">Won (sold)</option>
+              <option value="lost">Lost</option>
+              <option value="spam">Spam</option>
+            </select>
+          </label>
+          <span class="admin-meta" id="inbox-count">—</span>
+        </div>
+
+        <ul id="inbox-list" class="inbox-list" aria-live="polite"></ul>
+
+        <p class="admin-meta" id="inbox-empty" hidden>No inquiries yet for this filter.</p>
+
+        <details class="inbox-top-watches" id="inbox-top-watches" hidden>
+          <summary>Top inquired watches (last 90 days)</summary>
+          <ul id="inbox-top-watches-list"></ul>
+        </details>
+      </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-inventory" role="tabpanel" aria-labelledby="admin-tab-inventory" hidden>
     <aside class="admin-sidebar">
       <div class="admin-sidebar-header">
         <div>
@@ -172,12 +220,37 @@
             <textarea id="field-disclosure" rows="3" required></textarea>
           </label>
 
-          <label class="admin-col-2">Primary image path *
-            <input type="text" id="field-primaryImage" required placeholder="/watch-assets/example.png" />
-          </label>
-          <label class="admin-col-2">All image paths * (one per line; first will become primary if blank)
-            <textarea id="field-images" rows="3" required></textarea>
-          </label>
+          <div class="admin-col-2 admin-image-uploader" id="image-uploader">
+            <div class="admin-image-uploader-header">
+              <div>
+                <div class="admin-eyebrow">Photos *</div>
+                <p class="admin-meta">Upload daylight photos. Drag to reorder. The first photo becomes the primary cover image.</p>
+              </div>
+              <label class="btn-secondary admin-image-upload-btn" for="image-upload-input">
+                Upload photos
+                <input type="file" id="image-upload-input" accept="image/jpeg,image/png,image/webp,image/avif" multiple hidden />
+              </label>
+            </div>
+
+            <div class="admin-image-dropzone" id="image-dropzone" tabindex="0" aria-label="Drop photos here to upload">
+              <p>Drop photos here, or click <strong>Upload photos</strong>. JPEG, PNG, WebP, or AVIF. Max 10 MB each.</p>
+            </div>
+
+            <ul class="admin-image-thumbs" id="image-thumbs" aria-live="polite"></ul>
+
+            <p id="image-upload-status" class="admin-hint" aria-live="polite"></p>
+
+            <details class="admin-image-paths-details">
+              <summary>Show raw paths (advanced)</summary>
+              <p class="admin-meta">These fields are kept in sync with the photo grid above. Edit them directly only if you need to point at an existing asset path.</p>
+              <label>Primary image path *
+                <input type="text" id="field-primaryImage" required placeholder="/watch-assets/example.png" />
+              </label>
+              <label>All image paths * (one per line; first will become primary if blank)
+                <textarea id="field-images" rows="3" required></textarea>
+              </label>
+            </details>
+          </div>
 
           <label class="admin-col-2">Inquiry subject *
             <input type="text" id="field-inquirySubject" required />

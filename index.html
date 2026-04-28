@@ -1024,6 +1024,158 @@
     }
     .product-modal-loading { color: var(--cream-80); padding: 24px; }
 
+    /* ── Inquiry modal ────────────────────────────────────────────── */
+    .inquiry-modal .product-modal-panel { max-width: 640px; }
+    .inquiry-modal-body { padding: clamp(28px, 4vw, 48px); }
+    .inquiry-modal-header { margin-bottom: 24px; }
+    .inquiry-modal-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .inquiry-modal-meta {
+      color: var(--cream-80);
+      font-size: 13px;
+      margin: 8px 0 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .inquiry-honeypot {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .inquiry-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .inquiry-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+    .inquiry-field-full { grid-column: span 2; }
+    .inquiry-field > span {
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream-80);
+      font-size: 11px;
+    }
+    .inquiry-field input,
+    .inquiry-field select,
+    .inquiry-field textarea {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--cream);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .inquiry-field input:focus,
+    .inquiry-field select:focus,
+    .inquiry-field textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .inquiry-field textarea { resize: vertical; min-height: 96px; }
+    .inquiry-error {
+      color: #ff7066;
+      font-size: 13px;
+      margin: 8px 0 0;
+      padding: 10px 12px;
+      background: rgba(255, 96, 96, 0.08);
+      border-left: 2px solid #ff7066;
+    }
+    .inquiry-form-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .inquiry-form-actions .btn-primary,
+    .inquiry-form-actions .btn-secondary {
+      padding: 12px 22px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: filter 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .inquiry-form-actions .btn-primary {
+      background: var(--gold);
+      color: var(--ink);
+      border: 1px solid var(--gold);
+    }
+    .inquiry-form-actions .btn-primary:hover { filter: brightness(1.08); }
+    .inquiry-form-actions .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .inquiry-form-actions .btn-secondary {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .inquiry-form-actions .btn-secondary:hover { color: var(--gold); border-color: var(--gold); }
+    .inquiry-fallback {
+      margin: 18px 0 0;
+      font-size: 12px;
+      color: var(--cream-60);
+      letter-spacing: 0.04em;
+    }
+    .inquiry-fallback a { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; }
+    .inquiry-fallback a:hover { border-bottom-color: var(--gold); }
+    .inquiry-success {
+      text-align: center;
+      padding: 32px 16px;
+    }
+    .inquiry-success-mark {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold);
+      font-size: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      border: 1px solid var(--gold);
+    }
+    .inquiry-success h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 3vw, 26px);
+      margin: 0 0 8px;
+      color: var(--cream);
+    }
+    .inquiry-success p { color: var(--cream-80); margin: 0 0 8px; font-size: 14px; }
+    .inquiry-success-ref { font-size: 11px; letter-spacing: 0.12em; color: var(--cream-60); }
+    .inquiry-success-ref code {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--gold);
+    }
+    .inquiry-success .btn-primary {
+      margin-top: 16px;
+      background: var(--gold);
+      color: var(--ink);
+      border: 1px solid var(--gold);
+      padding: 12px 24px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    @media (max-width: 720px) {
+      .inquiry-form-grid { grid-template-columns: 1fr; }
+      .inquiry-field-full { grid-column: span 1; }
+    }
+
     .carousel-progress {
       height: 1px;
       background: var(--gold-20);
@@ -2022,6 +2174,81 @@
   </div>
 </div>
 
+<!-- Inquiry Modal -->
+<div class="product-modal inquiry-modal" id="inquiry-modal" role="dialog" aria-modal="true" aria-labelledby="inquiry-modal-title" aria-hidden="true">
+  <div class="product-modal-backdrop" id="inquiry-modal-backdrop"></div>
+  <div class="product-modal-panel" role="document">
+    <button type="button" class="product-modal-close" id="inquiry-modal-close" aria-label="Close inquiry form">×</button>
+    <div class="product-modal-body inquiry-modal-body">
+      <div class="inquiry-modal-header">
+        <div class="inquiry-modal-eyebrow mono" id="inquiry-modal-eyebrow">INQUIRE</div>
+        <h2 class="product-modal-title" id="inquiry-modal-title">Inquire about this watch</h2>
+        <p class="inquiry-modal-meta" id="inquiry-modal-watch">—</p>
+      </div>
+
+      <form id="inquiry-form" class="inquiry-form" novalidate>
+        <input type="hidden" id="inquiry-watch-id" name="watchId">
+        <input type="hidden" id="inquiry-watch-slug" name="watchSlug">
+        <!-- Honeypot: bots fill all fields, humans never see this. -->
+        <div class="inquiry-honeypot" aria-hidden="true">
+          <label>Company
+            <input type="text" id="inquiry-honeypot" name="company" tabindex="-1" autocomplete="off">
+          </label>
+        </div>
+
+        <div class="inquiry-form-grid">
+          <label class="inquiry-field">
+            <span>Your name *</span>
+            <input type="text" id="inquiry-name" name="name" required autocomplete="name" maxlength="120">
+          </label>
+          <label class="inquiry-field">
+            <span>Email *</span>
+            <input type="email" id="inquiry-email" name="email" required autocomplete="email" maxlength="254">
+          </label>
+          <label class="inquiry-field">
+            <span>Phone (optional)</span>
+            <input type="tel" id="inquiry-phone" name="phone" autocomplete="tel" maxlength="32">
+          </label>
+          <label class="inquiry-field">
+            <span>Preferred reply channel</span>
+            <select id="inquiry-channel" name="channel">
+              <option value="">Email (default)</option>
+              <option value="viber">Viber</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="sms">SMS</option>
+              <option value="telegram">Telegram</option>
+              <option value="other">Other (note in message)</option>
+            </select>
+          </label>
+          <label class="inquiry-field inquiry-field-full">
+            <span>Message *</span>
+            <textarea id="inquiry-message" name="message" rows="5" required maxlength="4000"></textarea>
+          </label>
+        </div>
+
+        <p class="inquiry-error" id="inquiry-error" role="alert" hidden></p>
+
+        <div class="inquiry-form-actions">
+          <button type="submit" class="btn-primary" id="inquiry-submit">Send inquiry</button>
+          <button type="button" class="btn-secondary" id="inquiry-cancel">Cancel</button>
+        </div>
+
+        <p class="inquiry-fallback">
+          Prefer email? <a href="mailto:hello@watchalley.ph" id="inquiry-mailto-fallback">Email us directly →</a>
+        </p>
+      </form>
+
+      <div class="inquiry-success" id="inquiry-success" hidden role="status" aria-live="polite">
+        <div class="inquiry-success-mark" aria-hidden="true">✓</div>
+        <h3>We've got your inquiry.</h3>
+        <p>We'll reply within 24 hours, usually faster.</p>
+        <p class="inquiry-success-ref">Reference <code id="inquiry-success-id">—</code></p>
+        <button type="button" class="btn-primary" id="inquiry-success-close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 09 Footer -->
 <footer>
   <a href="#" class="footer-logo">
@@ -2328,7 +2555,7 @@ function renderProductDetailModal(watch, inventory) {
   const actionsMarkup = isSold
     ? `
             <div class="product-modal-actions">
-              <a href="${escapeHtml(inquiryHref)}" class="btn-primary" data-track-click="modal-similar-inquire" data-watch-slug="${escapeHtml(watch.slug)}">Ask About Similar References ↗</a>
+              <button type="button" class="btn-primary" data-inquiry-trigger data-inquiry-mode="similar" data-watch-id="${escapeHtml(watch.id || '')}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-name="${escapeHtml(watch.name)}" data-watch-brand="${escapeHtml(watch.brand)}" data-watch-reference="${escapeHtml(watch.reference)}" data-mailto-fallback="${escapeHtml(inquiryHref)}" data-track-click="modal-similar-inquire">Ask About Similar References ↗</button>
               <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="modal-share" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
               <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
             </div>
@@ -2338,7 +2565,7 @@ function renderProductDetailModal(watch, inventory) {
             </div>`
     : `
             <div class="product-modal-actions">
-              <a href="${escapeHtml(inquiryHref)}" class="btn-primary" data-track-click="modal-inquire" data-watch-slug="${escapeHtml(watch.slug)}">Inquire About This Watch ↗</a>
+              <button type="button" class="btn-primary" data-inquiry-trigger data-inquiry-mode="this" data-watch-id="${escapeHtml(watch.id || '')}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-name="${escapeHtml(watch.name)}" data-watch-brand="${escapeHtml(watch.brand)}" data-watch-reference="${escapeHtml(watch.reference)}" data-mailto-fallback="${escapeHtml(inquiryHref)}" data-track-click="modal-inquire">Inquire About This Watch ↗</button>
               <button type="button" class="btn-secondary product-modal-share" data-share-watch-url data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="modal-share" aria-label="Copy share link for ${escapeHtml(watch.name)}">Copy share link</button>
               <span class="product-modal-share-status" data-share-status role="status" aria-live="polite"></span>
               <div class="product-modal-secondary-note">Ask for current daylight photos, final availability, and exact set inclusions before reserving.</div>
@@ -2467,6 +2694,252 @@ function trapProductModalFocus(event) {
   }
 }
 
+// ── Inquiry modal (public submission to submit_inquiry RPC) ──────────────
+const SUPABASE_BASE_URL = SUPABASE_INVENTORY_ENDPOINT.replace(/\/rest\/v1\/.*$/, '');
+const SUBMIT_INQUIRY_ENDPOINT = `${SUPABASE_BASE_URL}/rest/v1/rpc/submit_inquiry`;
+
+const inquiryModal = document.getElementById('inquiry-modal');
+const inquiryModalBackdrop = document.getElementById('inquiry-modal-backdrop');
+const inquiryModalClose = document.getElementById('inquiry-modal-close');
+const inquiryForm = document.getElementById('inquiry-form');
+const inquirySuccess = document.getElementById('inquiry-success');
+const inquirySuccessId = document.getElementById('inquiry-success-id');
+const inquirySuccessClose = document.getElementById('inquiry-success-close');
+const inquiryCancelBtn = document.getElementById('inquiry-cancel');
+const inquirySubmitBtn = document.getElementById('inquiry-submit');
+const inquiryError = document.getElementById('inquiry-error');
+const inquiryEyebrow = document.getElementById('inquiry-modal-eyebrow');
+const inquiryTitle = document.getElementById('inquiry-modal-title');
+const inquiryWatchMeta = document.getElementById('inquiry-modal-watch');
+const inquiryMailtoFallback = document.getElementById('inquiry-mailto-fallback');
+const inquiryWatchIdField = document.getElementById('inquiry-watch-id');
+const inquiryWatchSlugField = document.getElementById('inquiry-watch-slug');
+const inquiryNameField = document.getElementById('inquiry-name');
+const inquiryEmailField = document.getElementById('inquiry-email');
+const inquiryPhoneField = document.getElementById('inquiry-phone');
+const inquiryChannelField = document.getElementById('inquiry-channel');
+const inquiryMessageField = document.getElementById('inquiry-message');
+const inquiryHoneypotField = document.getElementById('inquiry-honeypot');
+
+let inquiryLastFocusedElement = null;
+let inquiryPreScrollY = 0;
+
+function getFocusableInquiryModalElements() {
+  return Array.from(inquiryModal.querySelectorAll([
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(','))).filter((el) => el.offsetParent !== null);
+}
+
+function trapInquiryModalFocus(event) {
+  if (event.key !== 'Tab' || !inquiryModal.classList.contains('open')) return;
+  const focusable = getFocusableInquiryModalElements();
+  if (focusable.length === 0) {
+    event.preventDefault();
+    inquiryModalClose.focus();
+    return;
+  }
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function resetInquiryForm() {
+  inquiryForm.reset();
+  inquiryError.hidden = true;
+  inquiryError.textContent = '';
+  inquiryForm.hidden = false;
+  inquirySuccess.hidden = true;
+  inquirySubmitBtn.disabled = false;
+}
+
+function openInquiryModal(context) {
+  if (!inquiryModal) return;
+  if (!inquiryModal.classList.contains('open')) {
+    inquiryLastFocusedElement = document.activeElement;
+    inquiryPreScrollY = window.scrollY;
+  }
+  resetInquiryForm();
+
+  const mode = context.mode === 'similar' ? 'similar' : 'this';
+  const brand = context.brand || '';
+  const name = context.name || '';
+  const reference = context.reference || '';
+  const slug = context.slug || '';
+  const id = context.id || '';
+  const watchLabel = [brand, name].filter(Boolean).join(' · ') || 'The Watch Alley';
+  const refLabel = reference ? ` (Ref ${reference})` : '';
+
+  inquiryEyebrow.textContent = mode === 'similar' ? 'ASK ABOUT SIMILAR' : 'INQUIRE';
+  inquiryTitle.textContent = mode === 'similar'
+    ? 'Notify me about similar references'
+    : 'Inquire about this watch';
+  inquiryWatchMeta.textContent = mode === 'similar'
+    ? `Reference: ${watchLabel}${refLabel}`
+    : `${watchLabel}${refLabel}`;
+
+  inquiryWatchIdField.value = id;
+  inquiryWatchSlugField.value = slug;
+
+  const defaultMessage = mode === 'similar'
+    ? `Hi — I'd like to be notified when similar references to the ${watchLabel}${refLabel} come in.`
+    : `Hi — I'd like to inquire about the ${watchLabel}${refLabel}. Please share current daylight photos and confirm availability.`;
+  inquiryMessageField.value = defaultMessage;
+
+  if (inquiryMailtoFallback && context.mailtoFallback) {
+    inquiryMailtoFallback.setAttribute('href', context.mailtoFallback);
+  }
+
+  inquiryModal.classList.add('open');
+  inquiryModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  setTimeout(() => { inquiryNameField.focus(); }, 0);
+}
+
+function closeInquiryModal() {
+  const wasOpen = inquiryModal.classList.contains('open');
+  inquiryModal.classList.remove('open');
+  inquiryModal.setAttribute('aria-hidden', 'true');
+  // Only release the page scroll lock if the product modal isn't also open.
+  if (!productModal.classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+  if (inquiryLastFocusedElement && typeof inquiryLastFocusedElement.focus === 'function') {
+    inquiryLastFocusedElement.focus();
+  }
+  if (wasOpen && !productModal.classList.contains('open') && typeof inquiryPreScrollY === 'number') {
+    window.scrollTo({ top: inquiryPreScrollY, left: 0, behavior: 'auto' });
+  }
+}
+
+function inquiryContextFromTrigger(trigger) {
+  return {
+    mode: trigger.dataset.inquiryMode || 'this',
+    id: trigger.dataset.watchId || '',
+    slug: trigger.dataset.watchSlug || '',
+    name: trigger.dataset.watchName || '',
+    brand: trigger.dataset.watchBrand || '',
+    reference: trigger.dataset.watchReference || '',
+    mailtoFallback: trigger.dataset.mailtoFallback || 'mailto:hello@watchalley.ph',
+  };
+}
+
+document.addEventListener('click', (event) => {
+  const trigger = event.target.closest('[data-inquiry-trigger]');
+  if (!trigger) return;
+  event.preventDefault();
+  openInquiryModal(inquiryContextFromTrigger(trigger));
+});
+
+if (inquiryModalClose) inquiryModalClose.addEventListener('click', closeInquiryModal);
+if (inquiryModalBackdrop) inquiryModalBackdrop.addEventListener('click', closeInquiryModal);
+if (inquiryCancelBtn) inquiryCancelBtn.addEventListener('click', closeInquiryModal);
+if (inquirySuccessClose) inquirySuccessClose.addEventListener('click', closeInquiryModal);
+
+if (inquiryModal) inquiryModal.addEventListener('keydown', trapInquiryModalFocus);
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && inquiryModal && inquiryModal.classList.contains('open')) {
+    event.stopPropagation();
+    closeInquiryModal();
+  }
+});
+
+function isLikelyEmail(value) {
+  return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(String(value || '').trim());
+}
+
+async function postInquiryToSupabase(payload) {
+  const response = await fetch(SUBMIT_INQUIRY_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ payload }),
+  });
+  const text = await response.text();
+  let body;
+  try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+  if (!response.ok) {
+    const message = (body && body.message) || (body && body.error) || `Inquiry failed (HTTP ${response.status})`;
+    throw new Error(message);
+  }
+  return body;
+}
+
+if (inquiryForm) {
+  inquiryForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    inquiryError.hidden = true;
+    inquiryError.textContent = '';
+
+    // Honeypot: if a bot filled the hidden field, simulate success but don't submit.
+    if (inquiryHoneypotField && inquiryHoneypotField.value.trim().length > 0) {
+      inquirySuccessId.textContent = '—';
+      inquiryForm.hidden = true;
+      inquirySuccess.hidden = false;
+      return;
+    }
+
+    const name = inquiryNameField.value.trim();
+    const email = inquiryEmailField.value.trim();
+    const phone = inquiryPhoneField.value.trim();
+    const channel = inquiryChannelField.value.trim();
+    const message = inquiryMessageField.value.trim();
+
+    if (!name) { showInquiryError('Please add your name.'); inquiryNameField.focus(); return; }
+    if (!isLikelyEmail(email)) { showInquiryError('Please enter a valid email address.'); inquiryEmailField.focus(); return; }
+    if (message.length < 5) { showInquiryError('Add a short message so we can reply usefully.'); inquiryMessageField.focus(); return; }
+
+    const payload = {
+      name,
+      email,
+      phone: phone || undefined,
+      channel: channel || undefined,
+      message,
+      watchId: inquiryWatchIdField.value || undefined,
+      watchSlug: inquiryWatchSlugField.value || undefined,
+      source: 'website',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+    };
+
+    inquirySubmitBtn.disabled = true;
+    try {
+      const result = await postInquiryToSupabase(payload);
+      const refId = (result && (result.id || (typeof result === 'string' && result))) || '';
+      inquirySuccessId.textContent = refId
+        ? String(refId).slice(0, 8).toUpperCase()
+        : 'RECEIVED';
+      inquiryForm.hidden = true;
+      inquirySuccess.hidden = false;
+      inquirySuccessClose.focus();
+    } catch (error) {
+      console.error('Inquiry submission failed:', error);
+      showInquiryError('We could not send your inquiry right now. Please try again, or use the email link below.');
+    } finally {
+      inquirySubmitBtn.disabled = false;
+    }
+  });
+}
+
+function showInquiryError(message) {
+  inquiryError.hidden = false;
+  inquiryError.textContent = message;
+}
+
 function renderWatchCard(watch, index, total, inventory) {
   const status = String(watch.status || 'available').toLowerCase();
   const itemNum = String(index + 1).padStart(2, '0');
@@ -2494,7 +2967,7 @@ function renderWatchCard(watch, index, total, inventory) {
             <div class="watch-card-price serif">${formatPrice(watch)}</div>
             <div class="watch-card-actions">
               <button type="button" class="watch-card-details" data-product-modal-trigger data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="card-details" aria-label="View details for ${escapeHtml(watch.name)}">DETAILS →</button>
-              <a href="${escapeHtml(inquiryHref)}" class="watch-card-inquire" data-watch-slug="${escapeHtml(watch.slug)}" data-track-click="card-inquire">${escapeHtml(ctaLabel)}</a>
+              <button type="button" class="watch-card-inquire" data-inquiry-trigger data-inquiry-mode="this" data-watch-id="${escapeHtml(watch.id || '')}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-name="${escapeHtml(watch.name)}" data-watch-brand="${escapeHtml(watch.brand)}" data-watch-reference="${escapeHtml(watch.reference)}" data-mailto-fallback="${escapeHtml(inquiryHref)}" data-track-click="card-inquire">${escapeHtml(ctaLabel)}</button>
             </div>
           </div>
         </div>

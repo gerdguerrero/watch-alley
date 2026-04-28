@@ -52,9 +52,25 @@ const els = {
   soldFieldset: document.getElementById('sold-fieldset'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
+  tabpanelInbox: document.getElementById('tabpanel-inbox'),
   tabpanelInventory: document.getElementById('tabpanel-inventory'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
+  // Image uploader
+  imageUploader: document.getElementById('image-uploader'),
+  imageUploadInput: document.getElementById('image-upload-input'),
+  imageDropzone: document.getElementById('image-dropzone'),
+  imageThumbs: document.getElementById('image-thumbs'),
+  imageUploadStatus: document.getElementById('image-upload-status'),
+  // Inbox tab
+  inboxList: document.getElementById('inbox-list'),
+  inboxEmpty: document.getElementById('inbox-empty'),
+  inboxCount: document.getElementById('inbox-count'),
+  inboxStatusFilter: document.getElementById('inbox-status-filter'),
+  inboxRefreshBtn: document.getElementById('inbox-refresh-btn'),
+  inboxMetrics: document.getElementById('inbox-metrics'),
+  inboxTopWatches: document.getElementById('inbox-top-watches'),
+  inboxTopWatchesList: document.getElementById('inbox-top-watches-list'),
   inviteForm: document.getElementById('invite-admin-form'),
   inviteEmail: document.getElementById('invite-email'),
   inviteNote: document.getElementById('invite-note'),
@@ -268,6 +284,7 @@ async function renderForCurrentSession() {
   }
   showOnly('workspace');
   await loadWatches();
+  loadInbox();
 }
 
 function showOnly(panel) {
@@ -401,6 +418,7 @@ function hideForm() {
   els.markSoldBtn.hidden = true;
   activeId = null;
   activeWatchSnapshot = null;
+  setImageList([]);
   document.querySelectorAll('.admin-watch-list li.is-active').forEach((el) => el.classList.remove('is-active'));
 }
 
@@ -429,6 +447,7 @@ function loadIntoForm(watch) {
   setField('disclosure', watch?.disclosure || '');
   setField('primaryImage', watch?.primary_image || '');
   setField('images', Array.isArray(watch?.images) ? watch.images.join('\n') : '');
+  setImageList(Array.isArray(watch?.images) ? watch.images.slice() : []);
   setField('inquirySubject', watch?.inquiry_subject || '');
   setField('inquiryBody', watch?.inquiry_body || '');
   setField('soldAt', watch?.sold_at || '');
@@ -596,10 +615,12 @@ function activateTab(name, { focus = false } = {}) {
     t.setAttribute('tabindex', active ? '0' : '-1');
     if (active && focus) t.focus();
   });
+  if (els.tabpanelInbox) els.tabpanelInbox.hidden = name !== 'inbox';
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
   if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
   if (els.tabpanelAccount) els.tabpanelAccount.hidden = name !== 'account';
   if (name === 'admins') loadAdminsList();
+  if (name === 'inbox') loadInbox();
 }
 
 // ---------------- Account tab: change password ----------------
@@ -738,4 +759,402 @@ function setInviteStatus(message, tone) {
   els.inviteStatus.textContent = message || '';
   if (tone) els.inviteStatus.dataset.tone = tone;
   else els.inviteStatus.removeAttribute('data-tone');
+}
+
+// ---------------- Image uploader (Supabase Storage: bucket "watches") ----------------
+
+const STORAGE_BUCKET = 'watches';
+let imageList = [];
+
+function setImageList(list) {
+  imageList = Array.isArray(list) ? list.filter(Boolean) : [];
+  syncImageFields();
+  renderImageThumbs();
+}
+
+function syncImageFields() {
+  setField('images', imageList.join('\n'));
+  setField('primaryImage', imageList[0] || '');
+}
+
+function renderImageThumbs() {
+  if (!els.imageThumbs) return;
+  els.imageThumbs.innerHTML = '';
+  imageList.forEach((url, index) => {
+    const li = document.createElement('li');
+    li.className = 'admin-image-thumb' + (index === 0 ? ' is-primary' : '');
+    li.dataset.imageUrl = url;
+    li.innerHTML = `
+      <img src="${escapeAttr(url)}" alt="Photo ${index + 1}" loading="lazy">
+      ${index === 0 ? '<span class="admin-image-thumb-primary-badge">Primary</span>' : ''}
+      <div class="admin-image-thumb-controls">
+        <button type="button" data-image-action="left" data-image-index="${index}" aria-label="Move left" ${index === 0 ? 'disabled' : ''}>◀</button>
+        <button type="button" data-image-action="right" data-image-index="${index}" aria-label="Move right" ${index === imageList.length - 1 ? 'disabled' : ''}>▶</button>
+        <button type="button" data-image-action="remove" data-image-index="${index}" aria-label="Remove">✕</button>
+      </div>
+    `;
+    els.imageThumbs.appendChild(li);
+  });
+}
+
+function setUploadStatus(message, tone) {
+  if (!els.imageUploadStatus) return;
+  els.imageUploadStatus.textContent = message || '';
+  if (tone) els.imageUploadStatus.dataset.tone = tone;
+  else els.imageUploadStatus.removeAttribute('data-tone');
+}
+
+function sanitizeFilename(name) {
+  const dot = name.lastIndexOf('.');
+  const stem = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot + 1).toLowerCase() : '';
+  const cleanStem = stem.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'photo';
+  const cleanExt = ext.replace(/[^a-z0-9]/g, '').slice(0, 8) || 'jpg';
+  return `${cleanStem}.${cleanExt}`;
+}
+
+function buildStoragePath(file) {
+  const slugRaw = (getField('slug') || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '');
+  const folder = slugRaw || 'unsorted';
+  const rand = Math.random().toString(36).slice(2, 8);
+  const stamp = Date.now();
+  return `${folder}/${stamp}-${rand}-${sanitizeFilename(file.name)}`;
+}
+
+async function uploadFiles(fileList) {
+  if (!supabase) return;
+  const files = Array.from(fileList || []).filter((f) => f && f.type && f.type.startsWith('image/'));
+  if (!files.length) return;
+
+  setUploadStatus(`Uploading ${files.length} photo${files.length === 1 ? '' : 's'}…`);
+
+  let succeeded = 0;
+  let failed = 0;
+
+  for (const file of files) {
+    const path = buildStoragePath(file);
+    try {
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type,
+      });
+      if (error) throw error;
+      const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+      const publicUrl = pub && pub.publicUrl;
+      if (!publicUrl) throw new Error('No public URL returned');
+      imageList[imageList.length] = publicUrl;
+      succeeded += 1;
+    } catch (error) {
+      console.error('Upload failed for', file.name, error);
+      failed += 1;
+    }
+  }
+
+  syncImageFields();
+  renderImageThumbs();
+
+  if (failed === 0) {
+    setUploadStatus(`Uploaded ${succeeded} photo${succeeded === 1 ? '' : 's'}.`, 'success');
+  } else if (succeeded === 0) {
+    setUploadStatus(`Upload failed for all ${failed} photo${failed === 1 ? '' : 's'}. Check the file size (≤10 MB) and format (JPEG, PNG, WebP, AVIF).`, 'error');
+  } else {
+    setUploadStatus(`Uploaded ${succeeded}, failed ${failed}. Check the failed files and try again.`, 'error');
+  }
+}
+
+if (els.imageUploadInput) {
+  els.imageUploadInput.addEventListener('change', async (event) => {
+    const input = event.target;
+    await uploadFiles(input.files);
+    input.value = '';
+  });
+}
+
+if (els.imageDropzone) {
+  els.imageDropzone.addEventListener('click', () => {
+    if (els.imageUploadInput) els.imageUploadInput.click();
+  });
+  els.imageDropzone.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && els.imageUploadInput) {
+      event.preventDefault();
+      els.imageUploadInput.click();
+    }
+  });
+  ['dragenter', 'dragover'].forEach((evt) => {
+    els.imageDropzone.addEventListener(evt, (event) => {
+      event.preventDefault();
+      els.imageDropzone.classList.add('is-dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach((evt) => {
+    els.imageDropzone.addEventListener(evt, (event) => {
+      event.preventDefault();
+      els.imageDropzone.classList.remove('is-dragover');
+    });
+  });
+  els.imageDropzone.addEventListener('drop', async (event) => {
+    const files = event.dataTransfer && event.dataTransfer.files;
+    await uploadFiles(files);
+  });
+}
+
+if (els.imageThumbs) {
+  els.imageThumbs.addEventListener('click', (event) => {
+    const btn = event.target.closest('button[data-image-action]');
+    if (!btn) return;
+    const action = btn.dataset.imageAction;
+    const index = Number(btn.dataset.imageIndex);
+    if (!Number.isFinite(index)) return;
+
+    if (action === 'remove') {
+      imageList.splice(index, 1);
+    } else if (action === 'left' && index > 0) {
+      [imageList[index - 1], imageList[index]] = [imageList[index], imageList[index - 1]];
+    } else if (action === 'right' && index < imageList.length - 1) {
+      [imageList[index + 1], imageList[index]] = [imageList[index], imageList[index + 1]];
+    }
+    syncImageFields();
+    renderImageThumbs();
+  });
+}
+
+// Keep the thumb grid honest if the operator edits the raw paths textarea.
+const fieldImagesEl = document.getElementById('field-images');
+if (fieldImagesEl) {
+  fieldImagesEl.addEventListener('input', () => {
+    imageList = (fieldImagesEl.value || '').split('\n').map((s) => s.trim()).filter(Boolean);
+    setField('primaryImage', imageList[0] || '');
+    renderImageThumbs();
+  });
+}
+
+// ---------------- Inbox tab: inquiries ----------------
+
+let inboxInquiries = [];
+let inboxExpandedId = null;
+let inboxLoading = false;
+
+const INBOX_STATUS_OPTIONS = [
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'viewing', label: 'Viewing scheduled' },
+  { value: 'reserved', label: 'Reserved' },
+  { value: 'sold', label: 'Won (sold)' },
+  { value: 'lost', label: 'Lost' },
+  { value: 'spam', label: 'Spam' },
+];
+
+async function loadInbox() {
+  if (!supabase || !els.inboxList) return;
+  if (inboxLoading) return;
+  inboxLoading = true;
+  els.inboxList.innerHTML = '<li class="admin-meta">Loading inquiries…</li>';
+  if (els.inboxEmpty) els.inboxEmpty.hidden = true;
+
+  const statusFilter = (els.inboxStatusFilter && els.inboxStatusFilter.value) || null;
+
+  try {
+    const [listResult, metricsResult] = await Promise.all([
+      supabase.rpc('admin_list_inquiries', {
+        status_filter: statusFilter || null,
+        limit_count: 100,
+        offset_count: 0,
+      }),
+      supabase.rpc('admin_inquiry_metrics'),
+    ]);
+
+    if (listResult.error) throw listResult.error;
+    inboxInquiries = Array.isArray(listResult.data) ? listResult.data : [];
+    renderInboxList();
+
+    if (!metricsResult.error && metricsResult.data) {
+      renderInboxMetrics(metricsResult.data);
+    }
+  } catch (error) {
+    els.inboxList.innerHTML = `<li class="admin-meta" data-tone="error">Failed to load inquiries: ${escapeHtml(error.message || error)}</li>`;
+  } finally {
+    inboxLoading = false;
+  }
+}
+
+function renderInboxList() {
+  if (!els.inboxList) return;
+  if (!inboxInquiries.length) {
+    els.inboxList.innerHTML = '';
+    if (els.inboxEmpty) els.inboxEmpty.hidden = false;
+    if (els.inboxCount) els.inboxCount.textContent = '0 inquiries';
+    return;
+  }
+  if (els.inboxEmpty) els.inboxEmpty.hidden = true;
+  if (els.inboxCount) els.inboxCount.textContent = `${inboxInquiries.length} ${inboxInquiries.length === 1 ? 'inquiry' : 'inquiries'}`;
+
+  els.inboxList.innerHTML = '';
+  for (const row of inboxInquiries) {
+    const li = document.createElement('li');
+    li.dataset.inquiryId = row.id;
+    li.innerHTML = renderInboxRow(row);
+    if (row.id === inboxExpandedId) {
+      const drawer = document.createElement('div');
+      drawer.className = 'inbox-drawer';
+      drawer.innerHTML = renderInboxDrawer(row);
+      li.appendChild(drawer);
+    }
+    els.inboxList.appendChild(li);
+  }
+}
+
+function renderInboxRow(row) {
+  const watchLabel = row.watch_slug || row.watch_id || '(no watch)';
+  const channel = row.buyer_channel ? row.buyer_channel.toUpperCase() : 'EMAIL';
+  const age = relativeTimeFromIso(row.created_at);
+  const message = String(row.message || '').replace(/\s+/g, ' ').trim();
+  return `
+    <div class="inbox-row" data-inquiry-toggle="${escapeAttr(row.id)}">
+      <div class="inbox-row-main">
+        <div class="inbox-row-name">${escapeHtml(row.buyer_name || 'Anonymous')} · <span style="opacity:0.7">${escapeHtml(row.buyer_email || '')}</span></div>
+        <div class="inbox-row-meta">
+          <span>${escapeHtml(watchLabel)}</span>
+          <span>${escapeHtml(channel)}</span>
+          ${row.buyer_phone ? `<span>${escapeHtml(row.buyer_phone)}</span>` : ''}
+        </div>
+        <div class="inbox-row-message">${escapeHtml(message)}</div>
+      </div>
+      <div class="inbox-row-side">
+        <span class="inbox-status-pill" data-status="${escapeAttr(row.status)}">${escapeHtml(row.status)}</span>
+        <span class="inbox-row-age">${escapeHtml(age)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderInboxDrawer(row) {
+  const fullMessage = String(row.message || '');
+  const watchLabel = row.watch_slug || row.watch_id || '';
+  const watchHref = row.watch_slug ? `../#/watch/${encodeURIComponent(row.watch_slug)}` : '';
+  const respondedAt = row.responded_at ? new Date(row.responded_at).toLocaleString('en-PH') : '—';
+  const closedAt = row.closed_at ? new Date(row.closed_at).toLocaleString('en-PH') : '—';
+  const created = row.created_at ? new Date(row.created_at).toLocaleString('en-PH') : '—';
+
+  const statusOptionsHtml = INBOX_STATUS_OPTIONS
+    .map((opt) => `<option value="${escapeAttr(opt.value)}"${opt.value === row.status ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`)
+    .join('');
+
+  return `
+    <p class="inbox-drawer-message">${escapeHtml(fullMessage)}</p>
+    <dl class="inbox-drawer-meta">
+      <div><dt>Email</dt><dd><a href="mailto:${escapeAttr(row.buyer_email || '')}">${escapeHtml(row.buyer_email || '—')}</a></dd></div>
+      ${row.buyer_phone ? `<div><dt>Phone</dt><dd>${escapeHtml(row.buyer_phone)}</dd></div>` : ''}
+      <div><dt>Watch</dt><dd>${watchHref ? `<a href="${escapeAttr(watchHref)}" target="_blank" rel="noopener">${escapeHtml(watchLabel)}</a>` : escapeHtml(watchLabel || '—')}</dd></div>
+      <div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div>
+      <div><dt>Responded</dt><dd>${escapeHtml(respondedAt)}</dd></div>
+      <div><dt>Closed</dt><dd>${escapeHtml(closedAt)}</dd></div>
+      ${row.status_note ? `<div><dt>Last note</dt><dd>${escapeHtml(row.status_note)}</dd></div>` : ''}
+    </dl>
+    <div class="inbox-drawer-actions">
+      <select data-inquiry-status-select="${escapeAttr(row.id)}">${statusOptionsHtml}</select>
+      <input type="text" placeholder="Add a status note (optional)" data-inquiry-status-note="${escapeAttr(row.id)}" maxlength="500">
+      <button type="button" data-inquiry-status-save="${escapeAttr(row.id)}">Update status</button>
+    </div>
+  `;
+}
+
+function renderInboxMetrics(metrics) {
+  if (!els.inboxMetrics) return;
+  const totals = (metrics && metrics.totals) || {};
+  const map = {
+    new: totals.new_count,
+    contacted: totals.contacted_count,
+    viewing: totals.viewing_count,
+    reserved: totals.reserved_count,
+    won: totals.won_count,
+    last7: totals.last7,
+  };
+  for (const [metric, value] of Object.entries(map)) {
+    const node = els.inboxMetrics.querySelector(`[data-metric="${metric}"]`);
+    if (node) node.textContent = value == null ? '—' : String(value);
+  }
+
+  const top = Array.isArray(metrics && metrics.perWatchTop20) ? metrics.perWatchTop20 : [];
+  if (els.inboxTopWatches && els.inboxTopWatchesList) {
+    if (top.length === 0) {
+      els.inboxTopWatches.hidden = true;
+    } else {
+      els.inboxTopWatches.hidden = false;
+      els.inboxTopWatchesList.innerHTML = top
+        .map((item) => `<li><span>${escapeHtml(item.watch_id || 'unknown')}</span><span>${item.inquiries} inquiries · ${item.won || 0} won</span></li>`)
+        .join('');
+    }
+  }
+}
+
+function relativeTimeFromIso(iso) {
+  if (!iso) return '';
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return '';
+  const diffSec = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (diffSec < 60) return `${diffSec}s ago`;
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 30) return `${diffDay}d ago`;
+  return new Date(iso).toLocaleDateString('en-PH');
+}
+
+if (els.inboxList) {
+  els.inboxList.addEventListener('click', async (event) => {
+    const toggle = event.target.closest('[data-inquiry-toggle]');
+    const saveBtn = event.target.closest('[data-inquiry-status-save]');
+
+    if (saveBtn) {
+      event.stopPropagation();
+      const id = saveBtn.dataset.inquiryStatusSave;
+      const select = els.inboxList.querySelector(`[data-inquiry-status-select="${cssEscape(id)}"]`);
+      const noteInput = els.inboxList.querySelector(`[data-inquiry-status-note="${cssEscape(id)}"]`);
+      const newStatus = select ? select.value : null;
+      const note = noteInput ? noteInput.value.trim() : '';
+      if (!newStatus) return;
+      saveBtn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc('admin_update_inquiry_status', {
+          inquiry_id: id,
+          new_status: newStatus,
+          note: note || null,
+        });
+        if (error) throw error;
+        const updated = data || null;
+        if (updated && updated.id) {
+          const idx = inboxInquiries.findIndex((row) => row.id === updated.id);
+          if (idx >= 0) inboxInquiries[idx] = updated;
+        }
+        await loadInbox();
+        setStatus(`Inquiry updated to ${newStatus}.`, 'success');
+      } catch (error) {
+        setStatus(`Update failed: ${error.message || error}`, 'error');
+      } finally {
+        saveBtn.disabled = false;
+      }
+      return;
+    }
+
+    if (toggle) {
+      const id = toggle.dataset.inquiryToggle;
+      inboxExpandedId = inboxExpandedId === id ? null : id;
+      renderInboxList();
+    }
+  });
+}
+
+if (els.inboxStatusFilter) {
+  els.inboxStatusFilter.addEventListener('change', () => loadInbox());
+}
+if (els.inboxRefreshBtn) {
+  els.inboxRefreshBtn.addEventListener('click', () => loadInbox());
+}
+
+function cssEscape(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
+  return String(value).replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
 }

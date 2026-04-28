@@ -130,8 +130,8 @@ assert(
   'buildInquiryHref must use safeEmail(inventory.inquiryEmail)'
 );
 assert(
-  /href="\$\{escapeHtml\(inquiryHref\)\}"/.test(indexHtml),
-  'rendered inquiry href must be HTML-escaped before attribute interpolation'
+  /data-mailto-fallback="\$\{escapeHtml\(inquiryHref\)\}"/.test(indexHtml),
+  'rendered inquiry mailto fallback must be HTML-escaped before attribute interpolation'
 );
 
 console.log(`Inventory rendering contract valid: ${inventory.watches.length} snapshot rows retained as fallback while storefront reads live Supabase inventory first.`);

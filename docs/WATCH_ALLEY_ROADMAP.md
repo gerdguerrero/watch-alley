@@ -130,10 +130,10 @@ Status: Backlog.
 
 Checklist:
 
-- [ ] Track inquiry source and watch interest.
-- [ ] Add inquiry status: New, Replied, Negotiating, Reserved, Sold, Lost.
-- [ ] Add lead notes and follow-up date.
-- [ ] Build simple dashboard or Google Sheet/Supabase view.
+- [x] Track inquiry source and watch interest. (Public form attaches `watchId`/`watchSlug` and `source: 'website'` on every submission.)
+- [x] Add inquiry status: New, Replied, Negotiating, Reserved, Sold, Lost. (Workflow: new → contacted → viewing → reserved → sold/lost/spam, enforced server-side.)
+- [x] Add lead notes and follow-up date. (Status note + auto-stamped `responded_at`/`closed_at`.)
+- [x] Build simple dashboard or Google Sheet/Supabase view. (Admin Inbox tab with totals, top inquired watches, status filter.)
 - [ ] Add weekly report: top clicked watches, inquiries, conversion rate.
 - [ ] Track lost reasons: price, condition, sold, no response, timing.
 - [ ] Add reply templates for common inquiries.
@@ -214,7 +214,7 @@ Status: Backlog / staged.
 Checklist:
 
 - [x] Admin add/edit watch.
-- [ ] Admin upload/reorder photos.
+- [x] Admin upload/reorder photos. (Drag-and-drop or click upload to the `watches` Storage bucket; reorder via on-thumb controls; first photo becomes the primary cover.)
 - [x] Admin mark as sold/reserved.
 - [ ] Generate product page from listing.
 - [ ] View inquiries in an admin Inbox.
@@ -277,6 +277,28 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - [ ] Should the default social CTA be DM, website inquiry form, Messenger, Viber, or a combination?
 
 ## Progress log
+
+### 2026-04-28 (Phase 7 — admin photo upload to Supabase Storage)
+
+- Replaced the text-only image path inputs in `/admin` with a real upload UI: file picker, drag-and-drop dropzone, and a thumbnail grid with reorder (◀ ▶) and remove controls. The first thumb is marked Primary.
+- Files upload to the `watches` Storage bucket (already provisioned in `0005-watch-alley-storage.sql`, public-read, 10 MB cap, jpeg/png/webp/avif). Storage keys are namespaced as `${slug || 'unsorted'}/${timestamp}-${rand}-${cleanFilename}`.
+- The legacy `Primary image path` and `All image paths` inputs are preserved behind a `Show raw paths (advanced)` disclosure. They stay in sync with the thumbnail grid in both directions, so `collectFormPayload()` and the `admin_upsert_watch` RPC contract are unchanged.
+- The upload status line surfaces success and failure counts; failed uploads do not block successful ones.
+- Added `scripts/validate-admin-image-upload.mjs` and wired it into `pnpm test`. All 8 validators + `pnpm build` pass clean.
+- The owner can now publish a new watch end-to-end without a developer touching the file system.
+
+### 2026-04-28 (Phase 3 — public inquiry form + admin Inbox)
+
+- Replaced per-watch `mailto:` CTAs with a public inquiry modal on the storefront. The modal opens from any watch card and from the "Inquire About This Watch" / "Ask About Similar References" actions inside the product detail modal.
+- Inquiries POST to the existing `public.submit_inquiry` RPC (anon-callable, RLS-hardened). Payload includes `watchId`, `watchSlug`, name, email, optional phone/channel, message, and `source: 'website'`. Returns a reference ID surfaced in the success panel.
+- Anti-spam: honeypot field (`name="company"`, off-screen). The form silently drops bot submissions before any RPC call.
+- Resilience fallback: an "Email us directly" link inside the modal carries the per-watch `mailto:` so the funnel keeps working if Supabase is unreachable.
+- Added the Inbox tab to `/admin` and made it the default landing tab. It uses the existing `admin_list_inquiries`, `admin_update_inquiry_status`, and `admin_inquiry_metrics` RPCs (all admin-only, allowlist-checked server-side).
+- Inbox surfaces a metrics strip (new / contacted / viewing / reserved / won / last 7 days), a status filter dropdown, an inquiry list with click-to-expand drawer, and a status transition control with an optional status note.
+- Status transitions auto-stamp `responded_at` (on `contacted`) and `closed_at` (on `sold/lost/spam`), already enforced inside the RPC.
+- Added `scripts/validate-inquiry-flow.mjs` and wired it into `pnpm test`. Existing `validate-product-detail-modal.mjs` and `validate-inventory-rendering.mjs` updated: the per-watch inquiry CTA escape contract now applies to `data-mailto-fallback` instead of `href` (the CTA is a `<button>` now, not an `<a>`).
+- `pnpm test` (7 validators) and `pnpm build` both pass clean.
+- Open follow-ups: (1) Edge Function notification (Resend or Viber webhook) on inquiry insert so the owner does not need to poll the Inbox tab; (2) Vercel BotID once spam volume warrants it; (3) reply templates in Phase 3 backlog.
 
 ### 2026-04-28 (Roadmap — controlled Meta social publishing decision)
 
