@@ -424,7 +424,20 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border-color: var(--gold);
   color: var(--gold);
 }
-.social-preview-actions { align-self: start; }
+.social-preview-actions {
+  align-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.social-preview-actions .btn-secondary { font-weight: 600; }
+.social-preview-actions .admin-meta {
+  margin: 0;
+  color: var(--cream-60);
+  font-size: 12px;
+}
 #social-preview-status[data-tone="success"] { color: var(--gold); }
 #social-preview-status[data-tone="error"] { color: #ff7066; }
 @media (max-width: 1100px) {

@@ -171,3 +171,34 @@ The homepage should not regress to JSON-first publishing unless there is an expl
 - Move images to Supabase Storage when total payload outgrows the 21 MB current footprint.
 - Introduce a `lead_inquiries` table for Phase 3 lead CRM.
 - Introduce a `consignment_submissions` table for Phase 5 consignment workflow.
+
+## Companion table: `watch_alley.social_posts`
+
+Added by migration `0009-watch-alley-social-publishing-drafts.sql` (Phase A bridge of the controlled Meta social publishing plan, `docs/plans/2026-04-28-controlled-meta-social-publishing.md`).
+
+Stores per-watch / per-platform Facebook + Instagram caption drafts so owners pick up where they left off across sessions and devices. RLS denies all direct access; reads/writes are admin-only via `SECURITY DEFINER` RPCs gated by `watch_alley.is_admin()`. **Meta tokens, app secrets, and page access tokens are never stored in this table** — those will live exclusively in Supabase Edge Function secrets when Phase B (actual Meta posting) lands.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | uuid PK | |
+| `watch_id` | text FK → `watch_alley.watches.id` on delete cascade | |
+| `platform` | text | `facebook` / `instagram` (constraint). |
+| `status` | text | `draft` / `queued` / `publishing` / `published` / `failed` / `skipped`. Phase A only writes `draft`. |
+| `caption` | text | Up to 8000 chars (constraint). |
+| `media_urls` | text[] | Defaults to empty so a draft can be saved before media is finalised. |
+| `external_post_id` | text | Phase B: Meta post id once published. Null for Phase A drafts. |
+| `external_post_url` | text | Phase B: public Meta post URL. Null for Phase A drafts. |
+| `published_at` | timestamptz | Phase B. |
+| `error_code` / `error_message` | text | Phase B retryable failure surface. |
+| `created_by` / `approved_by` | text | Caller email (lower-cased). |
+| `created_at` / `updated_at` | timestamptz | Auto via trigger. |
+
+Constraint: `unique (watch_id, platform)` so saving a draft for the same watch and platform always upserts.
+
+Indexes: `(watch_id)`, `(status, updated_at desc)`.
+
+Admin RPCs (all `SECURITY DEFINER`, search_path pinned, `is_admin()` gated, granted to `authenticated` only — `anon` is explicitly revoked):
+
+- `public.admin_save_social_draft(payload jsonb)` — upserts a draft for `(watchId, platform)`. Phase A only writes `status='draft'`; the Phase B publish RPC will handle other transitions atomically.
+- `public.admin_list_social_drafts_for_watch(target_watch_id text)` — returns both platform rows for a given watch (zero, one, or two rows).
+- `public.admin_delete_social_draft(target_watch_id text, target_platform text)` — hard-delete a single draft so the owner can start fresh from generated previews.

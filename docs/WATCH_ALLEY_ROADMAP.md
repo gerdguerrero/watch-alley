@@ -278,6 +278,14 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 
 ## Progress log
 
+### 2026-04-28 16:30 PST (Social Publishing Phase A — persistent Supabase drafts)
+
+- Added migration `0009-watch-alley-social-publishing-drafts.sql`: new `watch_alley.social_posts` table (one row per `watch_id` + `platform`) with RLS deny-all and three new admin RPCs (`admin_save_social_draft`, `admin_list_social_drafts_for_watch`, `admin_delete_social_draft`).
+- All three RPCs are `SECURITY DEFINER`, `search_path = ''`, `is_admin()`-gated, `revoke ... from public, anon`, `grant execute ... to authenticated`. Same hardening posture as the existing watches/inquiries RPCs.
+- Forward-compatible columns (`status`, `external_post_id`, `external_post_url`, `published_at`, `error_*`) are in place so Phase B can flip a draft to `published` without another schema migration. **No Meta tokens, app secrets, or page access tokens are ever stored** — those will live exclusively in Supabase Edge Function secrets when Phase B lands.
+- Wired the admin Social Publishing panel: a "Save drafts to inventory" button persists the current Facebook + Instagram captions to Supabase via the new RPC, and selecting a watch auto-loads any saved drafts (with a "last updated" timestamp meta line). Captions still travel via `textarea.value`, never `innerHTML`, so the panel remains XSS-safe by construction.
+- Added `scripts/validate-admin-social-drafts.mjs` to `pnpm test`. It pins: the migration's table/RLS/RPC contract, the new save-button + saved-drafts meta DOM ids, the lifecycle hooks (`loadIntoForm` calls `loadSocialDraftsForActiveWatch`, `hideForm` clears the saved-drafts meta), the credential-free admin JS, and the unsaved-listing guard inside `saveSocialDrafts`.
+
 ### 2026-04-28 16:00 PST (Social Publishing Phase A — preview-only MVP)
 
 - Added an owner-friendly Social Publishing panel inside `/admin` inventory editing.

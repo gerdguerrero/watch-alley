@@ -154,7 +154,7 @@ DM The Watch Alley to inquire.
 - Captions are editable before posting.
 - Caption generation does not require Meta credentials.
 
-**Implementation status:** Phase A first slice shipped in `/admin` as browser-side preview generation from the current listing form. Captions are placed into editable textareas via `.value`, not HTML interpolation, and can be copied manually while the secure Meta connection is still pending.
+**Implementation status:** Phase A first slice shipped in `/admin` as browser-side preview generation from the current listing form. Captions are placed into editable textareas via `.value`, not HTML interpolation, and can be copied manually while the secure Meta connection is still pending. A Phase A bridge slice (migration `0009-watch-alley-social-publishing-drafts.sql`) added the `watch_alley.social_posts` table plus admin RPCs `admin_save_social_draft`, `admin_list_social_drafts_for_watch`, and `admin_delete_social_draft`, so drafts now persist across sessions and devices instead of living only in the current form.
 
 ## Secure Meta integration
 
@@ -279,7 +279,7 @@ Future metric:
 ### Phase A: Preview-only MVP
 
 - [x] Generate Facebook/Instagram captions inside admin.
-- [ ] Store social draft state in Supabase.
+- [x] Store social draft state in Supabase (migration 0009: `watch_alley.social_posts` + admin RPCs).
 - [x] No Meta platform posting yet.
 - [x] Owner can copy/paste manually.
 

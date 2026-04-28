@@ -57,6 +57,8 @@ const els = {
   socialCopyFacebookBtn: document.getElementById('social-copy-facebook-btn'),
   socialCopyInstagramBtn: document.getElementById('social-copy-instagram-btn'),
   socialPreviewStatus: document.getElementById('social-preview-status'),
+  socialSaveDraftBtn: document.getElementById('social-save-draft-btn'),
+  savedDraftsMeta: document.getElementById('social-saved-drafts-meta'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelInbox: document.getElementById('tabpanel-inbox'),
@@ -382,6 +384,11 @@ if (els.socialCopyFacebookBtn) {
 if (els.socialCopyInstagramBtn) {
   els.socialCopyInstagramBtn.addEventListener('click', () => copySocialCaption('instagram'));
 }
+if (els.socialSaveDraftBtn) {
+  els.socialSaveDraftBtn.addEventListener('click', () => {
+    saveSocialDrafts();
+  });
+}
 
 els.deleteBtn.addEventListener('click', async () => {
   if (!activeId) return;
@@ -439,6 +446,10 @@ function hideForm() {
   activeWatchSnapshot = null;
   setImageList([]);
   clearSocialPreview('Fill in listing details, then generate social previews.');
+  if (els.savedDraftsMeta) {
+    els.savedDraftsMeta.hidden = true;
+    els.savedDraftsMeta.textContent = '';
+  }
   document.querySelectorAll('.admin-watch-list li.is-active').forEach((el) => el.classList.remove('is-active'));
 }
 
@@ -484,6 +495,7 @@ function loadIntoForm(watch) {
   els.deleteBtn.hidden = !isExisting;
   els.markSoldBtn.hidden = !isExisting || watch.status === 'sold';
   renderSocialPreviewFromForm({ announce: false });
+  loadSocialDraftsForActiveWatch();
 
   // highlight in the sidebar
   document.querySelectorAll('.admin-watch-list li').forEach((li) => {
@@ -673,6 +685,156 @@ async function copySocialCaption(platform) {
     setSocialPreviewStatus(`${label} caption copied.`, 'success');
   } catch (error) {
     setSocialPreviewStatus(`Could not copy ${label} caption. Select the text and copy manually.`, 'error');
+  }
+}
+
+// Format a Supabase ISO timestamp into a short human label like
+// "Apr 28, 2026 · 4:12 PM" for the saved-drafts meta line. Returns
+// the original string on parse failure so we never leak a JS error
+// into owner-facing copy.
+function formatDraftSavedTimestamp(value) {
+  if (!value) return '';
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return value;
+  try {
+    const date = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const time = dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return `${date} · ${time}`;
+  } catch {
+    return dt.toISOString();
+  }
+}
+
+function setSavedDraftsMeta(rows) {
+  if (!els.savedDraftsMeta) return;
+  if (!Array.isArray(rows) || rows.length === 0) {
+    els.savedDraftsMeta.hidden = true;
+    els.savedDraftsMeta.textContent = '';
+    return;
+  }
+  const platforms = rows
+    .map((r) => (r.platform === 'facebook' ? 'Facebook' : r.platform === 'instagram' ? 'Instagram' : null))
+    .filter(Boolean);
+  const latest = rows.reduce((acc, row) => {
+    if (!row?.updated_at) return acc;
+    if (!acc) return row.updated_at;
+    return row.updated_at > acc ? row.updated_at : acc;
+  }, null);
+  const stamp = formatDraftSavedTimestamp(latest);
+  const platformLabel = platforms.length === 2 ? 'Facebook + Instagram' : (platforms[0] || 'Drafts');
+  els.savedDraftsMeta.textContent = stamp
+    ? `Saved ${platformLabel} drafts last updated ${stamp}.`
+    : `Saved ${platformLabel} drafts on file.`;
+  els.savedDraftsMeta.hidden = false;
+}
+
+// Loads any previously-saved Facebook / Instagram drafts for the active
+// watch and replaces the in-form captions with the saved versions, so
+// the owner picks up exactly where they left off across sessions and
+// devices. Silently no-ops when no listing is loaded yet.
+//
+// Captures the activeId at call time and bails on response if the user
+// has switched listings while the RPC was in flight — otherwise a
+// stale response from watch A could overwrite watch B's captions and
+// the next Save click would silently persist A's drafts onto B.
+async function loadSocialDraftsForActiveWatch() {
+  if (!els.savedDraftsMeta) return;
+  if (!activeId) {
+    setSavedDraftsMeta([]);
+    return;
+  }
+  const requestedWatchId = activeId;
+  try {
+    const { data, error } = await supabase.rpc('admin_list_social_drafts_for_watch', {
+      target_watch_id: requestedWatchId,
+    });
+    if (error) throw error;
+    if (requestedWatchId !== activeId) return; // user switched listings; bail.
+    const rows = Array.isArray(data) ? data : [];
+    if (!rows.length) {
+      setSavedDraftsMeta([]);
+      return;
+    }
+    for (const row of rows) {
+      if (row.platform === 'facebook' && els.socialFacebookCaption && typeof row.caption === 'string') {
+        els.socialFacebookCaption.value = row.caption;
+      }
+      if (row.platform === 'instagram' && els.socialInstagramCaption && typeof row.caption === 'string') {
+        els.socialInstagramCaption.value = row.caption;
+      }
+    }
+    setSavedDraftsMeta(rows);
+    setSocialPreviewStatus('Loaded saved drafts. Edit and re-save to update.', 'success');
+  } catch (error) {
+    if (requestedWatchId !== activeId) return; // user switched listings; bail.
+    // Non-blocking — owner can still generate fresh previews.
+    setSavedDraftsMeta([]);
+  }
+}
+
+// Persist the current Facebook + Instagram captions to Supabase as
+// drafts. Phase A only writes status='draft'. Requires a saved listing
+// (foreign key) — a brand-new unsaved row has no watch_id to anchor
+// the drafts to. Captures activeId at call time so a mid-flight watch
+// switch cannot stamp the success message or reload against the wrong
+// listing (the writes themselves are already keyed by the captured id
+// inside the rpc payload).
+async function saveSocialDrafts() {
+  if (!els.socialSaveDraftBtn) return;
+  if (!activeId) {
+    setSocialPreviewStatus('Save the listing first, then save its social drafts.', 'error');
+    return;
+  }
+  const requestedWatchId = activeId;
+  const fb = (els.socialFacebookCaption?.value || '').trim();
+  const ig = (els.socialInstagramCaption?.value || '').trim();
+  if (!fb && !ig) {
+    setSocialPreviewStatus('Generate or write at least one caption before saving drafts.', 'error');
+    return;
+  }
+  els.socialSaveDraftBtn.disabled = true;
+  const previousLabel = els.socialSaveDraftBtn.textContent;
+  els.socialSaveDraftBtn.textContent = 'Saving drafts…';
+  try {
+    const primaryImage = (getField('primaryImage') || '').trim();
+    const targets = [
+      fb ? { platform: 'facebook', caption: fb } : null,
+      ig ? { platform: 'instagram', caption: ig } : null,
+    ].filter(Boolean);
+
+    const results = await Promise.all(
+      targets.map(({ platform, caption }) =>
+        supabase.rpc('admin_save_social_draft', {
+          payload: {
+            watchId: requestedWatchId,
+            platform,
+            caption,
+            mediaUrls: primaryImage ? [primaryImage] : [],
+          },
+        })
+      )
+    );
+
+    const firstError = results.find((r) => r?.error)?.error;
+    if (firstError) throw firstError;
+
+    if (requestedWatchId !== activeId) return; // user switched listings; bail.
+
+    setSocialPreviewStatus(
+      targets.length === 2
+        ? 'Drafts saved for Facebook and Instagram.'
+        : `Draft saved for ${targets[0].platform === 'facebook' ? 'Facebook' : 'Instagram'}.`,
+      'success'
+    );
+    await loadSocialDraftsForActiveWatch();
+  } catch (error) {
+    if (requestedWatchId !== activeId) return; // user switched listings; bail.
+    setSocialPreviewStatus(error?.message
+      ? `Could not save drafts: ${error.message}`
+      : 'Could not save drafts. Try again or check your connection.', 'error');
+  } finally {
+    els.socialSaveDraftBtn.disabled = false;
+    els.socialSaveDraftBtn.textContent = previousLabel || 'Save drafts to inventory';
   }
 }
 
