@@ -278,6 +278,14 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 
 ## Progress log
 
+### 2026-04-28 17:02 PST (Social Publishing — live FB/IG post mockups)
+
+- Replaced the bare image + textarea preview with two live mockup cards that approximate how the post will read on Facebook and Instagram. Owner now sees real-feeling chrome — page name "The Watch Alley", page handle "thewatchalley", profile circle, watch image, engagement row, action toolbar (Like / Comment / Share / Send for FB; heart / comment / share / save for IG) — and the cards refresh in real time as the owner types in either textarea.
+- IG mockup mirrors the platform's caption truncation behaviour: cuts at ~125 characters with a word-boundary heuristic, exposes an inline "more" toggle, and shows a "JUST NOW" timestamp + "View all comments" line. FB mockup uses the empty-state copy "Be the first to like this" (matches a brand-new post). Both card avatars are the shop's own "TWA" monogram in The Watch Alley gold — no Meta logos or brand assets reproduced.
+- XSS posture preserved: FB caption written via `textContent` on the caption element; IG caption written via `textContent` on an inner `<span class="social-mockup-ig-text">` so the surrounding bold username and "more" button structure stay structurally untouched. New `applyMockupImage()` helper gates `<img src>` writes through a scheme allowlist (`http(s):`, `data:image/`, same-origin / relative only) and wires an `onerror` fallback so a typo'd image path renders the placeholder instead of a broken-image glyph.
+- Added `scripts/validate-admin-social-mockups.mjs` (wired into `pnpm test`) locking down: required DOM ids, `data-mockup` tagging, action toolbar, engagement and "more" affordances, live-typing input listeners, `textContent`-only caption writes, scheme allowlist, image onerror fallback, and credential-free admin JS. All 11 validators green.
+- Independent senior-engineer review: APPROVE, no required changes; flagged 3 polish items (IG empty-state username styling, image scheme allowlist, image onerror) — all three landed in this same slice.
+
 ### 2026-04-28 16:30 PST (Social Publishing Phase A — persistent Supabase drafts)
 
 - Added migration `0009-watch-alley-social-publishing-drafts.sql`: new `watch_alley.social_posts` table (one row per `watch_id` + `platform`) with RLS deny-all and three new admin RPCs (`admin_save_social_draft`, `admin_list_social_drafts_for_watch`, `admin_delete_social_draft`).

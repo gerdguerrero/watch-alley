@@ -59,6 +59,13 @@ const els = {
   socialPreviewStatus: document.getElementById('social-preview-status'),
   socialSaveDraftBtn: document.getElementById('social-save-draft-btn'),
   savedDraftsMeta: document.getElementById('social-saved-drafts-meta'),
+  socialFbMockupImage: document.getElementById('social-fb-mockup-image'),
+  socialFbMockupPlaceholder: document.getElementById('social-fb-mockup-placeholder'),
+  socialFbMockupCaption: document.getElementById('social-fb-mockup-caption'),
+  socialIgMockupImage: document.getElementById('social-ig-mockup-image'),
+  socialIgMockupPlaceholder: document.getElementById('social-ig-mockup-placeholder'),
+  socialIgMockupCaption: document.getElementById('social-ig-mockup-caption'),
+  socialIgMockupMore: document.getElementById('social-ig-mockup-more'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelInbox: document.getElementById('tabpanel-inbox'),
@@ -389,6 +396,12 @@ if (els.socialSaveDraftBtn) {
     saveSocialDrafts();
   });
 }
+if (els.socialFacebookCaption) {
+  els.socialFacebookCaption.addEventListener('input', () => renderSocialMockups());
+}
+if (els.socialInstagramCaption) {
+  els.socialInstagramCaption.addEventListener('input', () => renderSocialMockups());
+}
 
 els.deleteBtn.addEventListener('click', async () => {
   if (!activeId) return;
@@ -633,6 +646,7 @@ function clearSocialPreview(message = '') {
   if (els.socialFacebookCaption) els.socialFacebookCaption.value = '';
   if (els.socialInstagramCaption) els.socialInstagramCaption.value = '';
   renderSocialImagePreview('', '');
+  renderSocialMockups();
   setSocialPreviewStatus(message);
 }
 
@@ -646,8 +660,123 @@ function renderSocialPreviewFromForm({ announce = true } = {}) {
   if (els.socialFacebookCaption) els.socialFacebookCaption.value = captions.facebook;
   if (els.socialInstagramCaption) els.socialInstagramCaption.value = captions.instagram;
   renderSocialImagePreview(listing.primaryImage, socialListingDisplayName(listing));
+  renderSocialMockups();
   if (announce) setSocialPreviewStatus('Social previews generated. Review and edit before posting.', 'success');
   else setSocialPreviewStatus('Preview ready. Edit captions before sharing.');
+}
+
+// IG visually truncates captions at roughly 125 characters and shows a
+// "more" affordance. We mirror that so the owner sees how their first
+// few lines will read on the feed.
+const IG_TRUNCATION_CHARS = 125;
+
+// Defense-in-depth: only allow http(s), data:image/, and same-origin
+// (absolute or relative) URLs as mockup image sources. Owner is the
+// only writer (admin allowlist + RLS), and `<img src="javascript:…">`
+// is inert per the HTML spec, but this filter rejects exotic schemes
+// before they ever reach the DOM.
+const SAFE_MOCKUP_IMAGE_SCHEME = /^(https?:|data:image\/|\/|\.)/i;
+
+function applyMockupImage(imgEl, placeholderEl, image, altText) {
+  if (!imgEl || !placeholderEl) return;
+  const safe = typeof image === 'string' && SAFE_MOCKUP_IMAGE_SCHEME.test(image) ? image : '';
+  if (safe) {
+    // Fall back to the placeholder if the image fails to load (typo'd
+    // path, 404, broken upload). Without this, the mockup shows a
+    // generic broken-image glyph which feels unfinished.
+    imgEl.onerror = () => {
+      imgEl.hidden = true;
+      imgEl.removeAttribute('src');
+      placeholderEl.hidden = false;
+    };
+    imgEl.src = safe;
+    if (altText) imgEl.alt = altText;
+    imgEl.hidden = false;
+    placeholderEl.hidden = true;
+  } else {
+    imgEl.onerror = null;
+    imgEl.hidden = true;
+    imgEl.removeAttribute('src');
+    placeholderEl.hidden = false;
+  }
+}
+
+// Renders the live Facebook + Instagram post mockups from the current
+// captions and primary image. Captions are written via textContent so
+// user-controlled fields cannot inject markup. The image is set via
+// the .src DOM property — same XSS posture as the existing preview.
+function renderSocialMockups() {
+  // Resolve the primary image once. Prefer the image preview that
+  // renderSocialImagePreview already validated, fall back to the form
+  // field so live typing still updates the mockup.
+  let image = '';
+  if (els.socialPrimaryImagePreview && !els.socialPrimaryImagePreview.hidden) {
+    image = els.socialPrimaryImagePreview.getAttribute('src') || '';
+  }
+  if (!image) {
+    image = (getField('primaryImage') || '').trim();
+  }
+
+  // --- Facebook mockup -----------------------------------------------------
+  if (els.socialFbMockupCaption) {
+    const fbText = (els.socialFacebookCaption?.value || '').trim();
+    if (fbText) {
+      els.socialFbMockupCaption.textContent = fbText;
+      els.socialFbMockupCaption.removeAttribute('data-empty');
+    } else {
+      els.socialFbMockupCaption.textContent = 'Your Facebook caption preview will appear here.';
+      els.socialFbMockupCaption.setAttribute('data-empty', 'true');
+    }
+  }
+  applyMockupImage(els.socialFbMockupImage, els.socialFbMockupPlaceholder, image, 'Facebook post image preview');
+
+  // --- Instagram mockup ----------------------------------------------------
+  if (els.socialIgMockupCaption) {
+    const igText = (els.socialInstagramCaption?.value || '').trim();
+    const captionTextNode = els.socialIgMockupCaption.querySelector('.social-mockup-ig-text');
+    const moreBtn = els.socialIgMockupMore;
+    if (captionTextNode) {
+      if (!igText) {
+        captionTextNode.textContent = 'Your Instagram caption preview will appear here.';
+        els.socialIgMockupCaption.setAttribute('data-empty', 'true');
+        if (moreBtn) moreBtn.hidden = true;
+      } else {
+        els.socialIgMockupCaption.removeAttribute('data-empty');
+        const expanded = els.socialIgMockupCaption.dataset.expanded === 'true';
+        if (igText.length > IG_TRUNCATION_CHARS && !expanded) {
+          // Trim at the truncation point but try to break at a word so
+          // we never split mid-word. Length cap stays conservative so
+          // truncated copy never exceeds the limit.
+          let cut = igText.slice(0, IG_TRUNCATION_CHARS);
+          const lastSpace = cut.lastIndexOf(' ');
+          if (lastSpace > IG_TRUNCATION_CHARS - 30) cut = cut.slice(0, lastSpace);
+          captionTextNode.textContent = `${cut.trim()}…`;
+          if (moreBtn) {
+            moreBtn.hidden = false;
+            moreBtn.setAttribute('aria-label', 'See more of this caption');
+          }
+        } else {
+          captionTextNode.textContent = igText;
+          if (moreBtn) moreBtn.hidden = true;
+        }
+      }
+    }
+  }
+  applyMockupImage(els.socialIgMockupImage, els.socialIgMockupPlaceholder, image, 'Instagram post image preview');
+}
+
+// "… more" toggle: when the owner clicks it, we render the full IG
+// caption inline so they can confirm the second-paragraph and hashtag
+// area still reads well.
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (event) => {
+    if (!event.target || !(event.target instanceof Element)) return;
+    if (event.target.id !== 'social-ig-mockup-more') return;
+    const captionEl = els.socialIgMockupCaption;
+    if (!captionEl) return;
+    captionEl.dataset.expanded = captionEl.dataset.expanded === 'true' ? 'false' : 'true';
+    renderSocialMockups();
+  });
 }
 
 async function copyTextWithFallback(text) {

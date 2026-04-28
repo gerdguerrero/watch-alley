@@ -438,6 +438,150 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   color: var(--cream-60);
   font-size: 12px;
 }
+
+/* ===========================================================================
+   Live Facebook + Instagram post mockups
+   ===========================================================================
+   These approximate how a published post will read on each platform.
+   Visual approximations only — not pixel-perfect copies — and they remain
+   credential-free (Phase A).
+   =========================================================================== */
+.social-mockup-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+}
+.social-mockup {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  color: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  min-width: 0;
+}
+.social-mockup-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 10px;
+}
+.social-mockup-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1c1c1c, #2a2a2a);
+  color: #c9a961;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+}
+.social-mockup-meta { flex: 1; min-width: 0; }
+.social-mockup-page-name {
+  font-weight: 700; font-size: 14px; color: #050505;
+  display: flex; align-items: center; gap: 4px;
+}
+.social-mockup-meta-line {
+  font-size: 12px; color: #65676b;
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.social-mockup-more-icon { color: #65676b; font-weight: 700; padding: 0 4px; }
+
+.social-mockup-caption {
+  margin: 0;
+  padding: 0 14px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #050505;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.social-mockup-caption[data-empty="true"] { color: #8a8d91; font-style: italic; }
+/* IG empty state: keep the bold username styled normally so it doesn't
+   look like part of the placeholder text. */
+.social-mockup[data-mockup="instagram"] .social-mockup-caption[data-empty="true"] strong {
+  color: #050505; font-style: normal;
+}
+
+.social-mockup-image-wrap {
+  position: relative;
+  background: #f0f2f5;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+.social-mockup-image-wrap--square { aspect-ratio: 1 / 1; }
+.social-mockup-image {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.social-mockup-image-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #65676b; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+.social-mockup-engagement {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; font-size: 13px; color: #65676b;
+  border-bottom: 1px solid #e4e6eb;
+}
+.social-mockup-likes { display: inline-flex; align-items: center; gap: 4px; }
+
+.social-mockup-actions {
+  display: flex; align-items: center;
+  padding: 4px 8px;
+  border-top: 0;
+}
+.social-mockup-action {
+  flex: 1;
+  background: transparent; border: 0;
+  color: #65676b; font-weight: 600; font-size: 13px;
+  padding: 8px 6px; cursor: default;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+}
+.social-mockup-action[disabled] { cursor: not-allowed; opacity: 0.85; }
+.social-mockup-action-spacer { flex: 2; }
+
+/* Facebook-specific tweaks */
+.social-mockup[data-mockup="facebook"] .social-mockup-actions { border-top: 1px solid #e4e6eb; }
+
+/* Instagram-specific tweaks */
+.social-mockup[data-mockup="instagram"] .social-mockup-engagement {
+  border: 0; padding-bottom: 4px; color: #050505;
+}
+.social-mockup[data-mockup="instagram"] .social-mockup-engagement strong { font-weight: 700; }
+.social-mockup[data-mockup="instagram"] .social-mockup-action {
+  flex: 0 0 auto; font-size: 22px; padding: 6px 10px;
+}
+.social-mockup[data-mockup="instagram"] .social-mockup-caption {
+  padding-top: 4px; font-size: 13px;
+}
+.social-mockup[data-mockup="instagram"] .social-mockup-caption strong {
+  font-weight: 700; margin-right: 6px;
+}
+.social-mockup-more {
+  background: transparent; border: 0; padding: 0; margin-left: 4px;
+  color: #8a8d91; cursor: pointer; font: inherit;
+  display: inline;
+}
+.social-mockup-more:hover { text-decoration: underline; }
+.social-mockup-comments-cta {
+  padding: 0 14px 12px; color: #8a8d91; font-size: 13px;
+}
+.social-mockup-ig-time {
+  padding: 4px 14px 8px;
+  color: #8a8d91;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+  .social-mockup-row { grid-template-columns: 1fr; }
+}
 #social-preview-status[data-tone="success"] { color: var(--gold); }
 #social-preview-status[data-tone="error"] { color: #ff7066; }
 @media (max-width: 1100px) {
