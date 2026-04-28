@@ -915,9 +915,53 @@
 
     body.modal-open { overflow: hidden; }
 
-    /* Image lightbox — Instagram-style preview. Triggered by hover (desktop)
-       or long-press (mobile) on any element with [data-zoomable]. The
-       picture inside scales up but never beyond its source resolution. */
+    /* Floating hover preview (desktop only) — small bubble that follows the
+       cursor. Auto-shows after a dwell, auto-hides the instant the cursor
+       leaves the trigger. No backdrop, no close button, never blocks input.
+       Pointer-events:none so a hover never interferes with the underlying
+       click target. */
+    .image-hover-preview {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 320;
+      width: clamp(220px, 22vw, 360px);
+      height: clamp(220px, 22vw, 360px);
+      background: var(--walnut-deep);
+      border: 1px solid var(--gold);
+      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
+      padding: 10px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(0, 0) scale(0.96);
+      transform-origin: top left;
+      transition: opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      visibility: hidden;
+    }
+    .image-hover-preview.open {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+      visibility: visible;
+    }
+    .image-hover-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: var(--walnut-deep);
+    }
+    /* Touch + reduced-motion: hover preview is purely a desktop nicety. */
+    @media (hover: none) {
+      .image-hover-preview { display: none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .image-hover-preview { transition: opacity 0.001ms; transform: none; }
+    }
+
+    /* Image lightbox — fullscreen viewer. Reserved for long-press on touch
+       devices and Enter on a focused thumbnail. Hover never opens this on
+       desktop; the floating preview above handles that. */
     .image-lightbox {
       position: fixed;
       inset: 0;
@@ -2560,8 +2604,15 @@
   <div class="cta-note reveal">Both open the native app. We usually reply within two hours.</div>
 </section>
 
-<!-- Image Lightbox — hover (desktop) or long-press (mobile) any [data-zoomable]
-     image to enlarge. Click anywhere or press Escape to close. -->
+<!-- Image preview surfaces.
+     • .image-hover-preview — a small floating bubble that follows the cursor
+       on desktop. Auto-shows after a short dwell, auto-hides the moment the
+       cursor leaves. No close button, never blocks clicks.
+     • .image-lightbox — the fullscreen viewer. Reserved for the long-press
+       gesture on touch devices and (optionally) Enter on a focused thumb. -->
+<div class="image-hover-preview" id="image-hover-preview" aria-hidden="true">
+  <img id="image-hover-preview-img" alt="" decoding="async">
+</div>
 <div class="image-lightbox" id="image-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo" aria-hidden="true">
   <div class="image-lightbox-backdrop" id="image-lightbox-backdrop"></div>
   <button type="button" class="image-lightbox-close" id="image-lightbox-close" aria-label="Close enlarged photo">×</button>
@@ -3047,7 +3098,7 @@ function renderProductDetailModal(watch, inventory) {
   return `
         <div class="product-modal-layout">
           <div class="product-modal-gallery" aria-label="${escapeHtml(watch.name)} image gallery">
-            <div class="product-modal-hero-image" data-zoomable data-zoom-src="${escapeHtml(images[0] || watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" title="Hover or long-press to enlarge">
+            <div class="product-modal-hero-image" data-zoomable data-zoom-src="${escapeHtml(images[0] || watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
               ${renderResponsivePicture({ image: images[0] || watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 1024px) 60vw, 100vw', loading: 'eager', fetchpriority: 'high' })}
             </div>
             <div class="product-modal-thumbs">${galleryMarkup}</div>
@@ -3853,28 +3904,109 @@ document.addEventListener('click', (event) => {
   });
 }, true);
 
-// ── Image lightbox (hover desktop / long-press mobile) ────────────────────
-// Any element marked [data-zoomable] becomes a hover or long-press preview
-// trigger. Hover with the mouse for ~350ms or hold a finger down for ~450ms
-// to enlarge. Click anywhere or press Escape to close.
+// ── Image previews ────────────────────────────────────────────────────────
+// Two surfaces:
+//   • Floating hover preview (desktop) — auto-shows after a short dwell on
+//     any [data-zoomable] element, auto-hides the moment the cursor leaves.
+//     No close button, no scroll lock. Acts like Amazon's product zoom.
+//   • Fullscreen lightbox (touch long-press, or Enter on a focused thumb).
+//     The same modal as before; only its trigger paths are different now.
+const imageHoverPreview = document.getElementById('image-hover-preview');
+const imageHoverPreviewImg = document.getElementById('image-hover-preview-img');
 const imageLightbox = document.getElementById('image-lightbox');
 const imageLightboxBackdrop = document.getElementById('image-lightbox-backdrop');
 const imageLightboxClose = document.getElementById('image-lightbox-close');
 const imageLightboxImg = document.getElementById('image-lightbox-img');
 const imageLightboxCaption = document.getElementById('image-lightbox-caption');
-const HOVER_PREVIEW_DELAY_MS = 350;
+
+const HOVER_PREVIEW_DELAY_MS = 220;
 const LONG_PRESS_DELAY_MS = 450;
+const HOVER_PREVIEW_MARGIN = 18;
+
 let lightboxLastFocus = null;
 let hoverPreviewTimer = null;
+let hoverPreviewActiveEl = null;
 let longPressTimer = null;
 let touchStartX = 0;
 let touchStartY = 0;
 
+function clearHoverPreviewTimer() {
+  if (hoverPreviewTimer) {
+    clearTimeout(hoverPreviewTimer);
+    hoverPreviewTimer = null;
+  }
+}
+function clearLongPressTimer() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+}
+
+function resolveZoomSource(zoomable) {
+  if (!zoomable) return { src: '', alt: '' };
+  const innerImg = zoomable.querySelector('img');
+  const src = zoomable.dataset.zoomSrc || (innerImg && innerImg.currentSrc) || (innerImg && innerImg.src) || '';
+  const alt = zoomable.dataset.zoomAlt || (innerImg && innerImg.alt) || '';
+  return { src, alt };
+}
+
+// Position the floating preview near the cursor, but always inside the
+// viewport. Prefer top-right of the cursor; fall back to top-left, then
+// bottom-right, then bottom-left.
+function positionHoverPreview(clientX, clientY) {
+  if (!imageHoverPreview) return;
+  const rect = imageHoverPreview.getBoundingClientRect();
+  const w = rect.width || 260;
+  const h = rect.height || 260;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let left = clientX + HOVER_PREVIEW_MARGIN;
+  let top = clientY + HOVER_PREVIEW_MARGIN;
+  if (left + w + HOVER_PREVIEW_MARGIN > vw) left = clientX - w - HOVER_PREVIEW_MARGIN;
+  if (top + h + HOVER_PREVIEW_MARGIN > vh) top = clientY - h - HOVER_PREVIEW_MARGIN;
+  // Clamp so we never spill off-screen on small viewports.
+  left = Math.max(8, Math.min(left, vw - w - 8));
+  top = Math.max(8, Math.min(top, vh - h - 8));
+  imageHoverPreview.style.transform = `translate(${left}px, ${top}px)`;
+}
+
+function showHoverPreview(zoomable, clientX, clientY) {
+  if (!imageHoverPreview || !zoomable) return;
+  const { src, alt } = resolveZoomSource(zoomable);
+  if (!src) return;
+  imageHoverPreviewImg.src = src;
+  imageHoverPreviewImg.alt = alt;
+  hoverPreviewActiveEl = zoomable;
+  positionHoverPreview(clientX, clientY);
+  imageHoverPreview.classList.add('open');
+  imageHoverPreview.setAttribute('aria-hidden', 'false');
+}
+
+function hideHoverPreview() {
+  clearHoverPreviewTimer();
+  if (!imageHoverPreview) return;
+  if (!imageHoverPreview.classList.contains('open')) {
+    hoverPreviewActiveEl = null;
+    return;
+  }
+  imageHoverPreview.classList.remove('open');
+  imageHoverPreview.setAttribute('aria-hidden', 'true');
+  // Drop the src after the fade so the next preview swap is instant.
+  setTimeout(() => {
+    if (!imageHoverPreview.classList.contains('open')) {
+      imageHoverPreviewImg.removeAttribute('src');
+    }
+  }, 220);
+  hoverPreviewActiveEl = null;
+}
+
 function openImageLightbox(zoomable) {
   if (!imageLightbox || !zoomable) return;
-  const src = zoomable.dataset.zoomSrc || (zoomable.querySelector('img')?.currentSrc) || (zoomable.querySelector('img')?.src) || '';
+  // Hide any in-flight floating preview — the fullscreen viewer is taking over.
+  hideHoverPreview();
+  const { src, alt } = resolveZoomSource(zoomable);
   if (!src) return;
-  const alt = zoomable.dataset.zoomAlt || (zoomable.querySelector('img')?.alt) || '';
   imageLightboxImg.src = src;
   imageLightboxImg.alt = alt;
   imageLightboxCaption.textContent = alt;
@@ -3891,7 +4023,6 @@ function closeImageLightbox() {
   if (!imageLightbox || !imageLightbox.classList.contains('open')) return;
   imageLightbox.classList.remove('open');
   imageLightbox.setAttribute('aria-hidden', 'true');
-  // Only release the body scroll lock if no other modal is also open.
   if (!productModal.classList.contains('open') && !inquiryModal.classList.contains('open')) {
     document.body.classList.remove('modal-open');
   }
@@ -3901,41 +4032,55 @@ function closeImageLightbox() {
   }
 }
 
-function clearHoverPreviewTimer() {
-  if (hoverPreviewTimer) {
-    clearTimeout(hoverPreviewTimer);
-    hoverPreviewTimer = null;
-  }
-}
-function clearLongPressTimer() {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
+// Desktop hover. The floating preview shows after a short dwell and follows
+// the cursor while it stays inside the same zoomable region. Leaving the
+// element instantly hides it (no click required).
+function isCoarsePointer() {
+  return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 }
 
-// Desktop: hover an enlarged preview after a short dwell. Bail if the mouse
-// leaves before the timer fires.
-document.addEventListener('mouseover', (event) => {
-  // Coarse pointers (touch) don't fire reliable mouseover; the touch path
-  // below handles them via long-press.
-  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+document.addEventListener('mousemove', (event) => {
+  if (isCoarsePointer()) return;
   const zoomable = event.target.closest('[data-zoomable]');
-  if (!zoomable) return;
-  clearHoverPreviewTimer();
-  hoverPreviewTimer = setTimeout(() => openImageLightbox(zoomable), HOVER_PREVIEW_DELAY_MS);
-});
+  if (zoomable) {
+    // Same element: keep tracking the cursor and (re)arm the dwell timer
+    // only if we are not already showing.
+    if (hoverPreviewActiveEl === zoomable) {
+      positionHoverPreview(event.clientX, event.clientY);
+      return;
+    }
+    if (imageHoverPreview && imageHoverPreview.classList.contains('open')) {
+      // Crossed from one zoomable into another without a mouseout — swap.
+      showHoverPreview(zoomable, event.clientX, event.clientY);
+      return;
+    }
+    clearHoverPreviewTimer();
+    const x = event.clientX;
+    const y = event.clientY;
+    hoverPreviewTimer = setTimeout(() => {
+      showHoverPreview(zoomable, x, y);
+    }, HOVER_PREVIEW_DELAY_MS);
+  } else if (hoverPreviewActiveEl) {
+    hideHoverPreview();
+  } else {
+    clearHoverPreviewTimer();
+  }
+}, { passive: true });
 
+// Hide on mouseout to a non-zoomable region (covers fast cursor exits the
+// move handler may miss between frames).
 document.addEventListener('mouseout', (event) => {
-  const zoomable = event.target.closest('[data-zoomable]');
-  if (!zoomable) return;
-  // Bail if the cursor is still inside the same zoomable region.
-  if (event.relatedTarget && zoomable.contains(event.relatedTarget)) return;
-  clearHoverPreviewTimer();
+  if (isCoarsePointer()) return;
+  if (!hoverPreviewActiveEl) return;
+  if (event.relatedTarget && hoverPreviewActiveEl.contains(event.relatedTarget)) return;
+  hideHoverPreview();
 });
 
-// Mobile: long-press to enlarge. We arm a timer on touchstart and disarm on
-// touchmove (a swipe in the carousel) or touchend (a normal tap).
+// Bail if the page scrolls or the window blurs while a preview is open.
+window.addEventListener('scroll', hideHoverPreview, { passive: true });
+window.addEventListener('blur', hideHoverPreview);
+
+// Mobile long-press → fullscreen lightbox. (Hover preview is desktop-only.)
 document.addEventListener('touchstart', (event) => {
   const zoomable = event.target.closest('[data-zoomable]');
   if (!zoomable) return;
@@ -3945,8 +4090,6 @@ document.addEventListener('touchstart', (event) => {
   clearLongPressTimer();
   longPressTimer = setTimeout(() => {
     openImageLightbox(zoomable);
-    // Vibration is a no-op where not supported; gives a subtle haptic
-    // confirmation on Android.
     if ('vibrate' in navigator) navigator.vibrate(8);
   }, LONG_PRESS_DELAY_MS);
 }, { passive: true });
@@ -3955,7 +4098,6 @@ document.addEventListener('touchmove', (event) => {
   if (!longPressTimer) return;
   const touch = event.touches[0];
   if (!touch) return;
-  // 12px deadband: tiny finger jitter shouldn't cancel; a real swipe should.
   if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 12) {
     clearLongPressTimer();
   }
