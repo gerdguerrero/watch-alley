@@ -91,6 +91,7 @@
     <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
       <button type="button" id="admin-tab-inbox" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-inbox" data-tab="inbox">Inbox</button>
       <button type="button" id="admin-tab-inventory" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inventory" tabindex="-1" data-tab="inventory">Inventory</button>
+      <button type="button" id="admin-tab-journal" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-journal" tabindex="-1" data-tab="journal">Journal</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
       <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
@@ -397,6 +398,122 @@
         </div>
       </form>
     </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-journal" role="tabpanel" aria-labelledby="admin-tab-journal" hidden>
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+          <div>
+            <div class="admin-eyebrow">Journal</div>
+            <div class="admin-count" id="journal-count">—</div>
+          </div>
+          <button type="button" id="journal-new-btn" class="btn-primary admin-new-btn">+ New post</button>
+        </div>
+        <input type="search" id="journal-filter" placeholder="Filter by title or slug…" />
+        <ul class="admin-watch-list" id="journal-list" aria-live="polite"></ul>
+      </aside>
+
+      <section class="admin-detail" id="journal-detail">
+        <div class="admin-detail-empty" id="journal-detail-empty">
+          <p>Select an article on the left to view or edit it, or click <strong>+ New post</strong> to write one.</p>
+          <p class="admin-meta">The website's <a href="/journal" target="_blank" rel="noopener">Journal page</a> updates automatically the next time the site rebuilds.</p>
+        </div>
+
+        <form id="journal-form" class="admin-form" hidden novalidate>
+          <input type="hidden" id="journal-field-id" />
+
+          <div class="admin-form-grid">
+            <label>Status *
+              <select id="journal-field-status" required>
+                <option value="draft">Draft (private)</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="published">Published</option>
+              </select>
+            </label>
+            <label id="journal-field-publish-at-wrapper" hidden>Publish at
+              <input type="datetime-local" id="journal-field-publish-at" />
+            </label>
+            <label class="admin-col-2">Title *
+              <input type="text" id="journal-field-title" required maxlength="240" placeholder="Seiko launches its 5th Philippine Limited Edition." />
+            </label>
+            <label class="admin-col-2">Slug *
+              <span class="admin-meta">Lowercase, hyphenated. Auto-derived from title; click into the field to edit.</span>
+              <input type="text" id="journal-field-slug" required maxlength="120" pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$" placeholder="seiko-launches-5th-philippine-limited-edition" />
+            </label>
+            <label class="admin-col-2">Summary *
+              <span class="admin-meta">2–3 sentences. Shown on the Journal index, in OG previews, and as the article meta description for SEO.</span>
+              <textarea id="journal-field-summary" rows="3" required maxlength="320"></textarea>
+            </label>
+            <label>Author
+              <input type="text" id="journal-field-author" maxlength="120" placeholder="The Watch Alley" />
+            </label>
+            <label>Read minutes
+              <span class="admin-meta">Leave blank to auto-calculate from word count.</span>
+              <input type="number" id="journal-field-read-minutes" min="1" max="60" />
+            </label>
+            <label class="admin-col-2">Tags
+              <span class="admin-meta">Comma-separated. e.g. industry, seiko, limited-edition</span>
+              <input type="text" id="journal-field-tags" maxlength="200" placeholder="industry, seiko, limited-edition" />
+            </label>
+
+            <div class="admin-col-2 admin-image-uploader" id="journal-hero-uploader">
+              <div class="admin-image-uploader-header">
+                <div>
+                  <div class="admin-eyebrow">Hero photo (optional)</div>
+                  <p class="admin-meta">Wide editorial photograph. Shown above the article body and in the social card. Drop or click to upload.</p>
+                </div>
+                <label class="btn-secondary admin-image-upload-btn" for="journal-hero-input">
+                  Upload photo
+                  <input type="file" id="journal-hero-input" accept="image/jpeg,image/png,image/webp,image/avif" hidden />
+                </label>
+              </div>
+              <div class="admin-image-dropzone" id="journal-hero-dropzone" tabindex="0" aria-label="Drop hero photo here to upload">
+                <p>Drop a hero photo here, or click <strong>Upload photo</strong>. JPEG, PNG, WebP, or AVIF. Max 10 MB.</p>
+              </div>
+              <div id="journal-hero-preview" hidden>
+                <img id="journal-hero-preview-img" alt="" />
+                <button type="button" id="journal-hero-remove" class="btn-ghost">Remove hero photo</button>
+              </div>
+              <p id="journal-hero-status" class="admin-hint" aria-live="polite"></p>
+              <input type="hidden" id="journal-field-hero-image" />
+            </div>
+
+            <div class="admin-col-2">
+              <div class="admin-eyebrow" style="margin-bottom: 6px;">Article body *</div>
+              <p class="admin-meta">Write in plain text or use the toolbar / Markdown shortcuts. The preview on the right shows exactly how the article will render.</p>
+
+              <div class="journal-toolbar" role="toolbar" aria-label="Formatting">
+                <button type="button" class="journal-toolbar-btn" data-md-action="bold" title="Bold (Ctrl/Cmd+B)"><strong>B</strong></button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="italic" title="Italic (Ctrl/Cmd+I)"><em>I</em></button>
+                <span class="journal-toolbar-sep" aria-hidden="true"></span>
+                <button type="button" class="journal-toolbar-btn" data-md-action="h2" title="Section heading">H2</button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="h3" title="Sub heading">H3</button>
+                <span class="journal-toolbar-sep" aria-hidden="true"></span>
+                <button type="button" class="journal-toolbar-btn" data-md-action="ul" title="Bulleted list">• List</button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="ol" title="Numbered list">1. List</button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="quote" title="Quote / pull-quote">❝ Quote</button>
+                <span class="journal-toolbar-sep" aria-hidden="true"></span>
+                <button type="button" class="journal-toolbar-btn" data-md-action="link" title="Insert link (Ctrl/Cmd+K)">Link</button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="image" title="Insert image (uploads to journal-images bucket)">Image</button>
+                <button type="button" class="journal-toolbar-btn" data-md-action="hr" title="Horizontal rule">HR</button>
+              </div>
+
+              <div class="journal-editor-grid">
+                <textarea id="journal-field-body" rows="22" placeholder="Write your article in plain text or Markdown. The preview on the right updates as you type." required></textarea>
+                <div class="journal-preview" id="journal-preview" aria-label="Live preview"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="journal-save-btn">Save</button>
+            <button type="button" class="btn-secondary" id="journal-publish-btn">Publish now</button>
+            <button type="button" class="btn-secondary" id="journal-preview-btn" hidden>View on website ↗</button>
+            <button type="button" class="btn-danger" id="journal-delete-btn" hidden>Delete</button>
+            <button type="button" class="btn-ghost" id="journal-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </section>
     </div>
 
     <div class="admin-tabpanel" id="tabpanel-admins" role="tabpanel" aria-labelledby="admin-tab-admins" hidden>

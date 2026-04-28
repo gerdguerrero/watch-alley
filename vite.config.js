@@ -35,9 +35,8 @@ export default defineConfig({
         privacy: resolve(__dirname, 'privacy.html'),
         admin: resolve(__dirname, 'admin/index.html'),
         journal: resolve(__dirname, 'journal.html'),
-        journalSeikoLE: resolve(__dirname, 'journal/seiko-launches-5th-philippine-limited-edition.html'),
-        journalOmega75: resolve(__dirname, 'journal/omega-marks-75-years-of-the-seamaster.html'),
-        journalMoonSwatch: resolve(__dirname, 'journal/moonswatch-resale-cools-time-to-buy.html'),
+        // Per-article pages are generated from Supabase at postbuild by
+        // scripts/generate-journal-pages.mjs. Don't list them as Vite inputs.
       },
     },
   },

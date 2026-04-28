@@ -185,14 +185,17 @@ function rewriteHead(html, watch) {
   return out;
 }
 
-function rewriteSitemap(watches) {
+function rewriteSitemap(watches, journalSlugs = []) {
   const today = new Date().toISOString().slice(0, 10);
   const base = [
     { loc: `${SITE_ORIGIN}/`, freq: 'weekly', priority: '1.0' },
     { loc: `${SITE_ORIGIN}/journal`, freq: 'weekly', priority: '0.8' },
-    { loc: `${SITE_ORIGIN}/journal/seiko-launches-5th-philippine-limited-edition`, freq: 'monthly', priority: '0.7' },
-    { loc: `${SITE_ORIGIN}/journal/omega-marks-75-years-of-the-seamaster`, freq: 'monthly', priority: '0.7' },
-    { loc: `${SITE_ORIGIN}/journal/moonswatch-resale-cools-time-to-buy`, freq: 'monthly', priority: '0.7' },
+    ...journalSlugs.map((slug) => ({
+      loc: `${SITE_ORIGIN}/journal/${slug}`,
+      freq: 'monthly',
+      priority: '0.7',
+      lastmod: today,
+    })),
     { loc: `${SITE_ORIGIN}/authenticity.html`, freq: 'monthly', priority: '0.8' },
     { loc: `${SITE_ORIGIN}/terms.html`, freq: 'monthly', priority: '0.6' },
     { loc: `${SITE_ORIGIN}/privacy.html`, freq: 'monthly', priority: '0.6' },
@@ -264,11 +267,27 @@ function main() {
 
   const removed = cleanStaleWatchDirs(watches);
 
+  // The journal generator writes its own slugs to a tiny manifest so we can
+  // include them in the sitemap without coupling the two scripts. If the
+  // manifest doesn't exist yet (first build, or generator skipped), the
+  // sitemap simply omits journal article URLs and the index page link still
+  // works.
+  let journalSlugs = [];
+  const manifestPath = path.join(distDir, 'journal', '_manifest.json');
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      if (Array.isArray(manifest.slugs)) journalSlugs = manifest.slugs;
+    } catch {
+      /* ignore — manifest is best-effort */
+    }
+  }
+
   // Rewrite sitemap with all watch URLs.
-  writeFileSync(distSitemap, rewriteSitemap(watches));
+  writeFileSync(distSitemap, rewriteSitemap(watches, journalSlugs));
 
   console.log(
-    `Watch pages: ${written} written to dist/watch/. Stale dirs removed: ${removed}. Sitemap regenerated.`
+    `Watch pages: ${written} written to dist/watch/. Stale dirs removed: ${removed}. Sitemap regenerated (${journalSlugs.length} journal articles).`
   );
 }
 

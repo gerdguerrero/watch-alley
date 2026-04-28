@@ -4,6 +4,7 @@
 // writes to the watches table directly.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { renderMarkdown } from './lib/markdown.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
 // Supabase project. Wired below for project: the-watch-alley
@@ -70,8 +71,41 @@ const els = {
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelInbox: document.getElementById('tabpanel-inbox'),
   tabpanelInventory: document.getElementById('tabpanel-inventory'),
+  tabpanelJournal: document.getElementById('tabpanel-journal'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
+  // Journal tab
+  journalList: document.getElementById('journal-list'),
+  journalCount: document.getElementById('journal-count'),
+  journalFilter: document.getElementById('journal-filter'),
+  journalNewBtn: document.getElementById('journal-new-btn'),
+  journalDetail: document.getElementById('journal-detail'),
+  journalDetailEmpty: document.getElementById('journal-detail-empty'),
+  journalForm: document.getElementById('journal-form'),
+  journalFieldId: document.getElementById('journal-field-id'),
+  journalFieldStatus: document.getElementById('journal-field-status'),
+  journalFieldPublishAtWrapper: document.getElementById('journal-field-publish-at-wrapper'),
+  journalFieldPublishAt: document.getElementById('journal-field-publish-at'),
+  journalFieldTitle: document.getElementById('journal-field-title'),
+  journalFieldSlug: document.getElementById('journal-field-slug'),
+  journalFieldSummary: document.getElementById('journal-field-summary'),
+  journalFieldAuthor: document.getElementById('journal-field-author'),
+  journalFieldReadMinutes: document.getElementById('journal-field-read-minutes'),
+  journalFieldTags: document.getElementById('journal-field-tags'),
+  journalFieldHeroImage: document.getElementById('journal-field-hero-image'),
+  journalHeroDropzone: document.getElementById('journal-hero-dropzone'),
+  journalHeroInput: document.getElementById('journal-hero-input'),
+  journalHeroPreview: document.getElementById('journal-hero-preview'),
+  journalHeroPreviewImg: document.getElementById('journal-hero-preview-img'),
+  journalHeroRemove: document.getElementById('journal-hero-remove'),
+  journalHeroStatus: document.getElementById('journal-hero-status'),
+  journalFieldBody: document.getElementById('journal-field-body'),
+  journalPreview: document.getElementById('journal-preview'),
+  journalSaveBtn: document.getElementById('journal-save-btn'),
+  journalPublishBtn: document.getElementById('journal-publish-btn'),
+  journalPreviewBtn: document.getElementById('journal-preview-btn'),
+  journalDeleteBtn: document.getElementById('journal-delete-btn'),
+  journalCancelBtn: document.getElementById('journal-cancel-btn'),
   // Image uploader
   imageUploader: document.getElementById('image-uploader'),
   imageUploadInput: document.getElementById('image-upload-input'),
@@ -1094,10 +1128,12 @@ function activateTab(name, { focus = false } = {}) {
   });
   if (els.tabpanelInbox) els.tabpanelInbox.hidden = name !== 'inbox';
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
+  if (els.tabpanelJournal) els.tabpanelJournal.hidden = name !== 'journal';
   if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
   if (els.tabpanelAccount) els.tabpanelAccount.hidden = name !== 'account';
   if (name === 'admins') loadAdminsList();
   if (name === 'inbox') loadInbox();
+  if (name === 'journal') loadJournalPosts();
 }
 
 // ---------------- Account tab: change password ----------------
@@ -1681,4 +1717,460 @@ if (els.inboxList) {
 function cssEscape(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
   return String(value).replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
+}
+// =====================================================================
+// Journal tab — list, edit, save, delete, toolbar, live preview, hero
+// =====================================================================
+
+let journalPosts = [];
+let activeJournalId = null;
+let journalLoading = false;
+
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 120)
+    .replace(/^-|-$/g, '');
+}
+
+function isoToLocalDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  // <input type="datetime-local"> wants 'YYYY-MM-DDTHH:MM' in local time.
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function localDateTimeToIso(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+async function loadJournalPosts() {
+  if (!supabase || !els.journalList) return;
+  if (journalLoading) return;
+  journalLoading = true;
+  els.journalList.innerHTML = '<li class="admin-meta">Loading…</li>';
+  try {
+    const { data, error } = await supabase.rpc('admin_list_journal_posts', { status_filter: null, limit_count: 200 });
+    if (error) throw error;
+    journalPosts = Array.isArray(data) ? data : [];
+    renderJournalList();
+  } catch (error) {
+    journalPosts = [];
+    els.journalList.innerHTML = `<li class="admin-meta">Failed to load: ${escapeHtml(error.message || error)}</li>`;
+  } finally {
+    journalLoading = false;
+  }
+}
+
+function renderJournalList() {
+  if (!els.journalList) return;
+  const filter = (els.journalFilter && els.journalFilter.value || '').trim().toLowerCase();
+  const filtered = filter
+    ? journalPosts.filter((p) =>
+        (p.title || '').toLowerCase().includes(filter) ||
+        (p.slug || '').toLowerCase().includes(filter)
+      )
+    : journalPosts;
+  els.journalCount.textContent = `${journalPosts.length}`;
+  if (filtered.length === 0) {
+    els.journalList.innerHTML = '<li class="admin-meta">No posts yet. Click + New post.</li>';
+    return;
+  }
+  els.journalList.innerHTML = filtered.map((post) => {
+    const status = post.status || 'draft';
+    const statusClass = status === 'published' ? 'is-published' : status === 'scheduled' ? 'is-scheduled' : 'is-draft';
+    const isActive = post.id === activeJournalId ? ' is-active' : '';
+    return `
+      <li class="${isActive}">
+        <button type="button" class="admin-watch-list-btn" data-journal-id="${escapeAttr(post.id)}">
+          <span class="admin-watch-list-name">${escapeHtml(post.title || '(untitled)')}</span>
+          <span class="admin-watch-list-meta">
+            <span class="journal-list-status ${statusClass}">${escapeHtml(status)}</span>
+            <span>${escapeHtml(post.slug || '')}</span>
+          </span>
+        </button>
+      </li>
+    `;
+  }).join('');
+}
+
+if (els.journalList) {
+  els.journalList.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-journal-id]');
+    if (!btn) return;
+    const post = journalPosts.find((p) => p.id === btn.dataset.journalId);
+    if (post) loadJournalPostIntoForm(post);
+  });
+}
+if (els.journalFilter) {
+  els.journalFilter.addEventListener('input', () => renderJournalList());
+}
+if (els.journalNewBtn) {
+  els.journalNewBtn.addEventListener('click', () => loadJournalPostIntoForm(null));
+}
+
+function loadJournalPostIntoForm(post) {
+  if (!els.journalForm) return;
+  activeJournalId = post?.id || null;
+  els.journalDetailEmpty.hidden = true;
+  els.journalForm.hidden = false;
+
+  els.journalFieldId.value = post?.id || '';
+  els.journalFieldStatus.value = post?.status || 'draft';
+  els.journalFieldPublishAt.value = isoToLocalDateTime(post?.publish_at);
+  els.journalFieldTitle.value = post?.title || '';
+  els.journalFieldSlug.value = post?.slug || '';
+  els.journalFieldSummary.value = post?.summary || '';
+  els.journalFieldAuthor.value = post?.author || '';
+  els.journalFieldReadMinutes.value = Number.isFinite(post?.read_minutes) ? post.read_minutes : '';
+  els.journalFieldTags.value = Array.isArray(post?.tags) ? post.tags.join(', ') : '';
+  els.journalFieldHeroImage.value = post?.hero_image || '';
+  els.journalFieldBody.value = post?.body_markdown || '';
+
+  updateJournalHeroPreview(post?.hero_image || '');
+  updateJournalPublishAtVisibility();
+  updateJournalPreviewBtnVisibility(post);
+  updateJournalDeleteBtnVisibility(post);
+  updateJournalLivePreview();
+  renderJournalList();
+}
+
+function updateJournalHeroPreview(url) {
+  if (!els.journalHeroPreview) return;
+  if (url) {
+    els.journalHeroPreviewImg.src = url;
+    els.journalHeroPreviewImg.alt = els.journalFieldTitle.value || 'Hero image';
+    els.journalHeroPreview.hidden = false;
+  } else {
+    els.journalHeroPreviewImg.removeAttribute('src');
+    els.journalHeroPreview.hidden = true;
+  }
+}
+
+function updateJournalPublishAtVisibility() {
+  if (!els.journalFieldPublishAtWrapper) return;
+  const status = els.journalFieldStatus.value;
+  els.journalFieldPublishAtWrapper.hidden = status !== 'scheduled';
+}
+
+function updateJournalPreviewBtnVisibility(post) {
+  if (!els.journalPreviewBtn) return;
+  const isPublished = post && post.status === 'published' && post.slug;
+  els.journalPreviewBtn.hidden = !isPublished;
+  if (isPublished) {
+    els.journalPreviewBtn.dataset.url = `/journal/${post.slug}.html`;
+  }
+}
+
+function updateJournalDeleteBtnVisibility(post) {
+  if (!els.journalDeleteBtn) return;
+  els.journalDeleteBtn.hidden = !(post && post.id);
+}
+
+function updateJournalLivePreview() {
+  if (!els.journalPreview) return;
+  const body = els.journalFieldBody.value || '';
+  if (!body.trim()) {
+    els.journalPreview.innerHTML = '<p class="journal-preview-empty">The article preview will appear here as you type.</p>';
+    return;
+  }
+  els.journalPreview.innerHTML = renderMarkdown(body);
+}
+
+if (els.journalFieldBody) {
+  els.journalFieldBody.addEventListener('input', updateJournalLivePreview);
+}
+if (els.journalFieldStatus) {
+  els.journalFieldStatus.addEventListener('change', updateJournalPublishAtVisibility);
+}
+if (els.journalFieldTitle) {
+  // Auto-fill the slug on first edit, but stop once the user has typed in
+  // the slug field directly (or once the post has an id, since changing the
+  // slug breaks any inbound links).
+  let slugTouched = false;
+  els.journalFieldSlug.addEventListener('input', () => { slugTouched = true; });
+  els.journalFieldTitle.addEventListener('input', () => {
+    if (slugTouched) return;
+    if (els.journalFieldId.value) return;
+    els.journalFieldSlug.value = slugify(els.journalFieldTitle.value);
+  });
+}
+
+// ── Toolbar (Word-style buttons + keyboard shortcuts) ────────────────────
+function applyMarkdownAction(action) {
+  const ta = els.journalFieldBody;
+  if (!ta) return;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const value = ta.value;
+  const selected = value.slice(start, end);
+  let replacement = '';
+  let cursorOffset = 0;
+  switch (action) {
+    case 'bold':
+      replacement = `**${selected || 'bold text'}**`;
+      cursorOffset = selected ? 0 : -2;
+      break;
+    case 'italic':
+      replacement = `*${selected || 'italic text'}*`;
+      cursorOffset = selected ? 0 : -1;
+      break;
+    case 'h2': {
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const before = value.slice(0, lineStart);
+      const after = value.slice(lineStart);
+      ta.value = `${before}## ${after.trimStart()}`;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      ta.focus();
+      return;
+    }
+    case 'h3': {
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const before = value.slice(0, lineStart);
+      const after = value.slice(lineStart);
+      ta.value = `${before}### ${after.trimStart()}`;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      ta.focus();
+      return;
+    }
+    case 'ul':
+      replacement = (selected || 'List item').split('\n').map((line) => `- ${line.replace(/^[-*]\s*/, '')}`).join('\n');
+      break;
+    case 'ol':
+      replacement = (selected || 'List item').split('\n').map((line, i) => `${i + 1}. ${line.replace(/^\d+\.\s*/, '')}`).join('\n');
+      break;
+    case 'quote':
+      replacement = (selected || 'Quote').split('\n').map((line) => `> ${line}`).join('\n');
+      break;
+    case 'link': {
+      const url = window.prompt('Link URL', 'https://');
+      if (!url) return;
+      replacement = `[${selected || 'link text'}](${url})`;
+      break;
+    }
+    case 'image':
+      // Trigger the same hero-input element under the hood — it uploads to
+      // the journal-images bucket and inserts a markdown image at the
+      // cursor when it returns. We re-route via a hidden input.
+      els.journalHeroInput.dataset.target = 'inline';
+      els.journalHeroInput.click();
+      return;
+    case 'hr':
+      replacement = `\n\n---\n\n`;
+      break;
+    default:
+      return;
+  }
+  const newValue = value.slice(0, start) + replacement + value.slice(end);
+  ta.value = newValue;
+  const newCursor = start + replacement.length + cursorOffset;
+  ta.setSelectionRange(newCursor, newCursor);
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+  ta.focus();
+}
+
+document.querySelectorAll('[data-md-action]').forEach((btn) => {
+  btn.addEventListener('click', () => applyMarkdownAction(btn.dataset.mdAction));
+});
+
+if (els.journalFieldBody) {
+  els.journalFieldBody.addEventListener('keydown', (event) => {
+    const meta = event.metaKey || event.ctrlKey;
+    if (!meta) return;
+    if (event.key === 'b') { event.preventDefault(); applyMarkdownAction('bold'); }
+    else if (event.key === 'i') { event.preventDefault(); applyMarkdownAction('italic'); }
+    else if (event.key === 'k') { event.preventDefault(); applyMarkdownAction('link'); }
+  });
+}
+
+// ── Hero image / inline image upload ─────────────────────────────────────
+async function uploadJournalImage(file) {
+  if (!supabase) throw new Error('Not signed in.');
+  if (!file) throw new Error('No file selected.');
+  if (file.size > 10 * 1024 * 1024) throw new Error('Image too large (max 10 MB).');
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const safeBase = (file.name || 'image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9-]+/g, '-').slice(0, 60) || 'image';
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`;
+  const { error } = await supabase.storage.from('journal-images').upload(filename, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from('journal-images').getPublicUrl(filename);
+  return data?.publicUrl || '';
+}
+
+async function handleJournalHeroFile(file, mode) {
+  if (!file) return;
+  els.journalHeroStatus.textContent = 'Uploading…';
+  try {
+    const url = await uploadJournalImage(file);
+    if (!url) throw new Error('Upload returned no URL.');
+    if (mode === 'inline') {
+      // Insert at the cursor as a markdown image.
+      const ta = els.journalFieldBody;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const insert = `\n![${file.name.replace(/\.[^.]+$/, '')}](${url})\n`;
+      ta.value = ta.value.slice(0, start) + insert + ta.value.slice(end);
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      ta.focus();
+    } else {
+      els.journalFieldHeroImage.value = url;
+      updateJournalHeroPreview(url);
+    }
+    els.journalHeroStatus.textContent = 'Uploaded.';
+  } catch (error) {
+    els.journalHeroStatus.textContent = `Upload failed: ${error.message || error}`;
+  } finally {
+    setTimeout(() => { if (els.journalHeroStatus) els.journalHeroStatus.textContent = ''; }, 3000);
+  }
+}
+
+if (els.journalHeroInput) {
+  els.journalHeroInput.addEventListener('change', (event) => {
+    const file = event.target.files && event.target.files[0];
+    const mode = event.target.dataset.target === 'inline' ? 'inline' : 'hero';
+    event.target.dataset.target = '';
+    event.target.value = '';
+    if (file) handleJournalHeroFile(file, mode);
+  });
+}
+if (els.journalHeroDropzone) {
+  els.journalHeroDropzone.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    els.journalHeroDropzone.style.borderColor = 'var(--gold)';
+  });
+  els.journalHeroDropzone.addEventListener('dragleave', () => {
+    els.journalHeroDropzone.style.borderColor = '';
+  });
+  els.journalHeroDropzone.addEventListener('drop', (event) => {
+    event.preventDefault();
+    els.journalHeroDropzone.style.borderColor = '';
+    const file = event.dataTransfer.files && event.dataTransfer.files[0];
+    if (file) handleJournalHeroFile(file, 'hero');
+  });
+}
+if (els.journalHeroRemove) {
+  els.journalHeroRemove.addEventListener('click', () => {
+    els.journalFieldHeroImage.value = '';
+    updateJournalHeroPreview('');
+  });
+}
+
+// ── Save / Publish / Cancel / Delete / Preview ──────────────────────────
+async function saveJournalPost(forcedStatus) {
+  if (!supabase) return;
+  const status = forcedStatus || els.journalFieldStatus.value;
+  const title = els.journalFieldTitle.value.trim();
+  const slug = els.journalFieldSlug.value.trim();
+  const summary = els.journalFieldSummary.value.trim();
+  const body = els.journalFieldBody.value;
+
+  if (!title) { setStatus('Add a title first.', 'error'); els.journalFieldTitle.focus(); return; }
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) { setStatus('Slug must be lowercase letters, numbers, and hyphens.', 'error'); els.journalFieldSlug.focus(); return; }
+  if (!summary) { setStatus('Add a summary so the Journal index has a teaser.', 'error'); els.journalFieldSummary.focus(); return; }
+  if (status === 'scheduled' && !els.journalFieldPublishAt.value) {
+    setStatus('Pick a publish-at date for scheduled posts.', 'error');
+    els.journalFieldPublishAt.focus();
+    return;
+  }
+
+  const tags = els.journalFieldTags.value
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+
+  const payload = {
+    id: els.journalFieldId.value || null,
+    slug,
+    title,
+    summary,
+    bodyMarkdown: body,
+    heroImage: els.journalFieldHeroImage.value || null,
+    tags,
+    status,
+    publishAt: status === 'scheduled' ? localDateTimeToIso(els.journalFieldPublishAt.value) : null,
+    author: els.journalFieldAuthor.value.trim() || null,
+    readMinutes: els.journalFieldReadMinutes.value ? Number(els.journalFieldReadMinutes.value) : null,
+  };
+
+  els.journalSaveBtn.disabled = true;
+  els.journalPublishBtn.disabled = true;
+  try {
+    const { data, error } = await supabase.rpc('admin_upsert_journal_post', { payload });
+    if (error) throw error;
+    setStatus(
+      status === 'published'
+        ? 'Published. The website updates automatically on the next deploy.'
+        : 'Saved. The website updates automatically on the next deploy.',
+      'success'
+    );
+    await loadJournalPosts();
+    if (data && data.id) loadJournalPostIntoForm(data);
+  } catch (error) {
+    setStatus(`Save failed: ${error.message || error}`, 'error');
+  } finally {
+    els.journalSaveBtn.disabled = false;
+    els.journalPublishBtn.disabled = false;
+  }
+}
+
+if (els.journalForm) {
+  els.journalForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    saveJournalPost();
+  });
+}
+if (els.journalPublishBtn) {
+  els.journalPublishBtn.addEventListener('click', () => {
+    els.journalFieldStatus.value = 'published';
+    updateJournalPublishAtVisibility();
+    saveJournalPost('published');
+  });
+}
+if (els.journalCancelBtn) {
+  els.journalCancelBtn.addEventListener('click', () => {
+    activeJournalId = null;
+    els.journalForm.hidden = true;
+    els.journalDetailEmpty.hidden = false;
+    renderJournalList();
+  });
+}
+if (els.journalDeleteBtn) {
+  els.journalDeleteBtn.addEventListener('click', async () => {
+    if (!supabase) return;
+    const id = els.journalFieldId.value;
+    if (!id) return;
+    if (!window.confirm('Delete this post? This cannot be undone.')) return;
+    els.journalDeleteBtn.disabled = true;
+    try {
+      const { error } = await supabase.rpc('admin_delete_journal_post', { post_id: id });
+      if (error) throw error;
+      setStatus('Deleted. The website updates automatically on the next deploy.', 'success');
+      activeJournalId = null;
+      els.journalForm.hidden = true;
+      els.journalDetailEmpty.hidden = false;
+      await loadJournalPosts();
+    } catch (error) {
+      setStatus(`Delete failed: ${error.message || error}`, 'error');
+    } finally {
+      els.journalDeleteBtn.disabled = false;
+    }
+  });
+}
+if (els.journalPreviewBtn) {
+  els.journalPreviewBtn.addEventListener('click', () => {
+    const url = els.journalPreviewBtn.dataset.url;
+    if (url) window.open(url, '_blank');
+  });
 }
