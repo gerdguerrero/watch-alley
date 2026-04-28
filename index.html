@@ -2730,6 +2730,7 @@ const PUBLIC_WATCH_COLUMNS = [
   'featured',
   'low_stock',
   'display_order',
+  'published',
 ].join(',');
 const productModal = document.getElementById('product-detail-modal');
 const productModalBackdrop = document.getElementById('product-modal-backdrop');
@@ -3456,6 +3457,10 @@ function toWatchInventoryItem(row) {
   if (row.service_history) watch.serviceHistory = row.service_history;
   if (row.featured === true) watch.featured = true;
   if (row.low_stock === true) watch.lowStock = true;
+  // `published` defaults to true server-side; only meaningful when this code
+  // is reached with a draft row (admin preview path with service-role key,
+  // or a build-pipeline render). RLS already filters anon callers.
+  watch.published = row.published !== false;
 
   return watch;
 }

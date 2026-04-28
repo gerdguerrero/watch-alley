@@ -340,6 +340,20 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .journal-list-status.is-scheduled { border-color: rgba(118, 184, 255, 0.55); color: rgba(118, 184, 255, 0.90); }
 .journal-list-status.is-draft { border-color: rgba(255, 255, 255, 0.16); color: var(--cream-60); }
 
+/* Draft pill on the inventory sidebar list. Same visual register as the
+   journal status pill, just inline with the watch name. */
+.watch-list-draft-pill {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--cream-60);
+  vertical-align: middle;
+}
+
 /* Journal hero photo preview block */
 #journal-hero-preview {
   display: flex;

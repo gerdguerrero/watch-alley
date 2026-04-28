@@ -47,6 +47,7 @@ export type Database = {
           price: number | null
           primary_image: string | null
           provenance: string | null
+          published: boolean | null
           reference: string | null
           service_history: string | null
           slug: string | null
@@ -82,6 +83,7 @@ export type Database = {
           price?: number | null
           primary_image?: string | null
           provenance?: string | null
+          published?: boolean | null
           reference?: string | null
           service_history?: string | null
           slug?: string | null
@@ -117,6 +119,7 @@ export type Database = {
           price?: number | null
           primary_image?: string | null
           provenance?: string | null
+          published?: boolean | null
           reference?: string | null
           service_history?: string | null
           slug?: string | null

@@ -350,16 +350,16 @@ function showOnly(panel) {
 
 async function loadWatches() {
   setStatus('Loading inventory…');
-  const { data, error } = await supabase
-    .from('watches')
-    .select('*')
-    .order('status', { ascending: true })
-    .order('display_order', { ascending: true });
+  // public.watches now hides drafts from authenticated readers (RLS only
+  // exposes published=true rows; service role bypasses). The admin needs
+  // to see drafts to edit them, so we use the SECURITY DEFINER RPC that
+  // gates on watch_alley.is_admin() and returns every row.
+  const { data, error } = await supabase.rpc('admin_list_watches');
   if (error) {
     setStatus(`Failed to load watches: ${error.message}`, 'error');
     return;
   }
-  allWatches = data || [];
+  allWatches = Array.isArray(data) ? data : [];
   renderList();
   setStatus('');
 }
@@ -538,10 +538,23 @@ function loadIntoForm(watch) {
   setCheckbox('hasPapers', watch?.has_papers === true);
   setCheckbox('featured', watch?.featured === true);
   setCheckbox('lowStock', watch?.low_stock === true);
+  // Default to published for new listings; respect the stored value for
+  // existing rows (a row is a draft only if explicitly published=false).
+  setCheckbox('published', watch?.published !== false);
 
   const isExisting = !!watch;
   els.deleteBtn.hidden = !isExisting;
   els.markSoldBtn.hidden = !isExisting || watch.status === 'sold';
+  // Preview-as-buyer link is only meaningful for an existing row with a slug.
+  const previewBtn = document.getElementById('preview-as-buyer-btn');
+  if (previewBtn) {
+    if (isExisting && watch?.slug) {
+      previewBtn.hidden = false;
+      previewBtn.dataset.url = `/watch/${watch.slug}`;
+    } else {
+      previewBtn.hidden = true;
+    }
+  }
   renderSocialPreviewFromForm({ announce: false });
   loadSocialDraftsForActiveWatch();
 
@@ -1045,6 +1058,7 @@ function collectFormPayload() {
     serviceHistory: getField('serviceHistory').trim() || null,
     featured: getCheckbox('featured'),
     lowStock: getCheckbox('lowStock'),
+    published: getCheckbox('published'),
     displayOrder: Number(getField('displayOrder')) || 0,
   };
 
@@ -1718,6 +1732,47 @@ function cssEscape(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
   return String(value).replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
 }
+// Preview as buyer — opens the public storefront URL for the active watch
+// in a new tab. Drafts render with a DRAFT banner + noindex; published
+// listings show their normal page. Wired here because both states share
+// the same /watch/<slug> URL.
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest('#preview-as-buyer-btn');
+  if (!btn || btn.hidden) return;
+  const url = btn.dataset.url;
+  if (url) window.open(url, '_blank', 'noopener');
+});
+
+// Mark draft listings in the inventory sidebar so the operator sees status
+// at a glance. Hooks into renderWatchList by patching the rendered DOM
+// after the existing list renders. We watch for changes via a small
+// MutationObserver set up after first paint.
+function decorateInventoryListWithDraftPills() {
+  const list = document.getElementById('watch-list');
+  if (!list) return;
+  const apply = () => {
+    list.querySelectorAll('button[data-id]').forEach((btn) => {
+      const id = btn.dataset.id;
+      const watch = allWatches.find((w) => w.id === id);
+      if (!watch) return;
+      // Idempotent: remove an existing pill before re-inserting.
+      btn.querySelectorAll('.watch-list-draft-pill').forEach((el) => el.remove());
+      if (watch.published === false) {
+        const pill = document.createElement('span');
+        pill.className = 'watch-list-draft-pill';
+        pill.textContent = 'DRAFT';
+        btn.appendChild(pill);
+      }
+    });
+  };
+  apply();
+  new MutationObserver(apply).observe(list, { childList: true, subtree: true });
+}
+// Run once after auth + workspace mount; safe to invoke now since the list
+// either exists already or will be re-rendered by loadAllWatches().
+if (document.readyState !== 'loading') decorateInventoryListWithDraftPills();
+else document.addEventListener('DOMContentLoaded', decorateInventoryListWithDraftPills);
+
 // =====================================================================
 // Journal tab — list, edit, save, delete, toolbar, live preview, hero
 // =====================================================================

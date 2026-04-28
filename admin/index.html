@@ -275,6 +275,16 @@
           </fieldset>
 
           <fieldset class="admin-col-2 admin-fieldset">
+            <legend>Visibility</legend>
+            <label class="admin-inline-check">
+              <input type="checkbox" id="field-published" checked />
+              Published on the website
+            </label>
+            <p class="admin-meta">Untick to keep this listing as a private draft. Drafts only render at <code>/watch/&lt;slug&gt;</code> after the next deploy and carry a clear DRAFT banner. Tick again when you're ready to publish.</p>
+            <button type="button" id="preview-as-buyer-btn" class="btn-ghost" hidden>Preview as buyer ↗</button>
+          </fieldset>
+
+          <fieldset class="admin-col-2 admin-fieldset">
             <legend>Display flags</legend>
             <label class="admin-inline-check"><input type="checkbox" id="field-featured" /> Featured</label>
             <label class="admin-inline-check"><input type="checkbox" id="field-lowStock" /> Low stock</label>
