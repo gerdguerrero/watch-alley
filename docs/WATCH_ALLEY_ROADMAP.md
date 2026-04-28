@@ -49,6 +49,7 @@ Make Watch Alley the trusted curated watch dealer for Filipino collectors: premi
 - Build passes with `pnpm build`.
 - Inventory is now documented in `public/data/watches.json` and validated with `pnpm test`.
 - Inventory images use stable public URLs under `/watch-assets/` for future data-driven rendering.
+- Inventory now lives in Supabase (`watch_alley.watches`). The homepage still reads `public/data/watches.json`, which is regenerated from Supabase via `pnpm sync:watches`.
 - Homepage arrival cards now render from the inventory data source instead of hardcoded watch-card HTML.
 - Product detail modal now opens from inventory-rendered cards and surfaces trust-critical listing fields.
 - Each watch is now individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
@@ -105,15 +106,15 @@ Status: Backlog.
 
 Checklist:
 
-- [ ] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS.
-- [ ] Add inventory schema documentation.
+- [x] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS. (Chosen: Supabase `watch_alley.watches`, synced to `public/data/watches.json` for reads.)
+- [x] Add inventory schema documentation. (`docs/inventory-schema.md`)
 - [ ] Add admin-friendly update workflow.
 - [x] Add Sold Archive.
 - [ ] Add product slugs.
 - [ ] Add brand/category pages.
 - [ ] Add search/filter for brand, price, condition, status.
-- [ ] Add image requirements checklist for each listing.
-- [ ] Add internal listing QA checklist before publish.
+- [x] Add image requirements checklist for each listing.
+- [x] Add internal listing QA checklist before publish.
 - [ ] Add low-stock/featured product flags.
 
 Definition of done:
@@ -250,7 +251,18 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 
 ## Progress log
 
-### 2026-04-28
+### 2026-04-28 (Phase 2 — Inventory OS, source-of-truth migration)
+
+- Created Supabase schema `watch_alley` with table `watches` (RLS enabled, public read policy, sold-status constraint, updated_at trigger).
+- Seeded all 13 watches (10 active, 3 sold) into Supabase from `public/data/watches.json`.
+- Added `public.watches` view (`security_invoker`) so PostgREST exposes the table without renaming the underlying schema.
+- Added `scripts/sync-watches-from-supabase.mjs` and `pnpm sync:watches` script that pulls the live rows and overwrites `public/data/watches.json`.
+- Added `.env.example` and `.env.local` (gitignored) wiring for `WATCH_ALLEY_SUPABASE_URL` / anon key / service-role key.
+- Hardened the `watch_alley.set_updated_at` trigger function with a pinned `search_path` (Supabase advisor recommendation).
+- Documented the schema, sync workflow, image conventions, listing QA checklist, and migration trade-offs in `docs/inventory-schema.md`.
+- All 5 validators still pass against the regenerated JSON; `pnpm build` clean.
+
+### 2026-04-28 (Phase 1 — Conversion + Trust Foundation)
 
 - Created living roadmap/checklist for Watch Alley.
 - Created Sprint 1 implementation plan under `docs/plans/`.
