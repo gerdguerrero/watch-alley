@@ -26,6 +26,14 @@ const els = {
   authForm: document.getElementById('auth-form'),
   authEmail: document.getElementById('auth-email'),
   authPassword: document.getElementById('auth-password'),
+  authForgotBtn: document.getElementById('auth-forgot-btn'),
+  passwordSetupPanel: document.getElementById('password-setup-panel'),
+  passwordSetupForm: document.getElementById('password-setup-form'),
+  passwordSetupNew: document.getElementById('password-setup-new'),
+  passwordSetupConfirm: document.getElementById('password-setup-confirm'),
+  passwordSetupStatus: document.getElementById('password-setup-status'),
+  passwordSetupMeta: document.getElementById('password-setup-meta'),
+  passwordSetupSignout: document.getElementById('password-setup-signout'),
   forbiddenPanel: document.getElementById('forbidden-panel'),
   forbiddenEmail: document.getElementById('forbidden-email'),
   forbiddenSignout: document.getElementById('forbidden-signout'),
@@ -46,18 +54,49 @@ const els = {
   adminTabs: document.querySelectorAll('.admin-tab'),
   tabpanelInventory: document.getElementById('tabpanel-inventory'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
+  tabpanelAccount: document.getElementById('tabpanel-account'),
   inviteForm: document.getElementById('invite-admin-form'),
   inviteEmail: document.getElementById('invite-email'),
   inviteNote: document.getElementById('invite-note'),
   inviteStatus: document.getElementById('invite-status'),
   adminsList: document.getElementById('admins-list'),
+  // Account tab
+  accountEmail: document.getElementById('account-email'),
+  changePasswordForm: document.getElementById('change-password-form'),
+  changePasswordNew: document.getElementById('change-password-new'),
+  changePasswordConfirm: document.getElementById('change-password-confirm'),
+  changePasswordStatus: document.getElementById('change-password-status'),
 };
 
 // Track state.
-let authMode = 'signin';
 let allWatches = [];
 let activeId = null;
 let activeWatchSnapshot = null;
+// When the page loads via an invite or password-recovery email, we need to
+// force the user through the password-setup panel before showing anything
+// else. Supabase emits onAuthStateChange events with INITIAL_SESSION /
+// PASSWORD_RECOVERY / SIGNED_IN; we capture those and the URL hash to
+// decide whether to set this flag.
+let mustSetPassword = false;
+let passwordSetupReason = 'invite';
+
+// Inspect the URL hash that Supabase Auth attaches after email-link auth.
+// Hash looks like:
+//   #access_token=...&refresh_token=...&type=invite
+//   #access_token=...&refresh_token=...&type=recovery
+// We only read it; supabase-js itself parses the same hash and exchanges it
+// for a session. Reading does not consume it.
+function readEmailLinkType() {
+  const hash = window.location.hash || '';
+  if (!hash.includes('access_token=')) return null;
+  const m = hash.match(/[#&]type=([a-z_]+)/);
+  return m ? m[1] : null;
+}
+const initialEmailLinkType = readEmailLinkType();
+if (initialEmailLinkType === 'invite' || initialEmailLinkType === 'recovery' || initialEmailLinkType === 'signup') {
+  mustSetPassword = true;
+  passwordSetupReason = initialEmailLinkType === 'recovery' ? 'recovery' : 'invite';
+}
 
 function setStatus(message, tone) {
   els.status.textContent = message || '';
@@ -67,30 +106,16 @@ function setStatus(message, tone) {
 
 // ---------------- Auth flow ----------------
 
-els.authForm.addEventListener('click', (event) => {
-  const btn = event.target.closest('button[data-mode]');
-  if (btn) authMode = btn.dataset.mode;
-});
-
 els.authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const email = els.authEmail.value.trim();
   const password = els.authPassword.value;
   if (!email || !password) return;
 
-  setStatus(authMode === 'signup' ? 'Creating account…' : 'Signing in…');
+  setStatus('Signing in…');
   try {
-    const fn = authMode === 'signup'
-      ? supabase.auth.signUp({ email, password })
-      : supabase.auth.signInWithPassword({ email, password });
-    const { data, error } = await fn;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-
-    if (authMode === 'signup' && !data.session) {
-      setStatus('Sign-up successful. Check your email for the confirmation link, then sign in.', 'success');
-      authMode = 'signin';
-      return;
-    }
     setStatus('Signed in.', 'success');
     await renderForCurrentSession();
   } catch (error) {
@@ -98,22 +123,108 @@ els.authForm.addEventListener('submit', async (event) => {
   }
 });
 
+if (els.authForgotBtn) {
+  els.authForgotBtn.addEventListener('click', async () => {
+    const email = (els.authEmail.value || '').trim();
+    if (!email) {
+      setStatus('Enter your email above first, then click Forgot password?', 'error');
+      els.authEmail.focus();
+      return;
+    }
+    setStatus('Sending password reset email…');
+    try {
+      const redirectTo = `${window.location.origin}/admin`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      setStatus(`Reset email sent to ${email}. Check your inbox.`, 'success');
+    } catch (error) {
+      setStatus(error.message || 'Reset failed', 'error');
+    }
+  });
+}
+
 async function signOut() {
   if (supabase) await supabase.auth.signOut();
   els.authEmail.value = '';
   els.authPassword.value = '';
+  mustSetPassword = false;
+  // Drop any auth-link hash so a refresh after sign-out doesn't re-trigger
+  // the password-setup gate.
+  if (window.location.hash.includes('access_token=')) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
   setStatus('Signed out.');
   await renderForCurrentSession();
 }
 
 els.signoutLink.addEventListener('click', (event) => { event.preventDefault(); signOut(); });
 els.forbiddenSignout.addEventListener('click', signOut);
+if (els.passwordSetupSignout) els.passwordSetupSignout.addEventListener('click', signOut);
 
 if (supabase) {
-  supabase.auth.onAuthStateChange(() => {
-    // Re-render whenever the session changes (token refresh, sign-in, sign-out).
+  supabase.auth.onAuthStateChange((event) => {
+    // PASSWORD_RECOVERY fires when supabase-js consumes a recovery link's
+    // hash. SIGNED_IN can fire on invite acceptance too. The URL hash also
+    // tells us — readEmailLinkType already captured it above. Either signal
+    // is sufficient: surface the password-setup panel.
+    if (event === 'PASSWORD_RECOVERY') {
+      mustSetPassword = true;
+      passwordSetupReason = 'recovery';
+    }
+    // Skip a full re-render on routine token refresh — that path doesn't
+    // change the gate state and reloading inventory on every refresh would
+    // disrupt the workspace UI.
+    if (event === 'TOKEN_REFRESHED') return;
+    // Don't auto-flip mustSetPassword off here — the password-setup form
+    // handler clears it on success.
     renderForCurrentSession();
   });
+}
+
+// ---------------- Password setup (post-invite, post-recovery) ----------------
+
+if (els.passwordSetupForm) {
+  els.passwordSetupForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+    const newPassword = els.passwordSetupNew.value;
+    const confirmPassword = els.passwordSetupConfirm.value;
+    if (newPassword.length < 10) {
+      setPasswordSetupStatus('Use at least 10 characters.', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordSetupStatus('Passwords do not match.', 'error');
+      return;
+    }
+    const submitBtn = els.passwordSetupForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    setPasswordSetupStatus('Saving…');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      mustSetPassword = false;
+      els.passwordSetupNew.value = '';
+      els.passwordSetupConfirm.value = '';
+      // Clear the auth-link hash so a refresh doesn't bounce them back here.
+      if (window.location.hash.includes('access_token=')) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      setPasswordSetupStatus('Password saved. Redirecting…', 'success');
+      await renderForCurrentSession();
+    } catch (error) {
+      setPasswordSetupStatus(error.message || 'Could not save password', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
+function setPasswordSetupStatus(message, tone) {
+  if (!els.passwordSetupStatus) return;
+  els.passwordSetupStatus.textContent = message || '';
+  if (tone) els.passwordSetupStatus.dataset.tone = tone;
+  else els.passwordSetupStatus.removeAttribute('data-tone');
 }
 
 // ---------------- Authorization gate ----------------
@@ -129,6 +240,17 @@ async function renderForCurrentSession() {
     showOnly('auth');
     return;
   }
+  // If the session arrived via an invite or recovery link, force the user
+  // through the password-setup panel before anything else.
+  if (mustSetPassword) {
+    if (els.passwordSetupMeta) {
+      els.passwordSetupMeta.textContent = passwordSetupReason === 'recovery'
+        ? 'Reset link verified. Choose a new password to continue.'
+        : 'Welcome to Watch Alley admin. Set a password to finish setting up your account.';
+    }
+    showOnly('passwordSetup');
+    return;
+  }
   // Ask the server whether this email is on the allowlist.
   const { data, error } = await supabase.rpc('admin_whoami');
   if (error) {
@@ -141,16 +263,20 @@ async function renderForCurrentSession() {
     showOnly('forbidden');
     return;
   }
+  if (els.accountEmail) {
+    els.accountEmail.textContent = data?.email || session.user?.email || '(unknown)';
+  }
   showOnly('workspace');
   await loadWatches();
 }
 
 function showOnly(panel) {
   els.authPanel.hidden = panel !== 'auth';
+  if (els.passwordSetupPanel) els.passwordSetupPanel.hidden = panel !== 'passwordSetup';
   els.forbiddenPanel.hidden = panel !== 'forbidden';
   els.workspace.hidden = panel !== 'workspace';
   if (els.unconfiguredPanel) els.unconfiguredPanel.hidden = panel !== 'unconfigured';
-  els.signoutLink.hidden = panel === 'auth' || panel === 'unconfigured';
+  els.signoutLink.hidden = panel === 'auth' || panel === 'unconfigured' || panel === 'passwordSetup';
 }
 
 // ---------------- Inventory list ----------------
@@ -472,7 +598,48 @@ function activateTab(name, { focus = false } = {}) {
   });
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
   if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
+  if (els.tabpanelAccount) els.tabpanelAccount.hidden = name !== 'account';
   if (name === 'admins') loadAdminsList();
+}
+
+// ---------------- Account tab: change password ----------------
+
+if (els.changePasswordForm) {
+  els.changePasswordForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+    const newPassword = els.changePasswordNew.value;
+    const confirmPassword = els.changePasswordConfirm.value;
+    if (newPassword.length < 10) {
+      setChangePasswordStatus('Use at least 10 characters.', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setChangePasswordStatus('Passwords do not match.', 'error');
+      return;
+    }
+    const submitBtn = els.changePasswordForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+    setChangePasswordStatus('Saving…');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      els.changePasswordNew.value = '';
+      els.changePasswordConfirm.value = '';
+      setChangePasswordStatus('Password updated.', 'success');
+    } catch (error) {
+      setChangePasswordStatus(error.message || 'Could not update password', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
+function setChangePasswordStatus(message, tone) {
+  if (!els.changePasswordStatus) return;
+  els.changePasswordStatus.textContent = message || '';
+  if (tone) els.changePasswordStatus.dataset.tone = tone;
+  else els.changePasswordStatus.removeAttribute('data-tone');
 }
 
 // ---------------- Admins tab ----------------

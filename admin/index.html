@@ -52,10 +52,29 @@
         <input type="password" id="auth-password" autocomplete="current-password" required minlength="8" />
       </label>
       <div class="admin-form-actions">
-        <button type="submit" data-mode="signin" class="btn-primary">Sign in</button>
-        <button type="submit" data-mode="signup" class="btn-secondary">Sign up</button>
+        <button type="submit" class="btn-primary">Sign in</button>
+        <button type="button" id="auth-forgot-btn" class="btn-ghost">Forgot password?</button>
       </div>
-      <p class="admin-hint">First time? Sign up, then have an existing admin add your email to <code>watch_alley.admin_emails</code> in Supabase Studio.</p>
+      <p class="admin-hint">Watch Alley admin is invite-only. Ask an existing admin to invite you.</p>
+    </form>
+  </section>
+
+  <!-- First-time password setup (after invite or password recovery) -->
+  <section id="password-setup-panel" class="admin-card" hidden>
+    <h1>Set your password</h1>
+    <p class="admin-meta" id="password-setup-meta">Welcome. Set a password to finish setting up your account.</p>
+    <form id="password-setup-form" class="admin-form">
+      <label>New password (minimum 10 characters)
+        <input type="password" id="password-setup-new" autocomplete="new-password" required minlength="10" />
+      </label>
+      <label>Confirm password
+        <input type="password" id="password-setup-confirm" autocomplete="new-password" required minlength="10" />
+      </label>
+      <div class="admin-form-actions">
+        <button type="submit" class="btn-primary">Save password</button>
+        <button type="button" id="password-setup-signout" class="btn-ghost">Sign out</button>
+      </div>
+      <p id="password-setup-status" class="admin-hint" aria-live="polite"></p>
     </form>
   </section>
 
@@ -72,6 +91,7 @@
     <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
       <button type="button" id="admin-tab-inventory" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-inventory" data-tab="inventory">Inventory</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
+      <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
 
     <div class="admin-tabpanel" id="tabpanel-inventory" role="tabpanel" aria-labelledby="admin-tab-inventory">
@@ -226,6 +246,30 @@
         <h2>Current admins</h2>
         <p class="admin-meta">Anyone listed here can sign in to <code>/admin</code>. You cannot remove yourself, and the last admin cannot be removed.</p>
         <ul id="admins-list" class="admin-watch-list" aria-live="polite"></ul>
+      </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-account" role="tabpanel" aria-labelledby="admin-tab-account" hidden>
+      <section class="admin-card">
+        <h2>Account</h2>
+        <p class="admin-meta">Signed in as <strong id="account-email">—</strong>.</p>
+      </section>
+
+      <section class="admin-card">
+        <h2>Change password</h2>
+        <p class="admin-meta">Updates your Supabase Auth password. Use at least 10 characters.</p>
+        <form id="change-password-form" class="admin-form">
+          <label>New password
+            <input type="password" id="change-password-new" autocomplete="new-password" required minlength="10" />
+          </label>
+          <label>Confirm password
+            <input type="password" id="change-password-confirm" autocomplete="new-password" required minlength="10" />
+          </label>
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary">Update password</button>
+          </div>
+          <p id="change-password-status" class="admin-hint" aria-live="polite"></p>
+        </form>
       </section>
     </div>
   </section>
