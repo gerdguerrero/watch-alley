@@ -1,12 +1,11 @@
-# Watch Alley × Supabase — Setup Status (2026-04-28)
+# The Watch Alley × Supabase — Setup Status (2026-04-28)
 
 ## Project
 
 - Supabase project: **the-watch-alley**
 - Project ref: `yrzawkqcifuubtltktbk`
 - API URL: https://yrzawkqcifuubtltktbk.supabase.co
-- Anon publishable key (safe to ship in admin.html / front-end):
-  `sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY`
+- Publishable anon key: used by the public front-end for read-only inventory access. Keep the actual value in the client/runtime config, not in this status note.
 
 ## What's already deployed (via Supabase MCP)
 
@@ -57,13 +56,13 @@ project, run them in numeric order.
    `pnpm dev`, signing in with that account, and confirming the workspace
    panel renders (not the "Forbidden" panel).
 
-## Where to wire the front-end
+## Front-end inventory path
 
-- Public storefront read path: `/rest/v1/watches?select=...&order=display_order.asc`
-  (the `public.watches` view, not the schema-qualified table).
+- Public storefront read path: `/rest/v1/watches?select=...&order=status.asc,display_order.asc`
+  (the `public.watches` view, not the schema-qualified table). The homepage reads this live first.
 - Inventory sync (JSON snapshot): run
-  `node scripts/sync-watches-from-supabase.mjs --service-role` whenever you
-  want to refresh `public/data/watches.json` from the database.
+  `node scripts/sync-watches-from-supabase.mjs --service-role` only when you
+  intentionally want to refresh the static fallback at `public/data/watches.json`.
 - Admin writes: only via RPC names below.
 
 ## RPC reference
@@ -109,7 +108,7 @@ pnpm dlx supabase gen types typescript --project-id yrzawkqcifuubtltktbk > types
 
 ## Strategic position
 
-Levers 1 (inventory in Supabase) and 2 (inquiry pipeline) from the Watch
+Levers 1 (inventory in Supabase) and 2 (inquiry pipeline) from The Watch
 Alley strategic roadmap are now both **substrate-ready**. Phase 2 features
 (filter / search / brand chips) can now be built once against this
 substrate — no need to rebuild against a different data layer in 60 days.

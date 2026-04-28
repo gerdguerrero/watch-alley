@@ -73,4 +73,27 @@ assert(/event\.key\s*===\s*['"]Home['"]/.test(adminJs) && /event\.key\s*===\s*['
 assert(/els\.workspace\.hidden\s*=\s*panel\s*!==\s*['"]workspace['"]/.test(adminJs), 'showOnly must hide workspace outside authenticated workspace state');
 assert(/passwordSetupPanel\)\s*els\.passwordSetupPanel\.hidden\s*=\s*panel\s*!==\s*['"]passwordSetup['"]/.test(adminJs), 'showOnly must isolate password setup panel');
 
+const operatorFacingSource = `${adminHtml}\n${adminJs}`;
+for (const forbidden of [
+  /pnpm\s+sync:watches/i,
+  /\bterminal\b/i,
+  /\bcommit\b/i,
+  /\bpush\b/i,
+  /public\/data\/watches\.json/i,
+]) {
+  assert(!forbidden.test(operatorFacingSource), `admin UI must not expose developer workflow copy matching ${forbidden}`);
+}
+assert(
+  /Saved\. The website updates automatically\./.test(adminJs),
+  'save success copy must tell non-technical operators that the website updates automatically'
+);
+assert(
+  /Deleted\. The website updates automatically\./.test(adminJs),
+  'delete success copy must tell non-technical operators that the website updates automatically'
+);
+assert(
+  /Marked sold\. The website updates automatically\./.test(adminJs),
+  'mark-sold success copy must tell non-technical operators that the website updates automatically'
+);
+
 console.log('Admin layout contract valid: hidden panels cannot leak; inventory grid and tab isolation are guarded.');

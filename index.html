@@ -1767,7 +1767,7 @@
   </div>
 
   <div class="carousel-wrapper" id="carousel">
-    <div class="carousel-track stagger" id="carousel-track" data-inventory-source="/data/watches.json" aria-live="polite">
+    <div class="carousel-track stagger" id="carousel-track" data-inventory-source="supabase" data-inventory-fallback="/data/watches.json" aria-live="polite">
       <div class="watch-card inventory-loading" role="status">
         <div class="watch-card-info">
           <div class="watch-card-brand">LOADING INVENTORY</div>
@@ -1790,7 +1790,7 @@
       <div class="sold-archive-eyebrow">04 · SOLD ARCHIVE</div>
       <h2 class="sold-archive-title">Recently honored.</h2>
     </div>
-    <p class="sold-archive-blurb">A running record of pieces that found a home through Watch Alley. If you missed one, message us — similar references come around.</p>
+    <p class="sold-archive-blurb">A running record of pieces that found a home through The Watch Alley. If you missed one, message us — similar references come around.</p>
   </div>
   <div class="sold-archive-grid" id="sold-archive-grid">
     <div class="sold-card-empty" data-sold-empty>Loading archive…</div>
@@ -1802,7 +1802,7 @@
   <div class="buying-process-header reveal">
     <div class="buying-process-eyebrow">04 · How buying works</div>
     <h2 class="buying-process-title">Browse · Inquire · Confirm · Ship.</h2>
-    <p class="buying-process-blurb">No checkout cart, no surprises. Every Watch Alley sale is a real conversation that ends in a serviced piece on your wrist.</p>
+    <p class="buying-process-blurb">No checkout cart, no surprises. Every sale with The Watch Alley is a real conversation that ends in a serviced piece on your wrist.</p>
   </div>
   <div class="buying-process-grid">
     <div class="buying-step reveal">
@@ -2135,7 +2135,42 @@ const carouselTrack = document.getElementById('carousel-track');
 const progressFill = document.getElementById('carousel-progress-fill');
 const prevBtn = document.getElementById('carousel-prev');
 const nextBtn = document.getElementById('carousel-next');
-const inventorySource = carouselTrack.dataset.inventorySource || '/data/watches.json';
+const inventorySource = carouselTrack.dataset.inventorySource || 'supabase';
+const inventoryFallbackSource = carouselTrack.dataset.inventoryFallback || '/data/watches.json';
+const SUPABASE_INVENTORY_ENDPOINT = 'https://yrzawkqcifuubtltktbk.supabase.co/rest/v1/watches';
+const SUPABASE_ANON_KEY = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
+const PUBLIC_WATCH_COLUMNS = [
+  'id',
+  'slug',
+  'brand',
+  'model',
+  'reference',
+  'name',
+  'price',
+  'currency',
+  'status',
+  'condition_label',
+  'badge',
+  'movement',
+  'case_size',
+  'inclusion_set',
+  'material',
+  'edition',
+  'description',
+  'disclosure',
+  'primary_image',
+  'images',
+  'inquiry_subject',
+  'inquiry_body',
+  'sold_at',
+  'sold_price',
+  'has_box',
+  'has_papers',
+  'service_history',
+  'featured',
+  'low_stock',
+  'display_order',
+].join(',');
 const productModal = document.getElementById('product-detail-modal');
 const productModalBackdrop = document.getElementById('product-modal-backdrop');
 const productModalClose = document.getElementById('product-modal-close');
@@ -2299,7 +2334,7 @@ function renderProductDetailModal(watch, inventory) {
             </div>
             <div class="product-modal-sold-note">
               <span class="product-modal-sold-status">● Sold · archived listing</span>
-              <p>This piece has already found a home through Watch Alley. Message us and we will keep an eye out for similar references.</p>
+              <p>This piece has already found a home through The Watch Alley. Message us and we will keep an eye out for similar references.</p>
             </div>`
     : `
             <div class="product-modal-actions">
@@ -2480,6 +2515,87 @@ function renderSoldCard(watch) {
       </article>`;
 }
 
+function toWatchInventoryItem(row) {
+  const images = Array.isArray(row.images) ? row.images : [];
+  const watch = {
+    id: row.id,
+    slug: row.slug,
+    brand: row.brand,
+    model: row.model,
+    reference: row.reference,
+    name: row.name,
+    price: Number(row.price || 0),
+    currency: row.currency || 'PHP',
+    status: row.status || 'available',
+    conditionLabel: row.condition_label,
+    badge: row.badge,
+    movement: row.movement,
+    caseSize: row.case_size,
+    set: row.inclusion_set,
+    material: row.material,
+    edition: row.edition,
+    description: row.description,
+    disclosure: row.disclosure,
+    primaryImage: row.primary_image || images[0] || '',
+    images,
+    inquirySubject: row.inquiry_subject,
+    inquiryBody: row.inquiry_body,
+  };
+
+  if (row.sold_at) watch.soldAt = row.sold_at;
+  if (row.sold_price !== null && row.sold_price !== undefined) watch.soldPrice = Number(row.sold_price);
+  if (row.has_box !== null && row.has_box !== undefined) watch.hasBox = row.has_box === true;
+  if (row.has_papers !== null && row.has_papers !== undefined) watch.hasPapers = row.has_papers === true;
+  if (row.service_history) watch.serviceHistory = row.service_history;
+  if (row.featured === true) watch.featured = true;
+  if (row.low_stock === true) watch.lowStock = true;
+
+  return watch;
+}
+
+function normalizeSupabaseInventory(rows) {
+  if (!Array.isArray(rows)) throw new Error('Live inventory returned an invalid response');
+  return {
+    schemaVersion: 1,
+    updatedAt: new Date().toISOString().slice(0, 10),
+    currency: 'PHP',
+    inquiryEmail: 'hello@watchalley.ph',
+    watches: rows.map((row) => toWatchInventoryItem(row)),
+  };
+}
+
+async function fetchLiveInventory() {
+  if (inventorySource !== 'supabase') return fetchStaticInventoryFallback(inventorySource);
+
+  const endpoint = new URL(SUPABASE_INVENTORY_ENDPOINT);
+  endpoint.searchParams.set('select', PUBLIC_WATCH_COLUMNS);
+  endpoint.searchParams.set('order', 'status.asc,display_order.asc');
+
+  const response = await fetch(endpoint, {
+    cache: 'no-store',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Accept: 'application/json',
+    },
+  });
+  if (!response.ok) throw new Error(`Live inventory request failed with ${response.status}`);
+
+  const rows = await response.json();
+  return normalizeSupabaseInventory(rows);
+}
+
+async function fetchStaticInventoryFallback(source = inventoryFallbackSource) {
+  const response = await fetch(source, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Inventory fallback request failed with ${response.status}`);
+  return response.json();
+}
+
+function revealRenderedInventoryContainers() {
+  carouselTrack.classList.add('visible');
+  if (soldArchiveGrid) soldArchiveGrid.classList.add('visible');
+}
+
 function renderInventoryError(error) {
   console.error('Watch inventory failed to load:', error);
   carouselTrack.innerHTML = `
@@ -2487,7 +2603,7 @@ function renderInventoryError(error) {
         <div class="watch-card-info">
           <div class="watch-card-brand">INVENTORY UNAVAILABLE</div>
           <div class="watch-card-name serif">We could not load the current drop.</div>
-          <div class="watch-card-meta">PLEASE REFRESH · OR MESSAGE WATCH ALLEY</div>
+          <div class="watch-card-meta">PLEASE REFRESH · OR MESSAGE THE WATCH ALLEY</div>
           <div class="watch-card-footer">
             <div class="watch-card-price serif">—</div>
             <a href="mailto:hello@watchalley.ph" class="watch-card-inquire">EMAIL US →</a>
@@ -2497,15 +2613,20 @@ function renderInventoryError(error) {
   if (soldArchiveGrid) {
     soldArchiveGrid.innerHTML = `<div class="sold-card-empty">Sold archive unavailable right now. Please refresh.</div>`;
   }
+  revealRenderedInventoryContainers();
   updateProgress();
 }
 
 async function loadWatchInventory() {
   try {
-    const response = await fetch(inventorySource);
-    if (!response.ok) throw new Error(`Inventory request failed with ${response.status}`);
+    let inventory;
+    try {
+      inventory = await fetchLiveInventory();
+    } catch (liveError) {
+      console.warn('Live inventory unavailable; loading the published snapshot fallback.', liveError);
+      inventory = await fetchStaticInventoryFallback();
+    }
 
-    const inventory = await response.json();
     const watches = Array.isArray(inventory.watches) ? inventory.watches : [];
     if (watches.length === 0) throw new Error('Inventory returned zero watches');
 
@@ -2530,8 +2651,6 @@ async function loadWatchInventory() {
           </div>
         </div>`;
     }
-    updateProgress();
-
     if (soldArchiveGrid) {
       if (soldWatches.length > 0) {
         soldArchiveGrid.innerHTML = soldWatches
@@ -2541,6 +2660,9 @@ async function loadWatchInventory() {
         soldArchiveGrid.innerHTML = `<div class="sold-card-empty">Once pieces find their next collector, they will appear here.</div>`;
       }
     }
+
+    revealRenderedInventoryContainers();
+    updateProgress();
 
     const slug = pendingDeepLinkSlug || getWatchHashSlug();
     pendingDeepLinkSlug = null;

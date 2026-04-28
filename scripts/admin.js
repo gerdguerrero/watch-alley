@@ -356,7 +356,7 @@ els.deleteBtn.addEventListener('click', async () => {
     setStatus(`Delete failed: ${error.message}`, 'error');
     return;
   }
-  setStatus('Deleted. Run pnpm sync:watches to update the live site.', 'success');
+  setStatus('Deleted. The website updates automatically.', 'success');
   hideForm();
   await loadWatches();
 });
@@ -388,7 +388,7 @@ els.markSoldBtn.addEventListener('click', async () => {
     setStatus(`Mark sold failed: ${error.message}`, 'error');
     return;
   }
-  setStatus('Marked sold. Run pnpm sync:watches to update the live site.', 'success');
+  setStatus('Marked sold. The website updates automatically.', 'success');
   await loadWatches();
   const refreshed = allWatches.find((w) => w.id === activeId);
   if (refreshed) loadIntoForm(refreshed);
@@ -460,7 +460,7 @@ async function saveCurrentForm() {
     setStatus('Saving…');
     const { data, error } = await supabase.rpc('admin_upsert_watch', { payload });
     if (error) throw error;
-    setStatus('Saved. Run pnpm sync:watches to update the live site.', 'success');
+    setStatus('Saved. The website updates automatically.', 'success');
     await loadWatches();
     if (data && data.id) {
       const refreshed = allWatches.find((w) => w.id === data.id);

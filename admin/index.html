@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Watch Alley · Admin</title>
+<title>The Watch Alley · Admin</title>
 <meta name="theme-color" content="#070b14" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,11 +28,11 @@
   <!-- Unconfigured: shown until Supabase URL + anon key are filled in -->
   <section id="unconfigured-panel" class="admin-card" hidden>
     <h1>Connect a Supabase project</h1>
-    <p class="admin-meta">Watch Alley admin is not wired to a Supabase project yet.</p>
+    <p class="admin-meta">The Watch Alley admin is not wired to a Supabase project yet.</p>
     <p>The original project was the wrong tenant and has been removed. To finish setup:</p>
     <ol class="admin-setup-list">
       <li>Create a new Supabase project under your own org.</li>
-      <li>Run the Watch Alley migrations from <code>docs/inventory-schema.md</code> against it.</li>
+      <li>Run The Watch Alley migrations from <code>docs/inventory-schema.md</code> against it.</li>
       <li>Fill <code>WATCH_ALLEY_SUPABASE_URL</code> and <code>WATCH_ALLEY_SUPABASE_ANON_KEY</code> in <code>.env.local</code>.</li>
       <li>Replace the placeholder <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> constants near the top of <code>scripts/admin.js</code> with the same values.</li>
       <li>Insert your email into <code>watch_alley.admin_emails</code> via Supabase Studio.</li>
@@ -43,7 +43,7 @@
   <!-- Auth -->
   <section id="auth-panel" class="admin-card" hidden>
     <h1>Sign in</h1>
-    <p class="admin-meta">Watch Alley admin is private. Sign in with your allowlisted email.</p>
+    <p class="admin-meta">The Watch Alley admin is private. Sign in with your allowlisted email.</p>
     <form id="auth-form" class="admin-form">
       <label>Email
         <input type="email" id="auth-email" autocomplete="email" required />
@@ -55,7 +55,7 @@
         <button type="submit" class="btn-primary">Sign in</button>
         <button type="button" id="auth-forgot-btn" class="btn-ghost">Forgot password?</button>
       </div>
-      <p class="admin-hint">Watch Alley admin is invite-only. Ask an existing admin to invite you.</p>
+      <p class="admin-hint">The Watch Alley admin is invite-only. Ask an existing admin to invite you.</p>
     </form>
   </section>
 
@@ -82,7 +82,7 @@
   <section id="forbidden-panel" class="admin-card" hidden>
     <h1>Email not on allowlist</h1>
     <p class="admin-meta">You are signed in as <strong id="forbidden-email"></strong> but this email is not on the admin allowlist.</p>
-    <p>Ask an existing Watch Alley admin to invite you from <code>/admin</code> → Admins tab → Invite admin.</p>
+    <p>Ask an existing admin user for The Watch Alley to invite you from <code>/admin</code> → Admins tab → Invite admin.</p>
     <button type="button" id="forbidden-signout" class="btn-secondary">Sign out</button>
   </section>
 
@@ -109,8 +109,8 @@
 
     <section class="admin-detail" id="admin-detail">
       <div class="admin-detail-empty" id="admin-detail-empty">
-        <p>Select a watch on the left, or click <strong>+ New</strong> to add one.</p>
-        <p class="admin-hint">After saving, run <code>pnpm sync:watches</code> in your terminal then commit + push the regenerated <code>public/data/watches.json</code> to deploy.</p>
+        <p>Select a listing on the left to view or edit its details, or click <strong>+ New</strong> to add one.</p>
+        <p class="admin-hint">Saved changes appear on the website automatically. Use the status field to control whether a listing is available, reserved, or sold.</p>
       </div>
 
       <form id="watch-form" class="admin-form admin-watch-form" hidden>
