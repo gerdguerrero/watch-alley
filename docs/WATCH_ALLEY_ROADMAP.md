@@ -108,7 +108,7 @@ Checklist:
 
 - [x] Decide source of truth: JSON, Supabase, Airtable, Google Sheets, or CMS. (Chosen: Supabase `watch_alley.watches`, synced to `public/data/watches.json` for reads.)
 - [x] Add inventory schema documentation. (`docs/inventory-schema.md`)
-- [ ] Add admin-friendly update workflow.
+- [x] Add admin-friendly update workflow.
 - [x] Add Sold Archive.
 - [ ] Add product slugs.
 - [ ] Add brand/category pages.
@@ -261,6 +261,8 @@ Avoid these until the inquiry funnel and inventory workflow are proven:
 - Hardened the `watch_alley.set_updated_at` trigger function with a pinned `search_path` (Supabase advisor recommendation).
 - Documented the schema, sync workflow, image conventions, listing QA checklist, and migration trade-offs in `docs/inventory-schema.md`.
 - All 5 validators still pass against the regenerated JSON; `pnpm build` clean.
+- Added admin update workflow at `/admin.html`: Supabase Auth (email + password) + server-side allowlist check (`watch_alley.admin_emails` + `watch_alley.is_admin()`) + `SECURITY DEFINER` RPCs (`public.admin_upsert_watch`, `public.admin_delete_watch`, `public.admin_mark_watch_sold`, `public.admin_whoami`). The page lists, filters, creates, edits, and deletes watches without ever holding a service-role key in the browser.
+- `robots.txt` disallows `/admin` from crawlers; admin page sets `noindex,nofollow`.
 
 ### 2026-04-28 (Phase 1 — Conversion + Trust Foundation)
 

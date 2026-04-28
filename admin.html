@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Watch Alley · Admin</title>
+<meta name="theme-color" content="#070b14" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles/trust-page.css" />
+<link rel="stylesheet" href="./styles/admin.css" />
+</head>
+<body>
+
+<header class="trust-nav">
+  <a class="trust-nav-home" href="./">The Watch Alley · Admin</a>
+  <nav>
+    <a href="./">Site</a>
+    <a href="#" id="admin-signout-link" hidden>Sign out</a>
+  </nav>
+</header>
+
+<main class="admin-shell">
+  <div id="admin-status" class="admin-status" role="status" aria-live="polite"></div>
+
+  <!-- Auth -->
+  <section id="auth-panel" class="admin-card">
+    <h1>Sign in</h1>
+    <p class="admin-meta">Watch Alley admin is private. Sign in with your allowlisted email.</p>
+    <form id="auth-form" class="admin-form">
+      <label>Email
+        <input type="email" id="auth-email" autocomplete="email" required />
+      </label>
+      <label>Password
+        <input type="password" id="auth-password" autocomplete="current-password" required minlength="8" />
+      </label>
+      <div class="admin-form-actions">
+        <button type="submit" data-mode="signin" class="btn-primary">Sign in</button>
+        <button type="submit" data-mode="signup" class="btn-secondary">Sign up</button>
+      </div>
+      <p class="admin-hint">First time? Sign up, then have an existing admin add your email to <code>watch_alley.admin_emails</code> in Supabase Studio.</p>
+    </form>
+  </section>
+
+  <!-- Not authorized -->
+  <section id="forbidden-panel" class="admin-card" hidden>
+    <h1>Email not on allowlist</h1>
+    <p class="admin-meta">You are signed in as <strong id="forbidden-email"></strong> but this email is not on the admin allowlist.</p>
+    <p>To grant access, run this in Supabase Studio SQL editor:</p>
+    <pre class="admin-codeblock">insert into watch_alley.admin_emails (email) values ('your-email@example.com');</pre>
+    <button type="button" id="forbidden-signout" class="btn-secondary">Sign out</button>
+  </section>
+
+  <!-- Admin workspace -->
+  <section id="workspace-panel" class="admin-workspace" hidden>
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <div class="admin-eyebrow">Inventory</div>
+          <div class="admin-count" id="watch-count">—</div>
+        </div>
+        <button type="button" id="new-watch-btn" class="btn-primary admin-new-btn">+ New</button>
+      </div>
+      <input type="search" id="watch-filter" placeholder="Filter by brand, model, slug…" />
+      <ul class="admin-watch-list" id="watch-list"></ul>
+    </aside>
+
+    <section class="admin-detail" id="admin-detail">
+      <div class="admin-detail-empty" id="admin-detail-empty">
+        <p>Select a watch on the left, or click <strong>+ New</strong> to add one.</p>
+        <p class="admin-hint">After saving, run <code>pnpm sync:watches</code> in your terminal then commit + push the regenerated <code>public/data/watches.json</code> to deploy.</p>
+      </div>
+
+      <form id="watch-form" class="admin-form admin-watch-form" hidden>
+        <input type="hidden" id="field-id" />
+        <input type="hidden" id="field-displayOrder" />
+
+        <div class="admin-form-grid">
+          <label>Slug *
+            <input type="text" id="field-slug" required pattern="^[a-z0-9]+(-[a-z0-9]+)*$" />
+          </label>
+          <label>Status *
+            <select id="field-status" required>
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+              <option value="sold">Sold</option>
+            </select>
+          </label>
+          <label>Brand *
+            <input type="text" id="field-brand" required />
+          </label>
+          <label>Reference *
+            <input type="text" id="field-reference" required />
+          </label>
+          <label class="admin-col-2">Model *
+            <input type="text" id="field-model" required />
+          </label>
+          <label class="admin-col-2">Display Name *
+            <input type="text" id="field-name" required />
+          </label>
+          <label>Price (PHP) *
+            <input type="number" id="field-price" min="0" step="1" required />
+          </label>
+          <label>Badge *
+            <input type="text" id="field-badge" required placeholder="LIMITED · RARE · BRAND NEW · SOLD" />
+          </label>
+          <label>Condition *
+            <input type="text" id="field-conditionLabel" required placeholder="Pre-owned 8.5/10" />
+          </label>
+          <label>Movement *
+            <input type="text" id="field-movement" required />
+          </label>
+          <label>Case Size *
+            <input type="text" id="field-caseSize" required />
+          </label>
+          <label>Material *
+            <input type="text" id="field-material" required />
+          </label>
+          <label>Set / Inclusions *
+            <input type="text" id="field-set" required />
+          </label>
+          <label>Edition *
+            <input type="text" id="field-edition" required />
+          </label>
+
+          <label class="admin-col-2">Description *
+            <textarea id="field-description" rows="3" required></textarea>
+          </label>
+          <label class="admin-col-2">Disclosure *
+            <textarea id="field-disclosure" rows="3" required></textarea>
+          </label>
+
+          <label class="admin-col-2">Primary image path *
+            <input type="text" id="field-primaryImage" required placeholder="/watch-assets/example.png" />
+          </label>
+          <label class="admin-col-2">All image paths * (one per line; first will become primary if blank)
+            <textarea id="field-images" rows="3" required></textarea>
+          </label>
+
+          <label class="admin-col-2">Inquiry subject *
+            <input type="text" id="field-inquirySubject" required />
+          </label>
+          <label class="admin-col-2">Inquiry body *
+            <textarea id="field-inquiryBody" rows="3" required></textarea>
+          </label>
+
+          <fieldset class="admin-col-2 admin-fieldset">
+            <legend>Trust details</legend>
+            <label class="admin-inline-check"><input type="checkbox" id="field-hasBox" /> Includes original box</label>
+            <label class="admin-inline-check"><input type="checkbox" id="field-hasPapers" /> Includes papers / warranty</label>
+            <label>Service history (optional)
+              <input type="text" id="field-serviceHistory" placeholder="Serviced 2024 / Unknown" />
+            </label>
+          </fieldset>
+
+          <fieldset class="admin-col-2 admin-fieldset">
+            <legend>Display flags</legend>
+            <label class="admin-inline-check"><input type="checkbox" id="field-featured" /> Featured</label>
+            <label class="admin-inline-check"><input type="checkbox" id="field-lowStock" /> Low stock</label>
+          </fieldset>
+
+          <fieldset class="admin-col-2 admin-fieldset" id="sold-fieldset">
+            <legend>Sold details (required when status = sold)</legend>
+            <label>Sold at (YYYY-MM)
+              <input type="text" id="field-soldAt" pattern="^[0-9]{4}-[0-9]{2}$" placeholder="2026-04" />
+            </label>
+            <label>Sold price (PHP)
+              <input type="number" id="field-soldPrice" min="0" step="1" />
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="admin-form-actions">
+          <button type="submit" class="btn-primary">Save</button>
+          <button type="button" id="mark-sold-btn" class="btn-secondary" hidden>Mark sold…</button>
+          <button type="button" id="delete-btn" class="btn-danger" hidden>Delete</button>
+          <button type="button" id="cancel-btn" class="btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </section>
+  </section>
+</main>
+
+<footer class="trust-footer">
+  <span>© MMXXVI · The Watch Alley PH · Admin</span>
+  <div class="trust-footer-links">
+    <a href="./">Site</a>
+    <a href="./privacy.html">Privacy</a>
+    <a href="./terms.html">Terms</a>
+    <a href="./authenticity.html">Authenticity</a>
+  </div>
+</footer>
+
+<script type="module" src="./scripts/admin.js"></script>
+
+</body>
+</html>

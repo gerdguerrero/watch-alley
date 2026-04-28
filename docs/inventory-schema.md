@@ -96,6 +96,33 @@ Images live under `public/watch-assets/`. Every PNG/JPG has companion WebP varia
 
 When adding a new listing, drop the source PNG into `public/watch-assets/`, run `pnpm optimize:images`, and reference `/watch-assets/name.png` in `primary_image`/`images[]`. The homepage automatically swaps in the WebP variants via `<picture>` + srcset.
 
+## Admin update workflow
+
+Admin operations happen at `/admin.html` (Vercel serves it from the same site). The page is private:
+
+1. **Authentication.** Supabase Auth with email + password. Sessions persisted in localStorage.
+2. **Authorization.** Server-side allowlist in `watch_alley.admin_emails`. The browser never sees the list.
+3. **Mutations.** All writes go through `SECURITY DEFINER` RPCs in the `public` schema:
+   - `public.admin_whoami()` — returns `{ email, is_admin }` for UI gating. Anon-callable.
+   - `public.admin_upsert_watch(payload jsonb)` — insert or update a row. Auto-generates `wa-###` id when absent.
+   - `public.admin_delete_watch(watch_id text)` — hard delete by id.
+   - `public.admin_mark_watch_sold(watch_id, sold_at_value, sold_price_value)` — atomically flip a row to `status = 'sold'` with the required fields.
+4. **Authorization gate.** Every RPC begins with `if not watch_alley.is_admin() then raise 'Not authorized'`. The function is `SECURITY DEFINER` with a pinned empty `search_path` so it cannot be hijacked.
+5. **Deploy.** After saving, run `pnpm sync:watches` then `git push`. Vercel rebuilds with the new `public/data/watches.json`.
+
+### Granting access
+
+```sql
+insert into watch_alley.admin_emails (email, note) values
+  ('your-email@example.com', 'Owner');
+```
+
+### Future hardening (not yet done)
+
+- Rate-limit RPCs at the Postgres level once the page is exposed publicly.
+- Add an `admin_audit_log` table that records every upsert/delete/sold flip with the caller's email + timestamp + before/after JSON.
+- Move from passwords to magic-link or SSO once the volume of admins grows.
+
 ## Listing QA checklist
 
 Before marking a watch row visible:

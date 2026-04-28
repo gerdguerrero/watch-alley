@@ -12,6 +12,7 @@ export default defineConfig({
         authenticity: resolve(__dirname, 'authenticity.html'),
         terms: resolve(__dirname, 'terms.html'),
         privacy: resolve(__dirname, 'privacy.html'),
+        admin: resolve(__dirname, 'admin.html'),
       },
     },
   },
