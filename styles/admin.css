@@ -21,8 +21,16 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: clamp(24px, 3vw, 40px);
-  max-width: 540px;
   margin-bottom: 24px;
+  max-width: 720px;
+}
+/* Sign-in / forbidden / password-setup keep the narrower max-width, since
+   they're standalone full-page panels not crowded with siblings. */
+#auth-panel,
+#forbidden-panel,
+#password-setup-panel,
+#unconfigured-panel {
+  max-width: 540px;
 }
 .admin-card h1 {
   font-family: 'Playfair Display', serif;
@@ -37,6 +45,16 @@
   text-transform: uppercase;
   color: var(--cream-60);
   margin-bottom: 24px;
+}
+/* Email addresses inside .admin-meta should NOT be uppercased — keep their
+   real casing. They're rendered inside <strong> tags. */
+.admin-meta strong {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--cream);
+  font-weight: 500;
 }
 .admin-hint {
   font-size: 12px;
@@ -150,14 +168,25 @@
 button[disabled] { opacity: 0.5; cursor: progress; }
 
 .admin-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.admin-workspace[hidden] { display: none; }
+
+/* Inventory master-detail: the inventory tabpanel itself is the grid host. */
+#tabpanel-inventory {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 24px;
 }
-.admin-workspace[hidden] { display: none; }
+#tabpanel-inventory[hidden] { display: none; }
 @media (max-width: 900px) {
-  .admin-workspace { grid-template-columns: 1fr; }
+  #tabpanel-inventory { grid-template-columns: 1fr; }
 }
+
+/* The hidden HTML attribute must always win over component display rules. */
+[hidden] { display: none !important; }
 
 .admin-sidebar {
   background: rgba(255, 255, 255, 0.02);
@@ -207,6 +236,18 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   gap: 6px;
   overflow-y: auto;
   flex: 1;
+  /* Always-visible thin scrollbar so users know there's more inventory. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(231, 215, 191, 0.25) transparent;
+}
+.admin-watch-list::-webkit-scrollbar { width: 8px; }
+.admin-watch-list::-webkit-scrollbar-track { background: transparent; }
+.admin-watch-list::-webkit-scrollbar-thumb {
+  background: rgba(231, 215, 191, 0.2);
+  border-radius: 4px;
+}
+.admin-watch-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(231, 215, 191, 0.4);
 }
 .admin-watch-list li button {
   width: 100%;
@@ -344,15 +385,70 @@ code {
 .admin-tabpanel { display: block; }
 .admin-tabpanel[hidden] { display: none; }
 
-/* Admins list rows */
-#admins-list .admin-row-meta {
-  display: flex;
+/* Admins list rows: row layout with right-aligned remove button, not a stack. */
+#admins-list li {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr auto auto;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.02);
 }
-#admins-list .btn-ghost {
-  margin-left: auto;
-  padding: 4px 10px;
+#admins-list .admin-row-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--cream);
+  word-break: break-all;
+}
+#admins-list .admin-row-meta {
+  display: contents;
+  margin-top: 0;
+}
+#admins-list .admin-row-meta > span {
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--cream-60);
+  line-height: 1.5;
+}
+#admins-list .admin-row-meta > span:first-child {
+  /* Note column */
+  min-width: 0;
+}
+#admins-list .admin-row-meta > span:nth-child(2) {
+  /* Date column */
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+#admins-list button[data-remove-email] {
+  background: transparent;
+  border: 1px solid rgba(255, 96, 96, 0.4);
+  color: #ff7066;
+  padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+#admins-list button[data-remove-email]:hover {
+  background: rgba(255, 96, 96, 0.1);
+}
+@media (max-width: 720px) {
+  #admins-list li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  #admins-list .admin-row-meta { display: flex; flex-wrap: wrap; gap: 12px; }
+  #admins-list button[data-remove-email] { justify-self: end; }
 }
