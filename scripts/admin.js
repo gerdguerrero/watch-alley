@@ -6,11 +6,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 // Replace these two values with the real anon credentials from your Watch Alley
-// Supabase project. They are intentionally left as placeholders right now because
-// the original project (trqgzrylysybgipcejwe) was the wrong tenant. The admin
-// page surfaces a "configure Supabase" notice until both values are filled in.
-const SUPABASE_URL = 'https://YOUR-NEW-PROJECT-REF.supabase.co';
-const SUPABASE_ANON_KEY = '';
+// Supabase project. Wired below for project: the-watch-alley
+// (https://supabase.com/dashboard/project/yrzawkqcifuubtltktbk).
+const SUPABASE_URL = 'https://yrzawkqcifuubtltktbk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
 
 const PLACEHOLDER_URL_HOST = 'YOUR-NEW-PROJECT-REF';
 const isConfigured = !SUPABASE_URL.includes(PLACEHOLDER_URL_HOST) && SUPABASE_ANON_KEY.length > 0;
