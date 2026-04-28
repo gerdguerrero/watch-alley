@@ -1422,6 +1422,22 @@ const INBOX_STATUS_OPTIONS = [
   { value: 'spam', label: 'Spam' },
 ];
 
+// Lost-reason taxonomy mirrors the CHECK constraint in migration 0012. The
+// labels stay short so they read on a 320px drawer; the values match the DB.
+const LOST_REASON_OPTIONS = [
+  { value: 'price', label: 'Price' },
+  { value: 'condition', label: 'Condition' },
+  { value: 'sold_elsewhere', label: 'Sold elsewhere' },
+  { value: 'no_response', label: 'No response from buyer' },
+  { value: 'timing', label: 'Timing / not the right moment' },
+  { value: 'other', label: 'Other' },
+];
+
+function lostReasonLabel(value) {
+  const found = LOST_REASON_OPTIONS.find((opt) => opt.value === value);
+  return found ? found.label : value || '—';
+}
+
 async function loadInbox() {
   if (!supabase || !els.inboxList) return;
   if (inboxLoading) return;
@@ -1517,6 +1533,17 @@ function renderInboxDrawer(row) {
     .map((opt) => `<option value="${escapeAttr(opt.value)}"${opt.value === row.status ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`)
     .join('');
 
+  // Lost-reason select. Hidden until the operator chooses status=lost. Pre-
+  // selects the existing reason if the inquiry is already lost.
+  const lostReasonOptionsHtml = [`<option value="" disabled${row.lost_reason ? '' : ' selected'}>Select a reason…</option>`]
+    .concat(
+      LOST_REASON_OPTIONS.map((opt) =>
+        `<option value="${escapeAttr(opt.value)}"${opt.value === row.lost_reason ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`
+      )
+    )
+    .join('');
+  const lostReasonHidden = row.status !== 'lost';
+
   return `
     <p class="inbox-drawer-message">${escapeHtml(fullMessage)}</p>
     <dl class="inbox-drawer-meta">
@@ -1527,9 +1554,11 @@ function renderInboxDrawer(row) {
       <div><dt>Responded</dt><dd>${escapeHtml(respondedAt)}</dd></div>
       <div><dt>Closed</dt><dd>${escapeHtml(closedAt)}</dd></div>
       ${row.status_note ? `<div><dt>Last note</dt><dd>${escapeHtml(row.status_note)}</dd></div>` : ''}
+      ${row.lost_reason ? `<div><dt>Lost reason</dt><dd>${escapeHtml(lostReasonLabel(row.lost_reason))}</dd></div>` : ''}
     </dl>
     <div class="inbox-drawer-actions">
       <select data-inquiry-status-select="${escapeAttr(row.id)}">${statusOptionsHtml}</select>
+      <select data-inquiry-lost-reason="${escapeAttr(row.id)}"${lostReasonHidden ? ' hidden aria-hidden="true"' : ''} aria-label="Lost reason">${lostReasonOptionsHtml}</select>
       <input type="text" placeholder="Add a status note (optional)" data-inquiry-status-note="${escapeAttr(row.id)}" maxlength="500">
       <button type="button" data-inquiry-status-save="${escapeAttr(row.id)}">Update status</button>
     </div>
@@ -1590,15 +1619,25 @@ if (els.inboxList) {
       const id = saveBtn.dataset.inquiryStatusSave;
       const select = els.inboxList.querySelector(`[data-inquiry-status-select="${cssEscape(id)}"]`);
       const noteInput = els.inboxList.querySelector(`[data-inquiry-status-note="${cssEscape(id)}"]`);
+      const lostReasonSelect = els.inboxList.querySelector(`[data-inquiry-lost-reason="${cssEscape(id)}"]`);
       const newStatus = select ? select.value : null;
       const note = noteInput ? noteInput.value.trim() : '';
+      const reason = lostReasonSelect ? lostReasonSelect.value.trim() : '';
       if (!newStatus) return;
+      // Lost transitions require a reason; bail before the RPC so the operator
+      // sees a clean inline message instead of a Postgres CHECK error.
+      if (newStatus === 'lost' && !reason) {
+        setStatus('Pick a lost reason before saving.', 'error');
+        if (lostReasonSelect) lostReasonSelect.focus();
+        return;
+      }
       saveBtn.disabled = true;
       try {
         const { data, error } = await supabase.rpc('admin_update_inquiry_status', {
           inquiry_id: id,
           new_status: newStatus,
           note: note || null,
+          reason: newStatus === 'lost' ? reason : null,
         });
         if (error) throw error;
         const updated = data || null;
@@ -1622,12 +1661,20 @@ if (els.inboxList) {
       renderInboxList();
     }
   });
-}
 
-if (els.inboxStatusFilter) {
-  els.inboxStatusFilter.addEventListener('change', () => loadInbox());
-}
-if (els.inboxRefreshBtn) {
+  // Reveal/hide the lost-reason select as the operator picks a new status.
+  // The dropdown only matters for lost transitions; everything else hides it.
+  els.inboxList.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!target || !target.matches('[data-inquiry-status-select]')) return;
+    const id = target.dataset.inquiryStatusSelect;
+    const lostReasonSelect = els.inboxList.querySelector(`[data-inquiry-lost-reason="${cssEscape(id)}"]`);
+    if (!lostReasonSelect) return;
+    const isLost = target.value === 'lost';
+    lostReasonSelect.hidden = !isLost;
+    lostReasonSelect.setAttribute('aria-hidden', isLost ? 'false' : 'true');
+    if (isLost) lostReasonSelect.focus();
+  });
   els.inboxRefreshBtn.addEventListener('click', () => loadInbox());
 }
 
