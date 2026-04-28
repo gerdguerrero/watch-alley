@@ -834,6 +834,194 @@ code {
 .admin-tabpanel { display: block; }
 .admin-tabpanel[hidden] { display: none; }
 
+/* =====================================================================
+ * Dashboard tab — the operator's landing surface. Heritage atelier
+ * register: paper-tinted KPI tiles, Petrona figures, JetBrains Mono labels,
+ * thin gold rules. The single grid up top is "this week at a glance"; the
+ * row of cards below is per-domain detail (top inquired, lost reasons,
+ * recent activity, journal).
+ * ===================================================================== */
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.admin-dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.admin-dashboard-title {
+  font-family: 'Petrona', Georgia, serif;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--cream);
+  margin: 8px 0 6px;
+}
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.kpi-tile {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kpi-tile:hover { border-color: var(--gold-20); }
+.kpi-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+}
+.kpi-value {
+  font-family: 'Petrona', Georgia, serif;
+  font-size: clamp(36px, 4vw, 52px);
+  font-weight: 500;
+  color: var(--cream);
+  line-height: 1;
+  font-variant-numeric: oldstyle-nums tabular-nums;
+}
+.kpi-foot {
+  font-family: 'Spectral', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--cream-60);
+}
+
+.admin-dashboard-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+.admin-dashboard-row {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dashboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dashboard-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--gold-20);
+}
+.dashboard-list li:first-child { border-top: none; }
+.dashboard-list .dashboard-list-label {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 14px;
+  color: var(--cream);
+  flex: 1;
+  min-width: 0;
+}
+.dashboard-list .dashboard-list-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+  white-space: nowrap;
+}
+.dashboard-list .dashboard-list-bar {
+  display: block;
+  height: 2px;
+  background: var(--gold);
+  margin-top: 8px;
+  /* width set inline via style to reflect proportion */
+}
+.dashboard-list .dashboard-list-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-activity li {
+  display: grid;
+  grid-template-columns: clamp(72px, 12vw, 96px) 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+}
+.dashboard-activity-kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.dashboard-activity-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+  white-space: nowrap;
+}
+.dashboard-activity-label {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 14px;
+  color: var(--cream);
+  line-height: 1.5;
+}
+.dashboard-activity a {
+  color: var(--cream);
+  border-bottom: 1px solid var(--gold-20);
+  padding-bottom: 1px;
+}
+.dashboard-activity a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+.dashboard-keyvals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.dashboard-keyvals > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--gold-20);
+  background: rgba(201,162,75,0.04);
+}
+.dashboard-keyvals dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+}
+.dashboard-keyvals dd {
+  font-family: 'Petrona', Georgia, serif;
+  font-size: clamp(22px, 2vw, 28px);
+  color: var(--cream);
+  margin: 0;
+  line-height: 1;
+  font-variant-numeric: oldstyle-nums tabular-nums;
+}
+
+.dashboard-empty {
+  font-style: italic;
+  color: var(--cream-60);
+  margin: 0;
+}
+
 /* Admins list rows: row layout with right-aligned remove button, not a stack. */
 #admins-list li {
   display: grid;

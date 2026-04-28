@@ -99,9 +99,13 @@ assert(
 // ── Admin Inbox markup ─────────────────────────────────────────────
 assert(adminHtml.includes('id="tabpanel-inbox"'), 'admin must include #tabpanel-inbox');
 assert(/id="admin-tab-inbox"[^>]+data-tab="inbox"/.test(adminHtml), 'admin must include the Inbox tab button with data-tab="inbox"');
-assert(/id="admin-tab-inbox"[^>]+aria-selected="true"/.test(adminHtml), 'Inbox must be the default-selected tab');
-assert(/id="admin-tab-inventory"[^>]+aria-selected="false"/.test(adminHtml), 'Inventory tab must no longer be the default selected tab');
-assert(/id="tabpanel-inventory"[^>]+hidden/.test(adminHtml), 'Inventory tabpanel must be hidden by default once Inbox is the entry tab');
+// Dashboard is the default-selected entry tab (Wave 3 of Bet 3); Inbox must
+// stay reachable as a non-default tab and its tabpanel must be hidden until
+// the operator selects it.
+assert(/id="admin-tab-inbox"[^>]+aria-selected="false"/.test(adminHtml), 'Inbox tab must be a non-default tab (Dashboard owns aria-selected="true")');
+assert(/id="admin-tab-inventory"[^>]+aria-selected="false"/.test(adminHtml), 'Inventory tab must remain a non-default tab');
+assert(/id="tabpanel-inbox"[^>]+hidden/.test(adminHtml), 'Inbox tabpanel must be hidden by default now that Dashboard is the entry tab');
+assert(/id="tabpanel-inventory"[^>]+hidden/.test(adminHtml), 'Inventory tabpanel must be hidden by default');
 assert(adminHtml.includes('id="inbox-list"'), 'admin Inbox must include the inquiry list container');
 assert(adminHtml.includes('id="inbox-status-filter"'), 'admin Inbox must include a status filter');
 assert(adminHtml.includes('id="inbox-metrics"'), 'admin Inbox must include the metrics strip');

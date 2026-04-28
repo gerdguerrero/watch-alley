@@ -69,11 +69,23 @@ const els = {
   socialIgMockupMore: document.getElementById('social-ig-mockup-more'),
   // Admins tab
   adminTabs: document.querySelectorAll('.admin-tab'),
+  tabpanelDashboard: document.getElementById('tabpanel-dashboard'),
   tabpanelInbox: document.getElementById('tabpanel-inbox'),
   tabpanelInventory: document.getElementById('tabpanel-inventory'),
   tabpanelJournal: document.getElementById('tabpanel-journal'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
+  // Dashboard tab
+  dashboardMeta: document.getElementById('admin-dashboard-meta'),
+  dashboardRefresh: document.getElementById('admin-dashboard-refresh'),
+  dashboardGrid: document.getElementById('admin-dashboard-grid'),
+  dashboardTopWatches: document.getElementById('admin-dashboard-top-watches'),
+  dashboardTopWatchesEmpty: document.getElementById('admin-dashboard-top-watches-empty'),
+  dashboardLostReasons: document.getElementById('admin-dashboard-lost-reasons'),
+  dashboardLostReasonsEmpty: document.getElementById('admin-dashboard-lost-reasons-empty'),
+  dashboardActivity: document.getElementById('admin-dashboard-activity'),
+  dashboardActivityEmpty: document.getElementById('admin-dashboard-activity-empty'),
+  dashboardJournal: document.getElementById('admin-dashboard-journal'),
   // Journal tab
   journalList: document.getElementById('journal-list'),
   journalCount: document.getElementById('journal-count'),
@@ -334,7 +346,9 @@ async function renderForCurrentSession() {
   }
   showOnly('workspace');
   await loadWatches();
-  loadInbox();
+  // Dashboard is the default landing tab now (Wave 3 of Bet 3). Inbox loads
+  // when the operator switches to it.
+  loadDashboard();
 }
 
 function showOnly(panel) {
@@ -1140,6 +1154,7 @@ function activateTab(name, { focus = false } = {}) {
     t.setAttribute('tabindex', active ? '0' : '-1');
     if (active && focus) t.focus();
   });
+  if (els.tabpanelDashboard) els.tabpanelDashboard.hidden = name !== 'dashboard';
   if (els.tabpanelInbox) els.tabpanelInbox.hidden = name !== 'inbox';
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
   if (els.tabpanelJournal) els.tabpanelJournal.hidden = name !== 'journal';
@@ -1148,6 +1163,7 @@ function activateTab(name, { focus = false } = {}) {
   if (name === 'admins') loadAdminsList();
   if (name === 'inbox') loadInbox();
   if (name === 'journal') loadJournalPosts();
+  if (name === 'dashboard') loadDashboard();
 }
 
 // ---------------- Account tab: change password ----------------
@@ -1732,6 +1748,218 @@ function cssEscape(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') return CSS.escape(value);
   return String(value).replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
 }
+// =====================================================================
+// Dashboard tab — the operator's landing surface
+// =====================================================================
+
+let dashboardLoading = false;
+
+function formatRelativeTime(at) {
+  if (!at) return '';
+  const then = new Date(at).getTime();
+  if (!Number.isFinite(then)) return '';
+  const diff = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (diff < 60) return `${diff}s ago`;
+  const m = Math.floor(diff / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(at).toLocaleDateString('en-PH');
+}
+
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return '—';
+  if (seconds < 90) return `${Math.round(seconds)}s`;
+  const minutes = seconds / 60;
+  if (minutes < 90) return `${Math.round(minutes)}m`;
+  const hours = minutes / 60;
+  if (hours < 36) return `${hours.toFixed(1)}h`;
+  const days = hours / 24;
+  return `${days.toFixed(1)}d`;
+}
+
+function setDashboardKpi(key, value) {
+  const node = document.querySelector(`[data-kpi="${key}"]`);
+  if (node) node.textContent = value == null ? '—' : String(value);
+}
+
+const ACTIVITY_KIND_LABEL = {
+  inquiry: 'INQUIRY',
+  sold: 'SOLD',
+  journal: 'JOURNAL',
+};
+
+async function loadDashboard() {
+  if (!supabase || !els.dashboardGrid) return;
+  if (dashboardLoading) return;
+  dashboardLoading = true;
+  try {
+    const { data, error } = await supabase.rpc('admin_dashboard_metrics');
+    if (error) throw error;
+    renderDashboard(data || {});
+  } catch (error) {
+    setStatus(`Failed to load dashboard: ${error.message || error}`, 'error');
+  } finally {
+    dashboardLoading = false;
+  }
+}
+
+function renderDashboard(data) {
+  const inq = data.inquiries || {};
+  const repl = data.replySla || {};
+  const conv = data.conversion || {};
+  const inv = data.inventory || {};
+  const journal = data.journal || {};
+  const top = Array.isArray(data.topWatches) ? data.topWatches : [];
+  const lost = Array.isArray(data.lostReasons) ? data.lostReasons : [];
+  const activity = Array.isArray(data.activity) ? data.activity : [];
+
+  // Refreshed-at line in the watchmaker's voice.
+  if (els.dashboardMeta) {
+    const at = data.generatedAt ? new Date(data.generatedAt) : new Date();
+    els.dashboardMeta.textContent = `Last refreshed ${at.toLocaleString('en-PH')}.`;
+  }
+
+  // KPI tiles
+  const last7 = Number(inq.last7 || 0);
+  const last30 = Number(inq.last30 || 0);
+  setDashboardKpi('inquiries.last7', last7);
+  setDashboardKpi('inquiries.last30Foot', `${last30} in the last 30 days`);
+
+  const open = Number(inq.open_new || 0) + Number(inq.open_contacted || 0) + Number(inq.open_viewing || 0) + Number(inq.open_reserved || 0);
+  setDashboardKpi('inquiries.open', open);
+  const openParts = [
+    inq.open_new ? `${inq.open_new} new` : null,
+    inq.open_contacted ? `${inq.open_contacted} contacted` : null,
+    inq.open_viewing ? `${inq.open_viewing} viewing` : null,
+    inq.open_reserved ? `${inq.open_reserved} reserved` : null,
+  ].filter(Boolean);
+  setDashboardKpi('inquiries.openFoot', openParts.length ? openParts.join(' · ') : 'no open inquiries');
+
+  const won = Number(conv.won || 0);
+  const closed = Number(conv.closed || 0);
+  const rate = closed > 0 ? Math.round((won / closed) * 100) : null;
+  setDashboardKpi('conversion.rate', rate == null ? '—' : `${rate}%`);
+  setDashboardKpi('conversion.foot', closed > 0 ? `${won} won of ${closed} closed` : 'no closed inquiries yet');
+
+  const median = Number(repl.medianSeconds);
+  setDashboardKpi('replySla.median', Number.isFinite(median) ? formatDuration(median) : '—');
+  const replied = Number(repl.repliedCount || 0);
+  const total = Number(repl.inquiryCount || 0);
+  setDashboardKpi('replySla.foot', total > 0 ? `${replied} of ${total} replied` : 'no inquiries yet');
+
+  setDashboardKpi('inventory.soldThisMonth', Number(inv.sold_this_month || 0));
+  setDashboardKpi('inventory.soldFoot', `${inv.sold_all_time || 0} placed all time`);
+
+  setDashboardKpi('inventory.published', Number(inv.published || 0));
+  setDashboardKpi('inventory.publishedFoot', `${inv.published || 0} published · ${inv.drafts || 0} drafts`);
+
+  setDashboardKpi('journal.published', Number(journal.published || 0));
+  setDashboardKpi('journal.drafts', Number(journal.drafts || 0));
+  setDashboardKpi('journal.scheduled', Number(journal.scheduled || 0));
+
+  renderTopWatches(top);
+  renderLostReasons(lost);
+  renderActivity(activity);
+}
+
+function renderTopWatches(rows) {
+  if (!els.dashboardTopWatches) return;
+  const max = rows.reduce((m, r) => Math.max(m, Number(r.inquiries || 0)), 0);
+  if (rows.length === 0) {
+    els.dashboardTopWatches.innerHTML = '';
+    if (els.dashboardTopWatchesEmpty) els.dashboardTopWatchesEmpty.hidden = false;
+    return;
+  }
+  if (els.dashboardTopWatchesEmpty) els.dashboardTopWatchesEmpty.hidden = true;
+  els.dashboardTopWatches.innerHTML = rows.map((r) => {
+    const inquiries = Number(r.inquiries || 0);
+    const won = Number(r.won || 0);
+    const pct = max > 0 ? Math.round((inquiries / max) * 100) : 0;
+    const label = (r.label || '').trim() || (r.watch_id ? r.watch_id : 'Unknown listing');
+    return `
+      <li>
+        <div class="dashboard-list-bar-wrapper">
+          <span class="dashboard-list-label">${escapeHtml(label)}</span>
+          <span class="dashboard-list-bar" style="width: ${pct}%"></span>
+        </div>
+        <span class="dashboard-list-meta">${inquiries} INQ${won ? ` · ${won} WON` : ''}</span>
+      </li>
+    `;
+  }).join('');
+}
+
+const LOST_REASON_LABEL = {
+  price: 'Price',
+  condition: 'Condition',
+  sold_elsewhere: 'Sold elsewhere',
+  no_response: 'No response',
+  timing: 'Timing',
+  other: 'Other',
+  unspecified: 'Unspecified',
+};
+
+function renderLostReasons(rows) {
+  if (!els.dashboardLostReasons) return;
+  const max = rows.reduce((m, r) => Math.max(m, Number(r.losses || 0)), 0);
+  if (rows.length === 0) {
+    els.dashboardLostReasons.innerHTML = '';
+    if (els.dashboardLostReasonsEmpty) els.dashboardLostReasonsEmpty.hidden = false;
+    return;
+  }
+  if (els.dashboardLostReasonsEmpty) els.dashboardLostReasonsEmpty.hidden = true;
+  els.dashboardLostReasons.innerHTML = rows.map((r) => {
+    const losses = Number(r.losses || 0);
+    const pct = max > 0 ? Math.round((losses / max) * 100) : 0;
+    const label = LOST_REASON_LABEL[r.reason] || (r.reason || 'Unspecified');
+    return `
+      <li>
+        <div class="dashboard-list-bar-wrapper">
+          <span class="dashboard-list-label">${escapeHtml(label)}</span>
+          <span class="dashboard-list-bar" style="width: ${pct}%"></span>
+        </div>
+        <span class="dashboard-list-meta">${losses}</span>
+      </li>
+    `;
+  }).join('');
+}
+
+function renderActivity(rows) {
+  if (!els.dashboardActivity) return;
+  if (rows.length === 0) {
+    els.dashboardActivity.innerHTML = '';
+    if (els.dashboardActivityEmpty) els.dashboardActivityEmpty.hidden = false;
+    return;
+  }
+  if (els.dashboardActivityEmpty) els.dashboardActivityEmpty.hidden = true;
+  els.dashboardActivity.innerHTML = rows.map((r) => {
+    const kindLabel = ACTIVITY_KIND_LABEL[r.kind] || (r.kind || '').toUpperCase();
+    const when = formatRelativeTime(r.at);
+    const label = r.label || '';
+    let labelHtml = escapeHtml(label);
+    // Deep-link the row to /watch/<slug> or /journal/<slug>.html when slug is present.
+    if (r.slug) {
+      const url = r.kind === 'journal'
+        ? `/journal/${encodeURIComponent(r.slug)}.html`
+        : `/watch/${encodeURIComponent(r.slug)}`;
+      labelHtml = `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${labelHtml}</a>`;
+    }
+    return `
+      <li>
+        <span class="dashboard-activity-kind">${escapeHtml(kindLabel)}</span>
+        <span class="dashboard-activity-label">${labelHtml}</span>
+        <span class="dashboard-activity-when">${escapeHtml(when)}</span>
+      </li>
+    `;
+  }).join('');
+}
+
+if (els.dashboardRefresh) {
+  els.dashboardRefresh.addEventListener('click', () => loadDashboard());
+}
+
 // Preview as buyer — opens the public storefront URL for the active watch
 // in a new tab. Drafts render with a DRAFT banner + noindex; published
 // listings show their normal page. Wired here because both states share

@@ -89,14 +89,95 @@
   <!-- Admin workspace -->
   <section id="workspace-panel" class="admin-workspace" hidden>
     <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
-      <button type="button" id="admin-tab-inbox" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-inbox" data-tab="inbox">Inbox</button>
+      <button type="button" id="admin-tab-dashboard" class="admin-tab is-active" role="tab" aria-selected="true" aria-controls="tabpanel-dashboard" data-tab="dashboard">Dashboard</button>
+      <button type="button" id="admin-tab-inbox" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inbox" tabindex="-1" data-tab="inbox">Inbox</button>
       <button type="button" id="admin-tab-inventory" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inventory" tabindex="-1" data-tab="inventory">Inventory</button>
       <button type="button" id="admin-tab-journal" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-journal" tabindex="-1" data-tab="journal">Journal</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
       <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
 
-    <div class="admin-tabpanel" id="tabpanel-inbox" role="tabpanel" aria-labelledby="admin-tab-inbox">
+    <div class="admin-tabpanel" id="tabpanel-dashboard" role="tabpanel" aria-labelledby="admin-tab-dashboard">
+      <section class="admin-card admin-dashboard">
+        <div class="admin-dashboard-header">
+          <div>
+            <div class="admin-eyebrow">Dashboard</div>
+            <h2 class="admin-dashboard-title">From the bench, today.</h2>
+            <p class="admin-meta" id="admin-dashboard-meta">Last refreshed —</p>
+          </div>
+          <button type="button" id="admin-dashboard-refresh" class="btn-ghost">Refresh</button>
+        </div>
+
+        <div class="admin-dashboard-grid" id="admin-dashboard-grid" aria-live="polite">
+          <article class="kpi-tile">
+            <div class="kpi-label">Inquiries · Last 7 days</div>
+            <div class="kpi-value" data-kpi="inquiries.last7">—</div>
+            <div class="kpi-foot" data-kpi="inquiries.last30Foot">— in the last 30</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Open inquiries</div>
+            <div class="kpi-value" data-kpi="inquiries.open">—</div>
+            <div class="kpi-foot" data-kpi="inquiries.openFoot">new + contacted + viewing + reserved</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Conversion · Last 30 days</div>
+            <div class="kpi-value" data-kpi="conversion.rate">—</div>
+            <div class="kpi-foot" data-kpi="conversion.foot">won / closed</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Median reply · Last 30 days</div>
+            <div class="kpi-value" data-kpi="replySla.median">—</div>
+            <div class="kpi-foot" data-kpi="replySla.foot">across replied inquiries</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Sold this month</div>
+            <div class="kpi-value" data-kpi="inventory.soldThisMonth">—</div>
+            <div class="kpi-foot" data-kpi="inventory.soldFoot">closed-out listings</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Inventory live</div>
+            <div class="kpi-value" data-kpi="inventory.published">—</div>
+            <div class="kpi-foot" data-kpi="inventory.publishedFoot">published / drafts</div>
+          </article>
+        </div>
+
+        <div class="admin-dashboard-rows">
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Top inquired · Last 90 days</div>
+            <ul id="admin-dashboard-top-watches" class="dashboard-list"></ul>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-top-watches-empty" hidden>No inquiries in the window.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Lost reasons · Last 90 days</div>
+            <ul id="admin-dashboard-lost-reasons" class="dashboard-list"></ul>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-lost-reasons-empty" hidden>No lost inquiries in the window.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Recent activity · Last 30 days</div>
+            <ol id="admin-dashboard-activity" class="dashboard-list dashboard-activity"></ol>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-activity-empty" hidden>Quiet on the bench. Activity will appear as inquiries land and pieces are placed.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Journal</div>
+            <dl class="dashboard-keyvals" id="admin-dashboard-journal">
+              <div><dt>Published</dt><dd data-kpi="journal.published">—</dd></div>
+              <div><dt>Drafts</dt><dd data-kpi="journal.drafts">—</dd></div>
+              <div><dt>Scheduled</dt><dd data-kpi="journal.scheduled">—</dd></div>
+            </dl>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-inbox" role="tabpanel" aria-labelledby="admin-tab-inbox" hidden>
       <section class="admin-card">
         <div class="inbox-header">
           <div>
