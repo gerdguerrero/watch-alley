@@ -39,6 +39,12 @@ a:hover { color: var(--cream); }
   gap: 18px;
   flex-wrap: wrap;
 }
+.trust-nav nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2.4vw, 28px);
+  align-items: center;
+}
 .trust-nav a {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;

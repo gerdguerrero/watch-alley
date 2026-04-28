@@ -756,6 +756,15 @@
       transition: transform 0.25s ease, border-color 0.2s ease;
     }
     .watch-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .watch-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    /* Subtle hint that the image itself is tappable: faint zoom-in cursor on
+       desktop, tiny scale on hover so the buyer feels the card responds.   */
+    .watch-card-img { cursor: zoom-in; }
+    .watch-card:hover .watch-card-img picture,
+    .watch-card:hover .watch-card-img > img {
+      transform: scale(1.02);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
     .watch-card-img {
       position: relative;
@@ -905,6 +914,81 @@
     .inventory-error { border-color: rgba(201,162,75,0.55); }
 
     body.modal-open { overflow: hidden; }
+
+    /* Image lightbox — Instagram-style preview. Triggered by hover (desktop)
+       or long-press (mobile) on any element with [data-zoomable]. The
+       picture inside scales up but never beyond its source resolution. */
+    .image-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 350;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 4vw, 48px);
+    }
+    .image-lightbox.open { display: flex; }
+    .image-lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 6, 4, 0.86);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .image-lightbox-close {
+      position: absolute;
+      top: clamp(16px, 4vw, 32px);
+      right: clamp(16px, 4vw, 32px);
+      z-index: 2;
+      background: transparent;
+      border: 1px solid var(--gold-20);
+      color: var(--cream-80);
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .image-lightbox-close:hover { border-color: var(--gold); color: var(--gold); }
+    .image-lightbox-figure {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      max-width: min(90vw, 1280px);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: wa-lightbox-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes wa-lightbox-in {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .image-lightbox-figure { animation: none; }
+    }
+    .image-lightbox-figure img {
+      max-width: 100%;
+      max-height: 78vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border: 1px solid var(--gold-20);
+      background: var(--walnut-deep);
+    }
+    .image-lightbox-caption {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+      max-width: 60ch;
+      text-align: center;
+    }
+
     .product-modal {
       position: fixed;
       inset: 0;
@@ -982,7 +1066,12 @@
       border: 1px solid var(--gold-20);
       background: #080c14;
       overflow: hidden;
+      padding: 0;
+      cursor: zoom-in;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
+    .product-modal-thumb:hover { border-color: var(--gold); transform: translateY(-1px); }
+    .product-modal-thumb:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .product-modal-meta-row {
       display: flex;
       justify-content: space-between;
@@ -1076,6 +1165,52 @@
       padding: 20px;
       border: 1px solid rgba(201,162,75,0.45);
       background: rgba(201,162,75,0.06);
+    }
+    /* Collapsible "what this looks like when shared" preview. The owner can
+       audit the OG card per listing without leaving the page. */
+    .product-modal-share-preview {
+      margin-top: 24px;
+      border-top: 1px solid var(--gold-20);
+      padding-top: 18px;
+    }
+    .product-modal-share-preview summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .product-modal-share-preview summary::-webkit-details-marker { display: none; }
+    .product-modal-share-preview summary:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 4px;
+    }
+    .product-modal-share-preview[open] summary { color: var(--cream); }
+    .product-modal-share-preview p {
+      margin: 12px 0 14px;
+      font-family: 'Spectral', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--cream-60);
+    }
+    .product-modal-share-preview a {
+      display: block;
+      border: 1px solid var(--gold-20);
+      cursor: zoom-in;
+      transition: border-color 0.2s ease;
+    }
+    .product-modal-share-preview a:hover { border-color: var(--gold); }
+    .product-modal-share-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 600px;
     }
     .product-modal-disclosure p {
       color: var(--cream-80);
@@ -1973,8 +2108,8 @@
   <button class="drawer-close" id="drawer-close" aria-label="Close menu">×</button>
   <nav class="drawer-links">
     <a href="#arrivals">Available</a>
-    <a href="#news">Brands</a>
-    <a href="#news">Journal</a>
+    <a href="#sold-archive">Sold Archive</a>
+    <a href="./journal.html">Journal</a>
     <a href="#contact">Service</a>
   </nav>
   <div class="drawer-viber">
@@ -1993,11 +2128,11 @@
 <nav id="main-nav">
   <div class="nav-links">
     <a href="#arrivals" data-section="arrivals">Available</a>
-    <a href="#news" data-section="news">Brands</a>
-    <a href="#news">Journal</a>
+    <a href="#sold-archive" data-section="sold-archive">Sold Archive</a>
+    <a href="./journal.html">Journal</a>
     <a href="#contact" data-section="contact">Service</a>
   </div>
-  <a href="#" class="nav-logo" aria-label="The Watch Alley — home">
+  <a href="/" class="nav-logo" aria-label="The Watch Alley — home">
     <img src="assets/logo.jpg" alt="" width="50" height="50" fetchpriority="high" decoding="async">
     <span class="nav-logo-text">The Watch Alley</span>
   </a>
@@ -2127,12 +2262,12 @@
         <p class="news-feature-body">
           The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — celebrates the Philippines' iconic bird and marks Seiko's growing commitment to the Philippine collector community. We have one in stock.
         </p>
-        <a href="#arrivals" class="btn-primary" style="margin-top:24px;">See it in our shop →</a>
+        <a href="/watch/seiko-prospex-alpinist-whiskered-pitta-spb491j1" class="btn-primary" style="margin-top:24px;">See it in our shop →</a>
       </div>
     </div>
 
     <div class="news-stack stagger">
-      <a class="news-card" href="#">
+      <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster.html">
         <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
         <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
         <div class="news-card-body">
@@ -2142,23 +2277,23 @@
         </div>
         <span class="news-card-arrow">→</span>
       </a>
-      <a class="news-card" href="#">
+      <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy.html">
         <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
         <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
         <div class="news-card-body">
-          <div class="mono">Nº 03 · INDUSTRY</div>
-          <div class="news-card-title">Swatch Group posts record Omega sales in Asia</div>
-          <div class="news-card-sub">Demand for the Aqua Terra and Seamaster 300m surges in the Philippines and SEA markets.</div>
+          <div class="mono">Nº 03 · COLLECTOR</div>
+          <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
+          <div class="news-card-sub">Secondary prices for the Bioceramic collab have settled. "Mission to Mars" now trading near retail.</div>
         </div>
         <span class="news-card-arrow">→</span>
       </a>
-      <a class="news-card" href="#">
+      <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
         <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
-        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko SRPE81K1"></div>
+        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko SARX001"></div>
         <div class="news-card-body">
-          <div class="mono">Nº 04 · COLLECTOR</div>
-          <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
-          <div class="news-card-sub">Secondary prices for the Bioceramic collab have settled. "Mission to Mars" now trading near retail.</div>
+          <div class="mono">Nº 04 · INDUSTRY</div>
+          <div class="news-card-title">Seiko launches 5th Philippine Limited Edition</div>
+          <div class="news-card-sub">The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — marks Seiko's growing PH commitment.</div>
         </div>
         <span class="news-card-arrow">→</span>
       </a>
@@ -2425,6 +2560,17 @@
   <div class="cta-note reveal">Both open the native app. We usually reply within two hours.</div>
 </section>
 
+<!-- Image Lightbox — hover (desktop) or long-press (mobile) any [data-zoomable]
+     image to enlarge. Click anywhere or press Escape to close. -->
+<div class="image-lightbox" id="image-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo" aria-hidden="true">
+  <div class="image-lightbox-backdrop" id="image-lightbox-backdrop"></div>
+  <button type="button" class="image-lightbox-close" id="image-lightbox-close" aria-label="Close enlarged photo">×</button>
+  <figure class="image-lightbox-figure">
+    <img id="image-lightbox-img" alt="" decoding="async">
+    <figcaption class="image-lightbox-caption" id="image-lightbox-caption"></figcaption>
+  </figure>
+</div>
+
 <!-- Product Detail Modal -->
 <div class="product-modal" id="product-detail-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" aria-hidden="true">
   <div class="product-modal-backdrop" id="product-modal-backdrop"></div>
@@ -2528,7 +2674,7 @@
 
 <!-- 09 Footer -->
 <footer>
-  <a href="#" class="footer-logo">
+  <a href="/" class="footer-logo">
     <img loading="lazy" decoding="async" src="assets/logo.jpg" alt="The Watch Alley">
     <span class="footer-logo-text">The Watch Alley</span>
   </a>
@@ -2862,9 +3008,9 @@ function renderProductDetailModal(watch, inventory) {
   const status = statusLabel(watch.status);
   const isSold = watch.status === 'sold';
   const galleryMarkup = images.map((image, index) => `
-          <div class="product-modal-thumb">
+          <button type="button" class="product-modal-thumb" data-zoomable data-zoom-src="${escapeHtml(image)}" data-zoom-alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}" data-modal-thumb-index="${index}" aria-label="Enlarge photo ${index + 1} of ${images.length}">
             <img loading="lazy" decoding="async" src="${escapeHtml(image)}" alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}">
-          </div>`).join('');
+          </button>`).join('');
   const detailRows = [
     renderProductDetailRow('Reference', watch.reference),
     renderProductDetailRow('Condition', watch.conditionLabel),
@@ -2901,7 +3047,7 @@ function renderProductDetailModal(watch, inventory) {
   return `
         <div class="product-modal-layout">
           <div class="product-modal-gallery" aria-label="${escapeHtml(watch.name)} image gallery">
-            <div class="product-modal-hero-image">
+            <div class="product-modal-hero-image" data-zoomable data-zoom-src="${escapeHtml(images[0] || watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" title="Hover or long-press to enlarge">
               ${renderResponsivePicture({ image: images[0] || watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 1024px) 60vw, 100vw', loading: 'eager', fetchpriority: 'high' })}
             </div>
             <div class="product-modal-thumbs">${galleryMarkup}</div>
@@ -2920,7 +3066,17 @@ function renderProductDetailModal(watch, inventory) {
             <div class="product-modal-disclosure">
               <div class="product-detail-label">Disclosure / Buyer Note</div>
               <p>${escapeHtml(watch.disclosure)}</p>
-            </div>${actionsMarkup}
+            </div>
+            <details class="product-modal-share-preview">
+              <summary>
+                <span>How this listing previews when shared</span>
+                <span aria-hidden="true">▾</span>
+              </summary>
+              <p>This is the social card people see when this watch URL is pasted into Facebook, Viber, Twitter, or iMessage.</p>
+              <a href="/og/${escapeHtml(watch.slug)}.jpg" target="_blank" rel="noopener" data-zoomable data-zoom-src="/og/${escapeHtml(watch.slug)}.jpg" data-zoom-alt="Share preview for ${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" aria-label="Open share-preview image at full size">
+                <img loading="lazy" decoding="async" src="/og/${escapeHtml(watch.slug)}.jpg" alt="Share preview for ${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
+              </a>
+            </details>${actionsMarkup}
           </div>
         </div>`;
 }
@@ -3287,9 +3443,14 @@ function renderWatchCard(watch, index, total, inventory) {
   const inquiryHref = buildInquiryHref(watch, inventory);
   const ctaLabel = status === 'available' ? 'INQUIRE →' : `${statusLabel(status)} →`;
 
+  // The whole card opens the detail modal. We mark .watch-card itself with
+  // data-product-modal-trigger so the existing carousel click handler picks
+  // it up; the image gets data-zoomable so the hover/long-press preview
+  // lightbox can find it. The Inquire button stops propagation so a click
+  // there only opens the inquiry modal.
   return `
-      <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="${escapeHtml(status)}">
-          <div class="watch-card-img">
+      <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="${escapeHtml(status)}" data-product-modal-trigger data-track-click="card-open" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(watch.name)}">
+          <div class="watch-card-img" data-zoomable data-zoom-src="${escapeHtml(watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
           ${renderResponsivePicture({ image: watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 768px) 320px, 80vw' })}
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge ${badgeClass(watch)}">${escapeHtml(watch.badge)}</span>
@@ -3692,6 +3853,127 @@ document.addEventListener('click', (event) => {
   });
 }, true);
 
+// ── Image lightbox (hover desktop / long-press mobile) ────────────────────
+// Any element marked [data-zoomable] becomes a hover or long-press preview
+// trigger. Hover with the mouse for ~350ms or hold a finger down for ~450ms
+// to enlarge. Click anywhere or press Escape to close.
+const imageLightbox = document.getElementById('image-lightbox');
+const imageLightboxBackdrop = document.getElementById('image-lightbox-backdrop');
+const imageLightboxClose = document.getElementById('image-lightbox-close');
+const imageLightboxImg = document.getElementById('image-lightbox-img');
+const imageLightboxCaption = document.getElementById('image-lightbox-caption');
+const HOVER_PREVIEW_DELAY_MS = 350;
+const LONG_PRESS_DELAY_MS = 450;
+let lightboxLastFocus = null;
+let hoverPreviewTimer = null;
+let longPressTimer = null;
+let touchStartX = 0;
+let touchStartY = 0;
+
+function openImageLightbox(zoomable) {
+  if (!imageLightbox || !zoomable) return;
+  const src = zoomable.dataset.zoomSrc || (zoomable.querySelector('img')?.currentSrc) || (zoomable.querySelector('img')?.src) || '';
+  if (!src) return;
+  const alt = zoomable.dataset.zoomAlt || (zoomable.querySelector('img')?.alt) || '';
+  imageLightboxImg.src = src;
+  imageLightboxImg.alt = alt;
+  imageLightboxCaption.textContent = alt;
+  if (!imageLightbox.classList.contains('open')) {
+    lightboxLastFocus = document.activeElement;
+  }
+  imageLightbox.classList.add('open');
+  imageLightbox.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  imageLightboxClose.focus();
+}
+
+function closeImageLightbox() {
+  if (!imageLightbox || !imageLightbox.classList.contains('open')) return;
+  imageLightbox.classList.remove('open');
+  imageLightbox.setAttribute('aria-hidden', 'true');
+  // Only release the body scroll lock if no other modal is also open.
+  if (!productModal.classList.contains('open') && !inquiryModal.classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+  imageLightboxImg.removeAttribute('src');
+  if (lightboxLastFocus && typeof lightboxLastFocus.focus === 'function') {
+    lightboxLastFocus.focus();
+  }
+}
+
+function clearHoverPreviewTimer() {
+  if (hoverPreviewTimer) {
+    clearTimeout(hoverPreviewTimer);
+    hoverPreviewTimer = null;
+  }
+}
+function clearLongPressTimer() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+}
+
+// Desktop: hover an enlarged preview after a short dwell. Bail if the mouse
+// leaves before the timer fires.
+document.addEventListener('mouseover', (event) => {
+  // Coarse pointers (touch) don't fire reliable mouseover; the touch path
+  // below handles them via long-press.
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+  const zoomable = event.target.closest('[data-zoomable]');
+  if (!zoomable) return;
+  clearHoverPreviewTimer();
+  hoverPreviewTimer = setTimeout(() => openImageLightbox(zoomable), HOVER_PREVIEW_DELAY_MS);
+});
+
+document.addEventListener('mouseout', (event) => {
+  const zoomable = event.target.closest('[data-zoomable]');
+  if (!zoomable) return;
+  // Bail if the cursor is still inside the same zoomable region.
+  if (event.relatedTarget && zoomable.contains(event.relatedTarget)) return;
+  clearHoverPreviewTimer();
+});
+
+// Mobile: long-press to enlarge. We arm a timer on touchstart and disarm on
+// touchmove (a swipe in the carousel) or touchend (a normal tap).
+document.addEventListener('touchstart', (event) => {
+  const zoomable = event.target.closest('[data-zoomable]');
+  if (!zoomable) return;
+  const touch = event.touches[0];
+  touchStartX = touch ? touch.clientX : 0;
+  touchStartY = touch ? touch.clientY : 0;
+  clearLongPressTimer();
+  longPressTimer = setTimeout(() => {
+    openImageLightbox(zoomable);
+    // Vibration is a no-op where not supported; gives a subtle haptic
+    // confirmation on Android.
+    if ('vibrate' in navigator) navigator.vibrate(8);
+  }, LONG_PRESS_DELAY_MS);
+}, { passive: true });
+
+document.addEventListener('touchmove', (event) => {
+  if (!longPressTimer) return;
+  const touch = event.touches[0];
+  if (!touch) return;
+  // 12px deadband: tiny finger jitter shouldn't cancel; a real swipe should.
+  if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 12) {
+    clearLongPressTimer();
+  }
+}, { passive: true });
+
+document.addEventListener('touchend', clearLongPressTimer);
+document.addEventListener('touchcancel', clearLongPressTimer);
+
+if (imageLightboxBackdrop) imageLightboxBackdrop.addEventListener('click', closeImageLightbox);
+if (imageLightboxClose) imageLightboxClose.addEventListener('click', closeImageLightbox);
+if (imageLightboxImg) imageLightboxImg.addEventListener('click', closeImageLightbox);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && imageLightbox && imageLightbox.classList.contains('open')) {
+    event.stopPropagation();
+    closeImageLightbox();
+  }
+});
+
 window.addEventListener('hashchange', () => {
   if (isApplyingHistoryNavigation) return;
   const slug = getWatchHashSlug();
@@ -3703,6 +3985,11 @@ window.addEventListener('hashchange', () => {
 });
 
 carouselTrack.addEventListener('click', (event) => {
+  // If the click is on an inquiry trigger (or any button that wants its own
+  // behavior), let that handler run instead of opening the detail modal.
+  if (event.target.closest('[data-inquiry-trigger]')) return;
+  if (event.target.closest('button[data-watch-card-skip]')) return;
+
   const trigger = event.target.closest('[data-product-modal-trigger]');
   if (!trigger) return;
 
@@ -3710,6 +3997,19 @@ carouselTrack.addEventListener('click', (event) => {
   if (dragMoved) return;
 
   const slug = trigger.dataset.watchSlug;
+  const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
+  if (watch) openProductDetailModal(watch);
+});
+
+// Keyboard: Enter or Space on the card itself opens the detail modal. The
+// inner buttons handle their own focus + keyboard activation, so checking
+// event.target === currentTarget keeps the keystroke from double-firing.
+carouselTrack.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const card = event.target.closest('.watch-card[data-product-modal-trigger]');
+  if (!card || event.target !== card) return;
+  event.preventDefault();
+  const slug = card.dataset.watchSlug;
   const watch = watchInventoryCache.watches.find((item) => item.slug === slug);
   if (watch) openProductDetailModal(watch);
 });

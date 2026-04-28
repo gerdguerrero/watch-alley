@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Journal — The Watch Alley PH</title>
+<meta name="description" content="Notes from the bench: dispatches on watches we love, market observations from Manila, and a slow-build collector library from The Watch Alley." />
+<meta name="theme-color" content="#191713" />
+<link rel="canonical" href="https://watchalley.ph/journal" />
+<meta property="og:type" content="website">
+<meta property="og:title" content="Journal — The Watch Alley PH">
+<meta property="og:description" content="Notes from the bench: dispatches on watches we love, market observations from Manila, and a slow-build collector library.">
+<meta property="og:url" content="https://watchalley.ph/journal">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400..700;1,400..700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles/trust-page.css" />
+<style>
+  /* Journal-specific layout extensions on top of trust-page.css. */
+  .journal-hero { padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 80px) 0; }
+  .journal-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .journal-title {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 500;
+    line-height: 1.05;
+    margin: 12px 0 16px;
+    color: var(--cream);
+  }
+  .journal-title em { font-style: italic; color: var(--gold); }
+  .journal-blurb {
+    font-family: 'Spectral', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--cream-80);
+    max-width: 60ch;
+  }
+  .journal-list {
+    padding: clamp(32px, 5vw, 64px) clamp(20px, 4vw, 80px);
+    display: flex;
+    flex-direction: column;
+  }
+  .journal-entry {
+    display: grid;
+    grid-template-columns: clamp(64px, 12vw, 110px) 1fr auto;
+    align-items: baseline;
+    gap: clamp(16px, 3vw, 36px);
+    padding: clamp(22px, 3vw, 32px) 0;
+    border-top: 1px solid var(--gold-20);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s ease;
+  }
+  .journal-entry:hover { background: rgba(201, 162, 75, 0.05); color: inherit; }
+  .journal-entry:last-child { border-bottom: 1px solid var(--gold-20); }
+  .journal-num {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: clamp(28px, 3vw, 40px);
+    font-style: italic;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .journal-entry-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .journal-entry-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cream-60);
+  }
+  .journal-entry-title {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: clamp(22px, 2.4vw, 30px);
+    color: var(--cream);
+    line-height: 1.2;
+  }
+  .journal-entry-summary {
+    font-family: 'Spectral', Georgia, serif;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--cream-80);
+    margin-top: 4px;
+    max-width: 64ch;
+  }
+  .journal-entry-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--gold);
+    align-self: center;
+  }
+  .journal-footer-note {
+    padding: 0 clamp(20px, 4vw, 80px) clamp(48px, 6vw, 80px);
+    font-family: 'Spectral', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--cream-60);
+    max-width: 60ch;
+  }
+  @media (max-width: 720px) {
+    .journal-entry { grid-template-columns: 1fr; }
+    .journal-entry-arrow { display: none; }
+    .journal-num { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="trust-nav">
+  <a class="trust-nav-home" href="./">The Watch Alley</a>
+  <nav>
+    <a href="./#arrivals">Available</a>
+    <a href="./#sold-archive">Sold Archive</a>
+    <a href="./journal">Journal</a>
+    <a href="./#viber">Viber</a>
+    <a href="./#contact">Contact</a>
+  </nav>
+</header>
+
+<main class="trust-page">
+  <section class="journal-hero">
+    <div class="journal-eyebrow">Issue Nº 47 · April 2026</div>
+    <h1 class="journal-title">Notes from <em>the bench.</em></h1>
+    <p class="journal-blurb">
+      A slow-build collector library: dispatches on watches we love, market observations from Manila, and the conversations we keep having with buyers. New entries land when there is something honestly worth saying, not on a content calendar.
+    </p>
+  </section>
+
+  <section class="journal-list" aria-label="Recent journal entries">
+    <a class="journal-entry" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
+      <div class="journal-num">01</div>
+      <div class="journal-entry-body">
+        <div class="journal-entry-meta">Industry · 28 April 2026 · 4 min read</div>
+        <div class="journal-entry-title">Seiko launches its 5th Philippine Limited Edition.</div>
+        <p class="journal-entry-summary">The Prospex Alpinist “Whiskered Pitta” SPB491J1 — limited to 1,288 pieces — celebrates the Philippines’ iconic bird and marks Seiko’s growing commitment to the local collector community. We have one in stock.</p>
+      </div>
+      <span class="journal-entry-arrow">→</span>
+    </a>
+    <a class="journal-entry" href="./journal/omega-marks-75-years-of-the-seamaster.html">
+      <div class="journal-num">02</div>
+      <div class="journal-entry-body">
+        <div class="journal-entry-meta">Industry · 18 April 2026 · 3 min read</div>
+        <div class="journal-entry-title">Omega marks 75 years of the Seamaster.</div>
+        <p class="journal-entry-summary">Watches &amp; Wonders 2025 closed with a quiet but consequential lineup of commemorative editions across the professional Seamaster range. What it signals for the Philippine pre-owned market.</p>
+      </div>
+      <span class="journal-entry-arrow">→</span>
+    </a>
+    <a class="journal-entry" href="./journal/moonswatch-resale-cools-time-to-buy.html">
+      <div class="journal-num">03</div>
+      <div class="journal-entry-body">
+        <div class="journal-entry-meta">Collector · 09 April 2026 · 5 min read</div>
+        <div class="journal-entry-title">MoonSwatch resale cools — time to buy.</div>
+        <p class="journal-entry-summary">Secondary prices on the Bioceramic collab have settled. The “Mission to Mars” now trades near retail. We walk through what that means if you have been waiting.</p>
+      </div>
+      <span class="journal-entry-arrow">→</span>
+    </a>
+  </section>
+
+  <p class="journal-footer-note">
+    More entries coming. If there is something specific you would like us to write up — a reference, a market question, a buying-process question — message us on Viber or email <a href="mailto:hello@watchalley.ph">hello@watchalley.ph</a>.
+  </p>
+</main>
+
+<footer style="padding: 24px clamp(20px, 4vw, 80px); border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: 'Spectral', Georgia, serif; font-style: italic; font-size: 13px; color: var(--cream-60);">
+  <span>© 2026 The Watch Alley PH, Manila.</span>
+  <span><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./authenticity.html">Authenticity</a></span>
+</footer>
+
+</body>
+</html>
