@@ -757,14 +757,6 @@
     }
     .watch-card:hover { transform: translateY(-4px); border-color: var(--gold); }
     .watch-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-    /* Subtle hint that the image itself is tappable: faint zoom-in cursor on
-       desktop, tiny scale on hover so the buyer feels the card responds.   */
-    .watch-card-img { cursor: zoom-in; }
-    .watch-card:hover .watch-card-img picture,
-    .watch-card:hover .watch-card-img > img {
-      transform: scale(1.02);
-      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    }
 
     .watch-card-img {
       position: relative;
@@ -915,124 +907,6 @@
 
     body.modal-open { overflow: hidden; }
 
-    /* Floating hover preview (desktop only) — small bubble that follows the
-       cursor. Auto-shows after a dwell, auto-hides the instant the cursor
-       leaves the trigger. No backdrop, no close button, never blocks input.
-       Pointer-events:none so a hover never interferes with the underlying
-       click target. */
-    .image-hover-preview {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 320;
-      width: clamp(220px, 22vw, 360px);
-      height: clamp(220px, 22vw, 360px);
-      background: var(--walnut-deep);
-      border: 1px solid var(--gold);
-      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
-      padding: 10px;
-      pointer-events: none;
-      opacity: 0;
-      transform: translate(0, 0) scale(0.96);
-      transform-origin: top left;
-      transition: opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1),
-                  transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-      visibility: hidden;
-    }
-    .image-hover-preview.open {
-      opacity: 1;
-      transform: translate(0, 0) scale(1);
-      visibility: visible;
-    }
-    .image-hover-preview img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: var(--walnut-deep);
-    }
-    /* Touch + reduced-motion: hover preview is purely a desktop nicety. */
-    @media (hover: none) {
-      .image-hover-preview { display: none !important; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .image-hover-preview { transition: opacity 0.001ms; transform: none; }
-    }
-
-    /* Image lightbox — fullscreen viewer. Reserved for long-press on touch
-       devices and Enter on a focused thumbnail. Hover never opens this on
-       desktop; the floating preview above handles that. */
-    .image-lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 350;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(16px, 4vw, 48px);
-    }
-    .image-lightbox.open { display: flex; }
-    .image-lightbox-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(8, 6, 4, 0.86);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    .image-lightbox-close {
-      position: absolute;
-      top: clamp(16px, 4vw, 32px);
-      right: clamp(16px, 4vw, 32px);
-      z-index: 2;
-      background: transparent;
-      border: 1px solid var(--gold-20);
-      color: var(--cream-80);
-      width: 44px;
-      height: 44px;
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      transition: border-color 0.2s ease, color 0.2s ease;
-    }
-    .image-lightbox-close:hover { border-color: var(--gold); color: var(--gold); }
-    .image-lightbox-figure {
-      position: relative;
-      z-index: 1;
-      margin: 0;
-      max-width: min(90vw, 1280px);
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      animation: wa-lightbox-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    @keyframes wa-lightbox-in {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .image-lightbox-figure { animation: none; }
-    }
-    .image-lightbox-figure img {
-      max-width: 100%;
-      max-height: 78vh;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      border: 1px solid var(--gold-20);
-      background: var(--walnut-deep);
-    }
-    .image-lightbox-caption {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--cream-60);
-      max-width: 60ch;
-      text-align: center;
-    }
-
     .product-modal {
       position: fixed;
       inset: 0;
@@ -1111,11 +985,14 @@
       background: #080c14;
       overflow: hidden;
       padding: 0;
-      cursor: zoom-in;
+      cursor: pointer;
       transition: border-color 0.2s ease, transform 0.2s ease;
     }
     .product-modal-thumb:hover { border-color: var(--gold); transform: translateY(-1px); }
     .product-modal-thumb:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    /* Active thumb gets a solid gold border so the buyer can see which photo
+       is currently displayed in the hero image. */
+    .product-modal-thumb.is-active { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
     .product-modal-meta-row {
       display: flex;
       justify-content: space-between;
@@ -1246,7 +1123,6 @@
     .product-modal-share-preview a {
       display: block;
       border: 1px solid var(--gold-20);
-      cursor: zoom-in;
       transition: border-color 0.2s ease;
     }
     .product-modal-share-preview a:hover { border-color: var(--gold); }
@@ -2604,24 +2480,6 @@
   <div class="cta-note reveal">Both open the native app. We usually reply within two hours.</div>
 </section>
 
-<!-- Image preview surfaces.
-     • .image-hover-preview — a small floating bubble that follows the cursor
-       on desktop. Auto-shows after a short dwell, auto-hides the moment the
-       cursor leaves. No close button, never blocks clicks.
-     • .image-lightbox — the fullscreen viewer. Reserved for the long-press
-       gesture on touch devices and (optionally) Enter on a focused thumb. -->
-<div class="image-hover-preview" id="image-hover-preview" aria-hidden="true">
-  <img id="image-hover-preview-img" alt="" decoding="async">
-</div>
-<div class="image-lightbox" id="image-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged photo" aria-hidden="true">
-  <div class="image-lightbox-backdrop" id="image-lightbox-backdrop"></div>
-  <button type="button" class="image-lightbox-close" id="image-lightbox-close" aria-label="Close enlarged photo">×</button>
-  <figure class="image-lightbox-figure">
-    <img id="image-lightbox-img" alt="" decoding="async">
-    <figcaption class="image-lightbox-caption" id="image-lightbox-caption"></figcaption>
-  </figure>
-</div>
-
 <!-- Product Detail Modal -->
 <div class="product-modal" id="product-detail-modal" role="dialog" aria-modal="true" aria-labelledby="product-modal-title" aria-hidden="true">
   <div class="product-modal-backdrop" id="product-modal-backdrop"></div>
@@ -3059,7 +2917,7 @@ function renderProductDetailModal(watch, inventory) {
   const status = statusLabel(watch.status);
   const isSold = watch.status === 'sold';
   const galleryMarkup = images.map((image, index) => `
-          <button type="button" class="product-modal-thumb" data-zoomable data-zoom-src="${escapeHtml(image)}" data-zoom-alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}" data-modal-thumb-index="${index}" aria-label="Enlarge photo ${index + 1} of ${images.length}">
+          <button type="button" class="product-modal-thumb${index === 0 ? ' is-active' : ''}" data-modal-thumb data-thumb-src="${escapeHtml(image)}" data-thumb-alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}" data-modal-thumb-index="${index}" aria-label="Show photo ${index + 1} of ${images.length}">
             <img loading="lazy" decoding="async" src="${escapeHtml(image)}" alt="${escapeHtml(`${watch.brand} ${watch.name} photo ${index + 1}`)}">
           </button>`).join('');
   const detailRows = [
@@ -3098,7 +2956,7 @@ function renderProductDetailModal(watch, inventory) {
   return `
         <div class="product-modal-layout">
           <div class="product-modal-gallery" aria-label="${escapeHtml(watch.name)} image gallery">
-            <div class="product-modal-hero-image" data-zoomable data-zoom-src="${escapeHtml(images[0] || watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
+            <div class="product-modal-hero-image" id="product-modal-hero-image">
               ${renderResponsivePicture({ image: images[0] || watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 1024px) 60vw, 100vw', loading: 'eager', fetchpriority: 'high' })}
             </div>
             <div class="product-modal-thumbs">${galleryMarkup}</div>
@@ -3124,7 +2982,7 @@ function renderProductDetailModal(watch, inventory) {
                 <span aria-hidden="true">▾</span>
               </summary>
               <p>This is the social card people see when this watch URL is pasted into Facebook, Viber, Twitter, or iMessage.</p>
-              <a href="/og/${escapeHtml(watch.slug)}.jpg" target="_blank" rel="noopener" data-zoomable data-zoom-src="/og/${escapeHtml(watch.slug)}.jpg" data-zoom-alt="Share preview for ${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" aria-label="Open share-preview image at full size">
+              <a href="/og/${escapeHtml(watch.slug)}.jpg" target="_blank" rel="noopener" aria-label="Open share-preview image at full size">
                 <img loading="lazy" decoding="async" src="/og/${escapeHtml(watch.slug)}.jpg" alt="Share preview for ${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
               </a>
             </details>${actionsMarkup}
@@ -3494,14 +3352,11 @@ function renderWatchCard(watch, index, total, inventory) {
   const inquiryHref = buildInquiryHref(watch, inventory);
   const ctaLabel = status === 'available' ? 'INQUIRE →' : `${statusLabel(status)} →`;
 
-  // The whole card opens the detail modal. We mark .watch-card itself with
-  // data-product-modal-trigger so the existing carousel click handler picks
-  // it up; the image gets data-zoomable so the hover/long-press preview
-  // lightbox can find it. The Inquire button stops propagation so a click
-  // there only opens the inquiry modal.
+  // The whole card opens the detail modal. The Inquire button stops
+  // propagation so a click there only opens the inquiry modal.
   return `
       <article class="watch-card" data-watch-id="${escapeHtml(watch.id)}" data-watch-slug="${escapeHtml(watch.slug)}" data-watch-status="${escapeHtml(status)}" data-product-modal-trigger data-track-click="card-open" tabindex="0" role="button" aria-label="Open details for ${escapeHtml(watch.name)}">
-          <div class="watch-card-img" data-zoomable data-zoom-src="${escapeHtml(watch.primaryImage)}" data-zoom-alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}">
+          <div class="watch-card-img">
           ${renderResponsivePicture({ image: watch.primaryImage, alt: `${watch.brand} ${watch.name}`, sizes: '(min-width: 768px) 320px, 80vw' })}
           <div class="watch-card-img-overlay"></div>
           <span class="watch-badge ${badgeClass(watch)}">${escapeHtml(watch.badge)}</span>
@@ -3904,216 +3759,26 @@ document.addEventListener('click', (event) => {
   });
 }, true);
 
-// ── Image previews ────────────────────────────────────────────────────────
-// Two surfaces:
-//   • Floating hover preview (desktop) — auto-shows after a short dwell on
-//     any [data-zoomable] element, auto-hides the moment the cursor leaves.
-//     No close button, no scroll lock. Acts like Amazon's product zoom.
-//   • Fullscreen lightbox (touch long-press, or Enter on a focused thumb).
-//     The same modal as before; only its trigger paths are different now.
-const imageHoverPreview = document.getElementById('image-hover-preview');
-const imageHoverPreviewImg = document.getElementById('image-hover-preview-img');
-const imageLightbox = document.getElementById('image-lightbox');
-const imageLightboxBackdrop = document.getElementById('image-lightbox-backdrop');
-const imageLightboxClose = document.getElementById('image-lightbox-close');
-const imageLightboxImg = document.getElementById('image-lightbox-img');
-const imageLightboxCaption = document.getElementById('image-lightbox-caption');
-
-const HOVER_PREVIEW_DELAY_MS = 220;
-const LONG_PRESS_DELAY_MS = 450;
-const HOVER_PREVIEW_MARGIN = 18;
-
-let lightboxLastFocus = null;
-let hoverPreviewTimer = null;
-let hoverPreviewActiveEl = null;
-let longPressTimer = null;
-let touchStartX = 0;
-let touchStartY = 0;
-
-function clearHoverPreviewTimer() {
-  if (hoverPreviewTimer) {
-    clearTimeout(hoverPreviewTimer);
-    hoverPreviewTimer = null;
-  }
-}
-function clearLongPressTimer() {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
-}
-
-function resolveZoomSource(zoomable) {
-  if (!zoomable) return { src: '', alt: '' };
-  const innerImg = zoomable.querySelector('img');
-  const src = zoomable.dataset.zoomSrc || (innerImg && innerImg.currentSrc) || (innerImg && innerImg.src) || '';
-  const alt = zoomable.dataset.zoomAlt || (innerImg && innerImg.alt) || '';
-  return { src, alt };
-}
-
-// Position the floating preview near the cursor, but always inside the
-// viewport. Prefer top-right of the cursor; fall back to top-left, then
-// bottom-right, then bottom-left.
-function positionHoverPreview(clientX, clientY) {
-  if (!imageHoverPreview) return;
-  const rect = imageHoverPreview.getBoundingClientRect();
-  const w = rect.width || 260;
-  const h = rect.height || 260;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  let left = clientX + HOVER_PREVIEW_MARGIN;
-  let top = clientY + HOVER_PREVIEW_MARGIN;
-  if (left + w + HOVER_PREVIEW_MARGIN > vw) left = clientX - w - HOVER_PREVIEW_MARGIN;
-  if (top + h + HOVER_PREVIEW_MARGIN > vh) top = clientY - h - HOVER_PREVIEW_MARGIN;
-  // Clamp so we never spill off-screen on small viewports.
-  left = Math.max(8, Math.min(left, vw - w - 8));
-  top = Math.max(8, Math.min(top, vh - h - 8));
-  imageHoverPreview.style.transform = `translate(${left}px, ${top}px)`;
-}
-
-function showHoverPreview(zoomable, clientX, clientY) {
-  if (!imageHoverPreview || !zoomable) return;
-  const { src, alt } = resolveZoomSource(zoomable);
+// ── Product modal: thumbnail click swaps the hero image ──────────────────
+// Plain gallery pattern. No hover preview, no lightbox. The whole watch
+// card is clickable to open the modal; inside the modal, clicking a thumb
+// swaps the hero image and marks that thumb as active.
+productModalBody.addEventListener('click', (event) => {
+  const thumb = event.target.closest('[data-modal-thumb]');
+  if (!thumb) return;
+  const src = thumb.dataset.thumbSrc;
+  const alt = thumb.dataset.thumbAlt || '';
   if (!src) return;
-  imageHoverPreviewImg.src = src;
-  imageHoverPreviewImg.alt = alt;
-  hoverPreviewActiveEl = zoomable;
-  positionHoverPreview(clientX, clientY);
-  imageHoverPreview.classList.add('open');
-  imageHoverPreview.setAttribute('aria-hidden', 'false');
-}
-
-function hideHoverPreview() {
-  clearHoverPreviewTimer();
-  if (!imageHoverPreview) return;
-  if (!imageHoverPreview.classList.contains('open')) {
-    hoverPreviewActiveEl = null;
-    return;
-  }
-  imageHoverPreview.classList.remove('open');
-  imageHoverPreview.setAttribute('aria-hidden', 'true');
-  // Drop the src after the fade so the next preview swap is instant.
-  setTimeout(() => {
-    if (!imageHoverPreview.classList.contains('open')) {
-      imageHoverPreviewImg.removeAttribute('src');
-    }
-  }, 220);
-  hoverPreviewActiveEl = null;
-}
-
-function openImageLightbox(zoomable) {
-  if (!imageLightbox || !zoomable) return;
-  // Hide any in-flight floating preview — the fullscreen viewer is taking over.
-  hideHoverPreview();
-  const { src, alt } = resolveZoomSource(zoomable);
-  if (!src) return;
-  imageLightboxImg.src = src;
-  imageLightboxImg.alt = alt;
-  imageLightboxCaption.textContent = alt;
-  if (!imageLightbox.classList.contains('open')) {
-    lightboxLastFocus = document.activeElement;
-  }
-  imageLightbox.classList.add('open');
-  imageLightbox.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('modal-open');
-  imageLightboxClose.focus();
-}
-
-function closeImageLightbox() {
-  if (!imageLightbox || !imageLightbox.classList.contains('open')) return;
-  imageLightbox.classList.remove('open');
-  imageLightbox.setAttribute('aria-hidden', 'true');
-  if (!productModal.classList.contains('open') && !inquiryModal.classList.contains('open')) {
-    document.body.classList.remove('modal-open');
-  }
-  imageLightboxImg.removeAttribute('src');
-  if (lightboxLastFocus && typeof lightboxLastFocus.focus === 'function') {
-    lightboxLastFocus.focus();
-  }
-}
-
-// Desktop hover. The floating preview shows after a short dwell and follows
-// the cursor while it stays inside the same zoomable region. Leaving the
-// element instantly hides it (no click required).
-function isCoarsePointer() {
-  return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-}
-
-document.addEventListener('mousemove', (event) => {
-  if (isCoarsePointer()) return;
-  const zoomable = event.target.closest('[data-zoomable]');
-  if (zoomable) {
-    // Same element: keep tracking the cursor and (re)arm the dwell timer
-    // only if we are not already showing.
-    if (hoverPreviewActiveEl === zoomable) {
-      positionHoverPreview(event.clientX, event.clientY);
-      return;
-    }
-    if (imageHoverPreview && imageHoverPreview.classList.contains('open')) {
-      // Crossed from one zoomable into another without a mouseout — swap.
-      showHoverPreview(zoomable, event.clientX, event.clientY);
-      return;
-    }
-    clearHoverPreviewTimer();
-    const x = event.clientX;
-    const y = event.clientY;
-    hoverPreviewTimer = setTimeout(() => {
-      showHoverPreview(zoomable, x, y);
-    }, HOVER_PREVIEW_DELAY_MS);
-  } else if (hoverPreviewActiveEl) {
-    hideHoverPreview();
-  } else {
-    clearHoverPreviewTimer();
-  }
-}, { passive: true });
-
-// Hide on mouseout to a non-zoomable region (covers fast cursor exits the
-// move handler may miss between frames).
-document.addEventListener('mouseout', (event) => {
-  if (isCoarsePointer()) return;
-  if (!hoverPreviewActiveEl) return;
-  if (event.relatedTarget && hoverPreviewActiveEl.contains(event.relatedTarget)) return;
-  hideHoverPreview();
-});
-
-// Bail if the page scrolls or the window blurs while a preview is open.
-window.addEventListener('scroll', hideHoverPreview, { passive: true });
-window.addEventListener('blur', hideHoverPreview);
-
-// Mobile long-press → fullscreen lightbox. (Hover preview is desktop-only.)
-document.addEventListener('touchstart', (event) => {
-  const zoomable = event.target.closest('[data-zoomable]');
-  if (!zoomable) return;
-  const touch = event.touches[0];
-  touchStartX = touch ? touch.clientX : 0;
-  touchStartY = touch ? touch.clientY : 0;
-  clearLongPressTimer();
-  longPressTimer = setTimeout(() => {
-    openImageLightbox(zoomable);
-    if ('vibrate' in navigator) navigator.vibrate(8);
-  }, LONG_PRESS_DELAY_MS);
-}, { passive: true });
-
-document.addEventListener('touchmove', (event) => {
-  if (!longPressTimer) return;
-  const touch = event.touches[0];
-  if (!touch) return;
-  if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 12) {
-    clearLongPressTimer();
-  }
-}, { passive: true });
-
-document.addEventListener('touchend', clearLongPressTimer);
-document.addEventListener('touchcancel', clearLongPressTimer);
-
-if (imageLightboxBackdrop) imageLightboxBackdrop.addEventListener('click', closeImageLightbox);
-if (imageLightboxClose) imageLightboxClose.addEventListener('click', closeImageLightbox);
-if (imageLightboxImg) imageLightboxImg.addEventListener('click', closeImageLightbox);
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && imageLightbox && imageLightbox.classList.contains('open')) {
-    event.stopPropagation();
-    closeImageLightbox();
-  }
+  const hero = productModalBody.querySelector('#product-modal-hero-image');
+  if (!hero) return;
+  // Replace the entire hero contents (which may be a <picture> with srcset)
+  // with a simple <img> at the chosen source. The modal is short-lived so a
+  // resimplification here is fine; CLS is preserved by the container's min-height.
+  hero.innerHTML = `<img src="${src}" alt="${alt}" decoding="async">`;
+  // Toggle active styling so the operator/buyer can see which thumb is showing.
+  productModalBody.querySelectorAll('[data-modal-thumb]').forEach((el) => {
+    el.classList.toggle('is-active', el === thumb);
+  });
 });
 
 window.addEventListener('hashchange', () => {
