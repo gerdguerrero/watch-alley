@@ -1,4 +1,10 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/journal/:slug",
+      "destination": "/journal/post.html"
+    }
+  ]
 }

@@ -2690,7 +2690,7 @@ const JOURNAL_FALLBACK_HTML = `
     </div>
   </div>
   <div class="news-stack stagger">
-    <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster.html">
+    <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
       <div class="news-card-body">
@@ -2700,7 +2700,7 @@ const JOURNAL_FALLBACK_HTML = `
       </div>
       <span class="news-card-arrow">→</span>
     </a>
-    <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy.html">
+    <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
       <div class="news-card-body">
@@ -2710,7 +2710,7 @@ const JOURNAL_FALLBACK_HTML = `
       </div>
       <span class="news-card-arrow">→</span>
     </a>
-    <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
+    <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko 5 Sports"></div>
       <div class="news-card-body">
@@ -2740,13 +2740,13 @@ function renderJournalDispatches(posts) {
         <span class="chip" style="background:rgba(201,162,75,0.15);">★ ${escapeHtml(journalCategory(featured.tags))}</span>
         <div class="news-feature-title serif">${escapeHtml(featured.title)}</div>
         <p class="news-feature-body">${escapeHtml(featured.summary)}</p>
-        <a href="./journal/${escapeHtml(featured.slug)}.html" class="btn-primary" style="margin-top:24px;">Read more →</a>
+        <a href="./journal/${escapeHtml(featured.slug)}" class="btn-primary" style="margin-top:24px;">Read more →</a>
       </div>
     </div>`;
   const stackHtml = cards.length ? `
     <div class="news-stack stagger">
       ${cards.map((post, i) => `
-      <a class="news-card" href="./journal/${escapeHtml(post.slug)}.html">
+      <a class="news-card" href="./journal/${escapeHtml(post.slug)}">
         <div class="news-card-bg"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt=""></div>
         <div class="news-card-thumb"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt="${escapeHtml(post.title)}"></div>
         <div class="news-card-body">

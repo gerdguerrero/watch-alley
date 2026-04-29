@@ -1,12 +1,13 @@
 // Build-time journal page generator.
 //
-// Reads published journal posts from Supabase (public.journal_posts where
-// status='published') and emits one static HTML file per post at
-// dist/journal/<slug>/index.html. Also rewrites dist/journal.html so the
-// index list stays in sync with the database.
+// Rewrites dist/journal.html so the index list reflects the database state
+// at deploy time (provides immediate first paint + SEO for the /journal
+// listing). Per-post pages are NOT generated as static files — they are
+// served by the dynamic /journal/post.html template (with a Vercel rewrite
+// from /journal/:slug). This means admin saves go LIVE immediately without
+// any redeploy.
 //
-// Runs as part of `pnpm postbuild` (after Vite builds and before
-// scripts/generate-watch-pages.mjs runs). Idempotent.
+// Runs as part of `pnpm postbuild`. Idempotent.
 
 import {
   readFileSync,
@@ -243,7 +244,7 @@ function rewriteJournalIndex(distHtml, posts) {
     const dateLabel = formatPublishedDate(post.published_at);
     const tag = (post.tags && post.tags[0]) || 'Journal';
     const readMin = inferReadMinutes(post);
-    return `    <a class="journal-entry" href="./journal/${escapeHtml(post.slug)}.html">
+    return `    <a class="journal-entry" href="./journal/${escapeHtml(post.slug)}">
       <div class="journal-num">${num}</div>
       <div class="journal-entry-body">
         <div class="journal-entry-meta">${escapeHtml(tag)}${dateLabel ? ` · ${escapeHtml(dateLabel)}` : ''} · ${readMin} min read</div>
@@ -285,42 +286,31 @@ async function main() {
     return;
   }
 
-  // Read the hashed trust-page.css path that Vite produced for journal.html
-  // so per-article pages link the same CSS file.
   const indexHtmlText = readFileSync(distJournalIndex, 'utf8');
-  const cssMatch = indexHtmlText.match(/href="(\/assets\/trust-page-[^"]+\.css)"/);
-  const cssHref = cssMatch ? cssMatch[1] : '/assets/trust-page.css';
-
   const posts = await fetchPublishedPosts();
 
-  // Per-article HTML files. Vite builds journal.html into dist/journal.html
-  // (a file at the top level), and per-article pages live at
-  // dist/journal/<slug>.html. The trust-page.css path uses ../styles/...
-  // because each article is one level deep from the project root.
   const distJournalDir = path.join(distDir, 'journal');
   mkdirSync(distJournalDir, { recursive: true });
 
-  let written = 0;
-  const slugs = [];
-  for (const post of posts) {
-    const slug = String(post.slug || '').trim();
-    if (!slug) continue;
-    const html = buildArticleHtml(post, cssHref);
-    writeFileSync(path.join(distJournalDir, `${slug}.html`), html);
-    slugs.push(slug);
-    written += 1;
-  }
+  // Per-post HTML files are NOT generated. The dynamic /journal/post.html
+  // template (with a Vercel rewrite for /journal/:slug) serves every post
+  // by reading the slug from the URL and fetching from Supabase. This way,
+  // admin saves go live immediately without a redeploy.
+  //
+  // Clean up any stale per-post HTML files left from previous deploys.
+  const removed = cleanStaleArticleFiles(distJournalDir, []);
 
-  const removed = cleanStaleArticleFiles(distJournalDir, slugs);
-
-  // Rewrite the index list inside dist/journal.html.
+  // Rewrite the index list inside dist/journal.html so the listing has a
+  // live snapshot for first paint + SEO (the dynamic JS in journal.html
+  // also re-fetches and replaces it once the page hydrates).
   const updatedIndex = rewriteJournalIndex(indexHtmlText, posts);
   writeFileSync(distJournalIndex, updatedIndex);
 
   // Manifest so generate-watch-pages.mjs can include slugs in the sitemap.
+  const slugs = posts.map((p) => String(p.slug || '').trim()).filter(Boolean);
   writeFileSync(path.join(distJournalDir, '_manifest.json'), JSON.stringify({ slugs }, null, 2));
 
-  console.log(`Journal pages: ${written} written. Stale removed: ${removed}.`);
+  console.log(`Journal pages: listing rewritten with ${posts.length} posts. Stale per-post files removed: ${removed}.`);
 }
 
 await main();

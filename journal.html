@@ -131,8 +131,8 @@
     </p>
   </section>
 
-  <section class="journal-list" aria-label="Recent journal entries">
-    <a class="journal-entry" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
+  <section class="journal-list" id="journal-list" aria-label="Recent journal entries">
+    <a class="journal-entry" href="./journal/seiko-launches-5th-philippine-limited-edition">
       <div class="journal-num">01</div>
       <div class="journal-entry-body">
         <div class="journal-entry-meta">Industry · 28 April 2026 · 4 min read</div>
@@ -141,7 +141,7 @@
       </div>
       <span class="journal-entry-arrow">→</span>
     </a>
-    <a class="journal-entry" href="./journal/omega-marks-75-years-of-the-seamaster.html">
+    <a class="journal-entry" href="./journal/omega-marks-75-years-of-the-seamaster">
       <div class="journal-num">02</div>
       <div class="journal-entry-body">
         <div class="journal-entry-meta">Industry · 18 April 2026 · 3 min read</div>
@@ -150,7 +150,7 @@
       </div>
       <span class="journal-entry-arrow">→</span>
     </a>
-    <a class="journal-entry" href="./journal/moonswatch-resale-cools-time-to-buy.html">
+    <a class="journal-entry" href="./journal/moonswatch-resale-cools-time-to-buy">
       <div class="journal-num">03</div>
       <div class="journal-entry-body">
         <div class="journal-entry-meta">Collector · 09 April 2026 · 5 min read</div>
@@ -170,6 +170,75 @@
   <span>© 2026 The Watch Alley PH, Manila.</span>
   <span><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./authenticity.html">Authenticity</a></span>
 </footer>
+
+<script>
+// Live-hydrate the journal list from Supabase so admin changes appear without
+// redeploying. The static list above is the immediate fallback (SEO + first
+// paint); this script replaces it with the latest published posts as soon as
+// they load.
+(function () {
+  const SUPABASE_URL = 'https://yrzawkqcifuubtltktbk.supabase.co/rest/v1/journal_posts';
+  const SUPABASE_ANON = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
+  const list = document.getElementById('journal-list');
+  if (!list) return;
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[ch]));
+  }
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  function readMin(post) {
+    if (Number.isFinite(post.read_minutes) && post.read_minutes > 0) return post.read_minutes;
+    const words = (post.body_markdown || post.summary || '').trim().split(/\s+/).length;
+    return Math.max(1, Math.round(words / 220));
+  }
+
+  async function loadJournalList() {
+    const url = new URL(SUPABASE_URL);
+    url.searchParams.set('select', 'slug,title,summary,tags,published_at,read_minutes');
+    url.searchParams.set('status', 'eq.published');
+    url.searchParams.set('order', 'published_at.desc');
+    try {
+      const res = await fetch(url, {
+        headers: {
+          apikey: SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+          Accept: 'application/json',
+          'Accept-Profile': 'watch_alley',
+        },
+      });
+      if (!res.ok) throw new Error(`Journal list fetch ${res.status}`);
+      const posts = await res.json();
+      if (!Array.isArray(posts) || !posts.length) return; // keep static fallback
+
+      list.innerHTML = posts.map((post, idx) => {
+        const num = String(idx + 1).padStart(2, '0');
+        const tag = (post.tags && post.tags[0]) || 'Journal';
+        const date = formatDate(post.published_at);
+        return `<a class="journal-entry" href="./journal/${escapeHtml(post.slug)}">
+          <div class="journal-num">${num}</div>
+          <div class="journal-entry-body">
+            <div class="journal-entry-meta">${escapeHtml(tag)}${date ? ` · ${escapeHtml(date)}` : ''} · ${readMin(post)} min read</div>
+            <div class="journal-entry-title">${escapeHtml(post.title)}</div>
+            <p class="journal-entry-summary">${escapeHtml(post.summary)}</p>
+          </div>
+          <span class="journal-entry-arrow">→</span>
+        </a>`;
+      }).join('');
+    } catch (err) {
+      console.warn('Journal list: keeping static fallback', err);
+    }
+  }
+  loadJournalList();
+})();
+</script>
 
 </body>
 </html>
