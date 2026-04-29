@@ -2771,11 +2771,13 @@ async function loadJournalDispatches() {
     url.searchParams.set('order', 'published_at.desc');
     url.searchParams.set('limit', '4');
     const res = await fetch(url, {
+      cache: 'no-store',
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         Accept: 'application/json',
         'Accept-Profile': 'watch_alley',
+        'Cache-Control': 'no-cache',
       },
     });
     if (!res.ok) throw new Error(`Journal fetch ${res.status}`);

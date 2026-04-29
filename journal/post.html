@@ -198,11 +198,13 @@ async function loadArticle() {
 
   try {
     const res = await fetch(url, {
+      cache: 'no-store',
       headers: {
         apikey: SUPABASE_ANON,
         Authorization: `Bearer ${SUPABASE_ANON}`,
         Accept: 'application/json',
         'Accept-Profile': 'watch_alley',
+        'Cache-Control': 'no-cache',
       },
     });
     if (!res.ok) throw new Error(`Article fetch ${res.status}`);
