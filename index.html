@@ -2192,52 +2192,8 @@
     <a href="#arrivals" class="section-view-all reveal">VIEW ALL →</a>
   </div>
 
-  <div class="news-grid">
-    <div class="news-feature reveal">
-      <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist Philippine Limited Edition">
-      <div class="news-feature-overlay"></div>
-      <div class="news-feature-content">
-        <span class="chip" style="background:rgba(201,162,75,0.15);">★ INDUSTRY NEWS</span>
-        <div class="news-feature-title serif">Seiko launches 5th Philippine Limited Edition.</div>
-        <p class="news-feature-body">
-          The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — celebrates the Philippines' iconic bird and marks Seiko's growing commitment to the Philippine collector community. We have one in stock.
-        </p>
-        <a href="/watch/seiko-prospex-alpinist-whiskered-pitta-spb491j1" class="btn-primary" style="margin-top:24px;">See it in our shop →</a>
-      </div>
-    </div>
-
-    <div class="news-stack stagger">
-      <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster.html">
-        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
-        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
-        <div class="news-card-body">
-          <div class="mono">Nº 02 · INDUSTRY</div>
-          <div class="news-card-title">Omega marks 75 years of the Seamaster</div>
-          <div class="news-card-sub">Watches &amp; Wonders 2025 · commemorative editions announced across the professional lineup.</div>
-        </div>
-        <span class="news-card-arrow">→</span>
-      </a>
-      <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy.html">
-        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
-        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
-        <div class="news-card-body">
-          <div class="mono">Nº 03 · COLLECTOR</div>
-          <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
-          <div class="news-card-sub">Secondary prices for the Bioceramic collab have settled. "Mission to Mars" now trading near retail.</div>
-        </div>
-        <span class="news-card-arrow">→</span>
-      </a>
-      <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
-        <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
-        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko SARX001"></div>
-        <div class="news-card-body">
-          <div class="mono">Nº 04 · INDUSTRY</div>
-          <div class="news-card-title">Seiko launches 5th Philippine Limited Edition</div>
-          <div class="news-card-sub">The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — marks Seiko's growing PH commitment.</div>
-        </div>
-        <span class="news-card-arrow">→</span>
-      </a>
-    </div>
+  <div class="news-grid" id="news-grid">
+    <!-- populated by loadJournalDispatches() -->
   </div>
 </section>
 
@@ -2715,6 +2671,127 @@ const PUBLIC_WATCH_COLUMNS = [
   'display_order',
   'published',
 ].join(',');
+
+// ── Journal dispatches (live from Supabase) ───────────────────────────────
+const SUPABASE_JOURNAL_ENDPOINT = 'https://yrzawkqcifuubtltktbk.supabase.co/rest/v1/journal_posts';
+const newsGrid = document.getElementById('news-grid');
+
+const JOURNAL_FALLBACK_HTML = `
+  <div class="news-feature reveal">
+    <img loading="lazy" decoding="async" src="assets/alpinist.png" alt="Seiko Prospex Alpinist Philippine Limited Edition">
+    <div class="news-feature-overlay"></div>
+    <div class="news-feature-content">
+      <span class="chip" style="background:rgba(201,162,75,0.15);">★ INDUSTRY NEWS</span>
+      <div class="news-feature-title serif">Seiko launches 5th Philippine Limited Edition.</div>
+      <p class="news-feature-body">
+        The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — celebrates the Philippines' iconic bird and marks Seiko's growing commitment to the Philippine collector community. We have one in stock.
+      </p>
+      <a href="/watch/seiko-prospex-alpinist-whiskered-pitta-spb491j1" class="btn-primary" style="margin-top:24px;">See it in our shop →</a>
+    </div>
+  </div>
+  <div class="news-stack stagger">
+    <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster.html">
+      <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
+      <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
+      <div class="news-card-body">
+        <div class="mono">Nº 02 · INDUSTRY</div>
+        <div class="news-card-title">Omega marks 75 years of the Seamaster</div>
+        <div class="news-card-sub">Watches &amp; Wonders 2025 · commemorative editions announced across the professional lineup.</div>
+      </div>
+      <span class="news-card-arrow">→</span>
+    </a>
+    <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy.html">
+      <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
+      <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
+      <div class="news-card-body">
+        <div class="mono">Nº 03 · COLLECTOR</div>
+        <div class="news-card-title">MoonSwatch resale cools — time to buy</div>
+        <div class="news-card-sub">Secondary prices for the Bioceramic collab have settled. "Mission to Mars" now trading near retail.</div>
+      </div>
+      <span class="news-card-arrow">→</span>
+    </a>
+    <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition.html">
+      <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
+      <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko 5 Sports"></div>
+      <div class="news-card-body">
+        <div class="mono">Nº 04 · INDUSTRY</div>
+        <div class="news-card-title">Seiko launches 5th Philippine Limited Edition</div>
+        <div class="news-card-sub">The Prospex Alpinist "Whiskered Pitta" SPB491J1 — limited to 1,288 pieces — marks Seiko's growing PH commitment.</div>
+      </div>
+      <span class="news-card-arrow">→</span>
+    </a>
+  </div>`;
+
+function journalCategory(tags) {
+  return (tags && tags.length) ? tags[0].toUpperCase() : 'JOURNAL';
+}
+function journalHero(hero_image) {
+  return hero_image || 'assets/alpinist.png';
+}
+function renderJournalDispatches(posts) {
+  if (!newsGrid) return;
+  const [featured, ...rest] = posts;
+  const cards = rest.slice(0, 3);
+  const featureHtml = `
+    <div class="news-feature reveal">
+      <img loading="lazy" decoding="async" src="${escapeHtml(journalHero(featured.hero_image))}" alt="${escapeHtml(featured.title)}">
+      <div class="news-feature-overlay"></div>
+      <div class="news-feature-content">
+        <span class="chip" style="background:rgba(201,162,75,0.15);">★ ${escapeHtml(journalCategory(featured.tags))}</span>
+        <div class="news-feature-title serif">${escapeHtml(featured.title)}</div>
+        <p class="news-feature-body">${escapeHtml(featured.summary)}</p>
+        <a href="./journal/${escapeHtml(featured.slug)}.html" class="btn-primary" style="margin-top:24px;">Read more →</a>
+      </div>
+    </div>`;
+  const stackHtml = cards.length ? `
+    <div class="news-stack stagger">
+      ${cards.map((post, i) => `
+      <a class="news-card" href="./journal/${escapeHtml(post.slug)}.html">
+        <div class="news-card-bg"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt=""></div>
+        <div class="news-card-thumb"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt="${escapeHtml(post.title)}"></div>
+        <div class="news-card-body">
+          <div class="mono">Nº 0${i + 2} · ${escapeHtml(journalCategory(post.tags))}</div>
+          <div class="news-card-title">${escapeHtml(post.title)}</div>
+          <div class="news-card-sub">${escapeHtml(post.summary)}</div>
+        </div>
+        <span class="news-card-arrow">→</span>
+      </a>`).join('')}
+    </div>` : '';
+  newsGrid.innerHTML = featureHtml + stackHtml;
+  // Wire up reveal animations on freshly injected elements
+  newsGrid.querySelectorAll('.reveal, .stagger').forEach(el => revealObserver && revealObserver.observe(el));
+}
+
+async function loadJournalDispatches() {
+  if (!newsGrid) return;
+  try {
+    const url = new URL(SUPABASE_JOURNAL_ENDPOINT);
+    url.searchParams.set('select', 'slug,title,summary,hero_image,tags,published_at');
+    url.searchParams.set('status', 'eq.published');
+    url.searchParams.set('order', 'published_at.desc');
+    url.searchParams.set('limit', '4');
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Accept: 'application/json',
+        'Accept-Profile': 'watch_alley',
+      },
+    });
+    if (!res.ok) throw new Error(`Journal fetch ${res.status}`);
+    const posts = await res.json();
+    if (!Array.isArray(posts) || !posts.length) {
+      newsGrid.innerHTML = JOURNAL_FALLBACK_HTML;
+      return;
+    }
+    renderJournalDispatches(posts);
+  } catch (err) {
+    console.warn('Journal dispatches: falling back to static content', err);
+    newsGrid.innerHTML = JOURNAL_FALLBACK_HTML;
+  }
+}
+loadJournalDispatches();
+
 const productModal = document.getElementById('product-detail-modal');
 const productModalBackdrop = document.getElementById('product-modal-backdrop');
 const productModalClose = document.getElementById('product-modal-close');

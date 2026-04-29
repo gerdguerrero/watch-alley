@@ -42,3 +42,4 @@ dist/
 # Hermes-specific local state.
 skills/
 skills-lock.json
+.vercel

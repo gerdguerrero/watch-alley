@@ -30,7 +30,12 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(echo \"---exit $?\")",
-      "Bash(pnpm optimize:images)"
+      "Bash(pnpm optimize:images)",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_publishable_keys",
+      "Read(//c/Users/gerdg/AppData/Local/pnpm/global/5/.pnpm/supabase@2.95.6/node_modules/supabase/**)",
+      "Bash(node scripts/install.js)",
+      "Bash(npx --yes supabase --version)"
     ]
   },
   "enableAllProjectMcpServers": true,
