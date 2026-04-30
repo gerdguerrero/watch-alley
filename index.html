@@ -2046,7 +2046,7 @@
   <nav class="drawer-links">
     <a href="#arrivals">Available</a>
     <a href="#sold-archive">Sold Archive</a>
-    <a href="./journal.html">Journal</a>
+    <a href="/journal">Journal</a>
     <a href="#contact">Service</a>
   </nav>
   <div class="drawer-viber">
@@ -2066,7 +2066,7 @@
   <div class="nav-links">
     <a href="#arrivals" data-section="arrivals">Available</a>
     <a href="#sold-archive" data-section="sold-archive">Sold Archive</a>
-    <a href="./journal.html">Journal</a>
+    <a href="/journal">Journal</a>
     <a href="#contact" data-section="contact">Service</a>
   </div>
   <a href="/" class="nav-logo" aria-label="The Watch Alley — home">
@@ -2189,7 +2189,7 @@
       <div class="mono">DISPATCHES</div>
       <div class="serif section-title">News &amp; promos.</div>
     </div>
-    <a href="#arrivals" class="section-view-all reveal">VIEW ALL →</a>
+    <a href="/journal" class="section-view-all reveal">VIEW ALL →</a>
   </div>
 
   <div class="news-grid" id="news-grid">
@@ -2690,7 +2690,7 @@ const JOURNAL_FALLBACK_HTML = `
     </div>
   </div>
   <div class="news-stack stagger">
-    <a class="news-card" href="./journal/omega-marks-75-years-of-the-seamaster">
+    <a class="news-card" href="/journal/omega-marks-75-years-of-the-seamaster">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/sarx001.png" alt="Seiko SARX001"></div>
       <div class="news-card-body">
@@ -2700,7 +2700,7 @@ const JOURNAL_FALLBACK_HTML = `
       </div>
       <span class="news-card-arrow">→</span>
     </a>
-    <a class="news-card" href="./journal/moonswatch-resale-cools-time-to-buy">
+    <a class="news-card" href="/journal/moonswatch-resale-cools-time-to-buy">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/moonswatch.png" alt="MoonSwatch"></div>
       <div class="news-card-body">
@@ -2710,7 +2710,7 @@ const JOURNAL_FALLBACK_HTML = `
       </div>
       <span class="news-card-arrow">→</span>
     </a>
-    <a class="news-card" href="./journal/seiko-launches-5th-philippine-limited-edition">
+    <a class="news-card" href="/journal/seiko-launches-5th-philippine-limited-edition">
       <div class="news-card-bg"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt=""></div>
       <div class="news-card-thumb"><img loading="lazy" decoding="async" src="assets/srpe81k1.png" alt="Seiko 5 Sports"></div>
       <div class="news-card-body">
@@ -2728,9 +2728,25 @@ function journalCategory(tags) {
 function journalHero(hero_image) {
   return hero_image || 'assets/alpinist.png';
 }
+function revealJournalDispatches() {
+  if (!newsGrid) return;
+  newsGrid.querySelectorAll('.reveal, .stagger').forEach((el) => {
+    if (typeof revealObserver !== 'undefined' && revealObserver) revealObserver.observe(el);
+    else el.classList.add('visible');
+  });
+}
+function renderJournalFallback() {
+  if (!newsGrid) return;
+  newsGrid.innerHTML = JOURNAL_FALLBACK_HTML;
+  revealJournalDispatches();
+}
 function renderJournalDispatches(posts) {
   if (!newsGrid) return;
   const [featured, ...rest] = posts;
+  if (!featured) {
+    renderJournalFallback();
+    return;
+  }
   const cards = rest.slice(0, 3);
   const featureHtml = `
     <div class="news-feature reveal">
@@ -2740,13 +2756,13 @@ function renderJournalDispatches(posts) {
         <span class="chip" style="background:rgba(201,162,75,0.15);">★ ${escapeHtml(journalCategory(featured.tags))}</span>
         <div class="news-feature-title serif">${escapeHtml(featured.title)}</div>
         <p class="news-feature-body">${escapeHtml(featured.summary)}</p>
-        <a href="./journal/${escapeHtml(featured.slug)}" class="btn-primary" style="margin-top:24px;">Read more →</a>
+        <a href="/journal/${escapeHtml(featured.slug)}" class="btn-primary" style="margin-top:24px;">Read more →</a>
       </div>
     </div>`;
   const stackHtml = cards.length ? `
     <div class="news-stack stagger">
       ${cards.map((post, i) => `
-      <a class="news-card" href="./journal/${escapeHtml(post.slug)}">
+      <a class="news-card" href="/journal/${escapeHtml(post.slug)}">
         <div class="news-card-bg"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt=""></div>
         <div class="news-card-thumb"><img loading="lazy" decoding="async" src="${escapeHtml(journalHero(post.hero_image))}" alt="${escapeHtml(post.title)}"></div>
         <div class="news-card-body">
@@ -2758,8 +2774,7 @@ function renderJournalDispatches(posts) {
       </a>`).join('')}
     </div>` : '';
   newsGrid.innerHTML = featureHtml + stackHtml;
-  // Wire up reveal animations on freshly injected elements
-  newsGrid.querySelectorAll('.reveal, .stagger').forEach(el => revealObserver && revealObserver.observe(el));
+  revealJournalDispatches();
 }
 
 async function loadJournalDispatches() {
@@ -2776,20 +2791,19 @@ async function loadJournalDispatches() {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         Accept: 'application/json',
-        'Accept-Profile': 'watch_alley',
         'Cache-Control': 'no-cache',
       },
     });
     if (!res.ok) throw new Error(`Journal fetch ${res.status}`);
     const posts = await res.json();
     if (!Array.isArray(posts) || !posts.length) {
-      newsGrid.innerHTML = JOURNAL_FALLBACK_HTML;
+      renderJournalFallback();
       return;
     }
     renderJournalDispatches(posts);
   } catch (err) {
     console.warn('Journal dispatches: falling back to static content', err);
-    newsGrid.innerHTML = JOURNAL_FALLBACK_HTML;
+    renderJournalFallback();
   }
 }
 loadJournalDispatches();
