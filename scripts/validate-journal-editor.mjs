@@ -135,6 +135,7 @@ assert(/href="\/privacy"/.test(journalPostHtml) && /href="\/terms"/.test(journal
 assert(/\/journal\/\$\{encodeURIComponent\(r\.slug\)\}/.test(adminJs), 'admin activity links must use canonical /journal/<slug> URLs');
 assert(/dataset\.url\s*=\s*`\/journal\/\$\{post\.slug\}`/.test(adminJs), 'admin preview button must use canonical /journal/<slug> URLs');
 assert(/href="\/journal\/\$\{escapeHtml\(post\.slug\)\}"/.test(generator), 'journal generator must emit canonical /journal/<slug> links');
+assert(/<section class="journal-list" id="journal-list"/.test(generator), 'journal generator must preserve #journal-list so live hydration can replace the build snapshot');
 assert(!/SUPABASE_SERVICE_ROLE_KEY/.test(adminJs), 'admin.js must never reference SUPABASE_SERVICE_ROLE_KEY');
 
 // ── Build pipeline order ───────────────────────────────────────────

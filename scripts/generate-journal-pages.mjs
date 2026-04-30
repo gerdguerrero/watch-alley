@@ -255,7 +255,7 @@ function rewriteJournalIndex(distHtml, posts) {
     </a>`;
   }).join('\n');
 
-  const replacement = `<section class="journal-list" aria-label="Recent journal entries">
+  const replacement = `<section class="journal-list" id="journal-list" aria-label="Recent journal entries">
 ${entries || '    <p class="admin-meta" style="padding: 24px 0; color: var(--cream-60); font-style: italic;">No journal entries yet.</p>'}
   </section>`;
 
