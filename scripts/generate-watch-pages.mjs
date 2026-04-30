@@ -376,38 +376,21 @@ async function main() {
   if (!existsSync(distIndex)) fail(`dist/index.html not found — run \`pnpm build\` first.`);
   if (!existsSync(inventoryPath)) fail(`inventory not found at ${inventoryPath}`);
 
-  const indexHtml = readFileSync(distIndex, 'utf8');
   const inventory = JSON.parse(readFileSync(inventoryPath, 'utf8'));
   const publishedWatches = Array.isArray(inventory.watches) ? inventory.watches : [];
   if (publishedWatches.length === 0) fail('inventory has no watches');
 
-  // Drafts are pulled live from Supabase (RLS-blocked from anon; service
-  // role bypasses). They render with noindex + a draft banner and are
-  // excluded from the sitemap.
-  const drafts = await fetchDraftsFromSupabase();
-  const watches = publishedWatches.concat(drafts);
+  // Per-watch HTML files are NOT generated. The dynamic homepage handles
+  // /watch/<slug> via a Vercel rewrite to / — the URL stays /watch/<slug>,
+  // index.html loads, and existing deep-link JS opens the modal for that
+  // slug after fetching the watch live from Supabase. This means admin
+  // saves go LIVE immediately without a redeploy.
+  //
+  // Clean up any stale per-watch directories left from previous deploys.
+  const removed = cleanStaleWatchDirs([]);
 
-  const watchRoot = path.join(distDir, 'watch');
-  mkdirSync(watchRoot, { recursive: true });
-
-  let written = 0;
-  for (const watch of watches) {
-    const slug = String(watch.slug || '').trim();
-    if (!slug) continue;
-    const html = rewriteHead(indexHtml, watch);
-    const dir = path.join(watchRoot, slug);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(path.join(dir, 'index.html'), html);
-    written += 1;
-  }
-
-  const removed = cleanStaleWatchDirs(watches);
-
-  // The journal generator writes its own slugs to a tiny manifest so we can
-  // include them in the sitemap without coupling the two scripts. If the
-  // manifest doesn't exist yet (first build, or generator skipped), the
-  // sitemap simply omits journal article URLs and the index page link still
-  // works.
+  // Sitemap still uses watches.json (synced via `pnpm sync:watches`). New
+  // watches get crawled on next sync+deploy; the live page works regardless.
   let journalSlugs = [];
   const manifestPath = path.join(distDir, 'journal', '_manifest.json');
   if (existsSync(manifestPath)) {
@@ -418,13 +401,10 @@ async function main() {
       /* ignore — manifest is best-effort */
     }
   }
+  writeFileSync(distSitemap, rewriteSitemap(publishedWatches, journalSlugs));
 
-  // Rewrite sitemap with all watch URLs.
-  writeFileSync(distSitemap, rewriteSitemap(watches, journalSlugs));
-
-  const draftCount = drafts.length;
   console.log(
-    `Watch pages: ${written} written to dist/watch/ (${publishedWatches.length} published + ${draftCount} draft). Stale dirs removed: ${removed}. Sitemap regenerated (${journalSlugs.length} journal articles).`
+    `Watch pages: dynamic via Vercel rewrite (no static HTML). Sitemap regenerated (${publishedWatches.length} watches + ${journalSlugs.length} journal articles). Stale per-watch dirs removed: ${removed}.`
   );
 }
 

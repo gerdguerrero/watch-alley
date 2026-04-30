@@ -5,6 +5,10 @@
     {
       "source": "/journal/:slug",
       "destination": "/journal-post"
+    },
+    {
+      "source": "/watch/:slug",
+      "destination": "/"
     }
   ]
 }

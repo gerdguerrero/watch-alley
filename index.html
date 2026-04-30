@@ -2918,6 +2918,11 @@ function safeEmail(email) {
 
 function responsiveSources(image) {
   if (typeof image !== 'string' || image.length === 0) return null;
+  // Only locally-built /watch-assets/ images have AVIF/WebP variants emitted
+  // by scripts/optimize-images.mjs. Admin-uploaded images live in Supabase
+  // Storage (absolute https URLs) and have no optimized siblings — return
+  // null so renderResponsivePicture falls back to a plain <img>.
+  if (!image.startsWith('/watch-assets/')) return null;
   const dotIndex = image.lastIndexOf('.');
   if (dotIndex <= 0) return null;
   const ext = image.slice(dotIndex + 1).toLowerCase();
