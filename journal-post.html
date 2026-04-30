@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400..700;1,400..700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="../styles/trust-page.css" />
+<link rel="stylesheet" href="./styles/trust-page.css" />
 <style>
   .article-wrap { max-width: 720px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) clamp(20px, 4vw, 32px); }
   .article-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); }
@@ -62,13 +62,13 @@
 <body>
 
 <header class="trust-nav">
-  <a class="trust-nav-home" href="../">The Watch Alley</a>
+  <a class="trust-nav-home" href="./">The Watch Alley</a>
   <nav>
-    <a href="../#arrivals">Available</a>
-    <a href="../#sold-archive">Sold Archive</a>
-    <a href="../journal.html">Journal</a>
-    <a href="../#viber">Viber</a>
-    <a href="../#contact">Contact</a>
+    <a href="./#arrivals">Available</a>
+    <a href="./#sold-archive">Sold Archive</a>
+    <a href="./journal.html">Journal</a>
+    <a href="./#viber">Viber</a>
+    <a href="./#contact">Contact</a>
   </nav>
 </header>
 
@@ -80,11 +80,11 @@
 
 <footer style="padding: 24px clamp(20px, 4vw, 80px); border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: 'Spectral', Georgia, serif; font-style: italic; font-size: 13px; color: var(--cream-60);">
   <span>© 2026 The Watch Alley PH, Manila.</span>
-  <span><a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../authenticity.html">Authenticity</a></span>
+  <span><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a> · <a href="./authenticity.html">Authenticity</a></span>
 </footer>
 
 <script type="module">
-import { renderMarkdown, escapeHtml } from '../scripts/lib/markdown.mjs';
+import { renderMarkdown, escapeHtml } from './scripts/lib/markdown.mjs';
 
 const SUPABASE_URL = 'https://yrzawkqcifuubtltktbk.supabase.co/rest/v1/journal_posts';
 const SUPABASE_ANON = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
@@ -125,7 +125,7 @@ function renderNotFound(slug) {
     <div class="article-not-found">
       <h1>We could not find that article.</h1>
       <p>${escapeHtml(slug ? `"${slug}"` : 'No slug')} did not match any published journal post.</p>
-      <p><a class="article-back" href="../journal.html">← Back to the Journal</a></p>
+      <p><a class="article-back" href="./journal.html">← Back to the Journal</a></p>
     </div>`;
 }
 
@@ -164,7 +164,7 @@ function renderArticle(post) {
     ${post.hero_image ? `<figure class="article-hero"><img src="${escapeHtml(post.hero_image)}" alt="${escapeHtml(title)}" /></figure>` : ''}
     <div class="article-body">${bodyHtml}</div>
     ${tagsHtml}
-    <a class="article-back" href="../journal.html">← Back to the Journal</a>`;
+    <a class="article-back" href="./journal.html">← Back to the Journal</a>`;
 }
 
 function setMeta(name, value) {

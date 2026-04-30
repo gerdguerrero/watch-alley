@@ -36,9 +36,10 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin/index.html'),
         journal: resolve(__dirname, 'journal.html'),
         // Dynamic per-post template — Vercel rewrites /journal/:slug to
-        // /journal/post when no static file exists, so newly-published
-        // posts work instantly without a redeploy.
-        journalPost: resolve(__dirname, 'journal/post.html'),
+        // /journal-post (this template lives outside /journal/ to avoid
+        // a cleanUrls + rewrite redirect loop). Newly-published posts
+        // work instantly without a redeploy.
+        journalPost: resolve(__dirname, 'journal-post.html'),
         // Pre-rendered per-article pages are also generated from Supabase
         // at postbuild by scripts/generate-journal-pages.mjs (for SEO/OG).
       },

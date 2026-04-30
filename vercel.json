@@ -3,8 +3,8 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/journal/:slug((?!post$).*)",
-      "destination": "/journal/post"
+      "source": "/journal/:slug",
+      "destination": "/journal-post"
     }
   ]
 }
