@@ -1980,10 +1980,10 @@ function renderActivity(rows) {
     const when = formatRelativeTime(r.at);
     const label = r.label || '';
     let labelHtml = escapeHtml(label);
-    // Deep-link the row to /watch/<slug> or /journal/<slug>.html when slug is present.
+    // Deep-link the row to /watch/<slug> or /journal/<slug> when slug is present.
     if (r.slug) {
       const url = r.kind === 'journal'
-        ? `/journal/${encodeURIComponent(r.slug)}.html`
+        ? `/journal/${encodeURIComponent(r.slug)}`
         : `/watch/${encodeURIComponent(r.slug)}`;
       labelHtml = `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${labelHtml}</a>`;
     }
@@ -2193,7 +2193,7 @@ function updateJournalPreviewBtnVisibility(post) {
   const isPublished = post && post.status === 'published' && post.slug;
   els.journalPreviewBtn.hidden = !isPublished;
   if (isPublished) {
-    els.journalPreviewBtn.dataset.url = `/journal/${post.slug}.html`;
+    els.journalPreviewBtn.dataset.url = `/journal/${post.slug}`;
   }
 }
 
@@ -2435,8 +2435,8 @@ async function saveJournalPost(forcedStatus) {
     if (error) throw error;
     setStatus(
       status === 'published'
-        ? 'Published. The website updates automatically on the next deploy.'
-        : 'Saved. The website updates automatically on the next deploy.',
+        ? 'Published. The website updates automatically.'
+        : 'Saved. The website updates automatically.',
       'success'
     );
     await loadJournalPosts();
@@ -2480,7 +2480,7 @@ if (els.journalDeleteBtn) {
     try {
       const { error } = await supabase.rpc('admin_delete_journal_post', { post_id: id });
       if (error) throw error;
-      setStatus('Deleted. The website updates automatically on the next deploy.', 'success');
+      setStatus('Deleted. The website updates automatically.', 'success');
       activeJournalId = null;
       els.journalForm.hidden = true;
       els.journalDetailEmpty.hidden = false;

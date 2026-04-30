@@ -212,7 +212,6 @@
           apikey: SUPABASE_ANON,
           Authorization: `Bearer ${SUPABASE_ANON}`,
           Accept: 'application/json',
-          'Accept-Profile': 'watch_alley',
           'Cache-Control': 'no-cache',
         },
       });
@@ -224,7 +223,7 @@
         const num = String(idx + 1).padStart(2, '0');
         const tag = (post.tags && post.tags[0]) || 'Journal';
         const date = formatDate(post.published_at);
-        return `<a class="journal-entry" href="./journal/${escapeHtml(post.slug)}">
+        return `<a class="journal-entry" href="/journal/${escapeHtml(post.slug)}">
           <div class="journal-num">${num}</div>
           <div class="journal-entry-body">
             <div class="journal-entry-meta">${escapeHtml(tag)}${date ? ` · ${escapeHtml(date)}` : ''} · ${readMin(post)} min read</div>

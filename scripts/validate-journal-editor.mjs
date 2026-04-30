@@ -23,6 +23,8 @@ const adminJs = readFileSync(path.join(projectRoot, 'scripts', 'admin.js'), 'utf
 const adminCss = readFileSync(path.join(projectRoot, 'styles', 'admin.css'), 'utf8');
 const pkg = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8'));
 const generator = readFileSync(path.join(projectRoot, 'scripts', 'generate-journal-pages.mjs'), 'utf8');
+const journalHtml = readFileSync(path.join(projectRoot, 'journal.html'), 'utf8');
+const journalPostHtml = readFileSync(path.join(projectRoot, 'journal-post.html'), 'utf8');
 
 function fail(message) {
   console.error(`Journal editor contract validation failed: ${message}`);
@@ -122,9 +124,17 @@ assert(/supabase\.rpc\(\s*['"]admin_delete_journal_post['"]/.test(adminJs), 'adm
 assert(/supabase\.storage\.from\(\s*['"]journal-images['"]\s*\)\.upload\(/.test(adminJs), 'admin.js must upload hero images to the journal-images bucket');
 assert(/data-md-action/.test(adminJs), 'admin.js must wire the toolbar buttons');
 assert(/applyMarkdownAction/.test(adminJs), 'admin.js must define applyMarkdownAction');
-assert(/Saved\. The website updates automatically on the next deploy\./.test(adminJs), 'save success copy must mention automatic website updates');
-assert(/Published\. The website updates automatically on the next deploy\./.test(adminJs), 'publish success copy must mention automatic website updates');
-assert(/Deleted\. The website updates automatically on the next deploy\./.test(adminJs), 'delete success copy must mention automatic website updates');
+assert(/Saved\. The website updates automatically\./.test(adminJs), 'save success copy must mention automatic website updates');
+assert(/Published\. The website updates automatically\./.test(adminJs), 'publish success copy must mention automatic website updates');
+assert(/Deleted\. The website updates automatically\./.test(adminJs), 'delete success copy must mention automatic website updates');
+assert(!/Accept-Profile['"]?\s*:\s*['"]watch_alley['"]/.test(journalHtml), 'public journal list must query the exposed public view, not the private watch_alley schema');
+assert(!/Accept-Profile['"]?\s*:\s*['"]watch_alley['"]/.test(journalPostHtml), 'public journal article must query the exposed public view, not the private watch_alley schema');
+assert(/from\s+['"]\/scripts\/lib\/markdown\.mjs['"]/.test(journalPostHtml), 'journal-post must import markdown from an absolute path under /journal/<slug>');
+assert(/href="\/styles\/trust-page\.css"/.test(journalPostHtml), 'journal-post must load CSS from an absolute path under /journal/<slug>');
+assert(/href="\/privacy"/.test(journalPostHtml) && /href="\/terms"/.test(journalPostHtml), 'journal-post footer links must stay root-relative under /journal/<slug>');
+assert(/\/journal\/\$\{encodeURIComponent\(r\.slug\)\}/.test(adminJs), 'admin activity links must use canonical /journal/<slug> URLs');
+assert(/dataset\.url\s*=\s*`\/journal\/\$\{post\.slug\}`/.test(adminJs), 'admin preview button must use canonical /journal/<slug> URLs');
+assert(/href="\/journal\/\$\{escapeHtml\(post\.slug\)\}"/.test(generator), 'journal generator must emit canonical /journal/<slug> links');
 assert(!/SUPABASE_SERVICE_ROLE_KEY/.test(adminJs), 'admin.js must never reference SUPABASE_SERVICE_ROLE_KEY');
 
 // ── Build pipeline order ───────────────────────────────────────────

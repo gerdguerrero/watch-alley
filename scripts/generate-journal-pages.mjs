@@ -244,7 +244,7 @@ function rewriteJournalIndex(distHtml, posts) {
     const dateLabel = formatPublishedDate(post.published_at);
     const tag = (post.tags && post.tags[0]) || 'Journal';
     const readMin = inferReadMinutes(post);
-    return `    <a class="journal-entry" href="./journal/${escapeHtml(post.slug)}">
+    return `    <a class="journal-entry" href="/journal/${escapeHtml(post.slug)}">
       <div class="journal-num">${num}</div>
       <div class="journal-entry-body">
         <div class="journal-entry-meta">${escapeHtml(tag)}${dateLabel ? ` · ${escapeHtml(dateLabel)}` : ''} · ${readMin} min read</div>

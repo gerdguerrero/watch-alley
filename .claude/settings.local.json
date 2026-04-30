@@ -35,7 +35,8 @@
       "mcp__supabase__get_publishable_keys",
       "Read(//c/Users/gerdg/AppData/Local/pnpm/global/5/.pnpm/supabase@2.95.6/node_modules/supabase/**)",
       "Bash(node scripts/install.js)",
-      "Bash(npx --yes supabase --version)"
+      "Bash(npx --yes supabase --version)",
+      "Bash(vercel env *)"
     ]
   },
   "enableAllProjectMcpServers": true,
