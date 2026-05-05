@@ -55,7 +55,7 @@
         <button type="submit" class="btn-primary">Sign in</button>
         <button type="button" id="auth-forgot-btn" class="btn-ghost">Forgot password?</button>
       </div>
-      <p class="admin-hint">The Watch Alley admin is invite-only. Ask an existing admin to invite you.</p>
+      <p class="admin-hint">The Watch Alley admin is invite-only. Password reset links are sent only through Supabase Auth email.</p>
     </form>
   </section>
 
@@ -614,7 +614,7 @@
 
       <section class="admin-card">
         <h2>Current admins</h2>
-        <p class="admin-meta">Anyone listed here can sign in to <code>/admin</code>. You cannot remove yourself, and the last admin cannot be removed.</p>
+        <p class="admin-meta">Anyone listed here can sign in to <code>/admin</code>. You can send password reset links for allowlisted admins; you cannot remove yourself or the last admin.</p>
         <ul id="admins-list" class="admin-watch-list" aria-live="polite"></ul>
       </section>
     </div>

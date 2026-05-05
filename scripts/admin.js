@@ -163,6 +163,35 @@ let activeWatchSnapshot = null;
 let mustSetPassword = false;
 let passwordSetupReason = 'invite';
 
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '')) && String(value || '').length <= 254;
+}
+
+function getAdminRedirectTo() {
+  return `${window.location.origin}/admin`;
+}
+
+function passwordResetSuccessMessage(email) {
+  return `If ${email} is an admin account, a password reset email is on its way.`;
+}
+
+async function sendPasswordResetEmail(email) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const normalized = normalizeEmail(email);
+  if (!isValidEmail(normalized)) {
+    throw new Error('Enter a valid email address.');
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
+    redirectTo: getAdminRedirectTo(),
+  });
+  if (error) throw error;
+  return normalized;
+}
+
 // Inspect the URL hash that Supabase Auth attaches after email-link auth.
 // Hash looks like:
 //   #access_token=...&refresh_token=...&type=invite
@@ -208,20 +237,21 @@ els.authForm.addEventListener('submit', async (event) => {
 
 if (els.authForgotBtn) {
   els.authForgotBtn.addEventListener('click', async () => {
-    const email = (els.authEmail.value || '').trim();
-    if (!email) {
-      setStatus('Enter your email above first, then click Forgot password?', 'error');
+    const email = normalizeEmail(els.authEmail.value);
+    if (!isValidEmail(email)) {
+      setStatus('Enter a valid email above first, then click Forgot password.', 'error');
       els.authEmail.focus();
       return;
     }
     setStatus('Sending password reset email…');
+    els.authForgotBtn.disabled = true;
     try {
-      const redirectTo = `${window.location.origin}/admin`;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-      if (error) throw error;
-      setStatus(`Reset email sent to ${email}. Check your inbox.`, 'success');
+      const normalized = await sendPasswordResetEmail(email);
+      setStatus(passwordResetSuccessMessage(normalized), 'success');
     } catch (error) {
       setStatus(error.message || 'Reset failed', 'error');
+    } finally {
+      els.authForgotBtn.disabled = false;
     }
   });
 }
@@ -1272,6 +1302,7 @@ async function loadAdminsList() {
       <div class="admin-row-meta">
         <span>${safeNote}</span>
         <span>${escapeHtml(addedDate)}</span>
+        <button type="button" class="btn-ghost" data-reset-email="${escapeAttr(row.email)}">Send reset</button>
         <button type="button" class="btn-ghost" data-remove-email="${escapeAttr(row.email)}">Remove</button>
       </div>
     `;
@@ -1281,6 +1312,21 @@ async function loadAdminsList() {
 
 if (els.adminsList) {
   els.adminsList.addEventListener('click', async (event) => {
+    const resetBtn = event.target.closest('button[data-reset-email]');
+    if (resetBtn) {
+      const email = normalizeEmail(resetBtn.dataset.resetEmail);
+      resetBtn.disabled = true;
+      setStatus(`Sending password reset to ${email}…`);
+      try {
+        const normalized = await sendPasswordResetEmail(email);
+        setStatus(passwordResetSuccessMessage(normalized), 'success');
+      } catch (error) {
+        setStatus(error.message || 'Reset failed', 'error');
+      } finally {
+        resetBtn.disabled = false;
+      }
+      return;
+    }
     const btn = event.target.closest('button[data-remove-email]');
     if (!btn) return;
     const email = btn.dataset.removeEmail;
@@ -1301,9 +1347,13 @@ if (els.inviteForm) {
   els.inviteForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!supabase) return;
-    const email = (els.inviteEmail.value || '').trim().toLowerCase();
+    const email = normalizeEmail(els.inviteEmail.value);
     const note = (els.inviteNote.value || '').trim() || null;
-    if (!email) return;
+    if (!isValidEmail(email)) {
+      setInviteStatus('Enter a valid email address.', 'error');
+      els.inviteEmail.focus();
+      return;
+    }
 
     const submitBtn = els.inviteForm.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
