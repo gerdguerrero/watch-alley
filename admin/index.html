@@ -243,9 +243,10 @@
         <p class="admin-hint">Saved changes appear on the website automatically. Use the status field to control whether a listing is available, reserved, or sold.</p>
       </div>
 
-      <form id="watch-form" class="admin-form admin-watch-form" hidden>
+      <form id="watch-form" class="admin-form admin-watch-form" hidden novalidate>
         <input type="hidden" id="field-id" />
         <input type="hidden" id="field-displayOrder" />
+        <div id="watch-form-errors" class="admin-validation-summary" hidden aria-live="polite"></div>
 
         <div class="admin-form-grid">
           <label>Slug *
@@ -358,10 +359,10 @@
           <fieldset class="admin-col-2 admin-fieldset">
             <legend>Visibility</legend>
             <label class="admin-inline-check">
-              <input type="checkbox" id="field-published" checked />
+              <input type="checkbox" id="field-published" />
               Published on the website
             </label>
-            <p class="admin-meta">Untick to keep this listing as a private draft. Drafts only render at <code>/watch/&lt;slug&gt;</code> after the next deploy and carry a clear DRAFT banner. Tick again when you're ready to publish.</p>
+            <p class="admin-meta">New listings start as private drafts. Save to keep working, then use Publish now when the listing is complete. Draft preview pages carry a clear DRAFT banner and stay out of search.</p>
             <button type="button" id="preview-as-buyer-btn" class="btn-ghost" hidden>Preview as buyer ↗</button>
           </fieldset>
 
@@ -471,6 +472,8 @@
 
         <div class="admin-form-actions">
           <button type="submit" class="btn-primary">Save</button>
+          <button type="button" id="publish-watch-btn" class="btn-secondary" hidden>Publish now</button>
+          <button type="button" id="view-listing-btn" class="btn-secondary" hidden>View listing ↗</button>
           <button type="button" id="mark-sold-btn" class="btn-secondary" hidden>Mark sold…</button>
           <button type="button" id="delete-btn" class="btn-danger" hidden>Delete</button>
           <button type="button" id="cancel-btn" class="btn-ghost">Cancel</button>

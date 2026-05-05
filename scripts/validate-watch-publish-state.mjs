@@ -80,8 +80,8 @@ assert(
   'admin form must include a Preview as buyer button'
 );
 assert(
-  /setCheckbox\('published',\s*watch\?\.published\s*!==\s*false\)/.test(adminJs),
-  'admin.js must hydrate the published checkbox (default true)'
+  /setCheckbox\('published',\s*watch\s*\?\s*watch\.published\s*===\s*true\s*:\s*false\)/.test(adminJs),
+  'admin.js must hydrate the published checkbox and default new listings to draft'
 );
 assert(
   /published:\s*getCheckbox\('published'\)/.test(adminJs),

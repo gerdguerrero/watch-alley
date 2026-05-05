@@ -47,9 +47,12 @@ const els = {
   newBtn: document.getElementById('new-watch-btn'),
   detailEmpty: document.getElementById('admin-detail-empty'),
   watchForm: document.getElementById('watch-form'),
+  watchFormErrors: document.getElementById('watch-form-errors'),
   cancelBtn: document.getElementById('cancel-btn'),
   deleteBtn: document.getElementById('delete-btn'),
   markSoldBtn: document.getElementById('mark-sold-btn'),
+  publishWatchBtn: document.getElementById('publish-watch-btn'),
+  viewListingBtn: document.getElementById('view-listing-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
   socialGeneratePreviewBtn: document.getElementById('social-generate-preview-btn'),
   socialPrimaryImagePreview: document.getElementById('social-primary-image-preview'),
@@ -463,6 +466,14 @@ els.watchForm.addEventListener('submit', async (event) => {
   await saveCurrentForm();
 });
 
+if (els.publishWatchBtn) {
+  els.publishWatchBtn.addEventListener('click', publishCurrentListing);
+}
+const publishedField = field('published');
+if (publishedField) {
+  publishedField.addEventListener('change', () => syncListingActionButtons());
+}
+
 if (els.socialGeneratePreviewBtn) {
   els.socialGeneratePreviewBtn.addEventListener('click', () => {
     renderSocialPreviewFromForm({ announce: true });
@@ -538,6 +549,9 @@ function hideForm() {
   els.detailEmpty.hidden = false;
   els.deleteBtn.hidden = true;
   els.markSoldBtn.hidden = true;
+  if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
+  if (els.viewListingBtn) els.viewListingBtn.hidden = true;
+  clearWatchValidation();
   activeId = null;
   activeWatchSnapshot = null;
   setImageList([]);
@@ -587,23 +601,15 @@ function loadIntoForm(watch) {
   setCheckbox('hasPapers', watch?.has_papers === true);
   setCheckbox('featured', watch?.featured === true);
   setCheckbox('lowStock', watch?.low_stock === true);
-  // Default to published for new listings; respect the stored value for
-  // existing rows (a row is a draft only if explicitly published=false).
-  setCheckbox('published', watch?.published !== false);
+  // Commerce admin posture: new inventory starts as a private draft until
+  // the owner explicitly publishes it. Existing rows keep their stored state.
+  setCheckbox('published', watch ? watch.published === true : false);
 
   const isExisting = !!watch;
   els.deleteBtn.hidden = !isExisting;
   els.markSoldBtn.hidden = !isExisting || watch.status === 'sold';
-  // Preview-as-buyer link is only meaningful for an existing row with a slug.
-  const previewBtn = document.getElementById('preview-as-buyer-btn');
-  if (previewBtn) {
-    if (isExisting && watch?.slug) {
-      previewBtn.hidden = false;
-      previewBtn.dataset.url = `/watch/${watch.slug}`;
-    } else {
-      previewBtn.hidden = true;
-    }
-  }
+  clearWatchValidation();
+  syncListingActionButtons(watch);
   renderSocialPreviewFromForm({ announce: false });
   loadSocialDraftsForActiveWatch();
 
@@ -614,12 +620,17 @@ function loadIntoForm(watch) {
   });
 }
 
-async function saveCurrentForm() {
+async function saveCurrentForm({ publishNow = false, skipValidation = false } = {}) {
+  if (!skipValidation && !validateWatchForm()) {
+    return null;
+  }
   const submitBtn = els.watchForm.querySelector('button[type="submit"]');
   if (submitBtn) submitBtn.disabled = true;
+  if (els.publishWatchBtn) els.publishWatchBtn.disabled = true;
   try {
     const payload = collectFormPayload();
-    setStatus('Saving…');
+    if (publishNow) payload.published = true;
+    setStatus(publishNow ? 'Publishing…' : 'Saving…');
     const { data, error } = await supabase.rpc('admin_upsert_watch', { payload });
     if (error) throw error;
     await loadWatches();
@@ -630,12 +641,43 @@ async function saveCurrentForm() {
     // Auto-save social drafts in the same click. Silent if user did not
     // generate / write any captions — no error, no status flash.
     await saveSocialDrafts({ silentIfEmpty: true });
-    setStatus('Saved. The website updates automatically.', 'success');
+    setStatus(
+      publishNow
+        ? 'Published. View Listing is ready and the website updates automatically.'
+        : 'Saved. The website updates automatically.',
+      'success'
+    );
+    return data || null;
   } catch (error) {
     setStatus(`Save failed: ${error.message}`, 'error');
+    return null;
   } finally {
     if (submitBtn) submitBtn.disabled = false;
+    if (els.publishWatchBtn) els.publishWatchBtn.disabled = false;
   }
+}
+
+async function publishCurrentListing() {
+  const wasPublished = getCheckbox('published');
+  setCheckbox('published', true);
+  syncListingActionButtons();
+  if (!validateWatchForm({ mode: 'publish' })) {
+    setCheckbox('published', wasPublished);
+    syncListingActionButtons();
+    return;
+  }
+
+  const listingName = getField('name').trim() || getField('slug').trim() || 'this listing';
+  const confirmed = window.confirm(
+    `Publish "${listingName}" now?\n\nIt will become visible on the public website as soon as Supabase saves the listing.`
+  );
+  if (!confirmed) {
+    setCheckbox('published', wasPublished);
+    syncListingActionButtons();
+    return;
+  }
+
+  await saveCurrentForm({ publishNow: true, skipValidation: true });
 }
 
 function readSocialPreviewListingFromForm() {
@@ -1173,6 +1215,174 @@ function collectFormPayload() {
   }
 
   return payload;
+}
+
+function clearWatchValidation() {
+  if (!els.watchForm) return;
+  els.watchForm.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+  els.watchForm.querySelectorAll('.admin-field-error').forEach((el) => el.remove());
+  els.watchForm.querySelectorAll('[data-invalid="true"]').forEach((el) => el.removeAttribute('data-invalid'));
+  if (els.watchFormErrors) {
+    els.watchFormErrors.hidden = true;
+    els.watchFormErrors.textContent = '';
+  }
+}
+
+function watchControlLabel(control) {
+  const label = control?.closest('label');
+  if (!label) return 'this field';
+  const text = Array.from(label.childNodes)
+    .filter((node) => node.nodeType === Node.TEXT_NODE)
+    .map((node) => node.textContent)
+    .join(' ')
+    .replace('*', '')
+    .trim();
+  return text || 'this field';
+}
+
+function watchValidationMessage(control) {
+  const label = watchControlLabel(control);
+  if (control.validity?.valueMissing) return `Please fill out ${label}.`;
+  if (control.validity?.patternMismatch) {
+    if (control.id === 'field-slug') return 'Use a slug like seiko-sarg015-blue: lowercase letters, numbers, and hyphens only.';
+    return control.title || `${label} is not in the expected format.`;
+  }
+  if (control.validity?.rangeUnderflow) return `${label} cannot be below ${control.min}.`;
+  if (control.validity?.badInput) return `${label} must be a valid number.`;
+  return `Please check ${label}.`;
+}
+
+function addWatchValidationError(control, message, focusTarget = control) {
+  if (!control) return null;
+  control.dataset.invalid = 'true';
+  const group = control.closest('label') || control.closest('.admin-image-uploader') || control.closest('.admin-fieldset');
+  if (group) group.classList.add('is-invalid');
+
+  const error = document.createElement('p');
+  error.className = 'admin-field-error';
+  error.textContent = message;
+  const anchor = control.closest('.admin-image-uploader') || control.closest('label') || control;
+  anchor.insertAdjacentElement('afterend', error);
+  return { control, focusTarget: focusTarget || control, message };
+}
+
+function showWatchValidationSummary(errors, mode = 'save') {
+  if (!errors.length) return;
+  if (els.watchFormErrors) {
+    els.watchFormErrors.hidden = false;
+    const heading = document.createElement('strong');
+    heading.textContent = mode === 'publish'
+      ? 'Please complete the required listing details before publishing.'
+      : 'Please fill out the highlighted required fields before saving.';
+    const detail = document.createElement('span');
+    detail.textContent = ` ${errors[0].message}`;
+    els.watchFormErrors.replaceChildren(heading, detail);
+  }
+  setStatus(
+    mode === 'publish'
+      ? 'Publish paused. Complete the highlighted fields first.'
+      : 'Please fill out the highlighted required fields.',
+    'error'
+  );
+}
+
+function focusInvalidWatchField(error) {
+  const target = error?.focusTarget || error?.control;
+  if (!target) return;
+  const details = target.closest('details');
+  if (details) details.open = true;
+  const scrollTarget = target.closest('.admin-image-uploader') || target.closest('label') || target;
+  scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  window.setTimeout(() => {
+    if (typeof target.focus === 'function') target.focus({ preventScroll: true });
+  }, 200);
+}
+
+function validateWatchForm({ mode = 'save' } = {}) {
+  clearWatchValidation();
+  const errors = [];
+  const recordError = (error) => {
+    errors[errors.length] = error;
+  };
+  const skipIds = new Set(['field-primaryImage', 'field-images']);
+  const requiredControls = Array.from(els.watchForm.querySelectorAll('[required]'))
+    .filter((control) => !control.disabled && !skipIds.has(control.id));
+
+  for (const control of requiredControls) {
+    if (!control.checkValidity()) {
+      recordError(addWatchValidationError(control, watchValidationMessage(control)));
+    }
+  }
+
+  const imagesText = getField('images') || '';
+  const images = imagesText.split('\n').map((s) => s.trim()).filter(Boolean);
+  const primaryImage = getField('primaryImage').trim() || images[0] || '';
+  if (!images.length) {
+    recordError(addWatchValidationError(
+      field('images'),
+      'Please upload at least one listing photo.',
+      els.imageDropzone || field('images')
+    ));
+  } else if (primaryImage && !images.includes(primaryImage)) {
+    recordError(addWatchValidationError(
+      field('primaryImage'),
+      'Primary image must appear in the image paths list.'
+    ));
+  }
+
+  if (getField('status') === 'sold') {
+    const soldAt = field('soldAt');
+    const soldPrice = field('soldPrice');
+    if (!/^[0-9]{4}-[0-9]{2}$/.test(getField('soldAt').trim())) {
+      recordError(addWatchValidationError(soldAt, 'Please enter Sold at in YYYY-MM format.'));
+    }
+    const soldPriceValue = Number(getField('soldPrice'));
+    if (!Number.isFinite(soldPriceValue) || soldPriceValue < 0) {
+      recordError(addWatchValidationError(soldPrice, 'Please enter a non-negative sold price.'));
+    }
+  }
+
+  const validErrors = errors.filter(Boolean);
+  if (validErrors.length) {
+    showWatchValidationSummary(validErrors, mode);
+    focusInvalidWatchField(validErrors[0]);
+    return false;
+  }
+  return true;
+}
+
+function listingUrlForSlug(slug) {
+  const cleanSlug = String(slug || '').trim();
+  return cleanSlug ? `/watch/${encodeURIComponent(cleanSlug)}` : '';
+}
+
+function syncListingActionButtons(watch = activeWatchSnapshot) {
+  const isExisting = !!(watch?.id || activeId);
+  const slug = getField('slug').trim() || watch?.slug || '';
+  const listingUrl = isExisting ? listingUrlForSlug(slug) : '';
+  const isPublished = getCheckbox('published');
+  const previewBtn = document.getElementById('preview-as-buyer-btn');
+
+  for (const btn of [previewBtn, els.viewListingBtn]) {
+    if (!btn) continue;
+    if (listingUrl) {
+      btn.hidden = false;
+      btn.dataset.url = listingUrl;
+    } else {
+      btn.hidden = true;
+      delete btn.dataset.url;
+    }
+  }
+
+  if (els.publishWatchBtn) {
+    els.publishWatchBtn.hidden = isPublished;
+  }
+}
+
+function openListingUrlFromButton(btn) {
+  if (!btn || btn.hidden) return;
+  const url = btn.dataset.url;
+  if (url) window.open(url, '_blank', 'noopener');
 }
 
 // ---------------- Helpers ----------------
@@ -2065,10 +2275,8 @@ if (els.dashboardRefresh) {
 // listings show their normal page. Wired here because both states share
 // the same /watch/<slug> URL.
 document.addEventListener('click', (event) => {
-  const btn = event.target.closest('#preview-as-buyer-btn');
-  if (!btn || btn.hidden) return;
-  const url = btn.dataset.url;
-  if (url) window.open(url, '_blank', 'noopener');
+  const btn = event.target.closest('#preview-as-buyer-btn, #view-listing-btn');
+  openListingUrlFromButton(btn);
 });
 
 // Mark draft listings in the inventory sidebar so the operator sees status

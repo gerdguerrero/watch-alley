@@ -17,6 +17,19 @@
 .admin-status[data-tone="success"] { color: var(--gold); }
 .admin-status[data-tone="error"] { color: #ff7066; }
 
+.admin-validation-summary {
+  border: 1px solid rgba(255, 112, 102, 0.55);
+  background: rgba(255, 112, 102, 0.08);
+  color: #ff9188;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.admin-validation-summary strong {
+  color: #ffb0a9;
+  font-weight: 600;
+}
+
 .admin-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -119,6 +132,23 @@
 .admin-form textarea:focus {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+.admin-form label.is-invalid input,
+.admin-form label.is-invalid select,
+.admin-form label.is-invalid textarea,
+.admin-form .admin-image-uploader.is-invalid,
+.admin-form .admin-fieldset.is-invalid {
+  border-color: rgba(255, 112, 102, 0.75);
+  box-shadow: 0 0 0 1px rgba(255, 112, 102, 0.20);
+}
+.admin-form [data-invalid="true"] {
+  border-color: rgba(255, 112, 102, 0.80);
+}
+.admin-field-error {
+  margin: -6px 0 4px;
+  color: #ff9188;
+  font-size: 12px;
+  line-height: 1.45;
 }
 .admin-form-actions {
   display: flex;
