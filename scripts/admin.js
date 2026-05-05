@@ -622,12 +622,15 @@ async function saveCurrentForm() {
     setStatus('Saving…');
     const { data, error } = await supabase.rpc('admin_upsert_watch', { payload });
     if (error) throw error;
-    setStatus('Saved. The website updates automatically.', 'success');
     await loadWatches();
     if (data && data.id) {
       const refreshed = allWatches.find((w) => w.id === data.id);
       if (refreshed) loadIntoForm(refreshed);
     }
+    // Auto-save social drafts in the same click. Silent if user did not
+    // generate / write any captions — no error, no status flash.
+    await saveSocialDrafts({ silentIfEmpty: true });
+    setStatus('Saved. The website updates automatically.', 'success');
   } catch (error) {
     setStatus(`Save failed: ${error.message}`, 'error');
   } finally {
@@ -1041,9 +1044,9 @@ async function loadSocialDraftsForActiveWatch() {
 // switch cannot stamp the success message or reload against the wrong
 // listing (the writes themselves are already keyed by the captured id
 // inside the rpc payload).
-async function saveSocialDrafts() {
-  if (!els.socialSaveDraftBtn) return;
+async function saveSocialDrafts({ silentIfEmpty = false } = {}) {
   if (!activeId) {
+    if (silentIfEmpty) return;
     setSocialPreviewStatus('Save the listing first, then save its social drafts.', 'error');
     return;
   }
@@ -1051,12 +1054,16 @@ async function saveSocialDrafts() {
   const fb = (els.socialFacebookCaption?.value || '').trim();
   const ig = (els.socialInstagramCaption?.value || '').trim();
   if (!fb && !ig) {
+    if (silentIfEmpty) return;
     setSocialPreviewStatus('Generate or write at least one caption before saving drafts.', 'error');
     return;
   }
-  els.socialSaveDraftBtn.disabled = true;
-  const previousLabel = els.socialSaveDraftBtn.textContent;
-  els.socialSaveDraftBtn.textContent = 'Saving drafts…';
+  let previousLabel = '';
+  if (els.socialSaveDraftBtn) {
+    els.socialSaveDraftBtn.disabled = true;
+    previousLabel = els.socialSaveDraftBtn.textContent;
+    els.socialSaveDraftBtn.textContent = 'Saving drafts…';
+  }
   try {
     const primaryImage = (getField('primaryImage') || '').trim();
     const targets = [
@@ -1095,8 +1102,10 @@ async function saveSocialDrafts() {
       ? `Could not save drafts: ${error.message}`
       : 'Could not save drafts. Try again or check your connection.', 'error');
   } finally {
-    els.socialSaveDraftBtn.disabled = false;
-    els.socialSaveDraftBtn.textContent = previousLabel || 'Save drafts to inventory';
+    if (els.socialSaveDraftBtn) {
+      els.socialSaveDraftBtn.disabled = false;
+      els.socialSaveDraftBtn.textContent = previousLabel || 'Save drafts to inventory';
+    }
   }
 }
 
