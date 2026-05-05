@@ -451,3 +451,4 @@ Vercel is configured with `cleanUrls: true` so `/admin`, `/journal`, and `/watch
 ## License
 
 Private repository. All rights reserved — The Watch Alley / Gerd Guerrero.
+
