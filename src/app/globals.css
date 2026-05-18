@@ -6,8 +6,9 @@
   The Watch Alley — Tailwind v4 theme.
 
   Two layers:
-    1. WA design tokens (navy / cream / gold + opacity variants, fonts) — the
-       palette and typography vocabulary the editorial design is built on.
+    1. WA design tokens (walnut / paper / cream / gold + opacity variants,
+       fonts) — the palette and typography vocabulary the editorial design is
+       built on.
     2. shadcn semantic tokens (--primary, --background, --card, …) mapped to
        the WA palette so every shadcn primitive (Button, Dialog, Form, …)
        inherits the look without per-component restyling.
@@ -20,14 +21,22 @@
 
 @theme inline {
   /* ── WA design tokens ─────────────────────────────────────────────── */
-  --color-navy-deep: #070b14;
-  --color-navy: #0b1220;
-  --color-cream: #ece4d3;
-  --color-cream-80: rgba(236, 228, 211, 0.80);
-  --color-cream-60: rgba(236, 228, 211, 0.60);
-  --color-gold: #c9a24b;
-  --color-gold-30: rgba(201, 162, 75, 0.30);
-  --color-gold-20: rgba(201, 162, 75, 0.20);
+  --color-walnut-deep: oklch(0.13 0.012 55);
+  --color-walnut: oklch(0.17 0.015 55);
+  --color-walnut-card: oklch(0.21 0.018 60);
+  --color-paper: oklch(0.92 0.018 80);
+  --color-ink-paper: oklch(0.28 0.02 60);
+  --color-ink-paper-soft: oklch(0.34 0.025 60);
+  --color-cream: oklch(0.91 0.018 78);
+  --color-cream-80: oklch(0.91 0.018 78 / 0.80);
+  --color-cream-60: oklch(0.91 0.018 78 / 0.60);
+  --color-gold: oklch(0.76 0.12 75);
+  --color-gold-30: oklch(0.76 0.12 75 / 0.30);
+  --color-gold-20: oklch(0.76 0.12 75 / 0.20);
+
+  /* Backwards-compatible aliases while older components still say navy. */
+  --color-navy-deep: oklch(0.13 0.012 55);
+  --color-navy: oklch(0.17 0.015 55);
 
   --font-serif: "Petrona", Georgia, serif;
   --font-sans: "Spectral", Georgia, serif;
@@ -82,41 +91,41 @@
 :root {
   color-scheme: dark;
 
-  --background: #070b14;             /* navy-deep — page bg */
-  --foreground: #ece4d3;             /* cream — primary text */
-  --card: #0b1220;                   /* navy — surfaces */
-  --card-foreground: #ece4d3;
-  --popover: #0b1220;
-  --popover-foreground: #ece4d3;
-  --primary: #c9a24b;                /* gold — CTA, hover, focus */
-  --primary-foreground: #070b14;     /* navy-deep — text on gold */
-  --secondary: #0b1220;
-  --secondary-foreground: #ece4d3;
-  --muted: #0b1220;
-  --muted-foreground: rgba(236, 228, 211, 0.60);
-  --accent: rgba(201, 162, 75, 0.20);
-  --accent-foreground: #c9a24b;
-  --destructive: oklch(0.55 0.18 25);
-  --border: rgba(201, 162, 75, 0.20);
-  --input: rgba(201, 162, 75, 0.20);
-  --ring: #c9a24b;
+  --background: oklch(0.13 0.012 55);             /* walnut-deep — page bg */
+  --foreground: oklch(0.91 0.018 78);             /* warm cream — primary text */
+  --card: oklch(0.19 0.016 58);                   /* walnut-card — surfaces */
+  --card-foreground: oklch(0.91 0.018 78);
+  --popover: oklch(0.17 0.015 55);
+  --popover-foreground: oklch(0.91 0.018 78);
+  --primary: oklch(0.76 0.12 75);                 /* honey brass — CTA, hover, focus */
+  --primary-foreground: oklch(0.13 0.012 55);     /* walnut-deep — text on gold */
+  --secondary: oklch(0.21 0.018 60);
+  --secondary-foreground: oklch(0.91 0.018 78);
+  --muted: oklch(0.21 0.018 60);
+  --muted-foreground: oklch(0.91 0.018 78 / 0.60);
+  --accent: oklch(0.76 0.12 75 / 0.20);
+  --accent-foreground: oklch(0.76 0.12 75);
+  --destructive: oklch(0.58 0.14 28);
+  --border: oklch(0.76 0.12 75 / 0.20);
+  --input: oklch(0.76 0.12 75 / 0.20);
+  --ring: oklch(0.76 0.12 75);
 
-  /* Charts unused on storefront — keep shadcn defaults for the admin dashboard. */
-  --chart-1: oklch(0.81 0.10 252);
-  --chart-2: oklch(0.62 0.19 260);
-  --chart-3: oklch(0.55 0.22 263);
-  --chart-4: oklch(0.49 0.22 265);
-  --chart-5: oklch(0.42 0.18 265);
+  /* Admin dashboard charts: warm semantic range, no reflex blue-purple set. */
+  --chart-1: oklch(0.76 0.12 75);
+  --chart-2: oklch(0.66 0.10 145);
+  --chart-3: oklch(0.70 0.09 45);
+  --chart-4: oklch(0.62 0.10 28);
+  --chart-5: oklch(0.52 0.055 230);
 
   /* Sidebar tokens reuse the card palette for admin shell consistency. */
-  --sidebar: #0b1220;
-  --sidebar-foreground: #ece4d3;
-  --sidebar-primary: #c9a24b;
-  --sidebar-primary-foreground: #070b14;
-  --sidebar-accent: rgba(201, 162, 75, 0.20);
-  --sidebar-accent-foreground: #c9a24b;
-  --sidebar-border: rgba(201, 162, 75, 0.20);
-  --sidebar-ring: #c9a24b;
+  --sidebar: oklch(0.19 0.016 58);
+  --sidebar-foreground: oklch(0.91 0.018 78);
+  --sidebar-primary: oklch(0.76 0.12 75);
+  --sidebar-primary-foreground: oklch(0.13 0.012 55);
+  --sidebar-accent: oklch(0.76 0.12 75 / 0.20);
+  --sidebar-accent-foreground: oklch(0.76 0.12 75);
+  --sidebar-border: oklch(0.76 0.12 75 / 0.20);
+  --sidebar-ring: oklch(0.76 0.12 75);
 }
 
 @layer base {

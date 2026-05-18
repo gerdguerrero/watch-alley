@@ -35,7 +35,7 @@ export function SoldRow({ watch }: SoldRowProps) {
     <Link
       href={`/watch/${watch.slug}`}
       data-watch-slug={watch.slug}
-      className="group grid grid-cols-[56px_1fr_auto] items-center gap-[clamp(16px,3vw,28px)] border-b border-[color:var(--color-gold-20)] py-[clamp(18px,2.5vw,24px)] text-inherit transition-colors hover:bg-[rgba(201,162,75,0.04)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)] sm:grid-cols-[56px_1fr_auto]"
+      className="group grid grid-cols-[56px_1fr_auto] items-center gap-[clamp(16px,3vw,28px)] border-b border-[color:var(--color-gold-20)] py-[clamp(18px,2.5vw,24px)] text-inherit transition-colors hover:bg-[color:oklch(0.76_0.12_75_/_0.04)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)] sm:grid-cols-[56px_1fr_auto]"
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden opacity-85 [filter:grayscale(0.65)]">
         {watch.primaryImage && (

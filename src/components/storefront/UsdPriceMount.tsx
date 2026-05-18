@@ -7,6 +7,7 @@ import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD, PRIMARY_URL } from "@/lib/fx
 const CACHE_KEY = "WA_FX_PHP_USD_V2";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const APPLIED_ATTR = "data-fx-applied";
+const FX_TIMEOUT_MS = 4000;
 
 function readCache(): number | null {
   try {
@@ -32,7 +33,11 @@ function writeCache(rate: number) {
 }
 
 async function fetchRate(url: string): Promise<number> {
-  const res = await fetch(url, { cache: "no-store" });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), FX_TIMEOUT_MS);
+  const res = await fetch(url, { cache: "no-store", signal: controller.signal }).finally(() => {
+    window.clearTimeout(timeout);
+  });
   if (!res.ok) throw new Error(`FX ${url}: ${res.status}`);
   const data = (await res.json()) as { rates?: Record<string, number> };
   const php = Number(data?.rates?.PHP);
@@ -48,13 +53,14 @@ async function getRate(): Promise<number> {
     writeCache(rate);
     return rate;
   } catch (primaryErr) {
-    console.warn("FX primary failed, trying fallback", primaryErr);
     try {
       const rate = await fetchRate(FALLBACK_URL);
       writeCache(rate);
       return rate;
     } catch (fallbackErr) {
-      console.warn("FX fallback failed, using offline default", fallbackErr);
+      if (process.env.NODE_ENV === "development") {
+        console.warn("FX sources failed, using offline default", { primaryErr, fallbackErr });
+      }
       return OFFLINE_DEFAULT_PHP_PER_USD;
     }
   }

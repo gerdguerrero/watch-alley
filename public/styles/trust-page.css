@@ -1,12 +1,19 @@
 :root {
-  --navy-deep: #070b14;
-  --navy: #0b1220;
-  --cream: #ece4d3;
-  --cream-80: rgba(236, 228, 211, 0.85);
-  --cream-60: rgba(236, 228, 211, 0.60);
-  --gold: #c9a24b;
-  --gold-30: rgba(201, 162, 75, 0.30);
-  --gold-20: rgba(201, 162, 75, 0.20);
+  --walnut-deep: oklch(0.13 0.012 55);
+  --walnut: oklch(0.17 0.015 55);
+  --walnut-card: oklch(0.21 0.018 60);
+  --paper: oklch(0.92 0.018 80);
+  --ink-paper: oklch(0.28 0.02 60);
+  --cream: oklch(0.91 0.018 78);
+  --cream-80: oklch(0.91 0.018 78 / 0.85);
+  --cream-60: oklch(0.91 0.018 78 / 0.60);
+  --gold: oklch(0.76 0.12 75);
+  --gold-30: oklch(0.76 0.12 75 / 0.30);
+  --gold-20: oklch(0.76 0.12 75 / 0.20);
+
+  /* Legacy aliases for older static markup and admin CSS. */
+  --navy-deep: var(--walnut-deep);
+  --navy: var(--walnut);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +38,7 @@ a { color: var(--gold); text-decoration: none; }
 a:hover { color: var(--cream); }
 
 .trust-nav {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid oklch(0.76 0.12 75 / 0.14);
   padding: 18px clamp(20px, 4vw, 80px);
   display: flex;
   align-items: center;
@@ -72,7 +79,7 @@ a:hover { color: var(--cream); }
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   border-bottom: 1px solid var(--gold-20);
-  background: rgba(7, 11, 20, 0.96);
+  background: oklch(0.13 0.012 55 / 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -220,7 +227,7 @@ main.trust-page {
   color: var(--cream-60);
   margin-bottom: 48px;
   padding-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid oklch(0.76 0.12 75 / 0.14);
 }
 
 .trust-page section {
@@ -260,7 +267,7 @@ main.trust-page {
 .trust-page .callout {
   border: 1px solid var(--gold-30);
   padding: 18px 22px;
-  background: rgba(201, 162, 75, 0.04);
+  background: oklch(0.76 0.12 75 / 0.04);
   margin: 24px 0;
   font-size: 14px;
   color: var(--cream-80);
@@ -269,7 +276,7 @@ main.trust-page {
 }
 
 .trust-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid oklch(0.76 0.12 75 / 0.14);
   padding: 24px clamp(20px, 4vw, 80px);
   display: flex;
   align-items: center;

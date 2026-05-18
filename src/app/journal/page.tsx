@@ -73,7 +73,7 @@ export default async function JournalIndexPage() {
               <li key={post.slug}>
                 <Link
                   href={`/journal/${post.slug}`}
-                  className="group grid grid-cols-[clamp(64px,12vw,110px)_1fr_auto] items-baseline gap-[clamp(16px,3vw,36px)] border-b border-[color:var(--color-gold-20)] py-[clamp(22px,3vw,32px)] text-inherit transition-colors hover:bg-[rgba(201,162,75,0.05)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)]"
+                  className="group grid grid-cols-[clamp(64px,12vw,110px)_1fr_auto] items-baseline gap-[clamp(16px,3vw,36px)] border-b border-[color:var(--color-gold-20)] py-[clamp(22px,3vw,32px)] text-inherit transition-colors hover:bg-[color:oklch(0.76_0.12_75_/_0.05)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)]"
                 >
                   <span className="font-serif text-[clamp(28px,3vw,40px)] italic leading-none text-[color:var(--color-gold)]">
                     {String(i + 1).padStart(2, "0")}

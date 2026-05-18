@@ -15,12 +15,12 @@ interface MainNavProps {
  */
 export function MainNav({ active }: MainNavProps) {
   const linkBase =
-    "relative pb-0.5 text-[12px] uppercase tracking-[0.18em] text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]";
+    "relative inline-flex min-h-11 shrink-0 items-center whitespace-nowrap pb-0.5 text-[12px] uppercase tracking-[0.18em] text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]";
   const activeClass =
     "text-[color:var(--color-gold)] after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-[color:var(--color-gold)]";
   return (
-    <nav className="sticky top-0 z-50 grid grid-cols-[1fr_auto_1fr] items-center border-b border-border bg-background/95 px-[clamp(20px,6vw,80px)] py-[22px] backdrop-blur-[14px]">
-      <div className="flex gap-8">
+    <nav className="sticky top-0 z-50 flex flex-col items-center border-b border-border bg-background/95 px-[clamp(20px,6vw,80px)] py-4 backdrop-blur-[14px] md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:py-[22px]">
+      <div className="order-2 mt-3 flex w-full min-w-0 gap-5 overflow-x-auto pb-1 [scrollbar-width:none] md:order-none md:mt-0 md:w-auto md:gap-8 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden">
         <Link
           href="/available"
           className={`${linkBase} ${active === "available" ? activeClass : ""}`}
@@ -40,7 +40,7 @@ export function MainNav({ active }: MainNavProps) {
       <Link
         href="/"
         aria-label="The Watch Alley — home"
-        className="flex items-center justify-center gap-3"
+        className="order-1 flex min-w-0 items-center justify-center gap-3 md:order-none"
       >
         <Image
           src="/logo.jpg"
@@ -54,7 +54,7 @@ export function MainNav({ active }: MainNavProps) {
           The Watch Alley
         </span>
       </Link>
-      <div />
+      <div className="hidden md:block" />
     </nav>
   );
 }

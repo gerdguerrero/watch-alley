@@ -1,5 +1,6 @@
 import { ArrivalsCarousel } from "@/components/storefront/ArrivalsCarousel";
 import { HeroSection } from "@/components/storefront/HeroSection";
+import { InquiryBand } from "@/components/storefront/InquiryBand";
 import { JournalPreview } from "@/components/storefront/JournalPreview";
 import { MainNav } from "@/components/storefront/MainNav";
 import { TopBar } from "@/components/storefront/TopBar";
@@ -31,6 +32,7 @@ export default async function HomePage() {
       <HeroSection featured={featured} />
       <ArrivalsCarousel watches={arrivals} />
       <JournalPreview posts={journalPosts} />
+      <InquiryBand />
       <UsdPriceMount />
     </>
   );

@@ -25,7 +25,7 @@ export function ArrivalsCarouselControls({ targetId }: ArrivalsCarouselControlsP
         type="button"
         onClick={() => scrollByCard(-1)}
         aria-label="Previous watches"
-        className="flex h-10 w-10 items-center justify-center border border-[color:var(--color-gold-20)] font-mono text-base text-[color:var(--color-cream-80)] transition-colors hover:border-[color:var(--color-gold)] hover:text-[color:var(--color-gold)]"
+        className="flex h-11 w-11 items-center justify-center border border-[color:var(--color-gold-20)] font-mono text-base text-[color:var(--color-cream-80)] transition-colors hover:border-[color:var(--color-gold)] hover:text-[color:var(--color-gold)]"
       >
         ←
       </button>
@@ -33,7 +33,7 @@ export function ArrivalsCarouselControls({ targetId }: ArrivalsCarouselControlsP
         type="button"
         onClick={() => scrollByCard(1)}
         aria-label="Next watches"
-        className="flex h-10 w-10 items-center justify-center border border-[color:var(--color-gold-20)] font-mono text-base text-[color:var(--color-cream-80)] transition-colors hover:border-[color:var(--color-gold)] hover:text-[color:var(--color-gold)]"
+        className="flex h-11 w-11 items-center justify-center border border-[color:var(--color-gold-20)] font-mono text-base text-[color:var(--color-cream-80)] transition-colors hover:border-[color:var(--color-gold)] hover:text-[color:var(--color-gold)]"
       >
         →
       </button>

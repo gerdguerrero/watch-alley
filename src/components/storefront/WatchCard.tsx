@@ -22,7 +22,7 @@ export function WatchCard({ watch }: WatchCardProps) {
     <Link
       href={`/watch/${watch.slug}`}
       data-watch-slug={watch.slug}
-      className="group flex w-[clamp(280px,28vw,340px)] shrink-0 flex-col border border-[color:var(--color-gold-20)] bg-[color:var(--color-card)] text-inherit transition-transform duration-200 hover:-translate-y-1 hover:border-[color:var(--color-gold)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)]"
+      className="group flex w-[clamp(280px,28vw,340px)] min-w-0 shrink-0 flex-col border border-[color:var(--color-gold-20)] bg-[color:var(--color-card)] text-inherit transition-transform duration-200 hover:-translate-y-1 hover:border-[color:var(--color-gold)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-background">
         {watch.primaryImage && (
@@ -47,21 +47,21 @@ export function WatchCard({ watch }: WatchCardProps) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-5">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]">
+        <div className="flex min-w-0 items-baseline justify-between gap-3">
+          <span className="min-w-0 break-words font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]">
             {watch.brand}
           </span>
           {watch.conditionLabel && (
-            <span className="font-mono text-[11px] text-[color:var(--color-cream-60)]">
+            <span className="shrink-0 font-mono text-[11px] text-[color:var(--color-cream-60)]">
               {watch.conditionLabel}
             </span>
           )}
         </div>
-        <div className="font-serif text-lg leading-tight text-[color:var(--color-cream)]">
+        <div className="break-words font-serif text-lg leading-tight text-[color:var(--color-cream)]">
           {watch.name}
         </div>
         {meta && (
-          <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-[color:rgba(236,228,211,0.5)]">
+          <div className="break-words font-mono text-[10px] uppercase tracking-[0.1em] text-[color:rgba(236,228,211,0.5)]">
             {meta}
           </div>
         )}
@@ -70,8 +70,8 @@ export function WatchCard({ watch }: WatchCardProps) {
             {watch.description}
           </p>
         )}
-        <div className="mt-auto flex items-baseline justify-between border-t border-[color:var(--color-gold-20)] pt-4">
-          <span className="font-serif text-xl text-[color:var(--color-gold)]">
+        <div className="mt-auto flex min-w-0 items-baseline justify-between gap-3 border-t border-[color:var(--color-gold-20)] pt-4">
+          <span className="min-w-0 font-serif text-xl text-[color:var(--color-gold)]">
             {formatPhp(watch.price)}
             {/* Filled in by <UsdPriceMount /> after hydration. */}
             <span
@@ -79,7 +79,7 @@ export function WatchCard({ watch }: WatchCardProps) {
               data-price-php={watch.price}
             />
           </span>
-          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)] transition-colors group-hover:text-[color:var(--color-gold)]">
+          <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)] transition-colors group-hover:text-[color:var(--color-gold)]">
             DETAILS →
           </span>
         </div>

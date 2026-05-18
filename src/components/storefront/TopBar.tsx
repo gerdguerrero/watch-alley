@@ -4,7 +4,7 @@
  */
 export function TopBar() {
   return (
-    <div className="border-b border-[color:var(--gold-20,rgba(201,162,75,0.20))] bg-background py-2 text-center">
+    <div className="border-b border-border bg-background py-2 text-center">
       <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[color:var(--color-gold)]">
         ✦ Quezon City · Philippines
       </span>
