@@ -111,6 +111,10 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
       <footer className="flex items-center justify-between">
         <span className="font-serif text-2xl text-[color:var(--color-gold)]">
           {formatPhp(watch.price)}
+          <span
+            className="mt-0.5 block font-mono text-[11px] font-normal not-italic tracking-[0.2em] text-[color:var(--color-cream-60)]"
+            data-price-php={watch.price}
+          />
         </span>
         <a
           href={`/watch/${watch.slug}`}
