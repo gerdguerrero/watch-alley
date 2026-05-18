@@ -126,8 +126,16 @@
     var nodes = scope.querySelectorAll('[data-price-php]');
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
+      // Idempotent: skip nodes already enhanced. The marker attribute keeps
+      // repeat calls cheap and — critically — prevents a feedback loop if
+      // anything ever observes mutations on these nodes.
+      if (el.getAttribute('data-fx-applied') === '1') continue;
       var php = Number(el.getAttribute('data-price-php'));
-      el.textContent = formatUsdAmount(php, phpPerUsd);
+      var formatted = formatUsdAmount(php, phpPerUsd);
+      if (formatted) {
+        el.textContent = formatted;
+        el.setAttribute('data-fx-applied', '1');
+      }
     }
   }
 
@@ -153,25 +161,10 @@
     enhance(document);
   }
 
-  // Auto-enhance dynamically-rendered cards (carousel, modal, lazy fetches).
-  // Renderers don't need to call enhance() themselves — any new node with a
-  // [data-price-php] placeholder is filled the moment it lands in the DOM.
-  if (typeof MutationObserver === 'function') {
-    var pending = false;
-    var observer = new MutationObserver(function () {
-      if (pending) return;
-      pending = true;
-      // Coalesce bursts of additions into a single rate-bound run.
-      Promise.resolve().then(function () {
-        pending = false;
-        if (lastRate) applyToPlaceholders(document, lastRate);
-        else enhance(document);
-      });
-    });
-    var attach = function () {
-      observer.observe(document.body, { childList: true, subtree: true });
-    };
-    if (document.body) attach();
-    else document.addEventListener('DOMContentLoaded', attach);
-  }
+  // NOTE: MutationObserver-based auto-enhancement was removed — setting
+  // textContent on the placeholder spans counts as a childList mutation,
+  // which re-triggered the observer in a tight loop and froze the page.
+  // Renderers now call window.WatchAlleyFx.enhance(root) explicitly after
+  // they inject new cards. applyToPlaceholders is idempotent (see the
+  // data-fx-applied guard) so repeat calls are free.
 })();

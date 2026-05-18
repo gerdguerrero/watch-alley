@@ -3093,6 +3093,7 @@ function openProductDetailModal(watch, options = {}) {
   }
 
   productModalBody.innerHTML = renderProductDetailModal(watch, watchInventoryCache);
+  if (window.WatchAlleyFx) window.WatchAlleyFx.enhance(productModalBody);
   productModal.classList.add('open');
   productModal.setAttribute('aria-hidden', 'false');
   document.body.classList.add('modal-open');
@@ -3734,6 +3735,8 @@ async function loadWatchInventory() {
     // Hero featured card: prefer the watch flagged featured=true; fall back
     // to the first available piece. Hidden if there's nothing to show.
     renderHeroFeaturedCard(activeWatches);
+    // Fill USD placeholders on the newly-rendered carousel + hero card.
+    if (window.WatchAlleyFx) window.WatchAlleyFx.enhance(document);
     if (soldArchiveGrid) {
       if (soldWatches.length > 0) {
         soldArchiveGrid.innerHTML = soldWatches
