@@ -1,92 +1,36 @@
 # The Watch Alley
 
-The Watch Alley is a curated watch commerce site for Filipino collectors. The
-active deployable app is now the **Next.js App Router workspace in
-[`next/`](./next/)**.
-
-The repo previously shipped a Vite multi-page site from the repository root.
-That stack has been retired from the active codebase. A small legacy bridge for
-the operator admin and legal/trust static pages is copied into
-[`next/public`](./next/public) so cutover to a Next.js Vercel project does not
-break the owner workflow while the native App Router admin is rebuilt.
+The Watch Alley is a curated watch commerce site for Filipino collectors.
+The repo is a single Next.js App Router workspace deployed to Vercel.
 
 ## Current Stack
 
 | Layer | Choice |
 |---|---|
-| App framework | Next.js 16 App Router + React 19 |
+| App framework | Next.js 16 App Router + React 19 + Turbopack |
 | Styling | Tailwind CSS v4 + shadcn/ui, themed to The Watch Alley palette |
 | Data | Supabase Postgres, Auth, Storage, Edge Functions, RLS, SECURITY DEFINER RPCs |
 | Rendering | Server Components for public reads, ISR for watch and journal detail pages |
-| Deployment | Vercel, with project root set to `next/` |
+| Hosting | Vercel |
 
 ## Commands
 
-From the repository root:
-
 ```bash
-pnpm dev
-pnpm build
-pnpm check
-pnpm test
+pnpm dev          # Turbopack dev server on http://localhost:3000
+pnpm build        # Production build
+pnpm start        # Serve the production build
+pnpm check        # Biome + tsc --noEmit
+pnpm test         # check && build
 ```
 
-These delegate into `next/`. You can also run commands directly there:
+## Vercel deployment
 
-```bash
-cd next
-pnpm dev
-pnpm build
-pnpm exec biome check src
-pnpm exec tsc --noEmit
-```
+Vercel auto-detects the Next.js framework from `package.json` at the repo
+root. No special root-directory override is needed. The repo's
+[vercel.json](./vercel.json) pins clean URLs and the framework preset.
 
-## Vercel Cutover
-
-In Vercel, set:
-
-- **Root Directory:** `next`
-- **Framework Preset:** Next.js
-- **Build Command:** default (`next build`)
-- **Install Command:** default pnpm install
-
-The Next workspace includes [`next/vercel.json`](./next/vercel.json), which
-keeps clean URLs and pins the framework preset for the cutover app.
-
-## Route Status
-
-Native App Router routes:
-
-- `/`
-- `/available`
-- `/sold`
-- `/journal`
-- `/journal/[slug]`
-- `/watch/[slug]`
-
-Legacy bridge routes served from `next/public`:
-
-- `/admin`
-- `/privacy`
-- `/terms`
-- `/authenticity`
-
-The bridge is intentional. The admin remains operator-critical, so it should be
-ported to native Server Actions and shadcn/ui screens before the static bridge
-is removed.
-
-## Important Docs
-
-- [Architecture](./docs/architecture.md)
-- [Migration plan](./docs/migration-plan.md)
-- [Roadmap](./docs/WATCH_ALLEY_ROADMAP.md)
-- [Supabase setup](./docs/SUPABASE_SETUP.md)
-- [Inventory schema](./docs/inventory-schema.md)
-
-## Environment
-
-Next.js env vars live in [`next/.env.example`](./next/.env.example). Required
-for storefront builds:
+Required environment variables (set in Vercel **Settings → Environment
+Variables** for both Preview and Production):
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -94,5 +38,36 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-Root `.env.local` is still read by `pnpm transcribe:feedback` for feedback video
-transcription.
+For local development, copy [.env.example](./.env.example) to `.env.local`
+and fill in the values.
+
+## Routes
+
+Native App Router:
+
+- `/` — homepage
+- `/available` — full grid of available pieces
+- `/sold` — sold archive (ledger)
+- `/journal` — journal index
+- `/journal/[slug]` — journal post (ISR)
+- `/watch/[slug]` — watch detail (ISR, per-watch OG + JSON-LD)
+
+Legacy bridge routes served as static HTML under [public/](./public):
+
+- `/admin` — operator dashboard (to be ported to native Server Actions)
+- `/privacy`, `/terms`, `/authenticity` — legal/trust pages
+
+The bridge stays in place until each surface is rebuilt natively.
+
+## Key docs
+
+- [Architecture](./docs/architecture.md) — stack rationale, file layout, design tokens
+- [CLAUDE.md](./CLAUDE.md) — coding agent conventions for this repo
+- [Migration history](./docs/migration-plan.md) — Vite → Next.js timeline (archived)
+- [Roadmap](./docs/WATCH_ALLEY_ROADMAP.md)
+- [Supabase setup](./docs/SUPABASE_SETUP.md)
+- [Inventory schema](./docs/inventory-schema.md)
+
+## One-off scripts
+
+- `pnpm transcribe:feedback` — runs [scripts/transcribe-feedback.mjs](./scripts/transcribe-feedback.mjs) to transcribe client feedback videos (Whisper) and extract structured action items (Claude). Requires `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` in `.env.local`. Not used at runtime.

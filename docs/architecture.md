@@ -1,13 +1,12 @@
 # The Watch Alley — Architecture
 
-> **Status:** Deployment migration complete in the codebase. The active app is
-> the Next.js workspace in [`next/`](../next/). Vercel must use `next/` as the
-> project root so the deployment framework is detected as Next.js.
+> **Status:** Vite → Next.js migration is complete. The single deployable app
+> lives at the repo root. Vercel auto-detects the Next.js framework preset
+> from `package.json`; no special root-directory override is required.
 
-The old Vite storefront has been removed from the active root. A small static
-legacy bridge remains inside [`next/public`](../next/public) for `/admin` and
-the legal/trust pages until those surfaces are rebuilt as native App Router
-routes.
+The old Vite storefront has been removed. A small static legacy bridge remains
+inside [`public/`](../public) for `/admin` and the legal/trust pages until
+those surfaces are rebuilt as native App Router routes.
 
 ## Stack
 
@@ -22,48 +21,46 @@ routes.
 | Writes | **Server Actions** | Target architecture for inquiry/admin mutations. The legacy admin bridge still uses existing SECURITY DEFINER RPCs client-side. |
 | Images | **`next/image`** | Optimized remote Supabase images plus static local bridge assets. |
 | Validation | **Biome + TypeScript + production build** | Lightweight default verification. Browser smoke checks are risk-based, not mandatory for every slice. |
-| Hosting | **Vercel** | Root directory should be `next/`; framework preset should be Next.js. |
+| Hosting | **Vercel** | Auto-detects Next.js from root `package.json`. |
 
 ## Active Layout
 
 ```text
 watch-alley/
-├── next/                         # Active deployable app
-│   ├── src/
-│   │   ├── app/                  # App Router storefront routes
-│   │   │   ├── page.tsx          # /
-│   │   │   ├── available/
-│   │   │   ├── sold/
-│   │   │   ├── journal/
-│   │   │   └── watch/[slug]/
-│   │   ├── components/
-│   │   │   ├── storefront/
-│   │   │   └── ui/
-│   │   └── lib/
-│   │       ├── supabase/         # public, server, browser, admin clients
-│   │       ├── inventory/
-│   │       ├── journal/
-│   │       └── fx/
-│   ├── public/                   # Static bridge assets + local images
-│   │   ├── admin/index.html      # Legacy admin bridge
-│   │   ├── scripts/admin.js
-│   │   ├── styles/
-│   │   ├── watch-assets/
-│   │   ├── og/
-│   │   ├── privacy.html
-│   │   ├── terms.html
-│   │   └── authenticity.html
-│   ├── scripts/
-│   │   └── transcribe-feedback.mjs
-│   ├── next.config.ts
-│   ├── vercel.json
-│   └── package.json
+├── src/
+│   ├── app/                  # App Router storefront routes
+│   │   ├── page.tsx          # /
+│   │   ├── available/
+│   │   ├── sold/
+│   │   ├── journal/
+│   │   └── watch/[slug]/
+│   ├── components/
+│   │   ├── storefront/
+│   │   └── ui/
+│   └── lib/
+│       ├── supabase/         # public, server, browser, admin clients
+│       ├── inventory/
+│       ├── journal/
+│       └── fx/
+├── public/                   # Static bridge assets + local images
+│   ├── admin/index.html      # Legacy admin bridge
+│   ├── scripts/admin.js
+│   ├── styles/
+│   ├── watch-assets/
+│   ├── og/
+│   ├── privacy.html
+│   ├── terms.html
+│   └── authenticity.html
+├── scripts/
+│   └── transcribe-feedback.mjs
 ├── docs/
-│   ├── migrations/               # Supabase SQL migrations
+│   ├── migrations/           # Supabase SQL migrations
 │   ├── migration-plan.md
 │   └── WATCH_ALLEY_ROADMAP.md
 ├── feedback/
-└── package.json                  # Root command delegates into next/
+├── next.config.ts
+├── vercel.json
+└── package.json
 ```
 
 ## Public Storefront Flow
@@ -110,24 +107,17 @@ The admin bridge still calls existing Supabase RPCs:
 - journal and social draft admin RPCs
 
 This is acceptable for cutover because it preserves the current verified
-operator workflow. The next architecture milestone is replacing the bridge with
-native App Router admin pages, `proxy.ts` auth gating, and Server Actions.
+operator workflow. The next architecture milestone is replacing the bridge
+with native App Router admin pages, `proxy.ts` auth gating, and Server
+Actions.
 
 ## Verification
 
 Default local verification:
 
 ```bash
-pnpm check
-pnpm build
-```
-
-From `next/`, the equivalent is:
-
-```bash
-pnpm exec biome check src
-pnpm exec tsc --noEmit
-pnpm build
+pnpm check     # biome check src && tsc --noEmit
+pnpm build     # next build
 ```
 
 Run browser smoke checks only for changes that materially affect layout,

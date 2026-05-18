@@ -1,8 +1,10 @@
-# Next.js workspace — agent conventions
+# The Watch Alley — agent conventions
 
-This is the active Next.js app for **The Watch Alley** (cut over from Vite — see
-[../docs/architecture.md](../docs/architecture.md) for stack rationale and
-[../docs/migration-plan.md](../docs/migration-plan.md) for phase status).
+This is the canonical coding-agent doc for the repo. The single deployable
+app lives at the repo root (a Next.js App Router workspace; Vite was retired
+in commit `0d2b58f`). See [docs/architecture.md](./docs/architecture.md) for
+stack rationale and [docs/migration-plan.md](./docs/migration-plan.md) for
+the Vite → Next.js migration history.
 
 Before writing any framework-level code, **read the relevant guide under
 [node_modules/next/dist/docs/](./node_modules/next/dist/docs/)**. Next.js 16 has

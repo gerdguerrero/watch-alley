@@ -9,14 +9,14 @@ See [architecture.md](./architecture.md) for stack decisions and the *why*.
 
 ## Ground rules
 
-1. **The Vite site stayed live until phase 8.** Phase 8 has now removed the
-   active Vite root and moved deployment ownership to [next/](../next/).
+1. **The Vite site stayed live until phase 8.** Phase 8 removed the active Vite
+   root; the Next.js app then flattened up to the repo root.
 2. **One phase per session.** A phase is small enough to verify end-to-end in
    one sitting and reversible if it goes wrong.
-3. **Default verification stays light.** Use `pnpm exec biome check src`,
-   `pnpm exec tsc --noEmit`, and `pnpm build` from [next/](../next/) for normal
-   migration slices. Run browser smoke checks only when a change materially
-   touches layout, interaction, routing, or cutover-critical behavior.
+3. **Default verification stays light.** Use `pnpm check` (Biome + tsc) and
+   `pnpm build` for normal slices. Run browser smoke checks only when a change
+   materially touches layout, interaction, routing, or cutover-critical
+   behavior.
 4. **Schema is frozen.** We do not modify [docs/migrations](./migrations/) during
    this migration. Supabase tables/RLS stay exactly as they are.
 5. **Legacy Vite validators are retired.** Current verification is Biome,
@@ -24,8 +24,8 @@ See [architecture.md](./architecture.md) for stack decisions and the *why*.
 
 ## Current status — 2026-05-18
 
-The active deployable app is now the Next.js workspace in [next/](../next/).
-A production `pnpm build` from [next/](../next/) passes and prerenders:
+The single deployable app is the Next.js workspace at the repo root (flattened
+in commit after `0d2b58f`). A production `pnpm build` passes and prerenders:
 
 - `/`
 - `/available`
@@ -39,12 +39,11 @@ Public storefront reads use a cookie-free, server-only Supabase anon client so
 cookie-aware `@supabase/ssr` client remains reserved for authenticated/admin
 work and Server Actions.
 
-The codebase cutover is complete: root scripts delegate to the Next app, Vite
-source/build files have been removed from the active root, and static legacy
-bridges for `/admin`, `/privacy`, `/terms`, and `/authenticity` live in
-[next/public](../next/public). For Vercel to show the framework as Next.js, the
-Vercel Project Root Directory must be `next/`. The explicit
-[next/vercel.json](../next/vercel.json) pins clean URL behavior for that app.
+The codebase cutover is complete. Vite source/build files have been removed,
+and static legacy bridges for `/admin`, `/privacy`, `/terms`, and
+`/authenticity` live in [../public](../public). Vercel auto-detects the
+Next.js framework preset from the root `package.json`; the explicit
+[../vercel.json](../vercel.json) pins clean-URL behavior.
 
 ---
 
