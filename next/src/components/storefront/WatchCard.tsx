@@ -1,11 +1,7 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { badgeIsBrandNew, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
-import {
-  badgeIsBrandNew,
-  formatPhp,
-  formatWatchMeta,
-} from "@/lib/inventory/format";
 
 interface WatchCardProps {
   watch: Watch;

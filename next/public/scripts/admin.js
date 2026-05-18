@@ -705,7 +705,7 @@ function buildPublicWatchUrl(slug) {
   const origin = window.location.hostname === 'thewatchalley.com' || window.location.hostname === 'www.thewatchalley.com'
     ? window.location.origin
     : 'https://thewatchalley.com';
-  return `${origin}/#/watch/${encodeURIComponent(cleanSlug)}`;
+  return `${origin}/watch/${encodeURIComponent(cleanSlug)}`;
 }
 
 function socialListingDisplayName(listing) {
@@ -1900,7 +1900,7 @@ function renderInboxRow(row) {
 function renderInboxDrawer(row) {
   const fullMessage = String(row.message || '');
   const watchLabel = row.watch_slug || row.watch_id || '';
-  const watchHref = row.watch_slug ? `../#/watch/${encodeURIComponent(row.watch_slug)}` : '';
+  const watchHref = row.watch_slug ? `../watch/${encodeURIComponent(row.watch_slug)}` : '';
   const respondedAt = row.responded_at ? new Date(row.responded_at).toLocaleString('en-PH') : '—';
   const closedAt = row.closed_at ? new Date(row.closed_at).toLocaleString('en-PH') : '—';
   const created = row.created_at ? new Date(row.created_at).toLocaleString('en-PH') : '—';

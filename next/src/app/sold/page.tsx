@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { fetchWatches } from "@/lib/inventory/queries";
-import { TopBar } from "@/components/storefront/TopBar";
 import { MainNav } from "@/components/storefront/MainNav";
 import { SoldRow } from "@/components/storefront/SoldRow";
+import { TopBar } from "@/components/storefront/TopBar";
+import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
 
@@ -33,9 +33,8 @@ export default async function SoldPage() {
             </h1>
           </div>
           <p className="max-w-[540px] font-sans text-sm leading-[1.65] text-[color:var(--color-cream-60)]">
-            A running record of pieces that found a home through The Watch
-            Alley. If you missed one, message us — similar references come
-            around.
+            A running record of pieces that found a home through The Watch Alley. If you missed one,
+            message us — similar references come around.
           </p>
         </header>
 

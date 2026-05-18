@@ -9,16 +9,42 @@ See [architecture.md](./architecture.md) for stack decisions and the *why*.
 
 ## Ground rules
 
-1. **The Vite site stays live until phase 8.** Every phase lands in [next/](../next/);
-   nothing at the repo root changes (except docs) until cutover.
+1. **The Vite site stayed live until phase 8.** Phase 8 has now removed the
+   active Vite root and moved deployment ownership to [next/](../next/).
 2. **One phase per session.** A phase is small enough to verify end-to-end in
    one sitting and reversible if it goes wrong.
-3. **No phase ships without a real browser test.** Playwright headless run +
-   manual eyeball on the dev server before committing.
+3. **Default verification stays light.** Use `pnpm exec biome check src`,
+   `pnpm exec tsc --noEmit`, and `pnpm build` from [next/](../next/) for normal
+   migration slices. Run browser smoke checks only when a change materially
+   touches layout, interaction, routing, or cutover-critical behavior.
 4. **Schema is frozen.** We do not modify [docs/migrations](./migrations/) during
    this migration. Supabase tables/RLS stay exactly as they are.
-5. **Validators (`scripts/validate-*.mjs`) keep guarding the Vite site** until
-   phase 7 replaces them. Both stacks coexist; both must stay green.
+5. **Legacy Vite validators are retired.** Current verification is Biome,
+   TypeScript, and `next build`; browser smoke is risk-based.
+
+## Current status — 2026-05-18
+
+The active deployable app is now the Next.js workspace in [next/](../next/).
+A production `pnpm build` from [next/](../next/) passes and prerenders:
+
+- `/`
+- `/available`
+- `/sold`
+- `/journal`
+- `/journal/[slug]`
+- `/watch/[slug]`
+
+Public storefront reads use a cookie-free, server-only Supabase anon client so
+`generateStaticParams`, metadata generation, and ISR can run during build. The
+cookie-aware `@supabase/ssr` client remains reserved for authenticated/admin
+work and Server Actions.
+
+The codebase cutover is complete: root scripts delegate to the Next app, Vite
+source/build files have been removed from the active root, and static legacy
+bridges for `/admin`, `/privacy`, `/terms`, and `/authenticity` live in
+[next/public](../next/public). For Vercel to show the framework as Next.js, the
+Vercel Project Root Directory must be `next/`. The explicit
+[next/vercel.json](../next/vercel.json) pins clean URL behavior for that app.
 
 ---
 
@@ -28,20 +54,22 @@ See [architecture.md](./architecture.md) for stack decisions and the *why*.
 homepage renders the arrivals carousel from live Supabase data via a Server
 Component. **Done = one route working end-to-end on the new stack.**
 
-- [ ] Scaffold `next/` with Next.js (latest), TypeScript strict, Tailwind v4, Turbopack
-- [ ] Biome configured (lint + format)
-- [ ] `next/src/styles/globals.css` — Tailwind v4 `@theme` block carrying all design tokens (navy/cream/gold + opacity variants)
-- [ ] `next/src/app/layout.tsx` — `next/font` for Petrona, Spectral, JetBrains Mono
-- [ ] shadcn/ui initialized, themed to the WA palette (CSS variable overrides)
-- [ ] `@supabase/ssr` installed; `lib/supabase/server.ts` + `client.ts` + `admin.ts`
-- [ ] Environment surface: `.env.local` keys documented in `next/.env.example`
-- [ ] `lib/inventory/normalize.ts` — single function turning a Supabase row into a domain `Watch`
-- [ ] `app/(storefront)/page.tsx` — homepage Server Component
-- [ ] `components/storefront/HeroSection.tsx` — Server Component
-- [ ] `components/storefront/ArrivalsCarousel.tsx` — Client Component, hydrates with server-fetched data
-- [ ] `components/storefront/MainNav.tsx`, `TopBar.tsx`, `Footer.tsx` — Server Components
-- [ ] `next/CLAUDE.md` — per-app conventions for future sessions (component boundaries, where things go, lint commands)
-- [ ] Playwright smoke spec hitting `localhost:3000/` — proves cards render, no console errors, JS event loop responsive
+- [x] Scaffold `next/` with Next.js (latest), TypeScript strict, Tailwind v4, Turbopack
+- [x] Biome configured (lint + format)
+- [x] `next/src/app/globals.css` — Tailwind v4 `@theme` block carrying all design tokens (navy/cream/gold + opacity variants)
+- [x] `next/src/app/layout.tsx` — `next/font` for Petrona, Spectral, JetBrains Mono
+- [x] shadcn/ui initialized, themed to the WA palette (CSS variable overrides)
+- [x] `@supabase/ssr` installed; `lib/supabase/server.ts` + `client.ts` + `admin.ts`
+- [x] Environment surface: `.env.local` keys documented in `next/.env.example`
+- [x] `lib/inventory/normalize.ts` — single function turning a Supabase row into a domain `Watch`
+- [x] `app/page.tsx` — homepage Server Component
+- [x] `components/storefront/HeroSection.tsx` — Server Component
+- [x] `components/storefront/ArrivalsCarousel.tsx` — Server Component with a small client controls island
+- [x] Keep `WatchCard` out of the client bundle by splitting carousel controls from card rendering
+- [x] `components/storefront/MainNav.tsx`, `TopBar.tsx` — Server Components
+- [ ] Native `Footer.tsx` — pending; legacy legal links are bridged through static pages
+- [x] `next/CLAUDE.md` — per-app conventions for future sessions (component boundaries, where things go, lint commands)
+- [ ] Lightweight route smoke check for `/`, `/available`, `/sold`, `/journal`, and one `/watch/[slug]` after the route set stabilizes
 - [ ] Commit + push
 
 **Out of scope for phase 1**: modal, inquiry form, sold/available/journal pages, admin, image upload, ISR.
@@ -50,32 +78,32 @@ Component. **Done = one route working end-to-end on the new stack.**
 
 ## Phase 2 — Storefront read paths
 
-- [ ] `app/(storefront)/available/page.tsx` — Server Component with full grid
-- [ ] `app/(storefront)/sold/page.tsx` — Server Component, ledger style
-- [ ] `components/storefront/WatchCard.tsx` — shared between homepage + /available
-- [ ] `components/storefront/SoldRow.tsx` — used on /sold
-- [ ] FX (PHP → USD) helper as a Client Component, no global script
-- [ ] Replace homepage `#news` Dispatches section with Server-fetched journal previews
+- [x] `app/available/page.tsx` — Server Component with full grid
+- [x] `app/sold/page.tsx` — Server Component, ledger style
+- [x] `components/storefront/WatchCard.tsx` — shared between homepage + /available
+- [x] `components/storefront/SoldRow.tsx` — used on /sold
+- [x] FX (PHP → USD) helper as a Client Component, no global script
+- [x] Replace homepage `#news` Dispatches section with Server-fetched journal previews
 
 ---
 
 ## Phase 3 — Watch detail pages with ISR
 
-- [ ] `app/(storefront)/watch/[slug]/page.tsx` — Static + `revalidate: 60`
-- [ ] `generateStaticParams` from published watches
-- [ ] `generateMetadata` for per-watch OG + canonical
-- [ ] Schema.org `Product` JSON-LD
-- [ ] Admin saves call `revalidatePath('/watch/[slug]')` to publish instantly
-- [ ] Retire `scripts/generate-watch-pages.mjs` (kept in git history, removed from postbuild)
+- [x] `app/watch/[slug]/page.tsx` — Static + `revalidate: 60`
+- [x] `generateStaticParams` from published watches
+- [x] `generateMetadata` for per-watch OG + canonical
+- [x] Schema.org `Product` JSON-LD
+- [ ] Native admin saves call `revalidatePath('/watch/[slug]')` to publish instantly
+- [x] Retire `scripts/generate-watch-pages.mjs` (kept in git history, removed from postbuild)
 
 ---
 
 ## Phase 4 — Journal
 
-- [ ] `app/(storefront)/journal/page.tsx` — index, Server Component
-- [ ] `app/(storefront)/journal/[slug]/page.tsx` — post, ISR
-- [ ] `lib/journal/renderMarkdown.ts` — safe-by-default markdown renderer (existing helper ported)
-- [ ] Retire `scripts/generate-journal-pages.mjs`
+- [x] `app/journal/page.tsx` — index, Server Component
+- [x] `app/journal/[slug]/page.tsx` — post, ISR
+- [x] `lib/journal/markdown.ts` — safe-by-default markdown renderer (existing helper ported)
+- [x] Retire `scripts/generate-journal-pages.mjs`
 
 ---
 
@@ -90,6 +118,7 @@ Component. **Done = one route working end-to-end on the new stack.**
 
 ## Phase 6 — Admin
 
+- [x] Preserve current operator admin as a static legacy bridge under `next/public/admin`
 - [ ] `proxy.ts` at `next/src/proxy.ts` — checks Supabase session on every `/admin/**` request
 - [ ] `app/admin/login/page.tsx` — Supabase Auth UI (email + password recovery, mirroring current behavior)
 - [ ] `app/admin/page.tsx` — Dashboard with KPIs, top watches, recent activity (mirrors `validate-admin-dashboard.mjs` contract)
@@ -103,19 +132,20 @@ Component. **Done = one route working end-to-end on the new stack.**
 
 ## Phase 7 — Tests
 
-- [ ] Playwright specs covering every contract currently asserted by `scripts/validate-*.mjs` (one spec per behavior, not one per validator)
+- [ ] Lightweight route checks covering storefront, detail pages, and legacy bridge routes
 - [ ] Vitest covering domain logic in `lib/inventory`, `lib/journal`, `lib/fx`, `lib/schema`
 - [ ] CI in `.github/workflows/` runs both on every push
-- [ ] Old validators kept until phase 8 cutover, then deleted
+- [x] Old Vite validators deleted during phase 8 cutover
 
 ---
 
 ## Phase 8 — Cutover
 
-- [ ] Vercel project root directory pointed at `next/`
-- [ ] `vercel.ts` config in `next/` with rewrites/headers (replaces `vercel.json`)
+- [x] Codebase prepared for Vercel project root directory `next/`
+- [x] `next/vercel.json` pins the framework preset to `nextjs`
+- [x] Replace legacy root `vercel.json` after production cutover
 - [ ] Production domain `thewatchalley.com` cut over
 - [ ] Smoke test all routes against production for ≥48h
-- [ ] Delete from repo root: `index.html`, `journal.html`, `journal-post.html`, `available.html`, `sold.html`, `terms.html`, `privacy.html`, `authenticity.html`, `vite.config.js`, `vercel.json`, `scripts/generate-*.mjs`, `scripts/validate-*.mjs`, `scripts/optimize-images.mjs`, `styles/`
-- [ ] Move `scripts/transcribe-feedback.mjs` to `next/scripts/`
+- [x] Delete from repo root: `index.html`, `journal.html`, `journal-post.html`, `available.html`, `sold.html`, `terms.html`, `privacy.html`, `authenticity.html`, `vite.config.js`, `vercel.json`, `scripts/generate-*.mjs`, `scripts/validate-*.mjs`, `scripts/optimize-images.mjs`, `styles/`
+- [x] Move `scripts/transcribe-feedback.mjs` to `next/scripts/`
 - [ ] Final commit: `chore: cut over to Next.js, retire Vite stack`

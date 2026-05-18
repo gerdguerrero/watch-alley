@@ -27,22 +27,13 @@ export function MainNav({ active }: MainNavProps) {
         >
           Available
         </Link>
-        <Link
-          href="/journal"
-          className={`${linkBase} ${active === "journal" ? activeClass : ""}`}
-        >
+        <Link href="/journal" className={`${linkBase} ${active === "journal" ? activeClass : ""}`}>
           Journal
         </Link>
-        <Link
-          href="/sold"
-          className={`${linkBase} ${active === "sold" ? activeClass : ""}`}
-        >
+        <Link href="/sold" className={`${linkBase} ${active === "sold" ? activeClass : ""}`}>
           Sold Archive
         </Link>
-        <Link
-          href="/#contact"
-          className={`${linkBase} ${active === "visit" ? activeClass : ""}`}
-        >
+        <Link href="/#contact" className={`${linkBase} ${active === "visit" ? activeClass : ""}`}>
           Visit
         </Link>
       </div>

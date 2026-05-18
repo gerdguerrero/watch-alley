@@ -1,5 +1,5 @@
 import "server-only";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { JournalPost, JournalRow, JournalStatus } from "./types";
 
 const SELECT_COLUMNS =
@@ -22,8 +22,7 @@ function normalizeRow(row: JournalRow): JournalPost {
     tags: Array.isArray(row.tags) ? row.tags : [],
     status: normalizeStatus(row.status),
     author: row.author ?? "The Watch Alley",
-    readMinutes:
-      typeof row.read_minutes === "number" ? row.read_minutes : null,
+    readMinutes: typeof row.read_minutes === "number" ? row.read_minutes : null,
     publishedAt: row.published_at ?? "",
   };
 }
@@ -32,7 +31,7 @@ function normalizeRow(row: JournalRow): JournalPost {
  * Fetch published journal posts, newest first.
  */
 export async function fetchJournalPosts(limit?: number): Promise<JournalPost[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   let query = supabase
     .from("journal_posts")
     .select(SELECT_COLUMNS)
@@ -48,10 +47,8 @@ export async function fetchJournalPosts(limit?: number): Promise<JournalPost[]> 
   return ((data ?? []) as unknown as JournalRow[]).map(normalizeRow);
 }
 
-export async function fetchJournalPost(
-  slug: string
-): Promise<JournalPost | null> {
-  const supabase = await createSupabaseServerClient();
+export async function fetchJournalPost(slug: string): Promise<JournalPost | null> {
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("journal_posts")
     .select(SELECT_COLUMNS)
@@ -60,4 +57,22 @@ export async function fetchJournalPost(
     .maybeSingle();
   if (error || !data) return null;
   return normalizeRow(data as unknown as JournalRow);
+}
+
+/**
+ * Every published journal slug — feeds /journal/[slug] generateStaticParams.
+ */
+export async function fetchPublishedJournalSlugs(): Promise<string[]> {
+  const supabase = createSupabasePublicClient();
+  const { data, error } = await supabase
+    .from("journal_posts")
+    .select("slug")
+    .eq("status", "published");
+  if (error || !data) {
+    console.error("fetchPublishedJournalSlugs failed:", error?.message);
+    return [];
+  }
+  return (data as Array<{ slug: string | null }>)
+    .map((r) => r.slug)
+    .filter((s): s is string => typeof s === "string" && s.length > 0);
 }

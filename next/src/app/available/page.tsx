@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { fetchWatches } from "@/lib/inventory/queries";
-import { TopBar } from "@/components/storefront/TopBar";
 import { MainNav } from "@/components/storefront/MainNav";
-import { WatchCard } from "@/components/storefront/WatchCard";
+import { TopBar } from "@/components/storefront/TopBar";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
+import { WatchCard } from "@/components/storefront/WatchCard";
+import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
 
@@ -32,9 +32,8 @@ export default async function AvailablePage() {
             </h1>
           </div>
           <p className="max-w-[60ch] font-sans text-sm leading-[1.65] text-[color:var(--color-cream-60)]">
-            Every watch currently for sale through The Watch Alley.
-            Daylight-photographed, disclosed in writing, shipped insured. Tap
-            any piece for full details and to inquire.
+            Every watch currently for sale through The Watch Alley. Daylight-photographed, disclosed
+            in writing, shipped insured. Tap any piece for full details and to inquire.
           </p>
         </header>
 
@@ -51,8 +50,8 @@ export default async function AvailablePage() {
         )}
 
         <p className="mx-auto mt-[clamp(36px,6vw,56px)] max-w-[60ch] text-center font-mono text-[10px] uppercase leading-[1.6] tracking-[0.18em] text-[color:var(--color-cream-60)]">
-          USD figures shown alongside prices are mid-market estimates, refreshed daily.
-          The final amount is calculated in Wise at payment.
+          USD figures shown alongside prices are mid-market estimates, refreshed daily. The final
+          amount is calculated in Wise at payment.
         </p>
       </main>
       <UsdPriceMount />

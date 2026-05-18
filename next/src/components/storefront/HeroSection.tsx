@@ -1,5 +1,5 @@
-import type { Watch } from "@/lib/inventory/types";
 import { formatPhp } from "@/lib/inventory/format";
+import type { Watch } from "@/lib/inventory/types";
 
 interface HeroSectionProps {
   featured: Watch | null;
@@ -30,9 +30,8 @@ export function HeroSection({ featured }: HeroSectionProps) {
             <em className="italic text-[color:var(--color-gold)]">honestly</em> sold.
           </h1>
           <p className="mt-6 max-w-[60ch] font-sans text-[clamp(15px,1.4vw,18px)] leading-[1.65] text-[color:var(--color-cream-80)]">
-            Pre-owned and brand-new timepieces curated in Manila. Seiko. Omega.
-            Hamilton. Tissot. Every piece photographed in daylight, disclaimed
-            where it counts, and shipped worldwide.
+            Pre-owned and brand-new timepieces curated in Manila. Seiko. Omega. Hamilton. Tissot.
+            Every piece photographed in daylight, disclaimed where it counts, and shipped worldwide.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-6">
             <a

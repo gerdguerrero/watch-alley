@@ -27,6 +27,15 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
+  async rewrites() {
+    return [
+      { source: "/admin", destination: "/admin/index.html" },
+      { source: "/admin/", destination: "/admin/index.html" },
+      { source: "/privacy", destination: "/privacy.html" },
+      { source: "/terms", destination: "/terms.html" },
+      { source: "/authenticity", destination: "/authenticity.html" },
+    ];
+  },
 };
 
 export default nextConfig;

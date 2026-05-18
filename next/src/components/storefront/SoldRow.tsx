@@ -1,25 +1,12 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import type { Watch } from "@/lib/inventory/types";
 
 interface SoldRowProps {
   watch: Watch;
 }
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function formatSoldMonth(soldAt: string): string {
   if (!/^\d{4}-\d{2}/.test(soldAt)) return "";
@@ -52,13 +39,7 @@ export function SoldRow({ watch }: SoldRowProps) {
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden opacity-85 [filter:grayscale(0.65)]">
         {watch.primaryImage && (
-          <Image
-            src={watch.primaryImage}
-            alt=""
-            fill
-            sizes="56px"
-            className="object-cover"
-          />
+          <Image src={watch.primaryImage} alt="" fill sizes="56px" className="object-cover" />
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1">

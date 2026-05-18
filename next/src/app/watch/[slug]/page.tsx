@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  fetchWatchBySlug,
-  fetchPublishedSlugs,
-} from "@/lib/inventory/queries";
-import { formatPhp, formatWatchMeta } from "@/lib/inventory/format";
-import { TopBar } from "@/components/storefront/TopBar";
+import { notFound } from "next/navigation";
 import { MainNav } from "@/components/storefront/MainNav";
+import { TopBar } from "@/components/storefront/TopBar";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
+import { formatPhp, formatWatchMeta } from "@/lib/inventory/format";
+import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 
 // ISR: every published slug is pre-rendered at build, unknown slugs fall
@@ -87,7 +84,20 @@ function buildProductJsonLd(watch: Watch) {
 function formatSoldMonth(soldAt: string): string {
   if (!/^\d{4}-\d{2}/.test(soldAt)) return "";
   const [year, month] = soldAt.split("-");
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const idx = Math.max(0, Math.min(11, Number(month) - 1));
   return `${months[idx]} ${year}`;
 }
@@ -100,11 +110,7 @@ function boxPapers(watch: Watch): string {
   return "Watch only";
 }
 
-export default async function WatchDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function WatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const watch = await fetchWatchBySlug(slug);
   if (!watch) notFound();
@@ -119,7 +125,10 @@ export default async function WatchDetailPage({
       <TopBar />
       <MainNav />
       <main className="flex-1 px-[clamp(20px,4vw,80px)] py-[clamp(40px,6vw,80px)]">
-        <nav aria-label="Breadcrumb" className="mb-8 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-8 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]"
+        >
           <Link href="/" className="hover:text-[color:var(--color-gold)]">
             Home
           </Link>
@@ -133,7 +142,9 @@ export default async function WatchDetailPage({
 
         <article className="grid gap-[clamp(28px,4vw,56px)] lg:grid-cols-[1.1fr_1fr]">
           <div className="flex flex-col gap-4">
-            <div className={`relative aspect-[4/3] overflow-hidden border border-[color:var(--color-gold-20)] bg-[color:var(--color-card)] ${isSold ? "[filter:grayscale(0.5)] opacity-90" : ""}`}>
+            <div
+              className={`relative aspect-[4/3] overflow-hidden border border-[color:var(--color-gold-20)] bg-[color:var(--color-card)] ${isSold ? "[filter:grayscale(0.5)] opacity-90" : ""}`}
+            >
               {watch.primaryImage ? (
                 <Image
                   src={watch.primaryImage}
@@ -152,18 +163,12 @@ export default async function WatchDetailPage({
             </div>
             {watch.images.length > 1 && (
               <div className="grid grid-cols-4 gap-3">
-                {watch.images.slice(0, 8).map((src, i) => (
+                {watch.images.slice(0, 8).map((src) => (
                   <div
-                    key={src + i}
+                    key={src}
                     className="relative aspect-square overflow-hidden border border-[color:var(--color-gold-20)]"
                   >
-                    <Image
-                      src={src}
-                      alt=""
-                      fill
-                      sizes="120px"
-                      className="object-cover"
-                    />
+                    <Image src={src} alt="" fill sizes="120px" className="object-cover" />
                   </div>
                 ))}
               </div>
@@ -218,23 +223,13 @@ export default async function WatchDetailPage({
             </div>
 
             <dl className="grid grid-cols-2 gap-y-4 text-sm">
-              {watch.conditionLabel && (
-                <DetailRow label="Condition" value={watch.conditionLabel} />
-              )}
+              {watch.conditionLabel && <DetailRow label="Condition" value={watch.conditionLabel} />}
               <DetailRow label="Set" value={boxPapers(watch)} />
-              {watch.edition && (
-                <DetailRow label="Edition" value={watch.edition} />
-              )}
-              {watch.movement && (
-                <DetailRow label="Movement" value={watch.movement} />
-              )}
+              {watch.edition && <DetailRow label="Edition" value={watch.edition} />}
+              {watch.movement && <DetailRow label="Movement" value={watch.movement} />}
               {watch.caseSize && <DetailRow label="Case" value={watch.caseSize} />}
-              {watch.material && (
-                <DetailRow label="Material" value={watch.material} />
-              )}
-              {watch.serviceHistory && (
-                <DetailRow label="Service" value={watch.serviceHistory} />
-              )}
+              {watch.material && <DetailRow label="Material" value={watch.material} />}
+              {watch.serviceHistory && <DetailRow label="Service" value={watch.serviceHistory} />}
             </dl>
 
             {watch.description && (
@@ -245,17 +240,15 @@ export default async function WatchDetailPage({
 
             {watch.provenance && (
               <Section title="Provenance">
-                {watch.provenance.split(/\n{2,}/).map((p, i) => (
-                  <p key={i}>{p}</p>
+                {watch.provenance.split(/\n{2,}/).map((p) => (
+                  <p key={`${p.length}:${p.slice(0, 32)}`}>{p}</p>
                 ))}
               </Section>
             )}
 
             {watch.disclosure && (
               <Section title="Disclosure">
-                <p className="italic text-[color:var(--color-cream-60)]">
-                  {watch.disclosure}
-                </p>
+                <p className="italic text-[color:var(--color-cream-60)]">{watch.disclosure}</p>
               </Section>
             )}
 
@@ -300,13 +293,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-3 border-t border-[color:var(--color-gold-20)] pt-5">
       <h2 className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]">

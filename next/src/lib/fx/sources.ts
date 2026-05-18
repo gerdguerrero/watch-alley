@@ -9,7 +9,6 @@
  * Wise's published rate is mid-market + ~0.4% spread, so this estimate sits
  * within ~0.5% of what a buyer sees in the Wise app at payment time.
  */
-export const PRIMARY_URL =
-  "https://api.exchangerate.host/latest?base=USD&symbols=PHP";
+export const PRIMARY_URL = "https://api.exchangerate.host/latest?base=USD&symbols=PHP";
 export const FALLBACK_URL = "https://open.er-api.com/v6/latest/USD";
 export const OFFLINE_DEFAULT_PHP_PER_USD = 58;

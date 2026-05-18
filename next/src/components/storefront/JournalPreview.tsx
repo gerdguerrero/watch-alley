@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import type { JournalPost } from "@/lib/journal/types";
 
 interface JournalPreviewProps {
@@ -102,13 +102,7 @@ export function JournalPreview({ posts }: JournalPreviewProps) {
             >
               <div className="relative h-20 w-20 shrink-0 overflow-hidden">
                 {post.heroImage && (
-                  <Image
-                    src={post.heroImage}
-                    alt=""
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
+                  <Image src={post.heroImage} alt="" fill sizes="80px" className="object-cover" />
                 )}
               </div>
               <div className="flex min-w-0 flex-col gap-1">

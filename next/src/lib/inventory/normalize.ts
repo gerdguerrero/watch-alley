@@ -1,10 +1,6 @@
 import type { Watch, WatchRow, WatchStatus } from "./types";
 
-const VALID_STATUSES: ReadonlySet<WatchStatus> = new Set([
-  "available",
-  "reserved",
-  "sold",
-]);
+const VALID_STATUSES: ReadonlySet<WatchStatus> = new Set(["available", "reserved", "sold"]);
 
 function normalizeStatus(value: string | null): WatchStatus {
   if (value && VALID_STATUSES.has(value as WatchStatus)) {
@@ -27,10 +23,7 @@ function nonNullStringList(value: string[] | null): string[] {
  */
 export function normalizeWatchRow(row: WatchRow): Watch {
   const images = nonNullStringList(row.images);
-  const priceNumeric =
-    typeof row.price === "number"
-      ? row.price
-      : Number(row.price ?? 0) || 0;
+  const priceNumeric = typeof row.price === "number" ? row.price : Number(row.price ?? 0) || 0;
 
   return {
     id: row.id ?? "",
@@ -57,15 +50,13 @@ export function normalizeWatchRow(row: WatchRow): Watch {
     inquirySubject: row.inquiry_subject ?? "",
     inquiryBody: row.inquiry_body ?? "",
     soldAt: row.sold_at ?? "",
-    soldPrice:
-      typeof row.sold_price === "number" ? row.sold_price : null,
+    soldPrice: typeof row.sold_price === "number" ? row.sold_price : null,
     hasBox: row.has_box,
     hasPapers: row.has_papers,
     serviceHistory: row.service_history ?? "",
     featured: row.featured === true,
     lowStock: row.low_stock === true,
-    displayOrder:
-      typeof row.display_order === "number" ? row.display_order : null,
+    displayOrder: typeof row.display_order === "number" ? row.display_order : null,
     published: row.published !== false,
   };
 }

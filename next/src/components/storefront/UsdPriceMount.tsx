@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  PRIMARY_URL,
-  FALLBACK_URL,
-  OFFLINE_DEFAULT_PHP_PER_USD,
-} from "@/lib/fx/sources";
 import { formatUsdFromPhp } from "@/lib/fx/format";
+import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD, PRIMARY_URL } from "@/lib/fx/sources";
 
 const CACHE_KEY = "WA_FX_PHP_USD_V2";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;

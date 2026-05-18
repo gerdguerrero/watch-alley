@@ -20,7 +20,7 @@ Migrations applied to production:
 | 20260428032849    | watch_alley_storage_policies          | (superseded by 0005-storage-policies in this folder.) |
 | —                 | (post-deployment) bucket listing fix  | Removed public-listing storage policy. |
 
-13 watches seeded from `public/data/watches.json` (10 available + 3 sold archive).
+13 watches seeded from the legacy JSON snapshot now carried at `next/public/data/watches.json` (10 available + 3 sold archive).
 
 ## SQL artifacts in this folder (in order)
 
@@ -40,7 +40,7 @@ project, run them in numeric order.
 1. **Create your admin Supabase Auth account.**
    - Open https://supabase.com/dashboard/project/yrzawkqcifuubtltktbk/auth/users
    - Click **Add user → Send invitation** (or **Create new user** with a
-     password) for the email you want to log into admin.html with.
+     password) for the email you want to log into `/admin` with.
    - Email confirmation is on by default; check your inbox and confirm.
 
 2. **Add yourself to the admin allowlist.**
@@ -52,17 +52,16 @@ project, run them in numeric order.
    ```
    The `is_admin()` function is case-insensitive on the email lookup.
 
-3. **(Optional) Verify auth flow** by opening `admin.html` locally via
-   `pnpm dev`, signing in with that account, and confirming the workspace
+3. **(Optional) Verify auth flow** by opening `/admin` locally via the Next dev
+   server, signing in with that account, and confirming the workspace
    panel renders (not the "Forbidden" panel).
 
 ## Front-end inventory path
 
-- Public storefront read path: `/rest/v1/watches?select=...&order=status.asc,display_order.asc`
-  (the `public.watches` view, not the schema-qualified table). The homepage reads this live first.
-- Inventory sync (JSON snapshot): run
-  `node scripts/sync-watches-from-supabase.mjs --service-role` only when you
-  intentionally want to refresh the static fallback at `public/data/watches.json`.
+- Public storefront read path: Next Server Components call Supabase from
+  `next/src/lib/inventory/queries.ts` through the cookie-free public client.
+- Inventory sync (JSON snapshot): update `next/public/data/watches.json` only
+  when you intentionally want to refresh the legacy bridge fallback.
 - Admin writes: only via RPC names below.
 
 ## RPC reference
@@ -70,7 +69,7 @@ project, run them in numeric order.
 | RPC                                | callable as     | what it does |
 | ---------------------------------- | --------------- | ------------ |
 | `submit_inquiry(payload)`          | anon            | Insert a buyer inquiry. payload keys: `name`, `email`, `phone`, `channel`, `message`, `watchSlug` or `watchId`, `source`. |
-| `admin_whoami()`                   | anon, authed    | Returns `{email, is_admin}`. Used by admin.html to gate UI. |
+| `admin_whoami()`                   | anon, authed    | Returns `{email, is_admin}`. Used by `/admin` to gate UI. |
 | `admin_upsert_watch(payload)`      | authed + admin  | Insert or update a watch row. Auto-assigns `wa-NNN` ID if missing. |
 | `admin_delete_watch(watch_id)`     | authed + admin  | Delete a watch. |
 | `admin_mark_watch_sold(id,sold_at,sold_price)` | authed + admin | Move a watch to sold archive. |
@@ -115,13 +114,13 @@ substrate — no need to rebuild against a different data layer in 60 days.
 
 Next priorities (per the watch-alley-development skill roadmap):
 
-1. Wire `admin.html` upsert flow against these RPCs (already partially in
-   place — verify after creating the auth account in step 1 above).
-2. Build the public inquiry form on each watch's modal that calls
+1. Replace the static `/admin` bridge with native App Router admin pages and
+   Server Actions.
+2. Build the public inquiry form on each watch detail page that calls
    `submit_inquiry` instead of `mailto:`. Keep the existing mailto as a
    graceful fallback for first 30 days while inquiry funnel is tuned.
 3. Build admin inbox UI on top of `admin_list_inquiries` +
    `admin_update_inquiry_status`. Show `admin_inquiry_metrics()` as the
    dashboard top tile — this is the conversion hinge metric.
-4. Replace local `public/watch-assets/*.png` with bucket URLs once admin
+4. Replace local `next/public/watch-assets/*.png` with bucket URLs once admin
    upload flow is wired (`/storage/v1/object/public/watches/<key>`).

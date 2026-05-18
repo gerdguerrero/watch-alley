@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Petrona, Spectral, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Petrona, Spectral } from "next/font/google";
 import "./globals.css";
 
 // Editorial register, per the design system:
@@ -41,8 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "The Watch Alley PH",
-    description:
-      "A Manila-based curator of pre-owned and brand-new timepieces.",
+    description: "A Manila-based curator of pre-owned and brand-new timepieces.",
     url: "https://watchalley.ph",
     siteName: "The Watch Alley",
   },
@@ -58,9 +57,7 @@ export default function RootLayout({
       lang="en"
       className={`${petrona.variable} ${spectral.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
     </html>
   );
 }

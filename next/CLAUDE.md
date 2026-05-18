@@ -1,6 +1,6 @@
 # Next.js workspace — agent conventions
 
-This is the Next.js app for **The Watch Alley** (mid-migration from Vite — see
+This is the active Next.js app for **The Watch Alley** (cut over from Vite — see
 [../docs/architecture.md](../docs/architecture.md) for stack rationale and
 [../docs/migration-plan.md](../docs/migration-plan.md) for phase status).
 
@@ -20,27 +20,30 @@ breaking changes — `proxy.ts` instead of `middleware.ts`, Cache Components,
 - **Supabase** via `@supabase/ssr` (Server Components / Server Actions) and
   `@supabase/supabase-js` with `server-only` for the admin client
 - **Biome** for lint + format
-- **Vitest** for unit tests; **Playwright** for E2E
+- **Biome** + **TypeScript** + `next build` are the default quality gates
 
 ## File layout
 
 ```
 src/
 ├── app/                     # App Router
-│   ├── (storefront)/        # Public route group: /, /available, /sold, /journal, /watch/[slug]
-│   ├── admin/               # Auth-gated via proxy.ts
+│   ├── page.tsx             # /
+│   ├── available/           # /available
+│   ├── sold/                # /sold
+│   ├── journal/             # /journal and /journal/[slug]
+│   ├── watch/[slug]/        # /watch/<slug>
+│   ├── admin/               # Future native admin; current admin is public/admin bridge
 │   └── api/                 # Webhooks ONLY — prefer Server Actions
 ├── components/
 │   ├── ui/                  # shadcn primitives (do not hand-edit unless re-running `shadcn add`)
 │   ├── storefront/          # Public-facing components
 │   └── admin/               # Admin shell + forms
 ├── lib/
-│   ├── supabase/            # server.ts, client.ts, admin.ts (server-only)
+│   ├── supabase/            # public.ts, server.ts, client.ts, admin.ts
 │   ├── inventory/           # Domain: types, normalize, queries, format
 │   ├── journal/             # Domain: types, normalize, queries, renderMarkdown
 │   ├── fx/                  # PHP → USD helper
 │   └── schema/              # Zod schemas, one per Server Action boundary
-└── styles/                  # Global CSS only
 ```
 
 ## Server / Client component boundary
@@ -54,14 +57,15 @@ src/
 
 If none apply, it stays a Server Component — even with props, even inside a
 Client Component. Push the `"use client"` boundary as far down the tree as it
-will go. The arrivals carousel is a Client Component; the cards inside it
-remain Server Components.
+will go. The arrivals carousel is a Server Component; only its arrow controls
+are a tiny Client Component island.
 
 ## Supabase patterns
 
 | Need | Use | Why |
 |---|---|---|
-| Read in a Server Component / Server Action | `createSupabaseServerClient()` from `@/lib/supabase/server` | Reads + refreshes the session from cookies; anon key never leaves the server |
+| Public read in Server Component / metadata / `generateStaticParams` | `createSupabasePublicClient()` from `@/lib/supabase/public` | Cookie-free, build-safe, RLS-gated by anon key |
+| Authenticated read in a Server Action / route handler | `createSupabaseServerClient()` from `@/lib/supabase/server` | Reads + refreshes the session from cookies |
 | Read in a Client Component | `createSupabaseBrowserClient()` from `@/lib/supabase/client` | Only when realtime or progress events are essential |
 | Admin write that must bypass RLS | `createSupabaseAdminClient()` from `@/lib/supabase/admin` | `import "server-only"` makes accidental client import a build error |
 
@@ -83,9 +87,8 @@ to import from both Server and Client Components.
 ## Theming + design tokens
 
 All visual tokens live in [src/app/globals.css](./src/app/globals.css) inside a
-single `@theme inline` block. Token names mirror the existing Vite site's CSS
-custom properties (`--color-navy-deep`, `--color-gold`, …) so anyone moving
-between codebases reads the same vocabulary.
+single `@theme inline` block. Token names preserve the old Watch Alley design
+vocabulary (`--color-navy-deep`, `--color-gold`, …).
 
 shadcn semantic tokens (`--primary`, `--background`, `--card`, …) are **mapped**
 to the WA palette in `:root`. The site is always dark — no `.dark` class
@@ -121,7 +124,8 @@ Source: [Vercel React Best Practices](https://vercel.com/docs) (priority order):
 pnpm dev          # Turbopack dev server on http://localhost:3000
 pnpm build        # Production build (Turbopack)
 pnpm start        # Serve the production build
-pnpm exec biome check --write src    # Lint + format
+pnpm run check                       # Biome + TypeScript
+pnpm exec biome check --write src    # Lint + format and apply safe fixes
 pnpm exec tsc --noEmit               # Type check
 ```
 
@@ -138,9 +142,9 @@ pnpm exec tsc --noEmit               # Type check
 - `export const dynamic = 'force-dynamic'` to "fix" caching issues — instead,
   add `cache: 'no-store'` to the specific fetch, or move to a Server Action.
 
-## Out-of-band Vite app
+## Legacy bridge
 
-Until phase 8 of the migration, the **old Vite site at the repo root continues
-to serve production traffic**. Do not modify Next.js files expecting them to
-affect `thewatchalley.com` — they won't yet. The cutover is documented in
-[../docs/migration-plan.md](../docs/migration-plan.md).
+The old Vite root has been removed. The current `/admin`, `/privacy`, `/terms`,
+and `/authenticity` surfaces are static bridge files under `public/`, with
+rewrites in `next.config.ts`. Do not delete that bridge until native App Router
+admin and legal/trust pages are implemented and verified.

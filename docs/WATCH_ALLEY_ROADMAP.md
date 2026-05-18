@@ -1,6 +1,6 @@
 # The Watch Alley Product Operating Roadmap
 
-Last updated: 2026-04-28
+Last updated: 2026-05-18
 Project path: this repository
 Repo: `https://github.com/gerdguerrero/watch-alley`
 
@@ -44,16 +44,15 @@ Make The Watch Alley the trusted curated watch dealer for Filipino collectors: p
 
 ## Current baseline
 
-- Static Vite website with a premium editorial homepage and admin surface at `/admin`.
-- Single large storefront `index.html`; admin behavior currently lives mainly in `scripts/admin.js` and should be modularized later, not during urgent client-facing fixes.
+- Active deployable app is now Next.js App Router under `next/`, with Vercel root intended to be `next/`.
+- The old Vite root has been retired from the active codebase. `/admin` is preserved as a static legacy bridge under `next/public/admin` until the native admin is rebuilt with App Router + Server Actions.
 - Public/user-facing brand should be **The Watch Alley** everywhere except technical identifiers.
-- Supabase is now the inventory source of truth. The homepage reads live published inventory from Supabase first, with `public/data/watches.json` retained only as a resilience fallback.
+- Supabase is the inventory source of truth. The Next storefront reads published inventory server-side from Supabase, with `next/public/data/watches.json` retained only as a legacy bridge fallback.
 - Owner-facing admin copy no longer exposes terminal, Git, JSON regeneration, or deployment workflow; saved changes are framed as website updates that happen automatically.
-- Homepage arrival cards render from the live inventory path instead of hardcoded watch-card HTML.
-- Product detail modal opens from inventory-rendered cards and surfaces trust-critical listing fields.
-- Each watch is individually addressable via `/#/watch/<slug>` deep links and exposes a Copy share link action.
-- Sold listings render in a homepage Sold Archive section, filtered out of the active drop carousel, and surface a sold-state product modal.
-- Supabase already holds inventory, structured inquiries, admin allowlist, and invite/auth workflow foundations; the next business-critical surfaces are public inquiry form, admin Inbox, canonical watch pages, and controlled social publishing.
+- Homepage arrival cards render from server-fetched inventory.
+- Each watch is individually addressable via `/watch/<slug>` with metadata and Product JSON-LD.
+- `/available`, `/sold`, `/journal`, `/journal/<slug>`, and `/watch/<slug>` are native App Router routes with ISR where appropriate.
+- Supabase already holds inventory, structured inquiries, admin allowlist, and invite/auth workflow foundations; the next business-critical surfaces are native inquiry Server Actions, native admin, and controlled social publishing.
 
 ## Operating rule
 

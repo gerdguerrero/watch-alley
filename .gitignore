@@ -1,5 +1,10 @@
 node_modules/
 dist/
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
 .DS_Store
 
 # Raw client feedback videos — keep these out of git; transcripts live in feedback/.
@@ -10,6 +15,7 @@ client_feedback_*.mov
 .env
 .env.local
 .env.*.local
+.env*.local
 
 # Per-tool agent metadata directories — never useful in git.
 .adal/
@@ -46,4 +52,4 @@ client_feedback_*.mov
 # Hermes-specific local state.
 skills/
 skills-lock.json
-.vercel
+.vercel/

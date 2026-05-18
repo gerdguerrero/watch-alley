@@ -1,11 +1,11 @@
+import { ArrivalsCarousel } from "@/components/storefront/ArrivalsCarousel";
+import { HeroSection } from "@/components/storefront/HeroSection";
+import { JournalPreview } from "@/components/storefront/JournalPreview";
+import { MainNav } from "@/components/storefront/MainNav";
+import { TopBar } from "@/components/storefront/TopBar";
+import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
 import { fetchJournalPosts } from "@/lib/journal/queries";
-import { TopBar } from "@/components/storefront/TopBar";
-import { MainNav } from "@/components/storefront/MainNav";
-import { HeroSection } from "@/components/storefront/HeroSection";
-import { ArrivalsCarousel } from "@/components/storefront/ArrivalsCarousel";
-import { JournalPreview } from "@/components/storefront/JournalPreview";
-import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 
 // ISR via the Previous Model. Cache Components (`'use cache'` + `cacheLife`)
 // is the Next 16 SOTA pattern but ships with unstable surface area; we'll
@@ -22,9 +22,7 @@ export default async function HomePage() {
 
   const featured = watches.find((w) => w.featured) ?? watches[0] ?? null;
   // Hide the featured piece from the carousel so it isn't shown twice.
-  const arrivals = featured
-    ? watches.filter((w) => w.slug !== featured.slug)
-    : watches;
+  const arrivals = featured ? watches.filter((w) => w.slug !== featured.slug) : watches;
 
   return (
     <>

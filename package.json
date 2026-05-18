@@ -1,32 +1,18 @@
 {
   "name": "watch-alley",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "The Watch Alley Next.js storefront and operator CMS.",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "prebuild": "node scripts/generate-og-images.mjs",
-    "build": "vite build",
-    "postbuild": "node scripts/generate-journal-pages.mjs && node scripts/generate-watch-pages.mjs",
-    "preview": "vite preview",
-    "test": "node scripts/validate-watch-data.mjs && node scripts/validate-inventory-rendering.mjs && node scripts/validate-product-detail-modal.mjs && node scripts/validate-shareable-watch-urls.mjs && node scripts/validate-sold-archive.mjs && node scripts/validate-admin-layout.mjs && node scripts/validate-admin-auth.mjs && node scripts/validate-admin-social-preview.mjs && node scripts/validate-admin-social-drafts.mjs && node scripts/validate-admin-social-mockups.mjs && node scripts/validate-inquiry-flow.mjs && node scripts/validate-admin-image-upload.mjs && node scripts/validate-image-pipeline.mjs && node scripts/validate-provenance.mjs && node scripts/validate-watch-pages.mjs && node scripts/validate-inquiry-notify.mjs && node scripts/validate-lost-reason.mjs && node scripts/validate-journal-editor.mjs && node scripts/validate-journal-dispatches.mjs && node scripts/validate-watch-publish-state.mjs && node scripts/validate-inventory-admin-publishing.mjs && node scripts/validate-admin-dashboard.mjs && node scripts/validate-curator-note.mjs",
-    "sync:watches": "node scripts/sync-watches-from-supabase.mjs",
-    "seed:watches": "node scripts/seed-watches-to-supabase.mjs",
-    "optimize:images": "node scripts/optimize-images.mjs",
-    "transcribe:feedback": "node scripts/transcribe-feedback.mjs"
+    "dev": "pnpm --dir next dev",
+    "build": "pnpm --dir next build",
+    "start": "pnpm --dir next start",
+    "check": "pnpm --dir next exec biome check src && pnpm --dir next exec tsc --noEmit",
+    "test": "pnpm run check && pnpm run build",
+    "transcribe:feedback": "node next/scripts/transcribe-feedback.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.33.0",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.104.1"
-  },
-  "devDependencies": {
-    "sharp": "^0.34.5",
-    "vite": "^8.0.10"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
-  }
+  "packageManager": "pnpm@10.33.0"
 }

@@ -1,11 +1,13 @@
 {
-  "name": "next",
+  "name": "watch-alley-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check": "biome check src && tsc --noEmit",
+    "test": "pnpm run check && pnpm run build"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

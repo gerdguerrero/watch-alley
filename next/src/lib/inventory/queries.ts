@@ -1,12 +1,13 @@
 import "server-only";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { normalizeWatchRow } from "./normalize";
 import type { Watch, WatchRow, WatchStatus } from "./types";
 
 /**
- * Server-side inventory queries. Every read goes through the `public.watches`
- * view, which RLS gates to published rows only. The anon key is enforced by
- * `@supabase/ssr` — these queries never expose it to the browser.
+ * Public server-side inventory queries. Every read goes through the
+ * `public.watches` view, which RLS gates to published rows only. These use a
+ * cookie-free anon client so `generateStaticParams`, metadata, and ISR can run
+ * during build/prerender without a request context.
  */
 
 const SELECT_COLUMNS = `
@@ -26,11 +27,9 @@ interface FetchOptions {
  * Fetch published watches, optionally filtered by status. Sorted by display
  * order ascending — admin controls priority via the `display_order` column.
  */
-export async function fetchWatches(
-  options: FetchOptions = {}
-): Promise<Watch[]> {
+export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]> {
   const { status = "all", limit } = options;
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   let query = supabase
     .from("watches")
     .select(SELECT_COLUMNS)
@@ -65,7 +64,7 @@ export async function fetchFeaturedWatch(): Promise<Watch | null> {
  * code. Used by /watch/[slug] (SSG + ISR).
  */
 export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("watches")
     .select(SELECT_COLUMNS)
@@ -81,11 +80,8 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
  * pre-rendered at build time. Unknown slugs fall through to on-demand ISR.
  */
 export async function fetchPublishedSlugs(): Promise<string[]> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("watches")
-    .select("slug")
-    .eq("published", true);
+  const supabase = createSupabasePublicClient();
+  const { data, error } = await supabase.from("watches").select("slug").eq("published", true);
   if (error || !data) {
     console.error("fetchPublishedSlugs failed:", error?.message);
     return [];
