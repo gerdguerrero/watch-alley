@@ -5,9 +5,11 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const indexPath = path.join(projectRoot, 'index.html');
+const soldPath = path.join(projectRoot, 'sold.html');
 const inventoryPath = path.join(projectRoot, 'public', 'data', 'watches.json');
 
 const indexHtml = readFileSync(indexPath, 'utf8');
+const soldHtml = readFileSync(soldPath, 'utf8');
 const inventory = JSON.parse(readFileSync(inventoryPath, 'utf8'));
 
 function fail(message) {
@@ -38,21 +40,25 @@ for (const watch of soldWatches) {
   );
 }
 
+// Page-level structure now lives on sold.html (moved off the homepage per the
+// 2026-05 client feedback — Sold Archive gets its own dedicated page).
 assert(
-  /<section\s+id="sold-archive"/.test(indexHtml),
-  'index.html must declare a <section id="sold-archive"> element'
+  /id="sold-archive-grid"/.test(soldHtml),
+  'sold.html must declare a sold-archive-grid container with id="sold-archive-grid"'
 );
 
 assert(
-  /id="sold-archive-grid"/.test(indexHtml),
-  'index.html must declare a sold-archive-grid container with id="sold-archive-grid"'
+  /class="sold-archive-title"/.test(soldHtml),
+  'sold.html must render a Sold Archive title heading'
 );
 
 assert(
-  /function renderSoldCard\s*\(\s*watch\b/.test(indexHtml),
-  'index.html must define renderSoldCard(watch) for the Sold Archive section'
+  /<nav\s+id="main-nav"/.test(soldHtml),
+  'sold.html must use the unified main-nav so the navbar matches the homepage'
 );
 
+// Filter / status logic still lives in index.html (the homepage inventory
+// loader is the single source of truth that downstream pages reuse).
 assert(
   /\.filter\(\(?\s*\w+\s*\)?\s*=>\s*\w+\.status\s*!==\s*['"]sold['"]\)/.test(indexHtml),
   'inventory loader must filter sold watches out of the active carousel'
@@ -60,12 +66,7 @@ assert(
 
 assert(
   /\.filter\(\(?\s*\w+\s*\)?\s*=>\s*\w+\.status\s*===\s*['"]sold['"]\)/.test(indexHtml),
-  'inventory loader must select sold watches for the Sold Archive grid'
-);
-
-assert(
-  /soldArchiveGrid\.innerHTML\s*=/.test(indexHtml),
-  'inventory loader must populate soldArchiveGrid.innerHTML with sold cards'
+  'inventory loader must select sold watches into a sold-only collection'
 );
 
 assert(
@@ -79,8 +80,13 @@ assert(
 );
 
 assert(
-  /data-watch-slug=/.test(indexHtml) && /sold-card/.test(indexHtml),
-  'sold cards must expose data-watch-slug so deep linking continues to work'
+  /class="sold-card"/.test(soldHtml),
+  'sold.html must render sold cards using the .sold-card class'
+);
+
+assert(
+  /\/watch\/\$\{[^}]*slug/.test(soldHtml),
+  'sold.html cards must link to /watch/:slug so deep linking continues to work'
 );
 
 console.log(`Sold archive contract valid: ${soldWatches.length} sold watches archived.`);

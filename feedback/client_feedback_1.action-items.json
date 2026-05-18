@@ -1,0 +1,19 @@
+{
+  "summary": "The client is asking about currency display on the site, specifically whether prices can be shown in both Philippine Pesos and USD. They want the USD conversion to be based on Wise's exchange rate rather than Google's, as Wise is their international payment platform.",
+  "sentiment": "mixed",
+  "action_items": [
+    {
+      "title": "Display prices in both PHP and USD using Wise exchange rate",
+      "description": "On the listings/availability section, show prices in Philippine Pesos with a USD equivalent. The USD conversion rate must be sourced from Wise (not Google), since Wise is the platform used for international payments.",
+      "area": "watch-detail",
+      "priority": "high",
+      "timestamp": "00:00",
+      "verbatim_quote": "Pwede ba lalabas din siya in USD? Pero ang i-base natin na USD, hindi sa Google kasi mababa yung exchange rate, sa WISE, kasi yun yung payment namin sa pag-international, WISE na conversion."
+    }
+  ],
+  "open_questions": [
+    "Should the Wise exchange rate be fetched live via an API, or will the client manually update the rate periodically? Wise does not have a widely available public API for exchange rates.",
+    "Should the dual currency display (PHP + USD) appear everywhere prices are shown (listings, watch detail page, admin), or only on specific pages?",
+    "Is PHP the base currency stored in the database, with USD shown as a conversion, or vice versa?"
+  ]
+}

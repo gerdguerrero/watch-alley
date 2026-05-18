@@ -1,0 +1,78 @@
+{
+  "summary": "The client does a top-to-bottom walkthrough of the homepage, flagging several sections for removal, replacement, or restructuring. Key themes are: simplifying the navigation bar so it stays consistent across pages, moving the full Available and Sold Archive listings to their own dedicated pages, replacing the Sold Archive section on the homepage with featured journal/blog content, and deciding on the right terminology for the journal/articles section. Several areas are still undecided and the client explicitly flags them as things to think about further.",
+  "sentiment": "mixed",
+  "action_items": [
+    {
+      "title": "Remove or replace the top-most element on the homepage",
+      "description": "The client immediately says to remove the very first element at the top of the main page. It should be replaced with 'Cousin City Philippines' branding or similar. The current element is unclear and unwanted.",
+      "area": "homepage",
+      "priority": "high",
+      "timestamp": "00:05",
+      "verbatim_quote": "Ito, huwag na ito, alasin ito. Ito, Cousin City Philippines na lang."
+    },
+    {
+      "title": "Lock the navigation bar so it does not change when visiting the Journal page",
+      "description": "Currently, when the user clicks on Journal, the top navigation bar changes its layout/appearance. The client wants the navbar to remain identical across all pages — clicking Journal should feel like a new page but the nav should stay the same, with Home still centered.",
+      "area": "navigation",
+      "priority": "high",
+      "timestamp": "00:21",
+      "verbatim_quote": "Pag binignat yung journal, nagbabago yung UI sa taas. Pwedeng i-ano na lang, hindi na magbabago itong nasa taas. Basically pinindot yung journal, parang new page lang, pero ito pa rin, para hindi magulo yung pindutan. Ang home, ito pa rin daw, siya aling gitna."
+    },
+    {
+      "title": "Move the full Available listings to a separate dedicated page",
+      "description": "The client wants the homepage to show only a preview of available pieces (e.g. 'fresh off the bench' / new arrivals). Clicking Available should navigate to a separate full-grid page — similar to how the Journal has its own page where you can scroll all listings.",
+      "area": "homepage",
+      "priority": "high",
+      "timestamp": "02:51",
+      "verbatim_quote": "Siguro pag pinunit na lang yung Available, pwede bang ito na lang yung separate na page. May available na separate na page. Parang sa Journal, may separate. Nakagrid yung Available."
+    },
+    {
+      "title": "Move the Sold Archive section to a separate page and remove it from the homepage",
+      "description": "The Sold Archive should not appear on the homepage. Instead it should be its own separate page, lower in importance than Available and Journal. The client explicitly says the homepage slot currently occupied by Sold Archive should be replaced with featured journal or blog content.",
+      "area": "homepage",
+      "priority": "high",
+      "timestamp": "03:33",
+      "verbatim_quote": "Itong sold archive, kahit wala na siguro ito sa main page. Siguro mas maganda ipakita na lang dito yung mga featured na journal or blogs kaysa mga nabenta before. Itong sold archive, ilast mo siguro ito."
+    },
+    {
+      "title": "Replace Sold Archive homepage section with featured Journal/blog entries",
+      "description": "The section on the homepage that currently shows the Sold Archive should instead surface featured journal articles or blog posts. The client sees journal content as more valuable to surface on the homepage than past sales.",
+      "area": "homepage",
+      "priority": "high",
+      "timestamp": "03:55",
+      "verbatim_quote": "Dito sa main page, kahit wala na sold archive, palita na lang yung journal."
+    },
+    {
+      "title": "Show only new arrivals / 'fresh off the bench' preview on the homepage Available section",
+      "description": "Rather than showing all available pieces on the homepage, display only the newest arrivals as a teaser. A full grid of available watches should live on the dedicated Available page.",
+      "area": "homepage",
+      "priority": "medium",
+      "timestamp": "03:11",
+      "verbatim_quote": "Ito pala yung fresh off the bench. Pwede naman na dito yung ano, yung mga bagong dating, ito dito sa main page. Pero pag pinunit yung Available, pwede doon na lang sa new page."
+    },
+    {
+      "title": "Simplify Available section copy to be straightforward",
+      "description": "The client wants the Available section label and copy to be simple and direct, not personal or elaborate. The target audience includes vendors who visit the site, so clarity is important.",
+      "area": "copy",
+      "priority": "medium",
+      "timestamp": "02:09",
+      "verbatim_quote": "Itong Available, kahit ano na lang. Kahit, hindi na personal. Kahit ano na lang. Available pieces. Parang simple. Kasi minsan mga vendors, kasi yung nag-check na ano, yung mga website. Kaya dapat medyo straightforward."
+    },
+    {
+      "title": "Review and clean up the Viber / ENPHP contact or currency display element",
+      "description": "The client noticed an element showing 'Viber' and 'ENPHP' and was unsure if this is intentional or standard. This needs to be reviewed — either clarify its purpose or remove/replace it.",
+      "area": "homepage",
+      "priority": "low",
+      "timestamp": "01:08",
+      "verbatim_quote": "Ito ano ito, Viber. Itong ENPHP. Ganyan ba talaga usually? Hindi ko alam eh."
+    }
+  ],
+  "open_questions": [
+    "What should replace the 'Services' navigation item? The client flagged it but could not decide on a replacement during the recording.",
+    "What should the journal/articles section be officially called? The client is undecided between 'Journal', 'Articles', 'Blogs', and 'Reviews'.",
+    "What content should go in the section the client described as currently empty or undecided on the homepage (around 01:20–01:26)? Client said 'isipin ko kung anong maganda ilagay dito.'",
+    "Should there be a 'stats flex' / numbers section on the homepage? The client briefly considered it (around 04:41) but did not commit.",
+    "What is the 'Viber / ENPHP' element at 01:08 — is it a currency toggle, a contact widget, or something else? Client was unsure if it was intentionally there.",
+    "What should the feature/highlight section between the video and the Available preview contain — journal entries, a selling CTA, or something else? Client was undecided at 01:32–01:43."
+  ]
+}

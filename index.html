@@ -156,19 +156,17 @@
       flex-shrink: 0;
     }
 
-    /* ── 00 Top Bar ── */
+    /* ── 00 Location tag (slim replacement for the old top bar) ── */
     #top-bar {
       background: var(--navy-deep);
       border-bottom: 1px solid var(--gold-20);
       padding: 8px clamp(20px, 6vw, 80px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
     }
     #top-bar span {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--gold);
     }
@@ -859,6 +857,30 @@
       border-top: 1px solid var(--gold-20);
     }
     .watch-card-price { font-family: 'Petrona', Georgia, serif; font-size: 20px; color: var(--gold); }
+    /* USD estimate filled in by /js/fx.js — sits quietly under the PHP price. */
+    .price-usd {
+      display: block;
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--cream-60);
+    }
+    .hero-card-price .price-usd { font-size: 11px; letter-spacing: 0.2em; }
+    .buying-fx-note {
+      margin-top: clamp(28px, 4vw, 40px);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cream-60);
+      text-align: center;
+      max-width: 60ch;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
     .watch-card-actions {
       display: flex;
       align-items: center;
@@ -2044,38 +2066,34 @@
 <div id="mobile-drawer">
   <button class="drawer-close" id="drawer-close" aria-label="Close menu">×</button>
   <nav class="drawer-links">
-    <a href="#arrivals">Available</a>
-    <a href="#sold-archive">Sold Archive</a>
+    <a href="/available">Available</a>
     <a href="/journal">Journal</a>
-    <a href="#contact">Service</a>
+    <a href="/sold">Sold Archive</a>
+    <a href="#contact">Visit</a>
   </nav>
   <div class="drawer-viber">
     <a href="#viber" class="btn-primary" style="width:100%;justify-content:center;">◆ Join Viber</a>
   </div>
 </div>
 
-<!-- 00 Top Bar -->
+<!-- 01 Nav -->
+<!-- 00 Location tag -->
 <div id="top-bar">
-  <span>✦ 10 Pieces Available</span>
-  <span>✦ BGC, Taguig · Manila</span>
-  <span>✦ @the.watch.alley</span>
+  <span>✦ Quezon City · Philippines</span>
 </div>
 
-<!-- 01 Nav -->
 <nav id="main-nav">
   <div class="nav-links">
-    <a href="#arrivals" data-section="arrivals">Available</a>
-    <a href="#sold-archive" data-section="sold-archive">Sold Archive</a>
+    <a href="/available">Available</a>
     <a href="/journal">Journal</a>
-    <a href="#contact" data-section="contact">Service</a>
+    <a href="/sold">Sold Archive</a>
+    <a href="#contact" data-section="contact">Visit</a>
   </div>
   <a href="/" class="nav-logo" aria-label="The Watch Alley — home">
     <img src="assets/logo.jpg" alt="" width="50" height="50" fetchpriority="high" decoding="async">
     <span class="nav-logo-text">The Watch Alley</span>
   </a>
   <div class="nav-right">
-    <span class="mono">EN · ₱ PHP</span>
-    <a href="#viber" class="nav-viber-chip">◆ VIBER</a>
     <button class="hamburger" id="hamburger" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
@@ -2105,7 +2123,7 @@
         Pre-owned and brand-new timepieces curated in Manila. Seiko. Omega. Hamilton. Tissot. Every piece photographed in daylight, disclaimed where it counts, and shipped worldwide.
       </p>
       <div class="hero-ctas">
-        <a href="#arrivals" class="btn-primary">Shop Available ↗</a>
+        <a href="/available" class="btn-primary">Shop Available ↗</a>
         <a href="#viber" class="hero-cta-quiet">or join the Viber community →</a>
       </div>
     </div>
@@ -2131,7 +2149,7 @@
       </div>
       <div class="hero-card-divider"></div>
       <div class="hero-card-footer">
-        <div class="hero-card-price serif gold" id="hero-card-price">₱ 54,000</div>
+        <div class="hero-card-price serif gold" id="hero-card-price">₱ 54,000<span class="price-usd" data-price-php="54000"></span></div>
         <a href="#arrivals" id="hero-card-inquire" class="hero-card-inquire">INQUIRE →</a>
       </div>
     </div>
@@ -2228,20 +2246,6 @@
   </div>
 </section>
 
-<!-- 04b Sold Archive -->
-<section id="sold-archive">
-  <div class="sold-archive-header reveal">
-    <div>
-      <div class="sold-archive-eyebrow">04 · SOLD ARCHIVE</div>
-      <h2 class="sold-archive-title">Recently honored.</h2>
-    </div>
-    <p class="sold-archive-blurb">A running record of pieces that found a home through The Watch Alley. If you missed one, message us — similar references come around.</p>
-  </div>
-  <div class="sold-archive-grid" id="sold-archive-grid">
-    <div class="sold-card-empty" data-sold-empty>Loading archive…</div>
-  </div>
-</section>
-
 <!-- 04c Buying Process -->
 <section id="buying-process">
   <div class="buying-process-header reveal">
@@ -2271,6 +2275,9 @@
       <p class="buying-step-copy">Insured courier with tracking, or a meet-up in Metro Manila by appointment. You confirm receipt and we close the loop.</p>
     </div>
   </div>
+  <p class="buying-fx-note reveal">
+    USD figures shown alongside prices are mid-market estimates, refreshed daily. The final amount is calculated by Wise at payment.
+  </p>
 </section>
 
 <!-- 05 Viber Community -->
@@ -2879,7 +2886,11 @@ function escapeHtml(value) {
 function formatPrice(watch) {
   const price = Number.isFinite(watch.price) ? watch.price : Number(watch.price || 0);
   const formatted = price.toLocaleString('en-PH', { maximumFractionDigits: 0 });
-  return `${watch.currency === 'PHP' ? '₱' : escapeHtml(watch.currency)} ${formatted}`;
+  const head = `${watch.currency === 'PHP' ? '₱' : escapeHtml(watch.currency)} ${formatted}`;
+  // USD placeholder — filled in by /js/fx.js once the mid-market rate loads.
+  // Only attached for PHP-denominated prices.
+  if (watch.currency !== 'PHP') return head;
+  return `${head}<span class="price-usd" data-price-php="${price}"></span>`;
 }
 
 function formatWatchMeta(watch) {
@@ -3490,7 +3501,7 @@ function renderHeroFeaturedCard(activeWatches) {
 
   // Price.
   const priceEl = document.getElementById('hero-card-price');
-  if (priceEl) priceEl.textContent = formatPrice(watch);
+  if (priceEl) priceEl.innerHTML = formatPrice(watch);
 
   // Inquire link: deep-link into the watch detail modal at /#/watch/<slug>.
   // The same path-aware deep-link logic that powers /watch/<slug> also
@@ -4006,5 +4017,9 @@ if (soldArchiveGrid) {
 }
 
 </script>
+
+<!-- PHP → USD display helper. Fills <span class="price-usd"> placeholders
+     emitted by formatPrice() with a mid-market estimate. See /public/js/fx.js. -->
+<script src="/js/fx.js" defer></script>
 </body>
 </html>

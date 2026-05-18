@@ -35,6 +35,8 @@ export default defineConfig({
         privacy: resolve(__dirname, 'privacy.html'),
         admin: resolve(__dirname, 'admin/index.html'),
         journal: resolve(__dirname, 'journal.html'),
+        sold: resolve(__dirname, 'sold.html'),
+        available: resolve(__dirname, 'available.html'),
         // Dynamic per-post template — Vercel rewrites /journal/:slug to
         // /journal-post (this template lives outside /journal/ to avoid
         // a cleanUrls + rewrite redirect loop). Newly-published posts

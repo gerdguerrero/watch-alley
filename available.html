@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Available Pieces — The Watch Alley PH</title>
+<meta name="description" content="Every available watch in our current rotation. Pre-owned and brand-new timepieces curated in Manila, daylight-photographed, disclosed in writing." />
+<meta name="theme-color" content="#070b14" />
+<link rel="canonical" href="https://watchalley.ph/available" />
+<meta property="og:type" content="website">
+<meta property="og:title" content="Available Pieces — The Watch Alley PH">
+<meta property="og:description" content="Every available watch in our current rotation.">
+<meta property="og:url" content="https://watchalley.ph/available">
+<link rel="icon" type="image/jpeg" href="/assets/logo.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400..700;1,400..700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles/trust-page.css" />
+<style>
+  /* Available-page styles. Tokens + main-nav come from trust-page.css. */
+  main.available-page {
+    flex: 1;
+    padding: clamp(48px, 8vw, 96px) clamp(20px, 4vw, 80px);
+  }
+  .available-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .available-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .available-title {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: clamp(32px, 5vw, 56px);
+    color: var(--cream);
+    margin: 8px 0 0;
+    line-height: 1.05;
+  }
+  .available-title em { font-style: italic; color: var(--gold); }
+  .available-blurb {
+    max-width: 540px;
+    color: var(--cream-60);
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  .available-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: clamp(20px, 2.5vw, 32px);
+  }
+  .watch-card {
+    background: rgba(11, 18, 32, 0.65);
+    border: 1px solid var(--gold-20);
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .watch-card:hover { transform: translateY(-4px); border-color: var(--gold); color: inherit; }
+  .watch-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  .watch-card-img {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--navy-deep);
+    position: relative;
+  }
+  .watch-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .watch-card-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    background: rgba(7, 11, 20, 0.7);
+    border: 1px solid var(--gold-20);
+    color: var(--cream);
+    padding: 5px 9px;
+  }
+  .watch-card-badge.brand-new { color: var(--gold); border-color: var(--gold); }
+  .watch-card-info { padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .watch-card-info-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .watch-card-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .watch-card-cond {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--cream-60);
+  }
+  .watch-card-name {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--cream);
+  }
+  .watch-card-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(236, 228, 211, 0.5);
+  }
+  .watch-card-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--gold-20);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .watch-card-price {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: 20px;
+    color: var(--gold);
+  }
+  .watch-card-price .price-usd {
+    display: block;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--cream-60);
+  }
+  .watch-card-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--cream-60);
+  }
+  .watch-card:hover .watch-card-arrow { color: var(--gold); }
+  .available-empty, .available-error {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--cream-60);
+    font-family: 'Spectral', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+  .available-fx-note {
+    margin-top: clamp(36px, 6vw, 56px);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream-60);
+    max-width: 60ch;
+  }
+  .available-back {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--cream-60);
+  }
+  .available-back:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<nav id="main-nav">
+  <div class="nav-links">
+    <a href="/available" class="active">Available</a>
+    <a href="/journal">Journal</a>
+    <a href="/sold">Sold Archive</a>
+    <a href="/#contact">Visit</a>
+  </div>
+  <a href="/" class="nav-logo" aria-label="The Watch Alley — home">
+    <img src="/assets/logo.jpg" alt="" width="50" height="50" decoding="async">
+    <span class="nav-logo-text">The Watch Alley</span>
+  </a>
+  <div class="nav-right"></div>
+</nav>
+
+<main class="available-page">
+  <header class="available-header">
+    <div>
+      <div class="available-eyebrow">Available pieces</div>
+      <h1 class="available-title">In rotation, <em>right now.</em></h1>
+    </div>
+    <p class="available-blurb">Every watch currently for sale through The Watch Alley. Daylight-photographed, disclosed in writing, shipped insured. Tap any piece for full details and to inquire.</p>
+  </header>
+
+  <div class="available-grid" id="available-grid" aria-live="polite">
+    <div class="available-empty">Loading current rotation…</div>
+  </div>
+
+  <p class="available-fx-note">
+    USD figures are mid-market estimates, refreshed daily. Final amount calculated in Wise at payment.
+  </p>
+  <a class="available-back" href="/">← Back to The Watch Alley</a>
+</main>
+
+<script>
+  // Standalone available-pieces page. Fetches the same Supabase inventory the
+  // homepage uses, filters status='available', and renders one card per piece.
+  // Cards link to the canonical /watch/:slug page so deep-linking + OG/meta
+  // continue to work without a redeploy.
+  const SUPABASE_ENDPOINT = 'https://yrzawkqcifuubtltktbk.supabase.co/rest/v1/watches';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
+  const FALLBACK_URL = '/data/watches.json';
+  const COLUMNS = [
+    'slug', 'brand', 'reference', 'name', 'price', 'currency', 'status',
+    'condition_label', 'badge', 'movement', 'case_size', 'inclusion_set',
+    'edition', 'primary_image', 'images', 'display_order', 'published',
+  ].join(',');
+
+  const grid = document.getElementById('available-grid');
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function normalizeRow(row) {
+    const images = Array.isArray(row.images) ? row.images : [];
+    return {
+      slug: row.slug,
+      brand: row.brand,
+      reference: row.reference,
+      name: row.name,
+      price: Number(row.price || 0),
+      currency: row.currency || 'PHP',
+      status: row.status || 'available',
+      conditionLabel: row.condition_label || row.conditionLabel || '',
+      badge: row.badge || '',
+      movement: row.movement || '',
+      caseSize: row.case_size || row.caseSize || '',
+      edition: row.edition || row.inclusion_set || row.set || '',
+      primaryImage: row.primary_image || row.primaryImage || images[0] || '',
+      displayOrder: Number.isFinite(row.display_order) ? row.display_order : null,
+    };
+  }
+
+  function formatPhp(price) {
+    if (!Number.isFinite(price) || price <= 0) return '';
+    return `₱ ${price.toLocaleString('en-PH', { maximumFractionDigits: 0 })}`;
+  }
+
+  function formatMeta(watch) {
+    return [watch.movement, watch.caseSize, watch.edition]
+      .filter(Boolean)
+      .map(v => String(v).replace(/\s+/g, ' ').trim().toUpperCase())
+      .join(' · ');
+  }
+
+  function badgeClass(badge) {
+    return String(badge || '').toLowerCase().includes('brand new') ? 'brand-new' : '';
+  }
+
+  function renderCard(watch) {
+    const meta = formatMeta(watch);
+    const priceLabel = formatPhp(watch.price);
+    return `
+      <a class="watch-card" href="/watch/${escapeHtml(watch.slug)}" aria-label="Open details for ${escapeHtml(watch.name)}">
+        <div class="watch-card-img">
+          ${watch.primaryImage ? `<img loading="lazy" decoding="async" src="${escapeHtml(watch.primaryImage)}" alt="${escapeHtml(watch.brand + ' ' + watch.name)}">` : ''}
+          ${watch.badge ? `<span class="watch-card-badge ${badgeClass(watch.badge)}">${escapeHtml(watch.badge)}</span>` : ''}
+        </div>
+        <div class="watch-card-info">
+          <div class="watch-card-info-top">
+            <div class="watch-card-brand">${escapeHtml(watch.brand)}</div>
+            ${watch.conditionLabel ? `<div class="watch-card-cond">${escapeHtml(watch.conditionLabel)}</div>` : ''}
+          </div>
+          <div class="watch-card-name">${escapeHtml(watch.name)}</div>
+          ${meta ? `<div class="watch-card-meta">${escapeHtml(meta)}</div>` : ''}
+          <div class="watch-card-footer">
+            <div class="watch-card-price">
+              ${priceLabel}
+              <span class="price-usd" data-price-php="${watch.price}"></span>
+            </div>
+            <span class="watch-card-arrow">DETAILS →</span>
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function renderGrid(watches) {
+    const available = watches.filter(w => (w.status || 'available') === 'available');
+    if (!available.length) {
+      grid.innerHTML = `<div class="available-empty">No active pieces right now. Message us on Viber for the next drop.</div>`;
+      return;
+    }
+    available.sort((a, b) => {
+      const ao = Number.isFinite(a.displayOrder) ? a.displayOrder : 9999;
+      const bo = Number.isFinite(b.displayOrder) ? b.displayOrder : 9999;
+      return ao - bo;
+    });
+    grid.innerHTML = available.map(renderCard).join('');
+    if (window.WatchAlleyFx) window.WatchAlleyFx.enhance(grid);
+  }
+
+  async function loadFromSupabase() {
+    const url = new URL(SUPABASE_ENDPOINT);
+    url.searchParams.set('select', COLUMNS);
+    url.searchParams.set('status', 'eq.available');
+    url.searchParams.set('published', 'eq.true');
+    url.searchParams.set('order', 'display_order.asc.nullslast');
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Accept: 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error(`Supabase ${res.status}`);
+    return (await res.json()).map(normalizeRow);
+  }
+
+  async function loadFromFallback() {
+    const res = await fetch(FALLBACK_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Fallback ${res.status}`);
+    const data = await res.json();
+    const rows = Array.isArray(data.watches) ? data.watches : [];
+    return rows.map(normalizeRow);
+  }
+
+  (async () => {
+    try {
+      renderGrid(await loadFromSupabase());
+    } catch (err) {
+      console.warn('Available page: live fetch failed, using fallback', err);
+      try {
+        renderGrid(await loadFromFallback());
+      } catch (innerErr) {
+        console.error('Available page: fallback also failed', innerErr);
+        grid.innerHTML = `<div class="available-error">Inventory unavailable right now. Please refresh.</div>`;
+      }
+    }
+  })();
+
+  // Sticky-nav shrink on scroll (matches homepage behavior).
+  const nav = document.getElementById('main-nav');
+  if (nav) {
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+</script>
+
+<script src="/js/fx.js" defer></script>
+</body>
+</html>
