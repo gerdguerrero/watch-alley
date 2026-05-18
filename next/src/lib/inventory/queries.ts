@@ -58,3 +58,39 @@ export async function fetchFeaturedWatch(): Promise<Watch | null> {
   if (watches.length === 0) return null;
   return watches.find((w) => w.featured) ?? watches[0];
 }
+
+/**
+ * Fetch a single published watch by slug. Returns null on miss so the page
+ * can call `notFound()` and Next.js can render a 404 with the right status
+ * code. Used by /watch/[slug] (SSG + ISR).
+ */
+export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("watches")
+    .select(SELECT_COLUMNS)
+    .eq("slug", slug)
+    .eq("published", true)
+    .maybeSingle();
+  if (error || !data) return null;
+  return normalizeWatchRow(data as unknown as WatchRow);
+}
+
+/**
+ * Every published slug — feeds `generateStaticParams` so each watch page is
+ * pre-rendered at build time. Unknown slugs fall through to on-demand ISR.
+ */
+export async function fetchPublishedSlugs(): Promise<string[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("watches")
+    .select("slug")
+    .eq("published", true);
+  if (error || !data) {
+    console.error("fetchPublishedSlugs failed:", error?.message);
+    return [];
+  }
+  return (data as Array<{ slug: string | null }>)
+    .map((r) => r.slug)
+    .filter((s): s is string => typeof s === "string" && s.length > 0);
+}
