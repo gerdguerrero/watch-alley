@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
@@ -9,7 +10,16 @@ interface HeroSectionProps {
  * Editorial hero. Headline + body on the left, featured watch card on the right.
  *
  * Server Component — the featured watch is read once on the server and rendered
- * into the HTML. No loading state on first paint.
+ * into the HTML. No client JS for the background:
+ *
+ *   • The `<video>` plays itself via the autoplay/muted/loop/playsinline attrs.
+ *   • Two `<source>` elements let the browser pick MP4 (1.8MB) or WebM (2.4MB).
+ *   • `<Image priority>` preloads an optimised poster as both LCP candidate
+ *     and the always-visible layer behind the video — it's what `motion-reduce`
+ *     users see in place of the loop.
+ *   • Gradients (L→R, T→B) sit on top of the media for headline legibility
+ *     and to blend into the next section.
+ *   • `pointer-events-none` on the bg wrapper keeps clicks reaching the CTAs.
  */
 export function HeroSection({ featured }: HeroSectionProps) {
   return (
@@ -17,6 +27,23 @@ export function HeroSection({ featured }: HeroSectionProps) {
       id="hero"
       className="relative overflow-hidden border-b border-border bg-background px-[clamp(20px,6vw,80px)] py-[clamp(64px,10vw,120px)]"
     >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <Image src="/hero-poster.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+        >
+          <source src="/hero-bg.webm" type="video/webm" />
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/55 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-background/30 via-transparent to-background/85" />
+      </div>
+
       <div className="relative z-10 grid items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1.2fr_1fr]">
         <div>
           <div className="mb-5">

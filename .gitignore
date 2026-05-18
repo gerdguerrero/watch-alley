@@ -7,7 +7,10 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 
-# Raw client feedback videos — keep these out of git; transcripts live in feedback/.
+# Raw source videos at the repo root — large media we don't want in git.
+# Compressed/distributable copies live under public/ and are committed there.
+/*.mp4
+/*.mov
 client_feedback_*.mp4
 client_feedback_*.mov
 

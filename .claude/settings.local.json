@@ -74,7 +74,16 @@
       "Skill(vercel:vercel-cli:*)",
       "Bash(grep -E '\\\\.\\(json|js|ts|mjs|toml|yaml\\)$')",
       "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).scripts, null, 2\\)\\)\")",
-      "Bash(pnpm install *)"
+      "Bash(pnpm install *)",
+      "Bash(pnpm check *)",
+      "Bash(find . -name 'watch_hero.mp4' -not -path './node_modules/*' -not -path './.git/*' -not -path './.next/*' 2>/dev/null *)",
+      "Read(//Users/buloy/Downloads/**)",
+      "Bash(ffprobe -v error -show_format -show_streams watch_hero.mp4)",
+      "Bash(ffmpeg -hide_banner -loglevel error -y -i watch_hero.mp4 -vf scale=1920:-2 -c:v libx264 -profile:v high -level 4.2 -preset slow -crf 26 -movflags +faststart -an public/hero-bg.mp4)",
+      "Bash(ffmpeg -hide_banner -loglevel error -y -i watch_hero.mp4 -vf scale=1920:-2 -c:v libvpx-vp9 -crf 32 -b:v 0 -row-mt 1 -an public/hero-bg.webm)",
+      "Bash(ffmpeg -hide_banner -loglevel error -y -i watch_hero.mp4 -ss 0 -vframes 1 -vf scale=1920:-2 -q:v 3 public/hero-poster.jpg)",
+      "Bash(echo \"build exit: $?\")",
+      "Bash(echo \"check exit: $?\")"
     ]
   },
   "enableAllProjectMcpServers": true,
