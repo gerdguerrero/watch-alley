@@ -83,7 +83,13 @@
       "Bash(ffmpeg -hide_banner -loglevel error -y -i watch_hero.mp4 -vf scale=1920:-2 -c:v libvpx-vp9 -crf 32 -b:v 0 -row-mt 1 -an public/hero-bg.webm)",
       "Bash(ffmpeg -hide_banner -loglevel error -y -i watch_hero.mp4 -ss 0 -vframes 1 -vf scale=1920:-2 -q:v 3 public/hero-poster.jpg)",
       "Bash(echo \"build exit: $?\")",
-      "Bash(echo \"check exit: $?\")"
+      "Bash(echo \"check exit: $?\")",
+      "Bash(node .agents/skills/impeccable/scripts/load-context.mjs)",
+      "Bash(find /Users/buloy/.claude/skills/impeccable -name 'load-context.mjs' 2>/dev/null *)",
+      "Read(//Users/buloy/.agents/skills/impeccable/**)",
+      "Read(//Users/buloy/.agents/skills/impeccable/scripts/**)",
+      "Bash(node /Users/buloy/.claude/skills/impeccable/scripts/load-context.mjs)",
+      "Bash(awk '/create or replace function public\\\\.submit_inquiry/,/^\\\\$\\\\$;/' docs/migrations/0004-watch-alley-inquiries-pipeline.sql)"
     ]
   },
   "enableAllProjectMcpServers": true,

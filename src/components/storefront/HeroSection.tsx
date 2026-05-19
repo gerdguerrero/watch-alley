@@ -25,7 +25,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden border-b border-border bg-background px-[clamp(20px,6vw,80px)] py-[clamp(64px,10vw,120px)]"
+      className="relative flex min-h-svh items-center overflow-hidden border-b border-border bg-background px-[clamp(20px,6vw,80px)] py-[clamp(64px,10vw,120px)]"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <Image src="/hero-poster.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
@@ -44,7 +44,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
         <div className="absolute inset-0 bg-linear-to-b from-background/30 via-transparent to-background/85" />
       </div>
 
-      <div className="relative z-10 grid items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1.2fr_1fr]">
+      <div className="relative z-10 grid w-full items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1.2fr_1fr]">
         <div>
           <div className="mb-5">
             <span className="inline-block border border-[color:var(--color-gold-20)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]">
