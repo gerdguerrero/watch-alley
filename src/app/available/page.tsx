@@ -39,7 +39,7 @@ export default async function AvailablePage() {
 
         {watches.length === 0 ? (
           <p className="py-12 text-center font-sans italic text-[color:var(--color-cream-60)]">
-            No active pieces right now. Message us on Viber for the next drop.
+            No active pieces right now. Message us on Messenger for the next drop.
           </p>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[clamp(20px,2.5vw,32px)]">

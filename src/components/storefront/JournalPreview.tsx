@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BigNum } from "@/components/storefront/BigNum";
 import type { JournalPost } from "@/lib/journal/types";
 
 interface JournalPreviewProps {
@@ -45,14 +46,17 @@ export function JournalPreview({ posts }: JournalPreviewProps) {
       id="journal"
       className="border-t border-border bg-background px-[clamp(20px,4vw,80px)] py-[clamp(48px,8vw,96px)]"
     >
-      <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
-            From the Journal
+      <header className="mb-10 flex flex-wrap items-end justify-between gap-6">
+        <div className="flex items-end gap-[clamp(16px,3vw,40px)]">
+          <BigNum>02</BigNum>
+          <div className="flex flex-col gap-2">
+            <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
+              Dispatches
+            </div>
+            <h2 className="font-serif text-[clamp(32px,5vw,56px)] leading-tight text-[color:var(--color-cream)]">
+              News <em className="italic text-[color:var(--color-gold)]">&amp; promos.</em>
+            </h2>
           </div>
-          <h2 className="mt-2 font-serif text-[clamp(32px,5vw,48px)] leading-tight text-[color:var(--color-cream)]">
-            Notes from <em className="italic text-[color:var(--color-gold)]">the bench.</em>
-          </h2>
         </div>
         <Link
           href="/journal"

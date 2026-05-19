@@ -22,7 +22,11 @@ function formatSoldPrice(price: number | null): string {
 
 /**
  * Editorial ledger row for the Sold Archive. Photo demoted to a 56×56
- * marginalia square — this is intentionally NOT a graveyard of full cards.
+ * marginalia square cropped tight on the dial — intentionally NOT a
+ * graveyard of full cards.
+ *
+ * Hover: a 4px gold rule slides in from the left edge over 700ms ease-out-quart
+ * via a pseudo-element. Reads like a tab indicator in an auction catalog.
  *
  * Server Component. The whole row is a <Link> so keyboard activation works
  * without any client JS.
@@ -35,11 +39,24 @@ export function SoldRow({ watch }: SoldRowProps) {
     <Link
       href={`/watch/${watch.slug}`}
       data-watch-slug={watch.slug}
-      className="group grid grid-cols-[56px_1fr_auto] items-center gap-[clamp(16px,3vw,28px)] border-b border-[color:var(--color-gold-20)] py-[clamp(18px,2.5vw,24px)] text-inherit transition-colors hover:bg-[color:oklch(0.76_0.12_75_/_0.04)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)] sm:grid-cols-[56px_1fr_auto]"
+      className="group relative grid grid-cols-[56px_1fr_auto] items-center gap-[clamp(16px,3vw,28px)] border-b border-[color:var(--color-gold-20)] py-[clamp(18px,2.5vw,24px)] text-inherit transition-colors hover:bg-[color:oklch(0.76_0.12_75_/_0.04)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--color-gold)] sm:grid-cols-[56px_1fr_auto]"
     >
+      {/* Gold rule slide-in marker on hover/focus. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-1/2 h-[60%] w-px -translate-y-1/2 origin-top scale-y-0 bg-[color:var(--color-gold)] transition-transform duration-700 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
+      />
       <div className="relative h-14 w-14 shrink-0 overflow-hidden opacity-85 [filter:grayscale(0.65)]">
         {watch.primaryImage && (
-          <Image src={watch.primaryImage} alt="" fill sizes="56px" className="object-cover" />
+          <Image
+            src={watch.primaryImage}
+            alt=""
+            fill
+            sizes="56px"
+            // Tight dial-only crop — push the image up so the case fills the frame.
+            // 140% over default gives the bezel + dial more presence at 56px.
+            className="scale-[1.4] object-cover object-center"
+          />
         )}
       </div>
       <div className="flex min-w-0 flex-col gap-1">

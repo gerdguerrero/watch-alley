@@ -24,6 +24,11 @@
   --color-walnut-deep: oklch(0.13 0.012 55);
   --color-walnut: oklch(0.17 0.015 55);
   --color-walnut-card: oklch(0.21 0.018 60);
+
+  /* Backwards-compatible aliases while older components still say navy. */
+  --color-navy-deep: oklch(0.13 0.012 55);
+  --color-navy: oklch(0.17 0.015 55);
+
   --color-paper: oklch(0.92 0.018 80);
   --color-ink-paper: oklch(0.28 0.02 60);
   --color-ink-paper-soft: oklch(0.34 0.025 60);
@@ -33,10 +38,6 @@
   --color-gold: oklch(0.76 0.12 75);
   --color-gold-30: oklch(0.76 0.12 75 / 0.30);
   --color-gold-20: oklch(0.76 0.12 75 / 0.20);
-
-  /* Backwards-compatible aliases while older components still say navy. */
-  --color-navy-deep: oklch(0.13 0.012 55);
-  --color-navy: oklch(0.17 0.015 55);
 
   --font-serif: "Petrona", Georgia, serif;
   --font-sans: "Spectral", Georgia, serif;
@@ -140,6 +141,13 @@
     /* The editorial register: body copy is Spectral, never Petrona — Petrona
        is reserved for headlines and watch names. */
     font-family: var(--font-sans);
+    /* Premium serif rendering — enables ligatures, kerning, proportional
+       oldstyle figures across the entire site. The visual lift on Petrona
+       headlines and Spectral body copy is substantial. */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "liga", "kern", "pnum", "onum";
   }
   /* Headlines / watch names always use Petrona. */
   h1, h2, h3, .serif {
@@ -147,4 +155,39 @@
     font-weight: 500;
   }
   /* JetBrains Mono only via explicit .font-mono or the prose-mono utility. */
+}
+
+@layer utilities {
+  /* Luxury-tier transitions — slow, deliberate, ease-out-quart. Premium
+     watch sites move glacially compared to SaaS defaults. Overrides
+     Tailwind's 150ms default duration on the three commonest transition
+     utilities so every hover and motion across the storefront inherits
+     the same calm rhythm without per-component edits. */
+  .transition-colors,
+  .transition-opacity,
+  .transition-transform,
+  .transition-\[opacity\] {
+    transition-duration: 700ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* View Transitions — soft cross-fade between routes (e.g. / -> /journal,
+   /watch/<slug> open from the carousel). Browser falls back to instant
+   navigation where unsupported. Honors prefers-reduced-motion. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 480ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.001ms;
+  }
 }
