@@ -172,6 +172,36 @@
   }
 }
 
+/* Scroll-reveal primitives — used by <ScrollReveal>. Opt-in via class on
+   any descendant. The wrapper toggles data-wa-reveal=true on first entry. */
+[data-wa-reveal] .wa-rev-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-wa-reveal="true"] .wa-rev-rule { transform: scaleX(1); }
+
+[data-wa-reveal] .wa-rev-rise {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-wa-reveal="true"] .wa-rev-rise {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-wa-reveal] .wa-rev-rule,
+  [data-wa-reveal] .wa-rev-rise {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
+
 /* View Transitions — soft cross-fade between routes (e.g. / -> /journal,
    /watch/<slug> open from the carousel). Browser falls back to instant
    navigation where unsupported. Honors prefers-reduced-motion. */

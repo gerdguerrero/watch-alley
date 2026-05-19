@@ -5,7 +5,7 @@ import { CuratorNote } from "@/components/storefront/CuratorNote";
 import { FinalCta } from "@/components/storefront/FinalCta";
 import { Footer } from "@/components/storefront/Footer";
 import { HeroSection } from "@/components/storefront/HeroSection";
-import { HeroTicker } from "@/components/storefront/HeroTicker";
+import { WatchmakerMarquee } from "@/components/storefront/WatchmakerMarquee";
 import { InquiryBand } from "@/components/storefront/InquiryBand";
 import { JournalPreview } from "@/components/storefront/JournalPreview";
 import { MainNav } from "@/components/storefront/MainNav";
@@ -39,7 +39,7 @@ export default async function HomePage() {
     <>
       <MainNav />
       <HeroSection featured={featured} />
-      <HeroTicker />
+      <WatchmakerMarquee />
       <TrustBand />
       <JournalPreview posts={journalPosts} />
       <ArrivalsCarousel watches={arrivals} />
