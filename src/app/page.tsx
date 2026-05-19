@@ -10,7 +10,6 @@ import { InquiryBand } from "@/components/storefront/InquiryBand";
 import { JournalPreview } from "@/components/storefront/JournalPreview";
 import { MainNav } from "@/components/storefront/MainNav";
 import { SoldArchivePreview } from "@/components/storefront/SoldArchivePreview";
-import { TopBar } from "@/components/storefront/TopBar";
 import { TrustBand } from "@/components/storefront/TrustBand";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
@@ -38,7 +37,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <TopBar />
       <MainNav />
       <HeroSection featured={featured} />
       <HeroTicker />

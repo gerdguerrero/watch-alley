@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CaliperOverlay } from "@/components/storefront/CaliperOverlay";
 import { FilmGrain } from "@/components/storefront/FilmGrain";
 import { SplitHeadline } from "@/components/storefront/SplitHeadline";
 import { formatPhp } from "@/lib/inventory/format";
@@ -22,7 +23,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
   return (
     <section
       id="hero"
-      className="relative min-h-svh overflow-hidden border-b border-[color:var(--color-gold-20)]"
+      className="relative min-h-[calc(100svh-94px)] overflow-hidden border-b border-[color:var(--color-gold-20)]"
       style={{ background: "#070b14" }}
     >
       {/* Background media — poster + looping video, both cropped right. */}
@@ -67,37 +68,49 @@ export function HeroSection({ featured }: HeroSectionProps) {
       </div>
 
       <div
-        className="relative z-10 grid min-h-svh items-center gap-[clamp(24px,4vw,40px)] px-[clamp(20px,6vw,80px)] pb-[clamp(100px,12vw,130px)] pt-[clamp(48px,7vw,88px)] lg:grid-cols-[1.1fr_1fr]"
+        className="relative z-10 grid min-h-[calc(100svh-94px)] items-center gap-[clamp(24px,4vw,40px)] px-[clamp(20px,6vw,80px)] pb-[clamp(60px,8vw,100px)] pt-[clamp(32px,5vw,72px)] lg:grid-cols-[1.1fr_1fr]"
       >
         <div>
-          <div className="mb-5">
-            <span className="inline-block border border-[color:var(--color-gold-20)] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]" style={{ background: "rgba(7,11,20,0.40)" }}>
-              ◉ ISSUE Nº 47 · APRIL 2026
-            </span>
-          </div>
+          <style>{`
+            @keyframes wa-hero-rise {
+              from { opacity: 0; transform: translateY(10px); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
+            .wa-hero-rise {
+              opacity: 0;
+              transform: translateY(10px);
+              animation: wa-hero-rise 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+            #hero h1 { font-size: clamp(36px, min(7.5vw, 13vh), 88px); line-height: 0.98; letter-spacing: -0.02em; }
+            @media (prefers-reduced-motion: reduce) {
+              .wa-hero-rise { animation: none !important; opacity: 1 !important; transform: none !important; }
+            }
+          `}</style>
           <SplitHeadline
             phrases={["Honest watches,", "*honestly* sold."]}
             className="font-serif font-normal text-[color:var(--color-cream)]"
             duration={1400}
-            initialDelay={250}
+            initialDelay={350}
           />
-          <style>{`
-            #hero h1 { font-size: clamp(36px, min(7.5vw, 13vh), 88px); line-height: 0.98; letter-spacing: -0.02em; }
-          `}</style>
-          <p className="mt-6 max-w-[540px] font-sans text-[clamp(14px,1.3vw,18px)] leading-[1.55] text-[color:var(--color-cream-80)]">
+          <p
+            className="wa-hero-rise mt-6 max-w-[540px] font-sans text-[clamp(14px,1.3vw,18px)] leading-[1.55] text-[color:var(--color-cream-80)]"
+            style={{ animationDelay: "1700ms" }}
+          >
             Pre-owned and brand-new timepieces curated in Manila. Seiko. Omega. Hamilton. Tissot.
             Every piece photographed in daylight, disclaimed where it counts, and shipped worldwide.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3.5">
             <a
               href="/available"
-              className="inline-flex items-center gap-2 border border-[color:var(--color-gold)] bg-[color:var(--color-gold)] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-navy-deep)] transition-opacity hover:opacity-85"
+              className="wa-hero-rise inline-flex items-center gap-2 border border-[color:var(--color-gold)] bg-[color:var(--color-gold)] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-navy-deep)] transition-opacity hover:opacity-85"
+              style={{ animationDelay: "1950ms" }}
             >
               Shop Available ↗
             </a>
             <a
               href="/#messenger"
-              className="font-sans text-sm italic text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]"
+              className="wa-hero-rise font-sans text-sm italic text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]"
+              style={{ animationDelay: "2100ms" }}
             >
               or message us on Messenger →
             </a>
@@ -116,32 +129,69 @@ export function HeroSection({ featured }: HeroSectionProps) {
  * glass effect renders against real motion and earns its weight.
  */
 function HeroFeaturedCard({ watch }: { watch: Watch }) {
+  // Caliper labels — prefer real case + edition data, fall back to generic
+  // bench language so the overlay never reads as a missing field.
+  const topLabel = watch.caseSize
+    ? `Ø ${watch.caseSize.replace(/\s+/g, " ")}`
+    : "ON THE BENCH";
+  const bottomLabel = watch.movement
+    ? `${watch.movement.split(/\s+/).slice(0, 3).join(" ").toUpperCase()}`
+    : "VERIFIED · IN PERSON";
+
   return (
     <aside
-      className="w-full justify-self-end border border-[color:var(--color-gold-20)] p-7 lg:max-w-[420px]"
+      className="wa-hero-rise relative w-full justify-self-end border border-[color:var(--color-gold-20)] p-7 lg:max-w-[420px]"
       style={{
         background: "rgba(7,11,20,0.55)",
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
+        animationDelay: "400ms",
+        animationDuration: "1.2s",
       }}
     >
+      <style>{`
+        @keyframes wa-card-rise {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes wa-card-divider {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        .wa-hcard-rise {
+          opacity: 0;
+          transform: translateY(8px);
+          animation: wa-card-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .wa-hcard-divider {
+          transform-origin: left center;
+          transform: scaleX(0);
+          animation: wa-card-divider 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .wa-hcard-rise, .wa-hcard-divider { animation: none !important; opacity: 1 !important; transform: none !important; }
+        }
+      `}</style>
+      <CaliperOverlay topLabel={topLabel} bottomLabel={bottomLabel} />
       <header className="flex items-start justify-between gap-4">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]">
+          <div className="wa-hcard-rise font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]" style={{ animationDelay: "1900ms" }}>
             FEATURED · AVAILABLE NOW
           </div>
-          <div className="mt-2 font-serif text-2xl leading-tight text-[color:var(--color-cream)]">
+          <div className="wa-hcard-rise mt-2 font-serif text-2xl leading-tight text-[color:var(--color-cream)]" style={{ animationDelay: "2050ms" }}>
             {watch.brand}
             <br />
             <span className="italic">{watch.name}</span>
           </div>
         </div>
-        <span className="text-2xl leading-none text-[color:var(--color-gold)]">●</span>
+        <span className="wa-hcard-rise text-2xl leading-none text-[color:var(--color-gold)]" style={{ animationDelay: "2200ms" }}>
+          ●
+        </span>
       </header>
-      <div className="my-5 h-px bg-[color:var(--color-gold-20)]" />
+      <div className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]" style={{ animationDelay: "2350ms" }} />
       <dl className="grid grid-cols-2 gap-y-4 text-sm text-[color:var(--color-cream-80)]">
         {watch.edition && (
-          <div>
+          <div className="wa-hcard-rise" style={{ animationDelay: "2450ms" }}>
             <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-cream-60)]">
               Edition
             </dt>
@@ -149,7 +199,7 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
           </div>
         )}
         {watch.caseSize && (
-          <div>
+          <div className="wa-hcard-rise" style={{ animationDelay: "2550ms" }}>
             <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-cream-60)]">
               Case
             </dt>
@@ -157,7 +207,7 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
           </div>
         )}
         {watch.movement && (
-          <div>
+          <div className="wa-hcard-rise" style={{ animationDelay: "2650ms" }}>
             <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-cream-60)]">
               Movement
             </dt>
@@ -165,7 +215,7 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
           </div>
         )}
         {watch.conditionLabel && (
-          <div>
+          <div className="wa-hcard-rise" style={{ animationDelay: "2750ms" }}>
             <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-cream-60)]">
               Condition
             </dt>
@@ -173,9 +223,9 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
           </div>
         )}
       </dl>
-      <div className="my-5 h-px bg-[color:var(--color-gold-20)]" />
+      <div className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]" style={{ animationDelay: "2900ms" }} />
       <footer className="flex items-center justify-between">
-        <span className="font-serif text-2xl text-[color:var(--color-gold)]">
+        <span className="wa-hcard-rise font-serif text-2xl text-[color:var(--color-gold)]" style={{ animationDelay: "3000ms" }}>
           {formatPhp(watch.price)}
           <span
             className="mt-0.5 block font-mono text-[11px] font-normal not-italic tracking-[0.2em] text-[color:var(--color-cream-60)]"
@@ -184,7 +234,8 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
         </span>
         <a
           href={`/watch/${watch.slug}`}
-          className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]"
+          style={{ animationDelay: "3150ms" }}
+          className="wa-hcard-rise font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]"
         >
           INQUIRE →
         </a>
