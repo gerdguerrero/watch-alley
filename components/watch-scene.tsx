@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, Suspense, useMemo } from 'react'
+import { useRef, Suspense, useMemo, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Environment, Center, Float } from '@react-three/drei'
 import { useScroll, useTransform, useReducedMotion, MotionValue } from 'framer-motion'
@@ -131,7 +131,27 @@ function WatchModel({ scrollYProgress }: WatchModelProps) {
 
   // Clone scene once
   const clonedScene = useMemo(() => scene.clone(), [scene])
-  
+  const reducedMotion = useReducedMotion()
+  const handsRef = useRef<{ hour: HandParts; minute: HandParts; second: HandParts } | null>(null)
+  const initAttemptsRef = useRef(0)
+  const initializedRef = useRef(false)
+
+  useEffect(() => {
+    return () => {
+      const hands = handsRef.current
+      if (!hands) return
+      for (const key of ['hour', 'minute', 'second'] as const) {
+        const part = hands[key]
+        clonedScene.remove(part.pivot)
+        part.geometry.dispose()
+        part.material.dispose()
+      }
+      handsRef.current = null
+      initializedRef.current = false
+      initAttemptsRef.current = 0
+    }
+  }, [clonedScene])
+
   // Scroll-based transforms - MDX.so style smooth transitions
   const rotationY = useTransform(scrollYProgress, [0, 1], [0, Math.PI * 1.5])
   const rotationX = useTransform(scrollYProgress, [0, 0.5, 1], [-0.3, -0.1, 0.2])
