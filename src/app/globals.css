@@ -202,22 +202,74 @@
   }
 }
 
-/* View Transitions — soft cross-fade between routes (e.g. / -> /journal,
-   /watch/<slug> open from the carousel). Browser falls back to instant
-   navigation where unsupported. Honors prefers-reduced-motion. */
-@view-transition {
-  navigation: auto;
+/* Editorial article body — used by /journal/[slug] for the renderMarkdown HTML.
+   Applies develop-aesthetic typography (zinc neutrals, amber accents) without
+   pulling in a heavy prose plugin. */
+.article-body > * + * { margin-top: 1.5em; }
+.article-body h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  line-height: 1.2;
+  color: rgb(244 244 245);
+  margin-top: 2.5em;
+  margin-bottom: 0.6em;
+  font-weight: 500;
+}
+.article-body h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  line-height: 1.3;
+  color: rgb(228 228 231);
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  font-weight: 500;
+}
+.article-body p { color: rgb(212 212 216); }
+.article-body a {
+  color: rgb(245 158 11);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(245, 158, 11, 0.4);
+  transition: text-decoration-color 200ms ease;
+}
+.article-body a:hover { text-decoration-color: rgb(245 158 11); }
+.article-body em { font-style: italic; color: rgb(228 228 231); }
+.article-body strong { color: rgb(244 244 245); font-weight: 500; }
+.article-body ul,
+.article-body ol {
+  padding-left: 1.5em;
+  color: rgb(212 212 216);
+}
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li + li { margin-top: 0.4em; }
+.article-body li::marker { color: rgba(245, 158, 11, 0.7); }
+.article-body blockquote {
+  border-left: 2px solid rgba(245, 158, 11, 0.5);
+  padding: 0.5em 0 0.5em 1.5em;
+  font-style: italic;
+  color: rgb(212 212 216);
+  font-family: var(--font-serif);
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+.article-body img {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.article-body code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: rgb(245 158 11);
+}
+.article-body hr {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 2.5em 0;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 480ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 0.001ms;
-  }
-}
+/* Cross-route view transitions disabled — the global cross-fade made tab
+   navigation feel laggy. Each page handles its own in-view entrance. */

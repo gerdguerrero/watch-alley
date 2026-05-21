@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
         ? [{ protocol: "https" as const, hostname: supabaseHost }]
         : []),
       { protocol: "https", hostname: "*.supabase.co" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
   async rewrites() {

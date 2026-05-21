@@ -37,17 +37,15 @@ export function CuratorNote() {
             A note from <em className="italic text-[color:var(--color-gold)]">the curator.</em>
           </h2>
           <p className="max-w-[56ch] font-sans text-[clamp(15px,1.3vw,17px)] leading-relaxed text-[color:var(--color-cream-80)]">
-            This week we are carrying three pieces I would put on my own
-            wrist, and one I almost did not list. The Alpinist "Whiskered
-            Pitta" is the loudest of the four.
+            This week we are carrying three pieces I would put on my own wrist, and one I almost did
+            not list. The Alpinist "Whiskered Pitta" is the loudest of the four.
           </p>
           <blockquote className="my-1 border-l border-[color:var(--color-gold-30)] pl-5 font-serif text-[clamp(18px,1.8vw,22px)] italic leading-snug text-[color:var(--color-cream)]">
-            It is also the one with the longest service history I have
-            personally signed off on.
+            It is also the one with the longest service history I have personally signed off on.
           </blockquote>
           <p className="max-w-[56ch] font-sans text-[clamp(15px,1.3vw,17px)] leading-relaxed text-[color:var(--color-cream-80)]">
-            If you want to talk through any of them, message us on Messenger.
-            We answer within four hours, Monday to Saturday.
+            If you want to talk through any of them, message us on Messenger. We answer within four
+            hours, Monday to Saturday.
           </p>
           <CuratorSignature />
           <a

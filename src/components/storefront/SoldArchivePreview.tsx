@@ -36,8 +36,8 @@ export function SoldArchivePreview({ watches }: SoldArchivePreviewProps) {
               Pieces that <em className="italic text-[color:var(--color-gold)]">found a home.</em>
             </h2>
             <p className="max-w-[60ch] font-sans text-[14px] leading-relaxed text-[color:var(--color-cream-80)]">
-              A running record of timepieces placed through The Watch Alley.
-              If you missed one, message us. Similar references come around.
+              A running record of timepieces placed through The Watch Alley. If you missed one,
+              message us. Similar references come around.
             </p>
           </div>
         </div>

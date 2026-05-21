@@ -54,7 +54,8 @@ export function BuyingProcess() {
             ◆ How buying works
           </span>
           <h2 className="font-serif text-[clamp(28px,4vw,44px)] leading-tight text-[color:var(--color-cream)]">
-            Browse <em className="italic text-[color:var(--color-gold)]">· Inquire · Confirm · Ship.</em>
+            Browse{" "}
+            <em className="italic text-[color:var(--color-gold)]">· Inquire · Confirm · Ship.</em>
           </h2>
           <p className="max-w-[60ch] font-sans text-[14px] leading-relaxed text-[color:var(--color-cream-80)]">
             No checkout cart. Real conversation, serviced piece on your wrist.

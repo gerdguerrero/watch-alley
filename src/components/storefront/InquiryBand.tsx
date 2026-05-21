@@ -29,9 +29,8 @@ export function InquiryBand() {
         </div>
         <div className="flex max-w-[68ch] flex-col justify-end">
           <p className="font-sans text-[clamp(16px,1.5vw,19px)] leading-[1.65]">
-            Most watches move through direct conversation first. Message us
-            for a condition follow-up, a piece you want held, or a reference
-            you want us to watch for.
+            Most watches move through direct conversation first. Message us for a condition
+            follow-up, a piece you want held, or a reference you want us to watch for.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-4">
             <a

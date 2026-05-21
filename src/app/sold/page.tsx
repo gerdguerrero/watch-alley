@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { MainNav } from "@/components/storefront/MainNav";
-import { SoldRow } from "@/components/storefront/SoldRow";
-import { TopBar } from "@/components/storefront/TopBar";
+import { PageTitle } from "@/components/develop/page-title";
+import { WatchCard } from "@/components/develop/watch-card";
 import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
@@ -19,37 +18,27 @@ export default async function SoldPage() {
   sold.sort((a, b) => (b.soldAt || "").localeCompare(a.soldAt || ""));
 
   return (
-    <>
-      <TopBar />
-      <MainNav active="sold" />
-      <main className="flex-1 px-[clamp(20px,4vw,80px)] py-[clamp(48px,8vw,96px)]">
-        <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
-              Sold Archive
-            </div>
-            <h1 className="mt-2 font-serif text-[clamp(32px,4vw,48px)] leading-tight text-[color:var(--color-cream)]">
-              Recently <em className="italic text-[color:var(--color-gold)]">honored.</em>
-            </h1>
-          </div>
-          <p className="max-w-[540px] font-sans text-sm leading-[1.65] text-[color:var(--color-cream-60)]">
-            A running record of pieces that found a home through The Watch Alley. If you missed one,
-            message us — similar references come around.
-          </p>
-        </header>
+    <main className="bg-[#0a0a0a] text-zinc-100">
+      <PageTitle
+        title="SOLD"
+        eyebrow="◆ Recently honored"
+        headline="The pieces that *found a home.*"
+        description="A running record of watches placed through The Watch Alley. If you missed one, message us — similar references come around."
+      />
 
+      <section className="relative px-6 md:px-12 lg:px-20 pb-32">
         {sold.length === 0 ? (
-          <p className="py-12 font-sans italic text-[color:var(--color-cream-60)]">
+          <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
             Once pieces find their next collector, they will appear here.
           </p>
         ) : (
-          <div className="flex flex-col border-t border-[color:var(--color-gold-20)]">
-            {sold.map((w) => (
-              <SoldRow key={w.slug} watch={w} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+            {sold.map((w, i) => (
+              <WatchCard key={w.slug} watch={w} index={i} variant="sold" />
             ))}
           </div>
         )}
-      </main>
-    </>
+      </section>
+    </main>
   );
 }

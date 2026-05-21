@@ -64,21 +64,20 @@ export function CountUpFigure({
             return;
           }
           const t = Math.min((now - begin) / duration, 1);
-          const eased = 1 - Math.pow(1 - t, 3);
+          const eased = 1 - (1 - t) ** 3;
           setValue(target * eased);
           if (t < 1) requestAnimationFrame(tick);
           else setValue(target);
         };
         requestAnimationFrame(tick);
       },
-      { threshold: 0.5 },
+      { threshold: 0.5 }
     );
     io.observe(el);
     return () => io.disconnect();
   }, [target, duration, delay]);
 
-  const display =
-    decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString();
+  const display = decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString();
 
   return (
     <span ref={ref} className={className}>

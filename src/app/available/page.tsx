@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { MainNav } from "@/components/storefront/MainNav";
-import { TopBar } from "@/components/storefront/TopBar";
+import { PageTitle } from "@/components/develop/page-title";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
-import { WatchCard } from "@/components/storefront/WatchCard";
+import { WatchCard } from "@/components/develop/watch-card";
 import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
@@ -18,43 +17,33 @@ export default async function AvailablePage() {
   const watches = await fetchWatches({ status: "available" });
 
   return (
-    <>
-      <TopBar />
-      <MainNav active="available" />
-      <main className="flex-1 px-[clamp(20px,4vw,80px)] py-[clamp(48px,8vw,96px)]">
-        <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
-              Available pieces
-            </div>
-            <h1 className="mt-2 font-serif text-[clamp(36px,5vw,64px)] leading-tight text-[color:var(--color-cream)]">
-              In rotation, <em className="italic text-[color:var(--color-gold)]">right now.</em>
-            </h1>
-          </div>
-          <p className="max-w-[60ch] font-sans text-sm leading-[1.65] text-[color:var(--color-cream-60)]">
-            Every watch currently for sale through The Watch Alley. Daylight-photographed, disclosed
-            in writing, shipped insured. Tap any piece for full details and to inquire.
-          </p>
-        </header>
+    <main className="bg-[#0a0a0a] text-zinc-100">
+      <PageTitle
+        title="AVAILABLE"
+        eyebrow="◆ Currently in rotation"
+        headline="In rotation, *right now.*"
+        description="Every watch currently for sale through The Watch Alley. Daylight-photographed, disclosed in writing, shipped insured. Tap any piece for full details and to inquire."
+      />
 
+      <section className="relative px-6 md:px-12 lg:px-20 pb-32">
         {watches.length === 0 ? (
-          <p className="py-12 text-center font-sans italic text-[color:var(--color-cream-60)]">
+          <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
             No active pieces right now. Message us on Messenger for the next drop.
           </p>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[clamp(20px,2.5vw,32px)]">
-            {watches.map((w) => (
-              <WatchCard key={w.slug} watch={w} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+            {watches.map((w, i) => (
+              <WatchCard key={w.slug} watch={w} index={i} />
             ))}
           </div>
         )}
 
-        <p className="mx-auto mt-[clamp(36px,6vw,56px)] max-w-[60ch] text-center font-mono text-[10px] uppercase leading-[1.6] tracking-[0.18em] text-[color:var(--color-cream-60)]">
+        <p className="mx-auto mt-20 max-w-[60ch] text-center font-mono text-[10px] uppercase leading-[1.6] tracking-[0.18em] text-zinc-600">
           USD figures shown alongside prices are mid-market estimates, refreshed daily. The final
           amount is calculated in Wise at payment.
         </p>
-      </main>
+      </section>
       <UsdPriceMount />
-    </>
+    </main>
   );
 }

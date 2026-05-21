@@ -81,7 +81,12 @@ export function BgcMap() {
       </g>
 
       {/* Compass mark + scale — bottom right, the way old maps annotate. */}
-      <g transform="translate(360 270)" stroke="oklch(0.91 0.018 78 / 0.40)" strokeWidth="0.8" fill="none">
+      <g
+        transform="translate(360 270)"
+        stroke="oklch(0.91 0.018 78 / 0.40)"
+        strokeWidth="0.8"
+        fill="none"
+      >
         <line x1="0" y1="-12" x2="0" y2="12" />
         <line x1="-12" y1="0" x2="12" y2="0" />
         <text
@@ -89,7 +94,11 @@ export function BgcMap() {
           y="-15"
           textAnchor="middle"
           fill="oklch(0.91 0.018 78 / 0.60)"
-          style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7px", letterSpacing: "0.18em" }}
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "7px",
+            letterSpacing: "0.18em",
+          }}
         >
           N
         </text>
@@ -108,7 +117,12 @@ export function BgcMap() {
         x="232"
         y="151"
         fill="oklch(0.91 0.018 78 / 0.55)"
-        style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7px", letterSpacing: "0.22em", textTransform: "uppercase" }}
+        style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "7px",
+          letterSpacing: "0.22em",
+          textTransform: "uppercase",
+        }}
       >
         BGC · Taguig
       </text>

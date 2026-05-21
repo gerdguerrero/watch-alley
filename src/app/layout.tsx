@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Petrona, Spectral } from "next/font/google";
+import { Footer } from "@/components/develop/footer";
+import { MainNav } from "@/components/develop/main-nav";
 import "./globals.css";
 
 // Editorial register, per the design system:
@@ -57,7 +59,11 @@ export default function RootLayout({
       lang="en"
       className={`${petrona.variable} ${spectral.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-zinc-100">
+        <MainNav />
+        <div className="flex-1">{children}</div>
+        <Footer />
+      </body>
     </html>
   );
 }

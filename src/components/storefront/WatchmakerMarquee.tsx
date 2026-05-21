@@ -81,9 +81,7 @@ export function WatchmakerMarquee() {
   // Auto-rotate quotes. Pause on hover. Skip when reduced-motion or off-viewport.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    reducedMotion.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion.current) return;
 
     let visible = false;
@@ -196,7 +194,11 @@ export function WatchmakerMarquee() {
 
         {/* Bottom row — pagination dots + quote counter */}
         <footer className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5" role="tablist" aria-label="Choose a bench note">
+          <div
+            className="flex items-center gap-2.5"
+            role="tablist"
+            aria-label="Choose a bench note"
+          >
             {QUOTES.map((_, i) => (
               <button
                 key={i}

@@ -21,10 +21,7 @@ interface CaliperOverlayProps {
 
 export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-    >
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       <style>{`
         @keyframes wa-cal-draw   { from { transform: scaleX(0); }   to { transform: scaleX(1); } }
         @keyframes wa-cal-rise   { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -77,10 +74,19 @@ export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
       <div className="wa-cal absolute inset-0">
         {/* Top caliper rule — extends across the card */}
         <div className="absolute left-3 right-3 top-1.5">
-          <div className="wa-cal__rule h-px w-full bg-[color:var(--color-gold)]" style={{ opacity: 0.5 }} />
+          <div
+            className="wa-cal__rule h-px w-full bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.5 }}
+          />
           {/* Tick marks at each end (the caliper jaws) */}
-          <span className="wa-cal__tick absolute -top-1 left-0 block h-2 w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.7 }} />
-          <span className="wa-cal__tick absolute -top-1 right-0 block h-2 w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.7 }} />
+          <span
+            className="wa-cal__tick absolute -top-1 left-0 block h-2 w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.7 }}
+          />
+          <span
+            className="wa-cal__tick absolute -top-1 right-0 block h-2 w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.7 }}
+          />
           {/* Centered mono label sits BELOW the rule */}
           <span className="wa-cal__label wa-cal__pulse absolute left-1/2 top-1.5 -translate-x-1/2 whitespace-nowrap bg-[color:var(--color-card)] px-2 font-mono text-[9px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
             {topLabel}
@@ -89,9 +95,18 @@ export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
 
         {/* Bottom caliper rule */}
         <div className="absolute bottom-1.5 left-3 right-3">
-          <div className="wa-cal__rule wa-cal__rule--bottom h-px w-full bg-[color:var(--color-gold)]" style={{ opacity: 0.5 }} />
-          <span className="wa-cal__tick absolute -bottom-1 left-0 block h-2 w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.7 }} />
-          <span className="wa-cal__tick absolute -bottom-1 right-0 block h-2 w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.7 }} />
+          <div
+            className="wa-cal__rule wa-cal__rule--bottom h-px w-full bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.5 }}
+          />
+          <span
+            className="wa-cal__tick absolute -bottom-1 left-0 block h-2 w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.7 }}
+          />
+          <span
+            className="wa-cal__tick absolute -bottom-1 right-0 block h-2 w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.7 }}
+          />
           <span className="wa-cal__label wa-cal__label--bottom absolute bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[color:var(--color-card)] px-2 font-mono text-[9px] uppercase tracking-[0.28em] text-[color:var(--color-gold)]">
             {bottomLabel}
           </span>
@@ -99,11 +114,17 @@ export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
 
         {/* Vertical rail on the left edge — instrument body */}
         <div className="absolute bottom-6 left-1.5 top-6">
-          <div className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.35 }} />
+          <div
+            className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.35 }}
+          />
         </div>
         {/* Mirrored rail on the right edge — closes the instrument frame */}
         <div className="absolute bottom-6 right-1.5 top-6">
-          <div className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]" style={{ opacity: 0.35 }} />
+          <div
+            className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]"
+            style={{ opacity: 0.35 }}
+          />
         </div>
       </div>
     </div>

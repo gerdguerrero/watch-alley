@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MainNav } from "@/components/storefront/MainNav";
-import { TopBar } from "@/components/storefront/TopBar";
 import { renderMarkdown } from "@/lib/journal/markdown";
 import { fetchJournalPost, fetchPublishedJournalSlugs } from "@/lib/journal/queries";
 import type { JournalPost } from "@/lib/journal/types";
@@ -82,17 +80,18 @@ function buildArticleJsonLd(post: JournalPost) {
     publisher: {
       "@type": "Organization",
       name: "The Watch Alley",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://watchalley.ph/logo.jpg",
-      },
+      logo: { "@type": "ImageObject", url: "https://watchalley.ph/logo.jpg" },
     },
     mainEntityOfPage: `https://watchalley.ph/journal/${post.slug}`,
     keywords: post.tags.join(", "),
   };
 }
 
-export default async function JournalPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function JournalPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const post = await fetchJournalPost(slug);
   if (!post) notFound();
@@ -101,63 +100,99 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
   const jsonLd = buildArticleJsonLd(post);
 
   return (
-    <>
-      <TopBar />
-      <MainNav active="journal" />
-      <main className="flex-1">
-        <article className="mx-auto max-w-[820px] px-[clamp(20px,4vw,80px)] py-[clamp(40px,6vw,80px)]">
-          <Link
-            href="/journal"
-            className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)] transition-colors hover:text-[color:var(--color-gold)]"
-          >
-            ← Back to the Journal
-          </Link>
+    <main className="bg-[#0a0a0a] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20">
+      {/* Subtle amber wash anchored at top */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px]"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 158, 11, 0.05) 0%, transparent 60%)",
+        }}
+      />
 
-          <header className="mt-8 border-b border-[color:var(--color-gold-20)] pb-8">
-            <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-[color:var(--color-gold)]">
+      <article className="relative mx-auto max-w-[820px]">
+        <Link
+          href="/journal"
+          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 hover:text-amber-400 transition-colors"
+        >
+          <svg className="w-3 h-3 rotate-180" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back to the Journal
+        </Link>
+
+        <header className="mt-10 mb-12 border-b border-zinc-900/60 pb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-px bg-amber-500/60" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
               {(post.tags[0] || "Journal").toUpperCase()}
               {post.publishedAt && ` · ${formatDate(post.publishedAt)}`}
               {` · ${inferReadMinutes(post)} min read`}
-            </div>
-            <h1 className="mt-4 font-serif text-[clamp(32px,5vw,56px)] leading-[1.1] text-[color:var(--color-cream)]">
-              {post.title}
-            </h1>
-            <p className="mt-4 font-sans text-lg italic leading-[1.55] text-[color:var(--color-cream-80)]">
+            </span>
+          </div>
+          <h1 className="font-serif text-[clamp(36px,5.5vw,64px)] leading-[1.05] text-zinc-100 mb-6">
+            {post.title}
+          </h1>
+          {post.summary && (
+            <p className="font-serif text-lg md:text-xl italic leading-[1.55] text-zinc-400 max-w-[60ch]">
               {post.summary}
             </p>
-            <div className="mt-5 font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]">
-              By {post.author}
-            </div>
-          </header>
-
-          {post.heroImage && (
-            <figure className="my-10">
-              <div className="relative aspect-[16/9] overflow-hidden border border-[color:var(--color-gold-20)]">
-                <Image
-                  src={post.heroImage}
-                  alt={post.title}
-                  fill
-                  sizes="(min-width: 1024px) 820px, 100vw"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </figure>
           )}
+          <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+            By {post.author}
+          </div>
+        </header>
 
-          <div
-            className="article-body font-sans text-[17px] leading-[1.75] text-[color:var(--color-cream-80)]"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML produced by our own escape-safe renderMarkdown() — see lib/journal/markdown.ts. All untrusted text is HTML-escaped before any tag is emitted; URLs pass through a strict allowlist.
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
-          />
-        </article>
-      </main>
+        {post.heroImage && (
+          <figure className="mb-14">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-white/5">
+              <Image
+                src={post.heroImage}
+                alt={post.title}
+                fill
+                sizes="(min-width: 1024px) 820px, 100vw"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+            </div>
+          </figure>
+        )}
+
+        <div
+          className="article-body font-serif text-[17px] md:text-[18px] leading-[1.8] text-zinc-300"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML produced by our own escape-safe renderMarkdown() — see lib/journal/markdown.ts.
+          dangerouslySetInnerHTML={{ __html: bodyHtml }}
+        />
+
+        <div className="mt-16 pt-10 border-t border-zinc-900/60 flex flex-wrap items-center justify-between gap-6">
+          <Link
+            href="/journal"
+            className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-400 hover:text-amber-400 transition-colors"
+          >
+            <svg className="w-3 h-3 rotate-180" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            All entries
+          </Link>
+          <Link
+            href="/available"
+            className="group inline-flex items-center gap-2 border-b border-amber-500/40 pb-0.5 font-mono text-[11px] uppercase tracking-[0.22em] text-amber-400 hover:text-amber-300 hover:border-amber-300 transition-colors"
+          >
+            See available pieces
+            <svg className="w-3 h-3 transition-transform group-hover:translate-x-1" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+      </article>
 
       <script
         type="application/ld+json"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: Schema.org JSON-LD payload built from trusted Supabase rows.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-    </>
+    </main>
   );
 }

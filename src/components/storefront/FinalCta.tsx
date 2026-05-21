@@ -19,8 +19,8 @@ export function FinalCta() {
         <em className="italic text-[color:var(--color-gold)]">We'll reply.</em>
       </h2>
       <p className="mx-auto mt-8 max-w-[60ch] font-sans text-[clamp(15px,1.4vw,17px)] leading-[1.6] text-[color:var(--color-cream-80)]">
-        Hunting a specific reference? Trading in? Curious about
-        authentication? Pick a channel. A real person on the other side.
+        Hunting a specific reference? Trading in? Curious about authentication? Pick a channel. A
+        real person on the other side.
       </p>
       <div className="mt-10 flex flex-col items-center justify-center gap-5">
         <a

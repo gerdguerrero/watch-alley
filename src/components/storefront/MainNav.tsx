@@ -30,7 +30,11 @@ export function MainNav({ active }: MainNavProps) {
       id="main-nav"
       data-scrolled="false"
       className="wa-main-nav sticky top-0 z-50 flex flex-col items-center border-b border-[color:var(--color-gold-20)] px-[clamp(20px,6vw,80px)] py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:py-[22px]"
-      style={{ background: "rgba(7,11,20,0.96)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}
+      style={{
+        background: "rgba(7,11,20,0.96)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+      }}
     >
       <style>{`
         .wa-main-nav { transition: padding-top 0.35s cubic-bezier(0.22, 1, 0.36, 1), padding-bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -55,10 +59,7 @@ export function MainNav({ active }: MainNavProps) {
         <Link href="/journal" className={`${linkBase} ${active === "journal" ? activeClass : ""}`}>
           Journal
         </Link>
-        <Link
-          href="/#contact"
-          className={`${linkBase} ${active === "service" ? activeClass : ""}`}
-        >
+        <Link href="/#contact" className={`${linkBase} ${active === "service" ? activeClass : ""}`}>
           Service
         </Link>
       </div>
