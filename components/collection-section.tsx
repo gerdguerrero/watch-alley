@@ -66,7 +66,7 @@ function AccordionCard({
       }}
       animate={
         isMobile
-          ? { height: isActive ? 340 : 80 }
+          ? { minHeight: isActive ? 340 : 80 }
           : { flexGrow: isActive ? 5 : 1 }
       }
       transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
