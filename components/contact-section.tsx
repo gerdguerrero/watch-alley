@@ -9,7 +9,7 @@ export function ContactSection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
 
   return (
-    <section ref={sectionRef} className="relative bg-[#0a0a0a] pt-24 md:pt-32 pb-8 md:pb-10 overflow-hidden">
+    <section id="contact" ref={sectionRef} className="relative bg-[#0a0a0a] pt-24 md:pt-32 pb-8 md:pb-10 overflow-hidden">
       {/* Dramatic amber glow behind the CTA */}
       <div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none"
@@ -126,7 +126,7 @@ export function ContactSection() {
                 <motion.a 
                   key={link}
                   href="#" 
-                  className="text-[12px] text-zinc-600 hover:text-zinc-400 transition-colors"
+                  className="text-[12px] text-zinc-600 hover:text-zinc-400 transition-colors py-2 inline-block"
                   whileHover={{ y: -2 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >

@@ -48,7 +48,7 @@ export function HeritageSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden">
+    <section id="heritage" ref={sectionRef} className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden">
       {/* Subtle ambient gradient */}
       <div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] pointer-events-none opacity-30"
@@ -59,9 +59,10 @@ export function HeritageSection() {
 
       {/* Large ghost title - MDX style */}
       <div className="absolute top-24 left-0 right-0 text-center pointer-events-none">
-        <h2 
-          className="text-[18vw] md:text-[14vw] font-light tracking-tight leading-none select-none"
+        <h2
+          className="font-light tracking-tight leading-none select-none"
           style={{
+            fontSize: 'clamp(4rem, 15vw, 13rem)',
             background: 'linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',

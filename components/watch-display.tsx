@@ -3,6 +3,7 @@
 import { Suspense, useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, Environment, Center, Float } from '@react-three/drei'
+import { useReducedMotion } from 'framer-motion'
 import * as THREE from 'three'
 
 function WatchModel() {
@@ -70,19 +71,21 @@ function LoadingFallback() {
 }
 
 export function WatchDisplay() {
+  const reducedMotion = useReducedMotion()
   return (
     <div className="w-full h-full">
       <Canvas
         camera={{ position: [0, 0, 3], fov: 40 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
+        frameloop={reducedMotion ? 'demand' : 'always'}
       >
         <Suspense fallback={<LoadingFallback />}>
           <Lights />
-          <Float 
-            speed={2} 
-            rotationIntensity={0.15} 
-            floatIntensity={0.4}
+          <Float
+            speed={reducedMotion ? 0 : 2}
+            rotationIntensity={reducedMotion ? 0 : 0.15}
+            floatIntensity={reducedMotion ? 0 : 0.4}
             floatingRange={[-0.1, 0.1]}
           >
             <WatchModel />

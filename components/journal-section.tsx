@@ -63,6 +63,7 @@ export function JournalSection() {
 
   return (
     <section
+      id="journal"
       ref={sectionRef}
       className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden"
     >
@@ -78,8 +79,9 @@ export function JournalSection() {
       {/* Ghost title — matches HERITAGE pattern */}
       <div className="absolute top-24 left-0 right-0 text-center pointer-events-none">
         <h2
-          className="text-[18vw] md:text-[14vw] font-light tracking-tight leading-none select-none"
+          className="font-light tracking-tight leading-none select-none"
           style={{
+            fontSize: 'clamp(4rem, 15vw, 13rem)',
             background:
               'linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)',
             WebkitBackgroundClip: 'text',

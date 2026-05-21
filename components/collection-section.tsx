@@ -148,7 +148,7 @@ export function CollectionSection() {
   const titleY = useTransform(scrollYProgress, [0, 1], [100, -100])
 
   return (
-    <section ref={sectionRef} className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden">
+    <section id="collection" ref={sectionRef} className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden">
       {/* Ambient glow — unchanged */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] pointer-events-none">
         <div
@@ -173,8 +173,9 @@ export function CollectionSection() {
       <motion.div className="relative z-10 text-center mb-20" style={{ y: titleY }}>
         <h2
           ref={titleRef}
-          className="text-[15vw] md:text-[12vw] font-light tracking-tight leading-none select-none"
+          className="font-light tracking-tight leading-none select-none"
           style={{
+            fontSize: 'clamp(3.5rem, 13vw, 11rem)',
             background: 'linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -196,7 +197,7 @@ export function CollectionSection() {
           <motion.button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`px-6 py-2.5 rounded-full text-[11px] tracking-[0.15em] uppercase border transition-all duration-300 ${
+            className={`px-6 py-3 md:py-2.5 rounded-full text-[11px] tracking-[0.15em] uppercase border transition-all duration-300 ${
               activeCategory === category
                 ? 'bg-white text-black border-white'
                 : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-zinc-200'

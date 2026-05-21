@@ -3,7 +3,7 @@
 import { useRef, Suspense, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, Environment, Center, Float } from '@react-three/drei'
-import { useScroll, useTransform, MotionValue } from 'framer-motion'
+import { useScroll, useTransform, useReducedMotion, MotionValue } from 'framer-motion'
 import * as THREE from 'three'
 
 interface WatchModelProps {
@@ -114,20 +114,22 @@ function LoadingFallback() {
 
 export function WatchScene() {
   const { scrollYProgress } = useScroll()
+  const reducedMotion = useReducedMotion()
 
   return (
     <div className="w-full h-full">
       <Canvas
         camera={{ position: [0, 0, 2.5], fov: 45 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
+        frameloop={reducedMotion ? 'demand' : 'always'}
       >
         <Suspense fallback={<LoadingFallback />}>
           <Lights />
-          <Float 
-            speed={1.5} 
-            rotationIntensity={0.1} 
-            floatIntensity={0.3}
+          <Float
+            speed={reducedMotion ? 0 : 1.5}
+            rotationIntensity={reducedMotion ? 0 : 0.1}
+            floatIntensity={reducedMotion ? 0 : 0.3}
             floatingRange={[-0.05, 0.05]}
           >
             <WatchModel scrollYProgress={scrollYProgress} />

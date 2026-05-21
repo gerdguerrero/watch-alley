@@ -1,10 +1,13 @@
 "use client"
 
-import { useRef, useEffect } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef, useEffect, useState } from 'react'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Menu, X } from 'lucide-react'
 import { WatchScene } from './watch-scene'
+
+const NAV_ITEMS = ['Home', 'Collection', 'Journal', 'Heritage', 'Contact']
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,6 +17,7 @@ export function Hero() {
   const ghostTextRef = useRef<HTMLHeadingElement>(null)
   const bottomLeftRef = useRef<HTMLDivElement>(null)
   const bottomRightRef = useRef<HTMLDivElement>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -71,7 +75,7 @@ export function Hero() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative h-screen bg-[#0a0a0a] text-zinc-100 overflow-hidden">
+    <section id="home" ref={sectionRef} className="relative h-[100dvh] bg-[#0a0a0a] text-zinc-100 overflow-hidden">
       {/* Subtle warm radial gradient for depth */}
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -99,12 +103,12 @@ export function Hero() {
             </span>
           </motion.div>
 
-          {/* Nav */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-12">
-            {['Home', 'Collection', 'Journal', 'Heritage', 'Contact'].map((item, i) => (
-              <motion.a 
+            {NAV_ITEMS.map((item, i) => (
+              <motion.a
                 key={item}
-                href="#" 
+                href={`#${item.toLowerCase()}`}
                 className={`text-[13px] transition-colors ${i === 0 ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-100'}`}
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -114,10 +118,10 @@ export function Hero() {
             ))}
           </nav>
 
-          {/* CTA */}
-          <motion.a 
-            href="#" 
-            className="text-[13px] text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-2 group"
+          {/* Desktop CTA */}
+          <motion.a
+            href="#contact"
+            className="hidden md:flex text-[13px] text-amber-500 hover:text-amber-400 transition-colors items-center gap-2 group"
             whileHover={{ x: 3 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -126,18 +130,83 @@ export function Hero() {
               <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </motion.a>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            className="md:hidden flex items-center justify-center w-11 h-11 -mr-2 text-zinc-100"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </motion.header>
+
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] bg-[#0a0a0a]/95 backdrop-blur-md md:hidden"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
+            <div className="flex items-center justify-between px-6 py-6">
+              <span className="text-sm font-medium tracking-[0.2em] text-zinc-100">WATCH ALLEY</span>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                className="flex items-center justify-center w-11 h-11 -mr-2 text-zinc-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="flex flex-col gap-1 px-6 mt-8">
+              {NAV_ITEMS.map((item, i) => (
+                <motion.a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  onClick={() => setMenuOpen(false)}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 + i * 0.05, duration: 0.3 }}
+                  className="py-4 text-2xl font-serif font-light text-zinc-100 border-b border-zinc-900"
+                >
+                  {item}
+                </motion.a>
+              ))}
+              <motion.a
+                href="#contact"
+                onClick={() => setMenuOpen(false)}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 + NAV_ITEMS.length * 0.05, duration: 0.3 }}
+                className="mt-8 inline-flex items-center gap-3 text-amber-500 text-sm tracking-[0.2em] uppercase"
+              >
+                Inquire
+                <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </motion.a>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Background Ghost Text */}
       <motion.div 
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
         style={{ x: ghostTextX, opacity: ghostTextOpacity }}
       >
-        <h1 
+        <h1
           ref={ghostTextRef}
-          className="font-serif text-[20vw] font-medium tracking-tight text-transparent"
+          className="font-serif font-medium tracking-tight text-transparent"
           style={{
+            fontSize: 'clamp(5rem, 18vw, 18rem)',
             WebkitTextStroke: '1px rgba(63, 63, 70, 0.25)',
           }}
         >
@@ -155,13 +224,13 @@ export function Hero() {
           opacity: splineOpacity,
         }}
       >
-        <div className="w-full h-full max-w-6xl max-h-[90vh] mx-auto">
+        <div className="w-full h-full max-w-6xl max-h-[90dvh] mx-auto">
           <WatchScene />
         </div>
       </motion.div>
 
       {/* Bottom Left Content */}
-      <div ref={bottomLeftRef} className="absolute bottom-12 md:bottom-16 left-6 md:left-12 lg:left-20 z-20 max-w-lg opacity-0">
+      <div ref={bottomLeftRef} className="absolute bottom-20 md:bottom-16 left-6 md:left-12 lg:left-20 right-6 md:right-auto z-20 max-w-lg opacity-0" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <motion.p 
           className="text-xs tracking-[0.25em] text-zinc-600 uppercase mb-3 font-mono"
           initial={{ y: 20, opacity: 0 }}
