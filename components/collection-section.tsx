@@ -4,25 +4,21 @@ import { useRef, useState } from 'react'
 import { motion, useInView, useTransform, useScroll, AnimatePresence } from 'framer-motion'
 import { Watch, Timer, Compass } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-gsap.registerPlugin(ScrollTrigger)
-
-const collections: {
+type CollectionItem = {
   id: number
   name: string
   category: string
-  description: string
   image: string
   Icon: LucideIcon
-}[] = [
+}
+
+const collections: CollectionItem[] = [
   {
     id: 1,
     name: "Perpetual",
     category: "Automatic",
-    description: "Self-winding excellence with 72-hour power reserve",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Luxury%20automatic%20dress%20watch.png-KCeQsyKwyyreayLrwUBjWt95TIkOWL.jpeg",
     Icon: Watch,
   },
@@ -30,7 +26,6 @@ const collections: {
     id: 2,
     name: "Chronograph",
     category: "Complication",
-    description: "Precision timing with flyback functionality",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Premium%20chronograph%20sport%20watch.png-77CCRkPJeIPJrXgEMTPXEmLTm9lpnn.jpeg",
     Icon: Timer,
   },
@@ -38,7 +33,6 @@ const collections: {
     id: 3,
     name: "Tourbillon",
     category: "Haute Horlogerie",
-    description: "Gravitational defiance in perpetual motion",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/High-end%20tourbillon%20watch.png-XSsKuXxyfFjinJUCVaXu6LlzkhASjf.jpeg",
     Icon: Compass,
   },
@@ -52,7 +46,7 @@ function AccordionCard({
   onActivate,
   isMobile,
 }: {
-  item: typeof collections[0]
+  item: CollectionItem
   isActive: boolean
   onActivate: () => void
   isMobile: boolean
@@ -218,9 +212,7 @@ export function CollectionSection() {
       {/* Accordion cards */}
       <div className="relative z-10 px-6 md:px-12 lg:px-20">
         <div
-          className={`max-w-7xl mx-auto gap-3 ${
-            isMobile ? 'flex flex-col' : 'flex flex-row h-[580px]'
-          }`}
+          className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[580px]"
         >
           {collections.map((item) => (
             <AccordionCard

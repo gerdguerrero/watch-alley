@@ -65,7 +65,7 @@ function WatchModel({ scrollYProgress }: WatchModelProps) {
       <Center>
         <primitive 
           object={clonedScene} 
-          scale={18}
+          scale={12}
         />
       </Center>
     </group>
@@ -118,7 +118,7 @@ export function WatchScene() {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [0, 0, 2.5], fov: 45 }}
+        camera={{ position: [0, 0, 4], fov: 40 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         dpr={[1, 2]}
       >
