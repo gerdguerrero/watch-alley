@@ -12,8 +12,8 @@ interface WatchModelProps {
 
 function WatchModel({ scrollYProgress }: WatchModelProps) {
   const meshRef = useRef<THREE.Group>(null)
-  const { scene } = useGLTF('/models/watch.glb')
-  
+  const { scene } = useGLTF('/models/seiko_watch.glb')
+
   // Clone scene once
   const clonedScene = useMemo(() => scene.clone(), [scene])
   
@@ -65,7 +65,7 @@ function WatchModel({ scrollYProgress }: WatchModelProps) {
       <Center>
         <primitive 
           object={clonedScene} 
-          scale={12}
+          scale={18}
         />
       </Center>
     </group>
@@ -118,7 +118,7 @@ export function WatchScene() {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [0, 0, 4], fov: 40 }}
+        camera={{ position: [0, 0, 2.5], fov: 45 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         dpr={[1, 2]}
       >
@@ -139,4 +139,4 @@ export function WatchScene() {
   )
 }
 
-useGLTF.preload('/models/watch.glb')
+useGLTF.preload('/models/seiko_watch.glb')
