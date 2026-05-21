@@ -74,6 +74,53 @@ function createHandPivot(
   return { pivot, geometry, material }
 }
 
+interface FaceFrame {
+  centerLocal: THREE.Vector3   // in clonedScene's local space
+  radius: number               // distance from center to 12-marker
+  faceNormalLocal: THREE.Vector3
+}
+
+function discoverWatchFace(clonedScene: THREE.Object3D): FaceFrame | null {
+  const markerTop = clonedScene.getObjectByName(MARKER_TOP_NAME)
+  const markerBottom = clonedScene.getObjectByName(MARKER_BOTTOM_NAME)
+  if (!markerTop || !markerBottom) {
+    console.warn(
+      `[watch-scene] Missing dial markers (${MARKER_TOP_NAME} or ${MARKER_BOTTOM_NAME}); skipping hand creation.`
+    )
+    return null
+  }
+
+  // Ensure matrices are current.
+  clonedScene.updateMatrixWorld(true)
+
+  const worldTop = new THREE.Vector3()
+  const worldBottom = new THREE.Vector3()
+  markerTop.getWorldPosition(worldTop)
+  markerBottom.getWorldPosition(worldBottom)
+
+  const centerLocal = new THREE.Vector3()
+    .addVectors(worldTop, worldBottom)
+    .multiplyScalar(0.5)
+  clonedScene.worldToLocal(centerLocal)
+
+  const topLocal = clonedScene.worldToLocal(worldTop.clone())
+  const radius = topLocal.distanceTo(centerLocal)
+
+  if (radius < 1e-6) {
+    console.warn('[watch-scene] Degenerate dial radius; skipping hand creation.')
+    return null
+  }
+
+  // Approximate face normal: most watch dials in this model have markers in a
+  // plane whose normal is +Z in local model space. Use cross of (top-center) and
+  // a perpendicular axis derived from the plane defined by the two markers.
+  // For our model both markers share Z, so normal == ±Z. Default to +Z and the
+  // hands will sit above the dial; if they sit below the dial, flip the sign.
+  const faceNormalLocal = new THREE.Vector3(0, 0, 1)
+
+  return { centerLocal, radius, faceNormalLocal }
+}
+
 interface WatchModelProps {
   scrollYProgress: MotionValue<number>
 }
