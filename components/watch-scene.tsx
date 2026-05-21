@@ -6,6 +6,26 @@ import { useGLTF, Environment, Center, Float } from '@react-three/drei'
 import { useScroll, useTransform, useReducedMotion, MotionValue } from 'framer-motion'
 import * as THREE from 'three'
 
+// --- Watch hands configuration ---
+// Proportions are relative to dial radius (distance from face center to 12-marker).
+const HAND_SPECS = {
+  hour:   { widthFrac: 0.08,  lengthFrac: 0.55, color: '#e8e0d0', zFracOffset: 0.02 },
+  minute: { widthFrac: 0.05,  lengthFrac: 0.75, color: '#ffffff', zFracOffset: 0.04 },
+  second: { widthFrac: 0.025, lengthFrac: 0.85, color: '#ff4444', zFracOffset: 0.06 },
+} as const
+
+// Sweep periods in seconds (decorative — does not represent real time).
+const SWEEP_PERIOD_SECONDS = {
+  hour: 43200,    // 12 hours
+  minute: 3600,   // 60 minutes
+  second: 60,     // 60 seconds
+} as const
+
+const MARKER_TOP_NAME = 'MM_Marker_12_L'
+const MARKER_BOTTOM_NAME = 'MM_Marker_18'
+
+const HAND_INIT_MAX_ATTEMPTS = 10
+
 interface WatchModelProps {
   scrollYProgress: MotionValue<number>
 }
