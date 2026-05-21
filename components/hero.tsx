@@ -101,7 +101,7 @@ export function Hero() {
 
           {/* Nav */}
           <nav className="hidden md:flex items-center gap-12">
-            {['Home', 'Collection', 'Heritage'].map((item, i) => (
+            {['Home', 'Collection', 'Journal', 'Heritage', 'Contact'].map((item, i) => (
               <motion.a 
                 key={item}
                 href="#" 
