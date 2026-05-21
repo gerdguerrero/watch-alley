@@ -160,38 +160,60 @@ function WatchModel({ scrollYProgress }: WatchModelProps) {
   const positionZ = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.3, -0.5])
   const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [1, 1.1, 1.05, 0.75])
   
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
+    // --- Existing scroll-driven transforms ---
     if (meshRef.current) {
-      // Smooth interpolation for scroll values
       meshRef.current.rotation.y = THREE.MathUtils.lerp(
-        meshRef.current.rotation.y, 
-        rotationY.get(), 
-        delta * 3
+        meshRef.current.rotation.y,
+        rotationY.get(),
+        delta * 3,
       )
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
         rotationX.get(),
-        delta * 3
+        delta * 3,
       )
       meshRef.current.rotation.z = THREE.MathUtils.lerp(
         meshRef.current.rotation.z,
         rotationZ.get() + Math.sin(Date.now() * 0.0005) * 0.02,
-        delta * 3
+        delta * 3,
       )
       meshRef.current.position.y = THREE.MathUtils.lerp(
         meshRef.current.position.y,
         positionY.get(),
-        delta * 3
+        delta * 3,
       )
       meshRef.current.position.z = THREE.MathUtils.lerp(
         meshRef.current.position.z,
         positionZ.get(),
-        delta * 3
+        delta * 3,
       )
       const s = scale.get()
       const currentScale = meshRef.current.scale.x
       const newScale = THREE.MathUtils.lerp(currentScale, s, delta * 3)
       meshRef.current.scale.setScalar(newScale)
+    }
+
+    // --- Lazy hand initialization (first successful frame) ---
+    if (!initializedRef.current && initAttemptsRef.current < HAND_INIT_MAX_ATTEMPTS) {
+      initAttemptsRef.current += 1
+      const frame = discoverWatchFace(clonedScene)
+      if (frame) {
+        const hour = createHandPivot('hour', frame.radius, frame.centerLocal, frame.faceNormalLocal)
+        const minute = createHandPivot('minute', frame.radius, frame.centerLocal, frame.faceNormalLocal)
+        const second = createHandPivot('second', frame.radius, frame.centerLocal, frame.faceNormalLocal)
+        clonedScene.add(hour.pivot, minute.pivot, second.pivot)
+        handsRef.current = { hour, minute, second }
+        initializedRef.current = true
+      }
+    }
+
+    // --- Animate hands ---
+    if (initializedRef.current && handsRef.current && !reducedMotion) {
+      const t = clock.getElapsedTime()
+      handsRef.current.hour.pivot.rotation.z = -(t / SWEEP_PERIOD_SECONDS.hour) * Math.PI * 2
+      handsRef.current.minute.pivot.rotation.z = -(t / SWEEP_PERIOD_SECONDS.minute) * Math.PI * 2
+      handsRef.current.second.pivot.rotation.z = -(t / SWEEP_PERIOD_SECONDS.second) * Math.PI * 2
     }
   })
 
