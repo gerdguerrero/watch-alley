@@ -7,7 +7,7 @@ import * as THREE from 'three'
 
 function WatchModel() {
   const meshRef = useRef<THREE.Group>(null)
-  const { scene } = useGLTF('/models/seiko_watch.glb')
+  const { scene } = useGLTF('/models/watch.glb')
   
   const clonedScene = useMemo(() => scene.clone(), [scene])
   
@@ -94,4 +94,4 @@ export function WatchDisplay() {
   )
 }
 
-useGLTF.preload('/models/seiko_watch.glb')
+useGLTF.preload('/models/watch.glb')

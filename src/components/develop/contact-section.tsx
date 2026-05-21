@@ -13,7 +13,7 @@ export function ContactSection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
 
   return (
-    <section id="contact" ref={sectionRef} className="relative bg-[#0a0a0a] py-24 md:py-32 overflow-hidden">
+    <section id="contact" ref={sectionRef} className="relative bg-[#0a0a0a] pt-24 md:pt-32 pb-12 md:pb-16 overflow-hidden">
       {/* Dramatic amber glow behind the CTA */}
       <div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none"
@@ -39,7 +39,7 @@ export function ContactSection() {
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
           {/* Two column layout - Image + Text */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-12">
             {/* Left - 3D Watch */}
             <motion.div 
               className="relative order-2 lg:order-1"

@@ -16,8 +16,9 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Home" },
   { label: "Collection", anchor: "collection" },
-  { label: "Heritage", anchor: "heritage" },
   { label: "Journal", anchor: "journal" },
+  { label: "Heritage", anchor: "heritage" },
+  { label: "Contact", anchor: "contact" },
 ];
 
 function resolveHref(pathname: string | null, item: NavItem): string {
