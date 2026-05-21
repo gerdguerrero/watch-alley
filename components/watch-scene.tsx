@@ -26,6 +26,54 @@ const MARKER_BOTTOM_NAME = 'MM_Marker_18'
 
 const HAND_INIT_MAX_ATTEMPTS = 10
 
+type HandKey = keyof typeof HAND_SPECS
+
+interface HandParts {
+  pivot: THREE.Group
+  geometry: THREE.BoxGeometry
+  material: THREE.MeshStandardMaterial
+}
+
+function createHandPivot(
+  hand: HandKey,
+  radius: number,
+  centerLocal: THREE.Vector3,
+  faceNormalLocal: THREE.Vector3,
+): HandParts {
+  const spec = HAND_SPECS[hand]
+  const width = radius * spec.widthFrac
+  const length = radius * spec.lengthFrac
+  const depth = width * 0.5
+
+  const geometry = new THREE.BoxGeometry(width, length, depth)
+  const material = new THREE.MeshStandardMaterial({
+    color: spec.color,
+    metalness: 0.8,
+    roughness: 0.2,
+  })
+  const mesh = new THREE.Mesh(geometry, material)
+  // Offset mesh so hand extends ~60% above pivot, ~40% below (classic proportions).
+  mesh.position.y = length * 0.3
+
+  const pivot = new THREE.Group()
+  pivot.name = `watch-hand-${hand}`
+  pivot.add(mesh)
+
+  // Position pivot at face center, lifted slightly along the face normal so the
+  // hand sits above the dial surface and doesn't z-fight with markers.
+  const zOffset = radius * spec.zFracOffset
+  pivot.position.copy(centerLocal).addScaledVector(faceNormalLocal, zOffset)
+
+  // Align the pivot's local +Z with the face normal so rotation.z spins the
+  // hand inside the dial plane. quaternion.setFromUnitVectors maps (0,0,1) → normal.
+  pivot.quaternion.setFromUnitVectors(
+    new THREE.Vector3(0, 0, 1),
+    faceNormalLocal.clone().normalize(),
+  )
+
+  return { pivot, geometry, material }
+}
+
 interface WatchModelProps {
   scrollYProgress: MotionValue<number>
 }
