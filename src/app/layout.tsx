@@ -1,37 +1,34 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Petrona, Spectral } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/develop/footer";
 import { MainNav } from "@/components/develop/main-nav";
 import "./globals.css";
 
-// Editorial register, per the design system:
-//   • Petrona — serif, headlines + watch names, italic in gold for emphasis
-//   • Spectral — serif, body copy
-//   • JetBrains Mono — eyebrows, labels, section numbers, all-caps with wide tracking
+// Develop-branch font stack (replaces the Petrona/Spectral/JetBrains_Mono set):
+//   • Playfair Display — serif, headlines + watch names, italic emphasis
+//   • Geist           — sans, body copy and UI
+//   • Geist Mono      — eyebrows, labels, all-caps tracking-wide
 //
-// next/font self-hosts these, preloads them, and registers @font-face under the
-// canonical family names ("Petrona", "Spectral", "JetBrains Mono") that our
-// Tailwind @theme block references as literals.
-const petrona = Petrona({
+// next/font self-hosts each and registers their @font-face under the literal
+// family names ("Geist", "Geist Mono", "Playfair Display") that the Tailwind
+// @theme block in globals.css references.
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-petrona",
-  display: "swap",
-});
-
-const spectral = Spectral({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-spectral",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-jetbrains-mono",
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -57,9 +54,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${petrona.variable} ${spectral.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-zinc-100">
+      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-zinc-100 font-sans">
         <MainNav />
         <div className="flex-1">{children}</div>
         <Footer />

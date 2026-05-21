@@ -39,9 +39,13 @@
   --color-gold-30: oklch(0.76 0.12 75 / 0.30);
   --color-gold-20: oklch(0.76 0.12 75 / 0.20);
 
-  --font-serif: "Petrona", Georgia, serif;
-  --font-sans: "Spectral", Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Develop-branch font stack — Playfair Display for editorial headlines,
+     Geist for body / UI, Geist Mono for eyebrows and tracking-wide labels.
+     Family names are literals because Tailwind v4 resolves @theme at parse
+     time; next/font registers the @font-face under these canonical names. */
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Editorial design uses crisp rectangles — buttons keep the slightest
      softness so they don't feel like clickable text. */
@@ -149,12 +153,15 @@
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga", "kern", "pnum", "onum";
   }
-  /* Headlines / watch names always use Petrona. */
-  h1, h2, h3, .serif {
+  /* Develop branch convention: headings inherit the body font (Geist) unless
+     a Tailwind utility (font-serif) opts them into Playfair Display. This
+     keeps the giant gradient ghost titles (COLLECTION / HERITAGE / JOURNAL)
+     in Geist Sans Light while editorial titles that set font-serif stay
+     in Playfair. */
+  .serif {
     font-family: var(--font-serif);
     font-weight: 500;
   }
-  /* JetBrains Mono only via explicit .font-mono or the prose-mono utility. */
 }
 
 @layer utilities {
