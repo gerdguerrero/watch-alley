@@ -12,7 +12,7 @@ interface WatchModelProps {
 
 function WatchModel({ scrollYProgress }: WatchModelProps) {
   const meshRef = useRef<THREE.Group>(null)
-  const { scene } = useGLTF('/models/seiko_watch.glb')
+  const { scene } = useGLTF('/models/watch.glb')
 
   // Clone scene once
   const clonedScene = useMemo(() => scene.clone(), [scene])
@@ -139,4 +139,4 @@ export function WatchScene() {
   )
 }
 
-useGLTF.preload('/models/seiko_watch.glb')
+useGLTF.preload('/models/watch.glb')
