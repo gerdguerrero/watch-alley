@@ -18,7 +18,7 @@ export default async function SoldPage() {
   sold.sort((a, b) => (b.soldAt || "").localeCompare(a.soldAt || ""));
 
   return (
-    <main className="bg-[#0a0a0a] text-zinc-100">
+    <main className="bg-[#080706] text-zinc-100">
       <PageTitle
         title="SOLD"
         eyebrow="◆ Recently honored"

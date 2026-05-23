@@ -16,7 +16,7 @@ export default async function JournalIndexPage() {
   const posts = await fetchJournalPosts();
 
   return (
-    <main className="bg-[#0a0a0a] text-zinc-100">
+    <main className="bg-[#080706] text-zinc-100">
       <PageTitle
         title="JOURNAL"
         eyebrow="◆ Notes from the bench"

@@ -50,7 +50,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
     <Link
       href={`/watch/${watch.slug}`}
       ref={cardRef}
-      className="group relative block bg-zinc-900/30 rounded-3xl overflow-hidden"
+      className="group relative block bg-black/25 rounded-3xl overflow-hidden border border-amber-400/10"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
@@ -85,25 +85,25 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
               />
             ) : (
-              <div className="absolute inset-0 bg-zinc-900" />
+              <div className="absolute inset-0 bg-black" />
             )}
           </motion.div>
 
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent"
+            className="absolute inset-0 bg-gradient-to-br from-amber-300/10 via-transparent to-transparent"
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.5 }}
           />
 
           {watch.badge && !isSold && (
-            <span className="absolute top-5 left-5 px-3 py-1.5 border border-amber-500/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-400">
+            <span className="absolute top-5 left-5 px-3 py-1.5 border border-amber-300/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-300">
               {watch.badge}
             </span>
           )}
           {isSold && (
-            <span className="absolute top-5 left-5 px-3 py-1.5 border border-white/20 bg-black/50 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-zinc-300">
+            <span className="absolute top-5 left-5 px-3 py-1.5 border border-white/20 bg-black/50 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-cream-60">
               Sold {watch.soldAt ? `· ${formatSoldMonth(watch.soldAt)}` : ""}
             </span>
           )}
@@ -113,30 +113,28 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="flex items-center gap-3 mb-4">
             <motion.div
-              className="w-8 h-px bg-amber-500/60"
+              className="w-8 h-px bg-amber-300/70"
               animate={{ width: isHovered ? 48 : 32 }}
               transition={{ duration: 0.4 }}
             />
-            <span className="text-[10px] tracking-[0.3em] text-amber-500/80 uppercase">
+            <span className="text-[10px] tracking-[0.3em] text-amber-300/80 uppercase">
               {watch.brand}
             </span>
           </div>
 
           <motion.h3
-            className="text-2xl md:text-3xl font-light text-white mb-2"
+            className="text-2xl md:text-3xl font-light text-cream mb-2"
             animate={{ y: isHovered ? -8 : 0 }}
             transition={{ duration: 0.4 }}
           >
             {watch.name}
           </motion.h3>
 
-          <p className="text-[11px] tracking-[0.18em] uppercase text-zinc-500 mb-3">
-            {category}
-          </p>
+          <p className="text-[11px] tracking-[0.18em] uppercase text-cream-60 mb-3">{category}</p>
 
           {watch.description && (
             <motion.p
-              className="text-sm text-zinc-400 leading-relaxed mb-6 line-clamp-2"
+              className="text-sm text-cream-60 leading-relaxed mb-6 line-clamp-2"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 15 }}
               transition={{ duration: 0.4, delay: 0.1 }}
@@ -150,25 +148,29 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
             animate={{ opacity: isHovered ? 1 : 0.85 }}
             transition={{ duration: 0.3 }}
           >
-            <span className="text-lg font-serif text-amber-500">
-              {isSold && watch.soldPrice
-                ? formatPhp(watch.soldPrice)
-                : formatPhp(watch.price)}
+            <span className="text-lg font-serif text-amber-300">
+              {isSold && watch.soldPrice ? formatPhp(watch.soldPrice) : formatPhp(watch.price)}
             </span>
             <motion.span
-              className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-white/80"
+              className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-cream"
               animate={{ x: isHovered ? 4 : 0 }}
               transition={{ duration: 0.3 }}
             >
               {isSold ? "View Piece" : "View Piece"}
               <motion.svg
-                className="w-4 h-4 text-amber-500"
+                className="w-4 h-4 text-amber-300"
                 viewBox="0 0 16 16"
                 fill="none"
                 animate={{ x: isHovered ? 4 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M3 8H13M13 8L8 3M13 8L8 13"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </motion.svg>
             </motion.span>
           </motion.div>

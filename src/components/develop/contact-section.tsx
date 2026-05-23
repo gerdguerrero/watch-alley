@@ -1,111 +1,144 @@
-"use client"
+"use client";
 
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
-import Link from 'next/link'
-import { WatchDisplay } from './watch-display'
+import { motion, useInView } from "framer-motion";
+import Link from "next/link";
+import { useRef } from "react";
+import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { BrandLogo } from "./brand-logo";
+import { WatchDisplay } from "./watch-display";
 
-const MESSENGER_URL = 'https://m.me/thewatchalley'
-const MotionLink = motion.create(Link)
+const MESSENGER_URL = "https://m.me/thewatchalley";
+const MotionLink = motion.create(Link);
+
+const SERVICE_POINTS = [
+  "Messenger-first concierge",
+  "Written condition notes",
+  "Safe handoff or insured shipping",
+];
 
 export function ContactSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
-    <section id="contact" ref={sectionRef} className="relative bg-[#0a0a0a] pt-24 md:pt-32 pb-12 md:pb-16 overflow-hidden">
-      {/* Dramatic amber glow behind the CTA */}
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(245, 158, 11, 0.08) 0%, rgba(180, 120, 60, 0.03) 40%, transparent 70%)'
-        }}
+    <section
+      id="contact"
+      ref={sectionRef}
+      className="relative overflow-hidden bg-[#080706] pt-24 pb-16 md:pt-32 md:pb-20"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.08] mix-blend-luminosity"
+        style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundTwo})` }}
       />
-      
-      {/* Secondary glow at bottom */}
-      <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[400px] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 80% 50% at 50% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 60%)'
-        }}
-      />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.14)_0%,rgba(180,120,60,0.04)_42%,transparent_72%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-300/30 to-transparent" />
 
       <div className="relative z-10 px-6 md:px-12 lg:px-20">
-        {/* Main CTA Content */}
-        <motion.div 
-          className="max-w-5xl mx-auto"
+        <motion.div
+          className="mx-auto max-w-6xl rounded-[2rem] border border-amber-400/15 bg-black/25 p-6 shadow-[0_40px_120px_rgba(0,0,0,0.35)] backdrop-blur-md md:p-10 lg:p-14"
           initial={{ opacity: 0, y: 60 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          {/* Two column layout - Image + Text */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-12">
-            {/* Left - 3D Watch */}
-            <motion.div 
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            <motion.div
               className="relative order-2 lg:order-1"
               initial={{ opacity: 0, x: -40 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ delay: 0.25, duration: 0.8 }}
             >
-              <div className="relative aspect-square max-w-md mx-auto">
-                {/* Glow behind watch */}
-                <div 
-                  className="absolute inset-0 blur-3xl opacity-50"
+              <div className="relative mx-auto aspect-square max-w-md">
+                <div
+                  className="absolute inset-0 rounded-full blur-3xl opacity-60"
                   style={{
-                    background: 'radial-gradient(circle at center, rgba(245, 158, 11, 0.4) 0%, transparent 60%)'
+                    background:
+                      "radial-gradient(circle at center, rgba(245, 158, 11, 0.36) 0%, transparent 62%)",
                   }}
                 />
-                <div className="relative z-10 w-full h-full">
+                <div className="absolute inset-8 rounded-full border border-amber-300/10" />
+                <div className="relative z-10 h-full w-full">
                   <WatchDisplay />
                 </div>
               </div>
             </motion.div>
 
-            {/* Right - CTA Text */}
-            <div className="order-1 lg:order-2 text-center lg:text-left">
-              <motion.p 
-                className="text-[11px] tracking-[0.3em] text-amber-500 uppercase mb-6 font-mono"
+            <div className="order-1 text-center lg:order-2 lg:text-left">
+              <motion.div
+                className="mb-8 flex justify-center lg:justify-start"
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : {}}
+                transition={{ delay: 0.15, duration: 0.6 }}
+              >
+                <BrandLogo className="h-16 w-[190px]" sizes="190px" />
+              </motion.div>
+
+              <motion.p
+                className="mb-6 text-[11px] uppercase tracking-[0.3em] text-amber-300 font-mono"
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ delay: 0.2, duration: 0.6 }}
               >
-                Begin Your Journey
+                Private Collecting Desk
               </motion.p>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-6">
-                <span className="font-serif italic text-zinc-100">Ready to Find</span><br />
-                <span className="font-serif italic text-zinc-100">Your </span>
-                <span className="text-zinc-500 font-light">Perfect</span><br />
-                <span className="text-zinc-500 font-light">Timepiece?</span>
+              <h2 className="mb-6 font-serif text-4xl leading-[1.08] text-cream md:text-5xl lg:text-6xl">
+                <span className="italic">Ready for</span>
+                <br />
+                <span className="font-light text-cream-60">your next piece?</span>
               </h2>
-              <p className="text-[15px] text-zinc-500 leading-relaxed max-w-md mx-auto lg:mx-0 mb-10">
-                Our specialists are ready to guide you through our curated collection 
-                and help you discover the watch that speaks to your soul.
+              <p className="mx-auto mb-8 max-w-md text-[15px] leading-relaxed text-cream-60 lg:mx-0">
+                Tell us what you are looking for — reference, budget, wrist size, occasion, or
+                simply the feeling you want from the watch. We will guide you toward the right fit.
               </p>
 
-              {/* CTA Buttons */}
+              <div className="mb-10 grid gap-3 sm:grid-cols-3 lg:max-w-xl">
+                {SERVICE_POINTS.map((point, index) => (
+                  <motion.div
+                    key={point}
+                    className="rounded-2xl border border-amber-400/10 bg-black/20 px-4 py-4 text-center text-[10px] uppercase leading-relaxed tracking-[0.18em] text-cream-60 lg:text-left"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.32 + index * 0.08, duration: 0.55 }}
+                  >
+                    {point}
+                  </motion.div>
+                ))}
+              </div>
+
               <motion.div
-                className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4"
+                className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:items-start lg:justify-start"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 0.4, duration: 0.6 }}
+                transition={{ delay: 0.45, duration: 0.6 }}
               >
                 <motion.a
                   href={MESSENGER_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-8 py-4 bg-amber-500 text-zinc-900 text-[12px] tracking-[0.15em] uppercase inline-flex items-center gap-3 group font-medium"
+                  className="group inline-flex items-center gap-3 rounded-full bg-amber-300 px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#090806]"
                   whileHover={{ scale: 1.02, backgroundColor: "rgb(251, 191, 36)" }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400 }}
                 >
                   <span>Message on Messenger</span>
-                  <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 12 12" fill="none">
-                    <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg
+                    className="h-3 w-3 transition-transform group-hover:translate-x-1"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M1 11L11 1M11 1H3M11 1V9"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </motion.a>
                 <MotionLink
                   href="/available"
-                  className="px-8 py-4 border border-zinc-700 text-zinc-300 text-[12px] tracking-[0.15em] uppercase inline-flex items-center transition-all duration-300 hover:border-zinc-500 hover:text-zinc-100"
+                  className="inline-flex items-center rounded-full border border-cream/15 px-8 py-4 text-[12px] uppercase tracking-[0.16em] text-cream transition-all duration-300 hover:border-amber-300/50 hover:text-amber-200"
                   whileTap={{ scale: 0.98 }}
                 >
                   View Collection
@@ -114,8 +147,7 @@ export function ContactSection() {
             </div>
           </div>
         </motion.div>
-
       </div>
     </section>
-  )
+  );
 }

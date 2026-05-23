@@ -5,8 +5,15 @@ import { Compass, type LucideIcon, Timer, Watch as WatchIcon } from "lucide-reac
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
+
+const COLLECTION_PROMISES = [
+  "Daylight-photographed",
+  "Condition disclosed",
+  "Collector-first sourcing",
+];
 
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
@@ -79,11 +86,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      animate={
-        isMobile
-          ? { height: isActive ? 340 : 80 }
-          : { flexGrow: isActive ? 5 : 1 }
-      }
+      animate={isMobile ? { height: isActive ? 340 : 80 } : { flexGrow: isActive ? 5 : 1 }}
       transition={{ duration: DUR_CONTAINER, ease: EASE }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
@@ -195,26 +198,19 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   // Watches filtered by the active pill, then capped at 5 for the accordion.
   const items = useMemo(() => {
     const filtered =
-      activeCategory === "All"
-        ? watches
-        : watches.filter((w) => w.brand === activeCategory);
+      activeCategory === "All" ? watches : watches.filter((w) => w.brand === activeCategory);
     return filtered.slice(0, 5);
   }, [watches, activeCategory]);
 
   // Track only the user's intent; the actual active slug is derived below
   // so we never need a useEffect to reconcile filter changes
   // (rerender-derived-state-no-effect).
-  const [intendedActiveId, setActiveId] = useState<string | null>(
-    items[0]?.slug ?? null,
-  );
+  const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.slug ?? null);
 
   // If the intended slug is no longer in the visible set (filter changed or
   // inventory updated), fall back to the first visible card. Pure render-time
   // derivation — no extra state, no effect, no second render pass.
-  const activeId =
-    items.find((w) => w.slug === intendedActiveId)?.slug ??
-    items[0]?.slug ??
-    null;
+  const activeId = items.find((w) => w.slug === intendedActiveId)?.slug ?? items[0]?.slug ?? null;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -229,14 +225,11 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
       <section
         id="collection"
         ref={sectionRef}
-        className="relative bg-[#0a0a0a] py-32 md:py-48 text-center"
+        className="relative bg-[#080706] py-32 md:py-48 text-center"
       >
         <p className="text-zinc-500 font-mono uppercase tracking-[0.3em] text-sm">
           No pieces available right now —{" "}
-          <Link
-            href="/sold"
-            className="text-amber-400 underline-offset-4 hover:underline"
-          >
+          <Link href="/sold" className="text-amber-400 underline-offset-4 hover:underline">
             browse the sold archive
           </Link>
           .
@@ -249,8 +242,14 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
     <section
       id="collection"
       ref={sectionRef}
-      className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden"
+      className="relative overflow-hidden bg-[#080706] py-32 md:py-48"
     >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.08] mix-blend-luminosity"
+        style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundTwo})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#080706] via-transparent to-[#080706]" />
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] pointer-events-none">
         <div
@@ -282,7 +281,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
       </div>
 
       {/* Title */}
-      <motion.div className="relative z-10 text-center mb-20" style={{ y: titleY }}>
+      <motion.div className="relative z-10 text-center mb-12" style={{ y: titleY }}>
         <h2
           ref={titleRef}
           className="text-[15vw] md:text-[12vw] font-light tracking-tight leading-none select-none"
@@ -296,6 +295,34 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
         >
           COLLECTION
         </h2>
+      </motion.div>
+
+      <motion.div
+        className="relative z-10 mx-auto -mt-8 mb-14 max-w-3xl px-6 text-center md:mb-20"
+        initial={{ opacity: 0, y: 24 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, delay: 0.15 }}
+      >
+        <p className="mb-4 text-[11px] uppercase tracking-[0.32em] text-amber-300/80 font-mono">
+          Current Rotation
+        </p>
+        <h3 className="font-serif text-3xl leading-tight text-cream md:text-5xl">
+          A tighter edit of watches worth slowing down for.
+        </h3>
+        <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-cream-60 md:text-base">
+          Every listing is selected for presence, story, and everyday wearability — from attainable
+          Japanese references to collector-grade rarities.
+        </p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          {COLLECTION_PROMISES.map((promise) => (
+            <span
+              key={promise}
+              className="rounded-full border border-amber-400/20 bg-black/20 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-cream-60 backdrop-blur"
+            >
+              {promise}
+            </span>
+          ))}
+        </div>
       </motion.div>
 
       {/* Filter pills — derived from real inventory brands. Selecting a pill

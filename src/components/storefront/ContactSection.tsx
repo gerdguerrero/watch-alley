@@ -9,8 +9,7 @@ import { BigNum } from "./BigNum";
  *
  * Server Component.
  */
-const MAPS_URL =
-  "https://maps.google.com/?q=The+Watch+Alley+BGC+Taguig+Manila";
+const MAPS_URL = "https://maps.google.com/?q=The+Watch+Alley+BGC+Taguig+Manila";
 
 export function ContactSection() {
   return (
@@ -25,7 +24,8 @@ export function ContactSection() {
             ◆ Visit · By appointment
           </span>
           <h2 className="font-serif text-[clamp(24px,3.5vw,40px)] leading-tight text-[color:var(--color-cream)]">
-            Find us in <em className="italic text-[color:var(--color-gold)]">Bonifacio Global City.</em>
+            Find us in{" "}
+            <em className="italic text-[color:var(--color-gold)]">Bonifacio Global City.</em>
           </h2>
         </div>
       </header>

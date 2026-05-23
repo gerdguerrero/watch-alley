@@ -33,9 +33,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "The Watch Alley PH — Pre-owned & Brand New Timepieces",
+  title: "The Watch Alley PH — Curated Watches in Manila",
   description:
-    "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, shipped insured worldwide.",
+    "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.",
   metadataBase: new URL("https://watchalley.ph"),
   openGraph: {
     type: "website",
@@ -43,6 +43,14 @@ export const metadata: Metadata = {
     description: "A Manila-based curator of pre-owned and brand-new timepieces.",
     url: "https://watchalley.ph",
     siteName: "The Watch Alley",
+    images: [
+      {
+        url: "/brand/cover-photo.png",
+        width: 2278,
+        height: 1000,
+        alt: "The Watch Alley storefront signage",
+      },
+    ],
   },
 };
 
@@ -56,7 +64,7 @@ export default function RootLayout({
       lang="en"
       className={`${geist.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-zinc-100 font-sans">
+      <body className="min-h-full flex flex-col bg-[#080706] text-zinc-100 font-sans">
         <MainNav />
         <div className="flex-1">{children}</div>
         <Footer />

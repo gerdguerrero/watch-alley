@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
+import { BrandLogo } from "./brand-logo";
 
 const MotionLink = motion.create(Link);
 
@@ -33,7 +34,7 @@ function smoothScroll(anchor: string) {
   if (!target) return;
   const lenis = window.__waLenis;
   if (lenis) {
-    lenis.scrollTo(target, { offset: -80, immediate: false });
+    lenis.scrollTo(target, { offset: -96, immediate: false });
   } else {
     target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -68,39 +69,38 @@ export function MainNav() {
 
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50 mix-blend-difference"
+      className="fixed top-3 left-0 right-0 z-50 px-3 md:top-5 md:px-6"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-amber-400/15 bg-[#090806]/75 px-4 py-3 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl md:px-6">
         {/* Logo — home */}
         <MotionLink
           href="/"
+          aria-label="The Watch Alley home"
           onClick={handleHomeClick}
-          className="flex items-center gap-3"
+          className="group flex items-center gap-3"
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 400 }}
         >
-          <span className="text-sm font-medium tracking-[0.2em] text-zinc-100">
-            WATCH ALLEY
-          </span>
+          <BrandLogo
+            className="h-10 w-[138px] md:h-12 md:w-[164px]"
+            priority
+            sizes="(max-width: 768px) 138px, 164px"
+          />
         </MotionLink>
 
         {/* Nav */}
-        <nav className="hidden md:flex items-center gap-12">
+        <nav className="hidden items-center gap-8 lg:flex">
           {NAV_ITEMS.map((item) => {
             const href = resolveHref(pathname, item);
             return (
               <MotionLink
                 key={item.label}
                 href={href}
-                onClick={
-                  item.anchor
-                    ? handleAnchorClick(item.anchor)
-                    : handleHomeClick
-                }
-                className="text-[13px] text-zinc-500 hover:text-zinc-100 transition-colors"
+                onClick={item.anchor ? handleAnchorClick(item.anchor) : handleHomeClick}
+                className="text-[11px] uppercase tracking-[0.22em] text-cream-60 transition-colors hover:text-cream"
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
@@ -114,14 +114,17 @@ export function MainNav() {
         <motion.a
           href={inquireHref}
           onClick={handleAnchorClick("contact")}
-          className="text-[13px] text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-2 group"
+          className="group inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-amber-300 transition-colors hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:px-5"
           whileHover={{ x: 3 }}
           transition={{ type: "spring", stiffness: 400 }}
         >
-          <span className="border-b border-amber-500/50 group-hover:border-amber-400 pb-px">
-            Inquire
-          </span>
-          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <span>Inquire</span>
+          <svg
+            className="h-3 w-3 transition-transform group-hover:translate-x-0.5"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M1 11L11 1M11 1H3M11 1V9"
               stroke="currentColor"

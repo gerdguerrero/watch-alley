@@ -87,11 +87,7 @@ function buildArticleJsonLd(post: JournalPost) {
   };
 }
 
-export default async function JournalPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function JournalPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await fetchJournalPost(slug);
   if (!post) notFound();
@@ -100,7 +96,7 @@ export default async function JournalPostPage({
   const jsonLd = buildArticleJsonLd(post);
 
   return (
-    <main className="bg-[#0a0a0a] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20">
+    <main className="bg-[#080706] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20">
       {/* Subtle amber wash anchored at top */}
       <div
         aria-hidden="true"
@@ -117,7 +113,13 @@ export default async function JournalPostPage({
           className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500 hover:text-amber-400 transition-colors"
         >
           <svg className="w-3 h-3 rotate-180" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M1 11L11 1M11 1H3M11 1V9"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           Back to the Journal
         </Link>
@@ -172,7 +174,13 @@ export default async function JournalPostPage({
             className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-400 hover:text-amber-400 transition-colors"
           >
             <svg className="w-3 h-3 rotate-180" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M1 11L11 1M11 1H3M11 1V9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
             All entries
           </Link>
@@ -181,8 +189,19 @@ export default async function JournalPostPage({
             className="group inline-flex items-center gap-2 border-b border-amber-500/40 pb-0.5 font-mono text-[11px] uppercase tracking-[0.22em] text-amber-400 hover:text-amber-300 hover:border-amber-300 transition-colors"
           >
             See available pieces
-            <svg className="w-3 h-3 transition-transform group-hover:translate-x-1" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              className="w-3 h-3 transition-transform group-hover:translate-x-1"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 11L11 1M11 1H3M11 1V9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </Link>
         </div>

@@ -110,11 +110,7 @@ function boxPapers(watch: Watch): string {
   return "Watch only";
 }
 
-export default async function WatchDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function WatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const watch = await fetchWatchBySlug(slug);
   if (!watch) notFound();
@@ -125,7 +121,7 @@ export default async function WatchDetailPage({
   const jsonLd = buildProductJsonLd(watch);
 
   return (
-    <main className="bg-[#0a0a0a] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20 relative overflow-hidden">
+    <main className="bg-[#080706] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20 relative overflow-hidden">
       {/* Subtle amber wash anchored top */}
       <div
         aria-hidden="true"
@@ -190,13 +186,7 @@ export default async function WatchDetailPage({
                     key={src}
                     className="relative aspect-square overflow-hidden rounded-2xl border border-white/5"
                   >
-                    <Image
-                      src={src}
-                      alt=""
-                      fill
-                      sizes="120px"
-                      className="object-cover"
-                    />
+                    <Image src={src} alt="" fill sizes="120px" className="object-cover" />
                   </div>
                 ))}
               </div>
@@ -254,17 +244,13 @@ export default async function WatchDetailPage({
             </div>
 
             <dl className="grid grid-cols-2 gap-y-5 gap-x-6 text-sm">
-              {watch.conditionLabel && (
-                <DetailRow label="Condition" value={watch.conditionLabel} />
-              )}
+              {watch.conditionLabel && <DetailRow label="Condition" value={watch.conditionLabel} />}
               <DetailRow label="Set" value={boxPapers(watch)} />
               {watch.edition && <DetailRow label="Edition" value={watch.edition} />}
               {watch.movement && <DetailRow label="Movement" value={watch.movement} />}
               {watch.caseSize && <DetailRow label="Case" value={watch.caseSize} />}
               {watch.material && <DetailRow label="Material" value={watch.material} />}
-              {watch.serviceHistory && (
-                <DetailRow label="Service" value={watch.serviceHistory} />
-              )}
+              {watch.serviceHistory && <DetailRow label="Service" value={watch.serviceHistory} />}
             </dl>
 
             {watch.description && (

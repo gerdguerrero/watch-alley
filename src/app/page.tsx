@@ -23,7 +23,7 @@ export default async function Page() {
 
   return (
     <SmoothScrollProvider>
-      <main className="bg-[#0a0a0a]">
+      <main className="bg-[#080706]">
         <Hero featured={featured} />
         <CollectionSection watches={collectionWatches} />
         <HeritageSection

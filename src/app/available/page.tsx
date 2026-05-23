@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageTitle } from "@/components/develop/page-title";
-import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { WatchCard } from "@/components/develop/watch-card";
+import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
@@ -17,7 +17,7 @@ export default async function AvailablePage() {
   const watches = await fetchWatches({ status: "available" });
 
   return (
-    <main className="bg-[#0a0a0a] text-zinc-100">
+    <main className="bg-[#080706] text-zinc-100">
       <PageTitle
         title="AVAILABLE"
         eyebrow="◆ Currently in rotation"

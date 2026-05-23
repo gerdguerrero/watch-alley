@@ -4,6 +4,7 @@ import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
+import { BRAND_ASSETS } from "@/lib/brand/assets";
 import type { JournalPost } from "@/lib/journal/types";
 
 interface JournalSectionProps {
@@ -62,8 +63,14 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
     <section
       id="journal"
       ref={sectionRef}
-      className="relative bg-[#0a0a0a] py-32 md:py-48 overflow-hidden"
+      className="relative bg-[#080706] py-32 md:py-48 overflow-hidden"
     >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
+        style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundTwo})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#080706] via-transparent to-[#080706]" />
       {/* Subtle ambient gradient */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] pointer-events-none opacity-30"
@@ -137,7 +144,7 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="flex items-center gap-3 mb-6 flex-wrap">
-                <span className="text-[11px] tracking-[0.3em] text-amber-500/80 uppercase font-mono">
+                <span className="text-[11px] tracking-[0.3em] text-amber-300/80 uppercase font-mono">
                   {featured.tags[0] || "Journal"}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -147,16 +154,16 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
               </div>
 
               <Link href={`/journal/${featured.slug}`} className="block group">
-                <h3 className="text-3xl md:text-4xl lg:text-5xl font-serif text-white leading-[1.1] mb-6 transition-colors group-hover:text-amber-400">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-serif text-cream leading-[1.1] mb-6 transition-colors group-hover:text-amber-300">
                   <span className="italic">{featuredTitle.lead}</span>{" "}
                   {featuredTitle.rest && (
-                    <span className="text-zinc-500 font-light">{featuredTitle.rest}</span>
+                    <span className="text-cream-60 font-light">{featuredTitle.rest}</span>
                   )}
                 </h3>
               </Link>
 
               {featured.summary && (
-                <p className="text-base text-zinc-400 leading-relaxed mb-10 max-w-md line-clamp-2">
+                <p className="text-base text-cream-60 leading-relaxed mb-10 max-w-md line-clamp-2">
                   {featured.summary}
                 </p>
               )}
@@ -165,7 +172,7 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
                 href={`/journal/${featured.slug}`}
                 className="group inline-flex items-center gap-4"
               >
-                <span className="text-[12px] tracking-[0.2em] uppercase text-white transition-transform group-hover:translate-x-2 duration-300">
+                <span className="text-[12px] tracking-[0.2em] uppercase text-cream transition-transform group-hover:translate-x-2 duration-300">
                   Read Story
                 </span>
                 <div className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center group-hover:border-amber-500/50 group-hover:bg-amber-500/10 transition-all duration-300">
@@ -213,15 +220,15 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
                     </div>
 
                     <div className="flex items-center gap-3 mb-3 flex-wrap">
-                      <span className="text-[10px] tracking-[0.25em] text-amber-500/70 uppercase font-mono">
+                      <span className="text-[10px] tracking-[0.25em] text-amber-300/80 uppercase font-mono">
                         {post.tags[0] || "Journal"}
                       </span>
                       <span className="w-0.5 h-0.5 rounded-full bg-zinc-700" />
-                      <span className="text-[10px] tracking-[0.2em] text-zinc-600 uppercase font-mono">
+                      <span className="text-[10px] tracking-[0.2em] text-cream-60 uppercase font-mono">
                         {formatDate(post.publishedAt)}
                       </span>
                     </div>
-                    <h4 className="text-xl md:text-2xl font-serif font-light text-zinc-100 leading-[1.2] group-hover:text-amber-400 transition-colors duration-300">
+                    <h4 className="text-xl md:text-2xl font-serif font-light text-cream leading-[1.2] group-hover:text-amber-300 transition-colors duration-300">
                       {post.title}
                     </h4>
                   </Link>

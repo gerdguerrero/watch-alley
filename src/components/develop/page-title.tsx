@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BRAND_ASSETS } from "@/lib/brand/assets";
 
 interface PageTitleProps {
   /** Giant gradient word displayed behind/above the eyebrow + headline. */
@@ -17,7 +18,7 @@ function renderHeadline(node: ReactNode) {
   return parts.map((part, i) => {
     if (part.startsWith("*") && part.endsWith("*")) {
       return (
-        <em key={i} className="italic text-amber-500">
+        <em key={i} className="italic text-amber-300">
           {part.slice(1, -1)}
         </em>
       );
@@ -34,7 +35,7 @@ function renderHeadline(node: ReactNode) {
  */
 export function PageTitle({ title, eyebrow, headline, description }: PageTitleProps) {
   return (
-    <div className="relative pt-[clamp(120px,16vh,180px)] pb-12 md:pb-20 px-6 md:px-12 lg:px-20">
+    <div className="relative overflow-hidden px-6 pt-[clamp(120px,16vh,180px)] pb-12 md:px-12 md:pb-20 lg:px-20">
       <style>{`
         @keyframes wa-page-rise {
           from { opacity: 0; transform: translateY(8px); }
@@ -49,6 +50,11 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
         }
       `}</style>
 
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.07] mix-blend-luminosity"
+        style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundThree})` }}
+      />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-[500px]"
@@ -74,7 +80,7 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         {eyebrow && (
           <div
-            className="wa-page-rise font-mono text-[10px] tracking-[0.3em] uppercase text-amber-500/80 mb-4"
+            className="wa-page-rise font-mono text-[10px] tracking-[0.3em] uppercase text-amber-300/80 mb-4"
             style={{ animationDelay: "80ms" }}
           >
             {eyebrow}
@@ -82,7 +88,7 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
         )}
         {headline && (
           <h2
-            className="wa-page-rise font-serif text-3xl md:text-5xl leading-[1.1] text-zinc-100 mb-6"
+            className="wa-page-rise font-serif text-3xl md:text-5xl leading-[1.1] text-cream mb-6"
             style={{ animationDelay: "160ms" }}
           >
             {renderHeadline(headline)}
@@ -90,7 +96,7 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
         )}
         {description && (
           <p
-            className="wa-page-rise text-base md:text-lg text-zinc-400 leading-relaxed max-w-[60ch] mx-auto"
+            className="wa-page-rise text-base md:text-lg text-cream-60 leading-relaxed max-w-[60ch] mx-auto"
             style={{ animationDelay: "240ms" }}
           >
             {description}

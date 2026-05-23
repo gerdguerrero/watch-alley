@@ -67,9 +67,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
         <FilmGrain opacity={0.06} />
       </div>
 
-      <div
-        className="relative z-10 grid min-h-[calc(100svh-94px)] items-center gap-[clamp(24px,4vw,40px)] px-[clamp(20px,6vw,80px)] pb-[clamp(60px,8vw,100px)] pt-[clamp(32px,5vw,72px)] lg:grid-cols-[1.1fr_1fr]"
-      >
+      <div className="relative z-10 grid min-h-[calc(100svh-94px)] items-center gap-[clamp(24px,4vw,40px)] px-[clamp(20px,6vw,80px)] pb-[clamp(60px,8vw,100px)] pt-[clamp(32px,5vw,72px)] lg:grid-cols-[1.1fr_1fr]">
         <div>
           <style>{`
             @keyframes wa-hero-rise {
@@ -131,9 +129,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
 function HeroFeaturedCard({ watch }: { watch: Watch }) {
   // Caliper labels — prefer real case + edition data, fall back to generic
   // bench language so the overlay never reads as a missing field.
-  const topLabel = watch.caseSize
-    ? `Ø ${watch.caseSize.replace(/\s+/g, " ")}`
-    : "ON THE BENCH";
+  const topLabel = watch.caseSize ? `Ø ${watch.caseSize.replace(/\s+/g, " ")}` : "ON THE BENCH";
   const bottomLabel = watch.movement
     ? `${watch.movement.split(/\s+/).slice(0, 3).join(" ").toUpperCase()}`
     : "VERIFIED · IN PERSON";
@@ -175,20 +171,32 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
       <CaliperOverlay topLabel={topLabel} bottomLabel={bottomLabel} />
       <header className="flex items-start justify-between gap-4">
         <div>
-          <div className="wa-hcard-rise font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]" style={{ animationDelay: "1900ms" }}>
+          <div
+            className="wa-hcard-rise font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]"
+            style={{ animationDelay: "1900ms" }}
+          >
             FEATURED · AVAILABLE NOW
           </div>
-          <div className="wa-hcard-rise mt-2 font-serif text-2xl leading-tight text-[color:var(--color-cream)]" style={{ animationDelay: "2050ms" }}>
+          <div
+            className="wa-hcard-rise mt-2 font-serif text-2xl leading-tight text-[color:var(--color-cream)]"
+            style={{ animationDelay: "2050ms" }}
+          >
             {watch.brand}
             <br />
             <span className="italic">{watch.name}</span>
           </div>
         </div>
-        <span className="wa-hcard-rise text-2xl leading-none text-[color:var(--color-gold)]" style={{ animationDelay: "2200ms" }}>
+        <span
+          className="wa-hcard-rise text-2xl leading-none text-[color:var(--color-gold)]"
+          style={{ animationDelay: "2200ms" }}
+        >
           ●
         </span>
       </header>
-      <div className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]" style={{ animationDelay: "2350ms" }} />
+      <div
+        className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]"
+        style={{ animationDelay: "2350ms" }}
+      />
       <dl className="grid grid-cols-2 gap-y-4 text-sm text-[color:var(--color-cream-80)]">
         {watch.edition && (
           <div className="wa-hcard-rise" style={{ animationDelay: "2450ms" }}>
@@ -223,9 +231,15 @@ function HeroFeaturedCard({ watch }: { watch: Watch }) {
           </div>
         )}
       </dl>
-      <div className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]" style={{ animationDelay: "2900ms" }} />
+      <div
+        className="wa-hcard-divider my-5 h-px bg-[color:var(--color-gold-20)]"
+        style={{ animationDelay: "2900ms" }}
+      />
       <footer className="flex items-center justify-between">
-        <span className="wa-hcard-rise font-serif text-2xl text-[color:var(--color-gold)]" style={{ animationDelay: "3000ms" }}>
+        <span
+          className="wa-hcard-rise font-serif text-2xl text-[color:var(--color-gold)]"
+          style={{ animationDelay: "3000ms" }}
+        >
           {formatPhp(watch.price)}
           <span
             className="mt-0.5 block font-mono text-[11px] font-normal not-italic tracking-[0.2em] text-[color:var(--color-cream-60)]"

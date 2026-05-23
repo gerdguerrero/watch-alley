@@ -1,0 +1,671 @@
+[
+  {
+    "path": "ANNOUNCEMENT 01.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/ANNOUNCEMENT 01.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080808",
+        "count": 7673
+      },
+      {
+        "hex": "#000000",
+        "count": 7322
+      },
+      {
+        "hex": "#101010",
+        "count": 6037
+      },
+      {
+        "hex": "#181818",
+        "count": 4241
+      },
+      {
+        "hex": "#202020",
+        "count": 2332
+      },
+      {
+        "hex": "#282828",
+        "count": 713
+      },
+      {
+        "hex": "#303030",
+        "count": 373
+      },
+      {
+        "hex": "#606060",
+        "count": 302
+      }
+    ]
+  },
+  {
+    "path": "ANNOUNCEMENT 02.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/ANNOUNCEMENT 02.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 7593
+      },
+      {
+        "hex": "#080808",
+        "count": 7114
+      },
+      {
+        "hex": "#101010",
+        "count": 5754
+      },
+      {
+        "hex": "#181818",
+        "count": 4623
+      },
+      {
+        "hex": "#202020",
+        "count": 2485
+      },
+      {
+        "hex": "#282828",
+        "count": 854
+      },
+      {
+        "hex": "#303030",
+        "count": 389
+      },
+      {
+        "hex": "#606060",
+        "count": 380
+      }
+    ]
+  },
+  {
+    "path": "BACKGROUNDS/BACKGROUND.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/BACKGROUNDS/BACKGROUND.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 11356
+      },
+      {
+        "hex": "#101010",
+        "count": 8582
+      },
+      {
+        "hex": "#080808",
+        "count": 5960
+      },
+      {
+        "hex": "#202020",
+        "count": 2090
+      },
+      {
+        "hex": "#181818",
+        "count": 1787
+      },
+      {
+        "hex": "#282828",
+        "count": 1612
+      },
+      {
+        "hex": "#303030",
+        "count": 903
+      },
+      {
+        "hex": "#080800",
+        "count": 38
+      }
+    ]
+  },
+  {
+    "path": "BACKGROUNDS/background 2.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/BACKGROUNDS/background 2.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080808",
+        "count": 11388
+      },
+      {
+        "hex": "#101010",
+        "count": 6038
+      },
+      {
+        "hex": "#202020",
+        "count": 5960
+      },
+      {
+        "hex": "#181818",
+        "count": 3865
+      },
+      {
+        "hex": "#000000",
+        "count": 2747
+      },
+      {
+        "hex": "#282828",
+        "count": 1605
+      },
+      {
+        "hex": "#303030",
+        "count": 635
+      },
+      {
+        "hex": "#202010",
+        "count": 15
+      }
+    ]
+  },
+  {
+    "path": "BACKGROUNDS/background 3.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/BACKGROUNDS/background 3.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080808",
+        "count": 6863
+      },
+      {
+        "hex": "#000000",
+        "count": 5696
+      },
+      {
+        "hex": "#101010",
+        "count": 5580
+      },
+      {
+        "hex": "#202020",
+        "count": 4944
+      },
+      {
+        "hex": "#282828",
+        "count": 3225
+      },
+      {
+        "hex": "#181818",
+        "count": 2896
+      },
+      {
+        "hex": "#303030",
+        "count": 1893
+      },
+      {
+        "hex": "#383838",
+        "count": 666
+      }
+    ]
+  },
+  {
+    "path": "PNG/Copy of DP FLAT.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/Copy of DP FLAT.png",
+    "width": 1800,
+    "height": 1800,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 28998
+      },
+      {
+        "hex": "#FFFFFF",
+        "count": 1098
+      },
+      {
+        "hex": "#C0A030",
+        "count": 132
+      },
+      {
+        "hex": "#C09830",
+        "count": 116
+      },
+      {
+        "hex": "#302810",
+        "count": 74
+      },
+      {
+        "hex": "#F8F8F8",
+        "count": 72
+      },
+      {
+        "hex": "#080800",
+        "count": 65
+      },
+      {
+        "hex": "#C8A838",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "path": "PNG/Copy of DP.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/Copy of DP.png",
+    "width": 1800,
+    "height": 1800,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080800",
+        "count": 7928
+      },
+      {
+        "hex": "#000000",
+        "count": 4449
+      },
+      {
+        "hex": "#101008",
+        "count": 4126
+      },
+      {
+        "hex": "#100808",
+        "count": 1929
+      },
+      {
+        "hex": "#181008",
+        "count": 1792
+      },
+      {
+        "hex": "#201810",
+        "count": 1714
+      },
+      {
+        "hex": "#282010",
+        "count": 1243
+      },
+      {
+        "hex": "#080000",
+        "count": 1194
+      }
+    ]
+  },
+  {
+    "path": "PNG/LOGO GOLD.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/LOGO GOLD.png",
+    "width": 488,
+    "height": 361,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#C09830",
+        "count": 3441
+      },
+      {
+        "hex": "#C0A030",
+        "count": 862
+      },
+      {
+        "hex": "#B89830",
+        "count": 296
+      },
+      {
+        "hex": "#C8A038",
+        "count": 204
+      },
+      {
+        "hex": "#C8A030",
+        "count": 156
+      },
+      {
+        "hex": "#C8A838",
+        "count": 25
+      },
+      {
+        "hex": "#B8A030",
+        "count": 14
+      },
+      {
+        "hex": "#C09838",
+        "count": 14
+      }
+    ]
+  },
+  {
+    "path": "PNG/LOGO WHITE.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/LOGO WHITE.png",
+    "width": 488,
+    "height": 361,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#FFFFFF",
+        "count": 5083
+      }
+    ]
+  },
+  {
+    "path": "PNG/Logo on Black.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/Logo on Black.png",
+    "width": 488,
+    "height": 368,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#FFFFFF",
+        "count": 2732
+      },
+      {
+        "hex": "#C09830",
+        "count": 1394
+      },
+      {
+        "hex": "#C0A030",
+        "count": 356
+      },
+      {
+        "hex": "#C8A038",
+        "count": 170
+      },
+      {
+        "hex": "#B89830",
+        "count": 169
+      },
+      {
+        "hex": "#C8A030",
+        "count": 156
+      },
+      {
+        "hex": "#C8A838",
+        "count": 21
+      },
+      {
+        "hex": "#C09838",
+        "count": 7
+      }
+    ]
+  },
+  {
+    "path": "PNG/Logo on White.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/PNG/Logo on White.png",
+    "width": 488,
+    "height": 368,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#202020",
+        "count": 2673
+      },
+      {
+        "hex": "#C09830",
+        "count": 1404
+      },
+      {
+        "hex": "#C0A030",
+        "count": 425
+      },
+      {
+        "hex": "#C8A038",
+        "count": 179
+      },
+      {
+        "hex": "#B89830",
+        "count": 138
+      },
+      {
+        "hex": "#C8A030",
+        "count": 110
+      },
+      {
+        "hex": "#282828",
+        "count": 79
+      },
+      {
+        "hex": "#C8A838",
+        "count": 18
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/ANNOUNCEMENTS/ANNOUNCEMENT 01.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/ANNOUNCEMENTS/ANNOUNCEMENT 01.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080808",
+        "count": 7673
+      },
+      {
+        "hex": "#000000",
+        "count": 7322
+      },
+      {
+        "hex": "#101010",
+        "count": 6037
+      },
+      {
+        "hex": "#181818",
+        "count": 4241
+      },
+      {
+        "hex": "#202020",
+        "count": 2332
+      },
+      {
+        "hex": "#282828",
+        "count": 713
+      },
+      {
+        "hex": "#303030",
+        "count": 373
+      },
+      {
+        "hex": "#606060",
+        "count": 302
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/ANNOUNCEMENTS/ANNOUNCEMENT 02.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/ANNOUNCEMENTS/ANNOUNCEMENT 02.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 7593
+      },
+      {
+        "hex": "#080808",
+        "count": 7114
+      },
+      {
+        "hex": "#101010",
+        "count": 5754
+      },
+      {
+        "hex": "#181818",
+        "count": 4623
+      },
+      {
+        "hex": "#202020",
+        "count": 2485
+      },
+      {
+        "hex": "#282828",
+        "count": 854
+      },
+      {
+        "hex": "#303030",
+        "count": 389
+      },
+      {
+        "hex": "#606060",
+        "count": 380
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/COVER PHOTO.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/COVER PHOTO.png",
+    "width": 2278,
+    "height": 1000,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 6436
+      },
+      {
+        "hex": "#101010",
+        "count": 984
+      },
+      {
+        "hex": "#080808",
+        "count": 959
+      },
+      {
+        "hex": "#181818",
+        "count": 475
+      },
+      {
+        "hex": "#080800",
+        "count": 256
+      },
+      {
+        "hex": "#202020",
+        "count": 247
+      },
+      {
+        "hex": "#101008",
+        "count": 219
+      },
+      {
+        "hex": "#181810",
+        "count": 162
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/DP FLAT.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/DP FLAT.png",
+    "width": 1800,
+    "height": 1800,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 28998
+      },
+      {
+        "hex": "#FFFFFF",
+        "count": 1098
+      },
+      {
+        "hex": "#C0A030",
+        "count": 132
+      },
+      {
+        "hex": "#C09830",
+        "count": 116
+      },
+      {
+        "hex": "#302810",
+        "count": 74
+      },
+      {
+        "hex": "#F8F8F8",
+        "count": 72
+      },
+      {
+        "hex": "#080800",
+        "count": 65
+      },
+      {
+        "hex": "#C8A838",
+        "count": 62
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/DP.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/DP.png",
+    "width": 1800,
+    "height": 1800,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#080800",
+        "count": 7928
+      },
+      {
+        "hex": "#000000",
+        "count": 4449
+      },
+      {
+        "hex": "#101008",
+        "count": 4126
+      },
+      {
+        "hex": "#100808",
+        "count": 1929
+      },
+      {
+        "hex": "#181008",
+        "count": 1792
+      },
+      {
+        "hex": "#201810",
+        "count": 1714
+      },
+      {
+        "hex": "#282010",
+        "count": 1243
+      },
+      {
+        "hex": "#080000",
+        "count": 1194
+      }
+    ]
+  },
+  {
+    "path": "SOCMED/MOCKUP.png",
+    "absolute_path": "/Users/buloy/projects/watch-alley/drive-assets/SOCMED/MOCKUP.png",
+    "width": 1296,
+    "height": 1296,
+    "mode": "RGBA",
+    "dominant_colors": [
+      {
+        "hex": "#000000",
+        "count": 11601
+      },
+      {
+        "hex": "#101010",
+        "count": 8580
+      },
+      {
+        "hex": "#080808",
+        "count": 4655
+      },
+      {
+        "hex": "#202020",
+        "count": 2090
+      },
+      {
+        "hex": "#181818",
+        "count": 1806
+      },
+      {
+        "hex": "#282828",
+        "count": 1607
+      },
+      {
+        "hex": "#303030",
+        "count": 906
+      },
+      {
+        "hex": "#FFFFFF",
+        "count": 224
+      }
+    ]
+  }
+]

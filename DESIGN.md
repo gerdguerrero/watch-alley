@@ -116,6 +116,8 @@ The system is dark, but **warm dark**. Walnut and espresso, never navy or cyan. 
 
 Anti-references: SaaS feature-card grids, gradient text, "modern dashboard" glassmorphism, side-stripe callouts, neon glows under buttons. None of those belong here.
 
+Drive asset review, May 2026: the downloaded brand files confirm the strongest native motif is the drafting compass / watchmaker caliper that forms the `A` in WATCH. Treat it as the brand's precision signal. The old social graphics are useful source material for trust, disclosure, shipping, and inspection language, but they are not the final web UI standard. Full review lives in [docs/brand-analysis/watch-alley-drive-brand-guidelines.md](./docs/brand-analysis/watch-alley-drive-brand-guidelines.md).
+
 ## Colors
 
 OKLCH everywhere with backwards-compatible aliases on legacy `--navy-*` tokens, so the codebase doesn't fork while the warmth deepens.
@@ -154,6 +156,15 @@ No glow under buttons. No bright glassmorphism. No box-shadow used decoratively.
 
 ## Components
 
+### Logo and brand assets
+
+- The production logo should come from the vector source in `drive-assets/AI/` or `drive-assets/VECTOR PDF/`, then be exported as optimized SVG variants before web use. Do not build the site around the raw PNG downloads.
+- Required variants: full horizontal lockup, single-color lockup, brass-only seal, simplified compass `A` micro mark, and nav lockup.
+- The compass / caliper `A` is the signature motif. Echo it through measured rules, ticks, and inspection overlays, but do not repeat the full logo as decoration.
+- Minimum practical width: 112-140px for the nav lockup, 96px absolute floor for the full lockup. Below that, use the simplified mark.
+- Use cream on walnut instead of pure white on pure black. The Drive assets are source references; the website translation stays warmer.
+- Put logo over photography only with a walnut scrim. Never place it directly over a busy dial or bracelet texture.
+
 ### Buttons
 
 - `button-primary` is the only solid-fill button on the page. Gold ground, walnut text, no rounded corners, label-mono type. On hover it shifts one pixel up with a 1px inner highlight; **no colored glow under it** (that's a banned AI-template tell).
@@ -188,6 +199,9 @@ A single horizontal ledger line under the hero. Petrona figures with `font-varia
 - Frame sold pieces as provenance, not loss. Show sold price, sold month, named in Petrona.
 - Reply within four hours, Mon–Sat — that promise is the brand voice. Echo it on the inquiry form, the success slip, and the ticker.
 - Use OKLCH for new color decisions. Reduce chroma toward extremes.
+- Use the Drive asset backgrounds as atmosphere only: hero, journal cover, trust section, or empty state. Always add a scrim before setting text over them.
+- Translate old announcement copy into clean web trust modules. One message per module, no paragraph-heavy social graphics in the UI.
+- Resolve typography drift before major visual work: `DESIGN.md` says Petrona/Spectral/JetBrains Mono, while the current app imports Playfair/Geist/Geist Mono.
 
 ### Don't
 
@@ -202,3 +216,5 @@ A single horizontal ledger line under the hero. Petrona figures with `font-varia
 - **No #000 or #fff.** Always tint neutrals toward walnut.
 - **No em dashes.** Use commas, colons, semicolons, periods, or parentheses.
 - **No false urgency.** No countdowns, no scarcity badges, no auction-style timers. Restraint outsells flash.
+- **No raw Drive PNGs as production UI logos.** Use optimized SVG exports from the vector source.
+- **No detailed full logo at tiny sizes.** Use the simplified compass mark when the lockup would collapse.
