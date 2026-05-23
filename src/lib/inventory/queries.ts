@@ -1,5 +1,6 @@
 import "server-only";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { curateWatch, curateWatches, isHiddenWatchId } from "./curation";
 import { normalizeWatchRow } from "./normalize";
 import type { Watch, WatchRow, WatchStatus } from "./types";
 
@@ -45,7 +46,7 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
     return [];
   }
   const rows = (data ?? []) as unknown as WatchRow[];
-  return rows.map(normalizeWatchRow);
+  return curateWatches(rows.map(normalizeWatchRow));
 }
 
 /**
@@ -72,7 +73,7 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
     .eq("published", true)
     .maybeSingle();
   if (error || !data) return null;
-  return normalizeWatchRow(data as unknown as WatchRow);
+  return curateWatch(normalizeWatchRow(data as unknown as WatchRow));
 }
 
 /**
@@ -81,12 +82,13 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
  */
 export async function fetchPublishedSlugs(): Promise<string[]> {
   const supabase = createSupabasePublicClient();
-  const { data, error } = await supabase.from("watches").select("slug").eq("published", true);
+  const { data, error } = await supabase.from("watches").select("id, slug").eq("published", true);
   if (error || !data) {
     console.error("fetchPublishedSlugs failed:", error?.message);
     return [];
   }
-  return (data as Array<{ slug: string | null }>)
+  return (data as Array<{ id: string | null; slug: string | null }>)
+    .filter((r) => !r.id || !isHiddenWatchId(r.id))
     .map((r) => r.slug)
     .filter((s): s is string => typeof s === "string" && s.length > 0);
 }
