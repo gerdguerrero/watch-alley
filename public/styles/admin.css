@@ -1530,3 +1530,49 @@ code {
   .inbox-row-side { align-items: flex-start; flex-direction: row; gap: 12px; }
   .inbox-drawer-actions input { min-width: 0; }
 }
+
+/* ===========================================================================
+   Responsive Mobile Overrides — Anti-overlap and solid panel styling
+   =========================================================================== */
+@media (max-width: 900px) {
+  /* INVENTORY TAB RESPONSIVE UX */
+  /* If the watch form is hidden (activeId is null / listing is empty), hide the detail block */
+  #tabpanel-inventory:has(#watch-form[hidden]) #admin-detail {
+    display: none !important;
+  }
+  
+  /* If the watch form is visible, hide the sidebar watch list completely to prevent collision */
+  #tabpanel-inventory:has(#watch-form:not([hidden])) .admin-sidebar {
+    display: none !important;
+  }
+  
+  /* JOURNAL TAB RESPONSIVE UX */
+  /* If the journal form is hidden, hide the detail block */
+  #tabpanel-journal:has(#journal-form[hidden]) #journal-detail {
+    display: none !important;
+  }
+  
+  /* If the journal form is visible, hide the sidebar list completely to prevent collision */
+  #tabpanel-journal:has(#journal-form:not([hidden])) .admin-sidebar {
+    display: none !important;
+  }
+
+  /* Solid premium design for details panel on mobile */
+  .admin-detail {
+    background: var(--walnut-card) !important;
+    border: 1px solid var(--gold-20) !important;
+    padding: 20px 16px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+    margin-top: 8px;
+  }
+  
+  /* Sidebar responsive padding adjustments */
+  .admin-sidebar {
+    max-height: 80vh !important;
+    border-radius: 12px !important;
+    background: var(--walnut-card) !important;
+    border: 1px solid oklch(0.91 0.018 78 / 0.08) !important;
+    padding: 16px !important;
+  }
+}
