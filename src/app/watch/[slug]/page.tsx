@@ -247,15 +247,29 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             {watch.description && (
               <Section title="About this piece">
                 {watch.description.split(/\n{2,}/).map((p, i) => (
-                  <p key={`${i}:${p.slice(0, 32)}`}>{p}</p>
+                  <p key={`${i}:${p.slice(0, 32)}`}>
+                    {p.split("\n").map((line, j) => (
+                      <span key={j}>
+                        {j > 0 && <br />}
+                        {line}
+                      </span>
+                    ))}
+                  </p>
                 ))}
               </Section>
             )}
 
             {watch.provenance && (
               <Section title="Provenance">
-                {watch.provenance.split(/\n{2,}/).map((p) => (
-                  <p key={`${p.length}:${p.slice(0, 32)}`}>{p}</p>
+                {watch.provenance.split(/\n{2,}/).map((p, i) => (
+                  <p key={`${i}:${p.slice(0, 32)}`}>
+                    {p.split("\n").map((line, j) => (
+                      <span key={j}>
+                        {j > 0 && <br />}
+                        {line}
+                      </span>
+                    ))}
+                  </p>
                 ))}
               </Section>
             )}
