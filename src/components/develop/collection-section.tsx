@@ -79,14 +79,14 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
   // unmount text.
   return (
     <motion.div
-      className="relative overflow-hidden cursor-pointer rounded-[28px] flex-shrink basis-0 isolate"
+      className="relative overflow-hidden cursor-pointer rounded-[28px] isolate min-h-[340px] md:min-h-0 md:flex-shrink md:basis-0"
       style={{
         backgroundImage: watch.primaryImage ? `url(${watch.primaryImage})` : undefined,
         backgroundColor: "oklch(0.17 0.015 55)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      animate={isMobile ? { height: isActive ? 340 : 80 } : { flexGrow: isActive ? 5 : 1 }}
+      animate={isMobile ? {} : { flexGrow: isActive ? 5 : 1 }}
       transition={{ duration: DUR_CONTAINER, ease: EASE }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
@@ -276,7 +276,9 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
               <AccordionCard
                 key={watch.slug}
                 watch={watch}
-                isActive={activeId === watch.slug}
+                // On phone every card is expanded so all available pieces are
+                // visible at a glance; desktop keeps the accordion behaviour.
+                isActive={isMobile ? true : activeId === watch.slug}
                 onActivate={() => setActiveId(watch.slug)}
                 isMobile={isMobile}
               />
