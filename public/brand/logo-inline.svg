@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="none" />
+  <!-- Left Side: Circular Badge Icon -->
+  <g transform="translate(10, 8)">
+    <circle cx="32" cy="32" r="30" fill="#13110f" stroke="#c5a880" stroke-width="2" />
+    <circle cx="32" cy="32" r="27" fill="none" stroke="#c5a880" stroke-width="0.5" stroke-dasharray="1 2" opacity="0.5" />
+    <g transform="translate(16, 12) scale(0.38)">
+      <path d="M54 22 C50 12 78 12 74 22" fill="none" stroke="#c5a880" stroke-width="2" />
+      <circle cx="64" cy="24" r="5" fill="none" stroke="#c5a880" stroke-width="3" />
+      <path d="M62 27 L48 94 C46 99 44 100 42 100" fill="none" stroke="#c5a880" stroke-width="3.5" stroke-linecap="round" />
+      <path d="M66 27 L80 94 C82 99 84 100 86 100" fill="none" stroke="#c5a880" stroke-width="3.5" stroke-linecap="round" />
+      <line x1="51" y1="64" x2="77" y2="64" stroke="#c5a880" stroke-width="1.5" />
+      <rect x="61" y="58" width="6" height="12" rx="1.5" fill="#13110f" stroke="#c5a880" stroke-width="1.2" />
+    </g>
+  </g>
+  
+  <!-- Right Side: Name Title Wordmark -->
+  <g transform="translate(85, 10)">
+    <text x="0" y="24" font-family="'Playfair Display', Georgia, serif" font-size="28" font-weight="500" fill="#ece4d3" letter-spacing="1">THE WATCH ALLEY</text>
+    <text x="2" y="44" font-family="'Geist Mono', monospace" font-size="9" font-weight="500" fill="#c5a880" letter-spacing="4">PRIVATE COLLECTING DESK</text>
+  </g>
+</svg>
