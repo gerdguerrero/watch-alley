@@ -3,6 +3,8 @@
 The Watch Alley is a curated watch commerce site for Filipino collectors.
 The repo is a single Next.js App Router workspace deployed to Vercel.
 
+🔐 **Admin**: `/admin` is gated by edge middleware — requires `?token=` URL param.
+
 ## Current Stack
 
 | Layer | Choice |
