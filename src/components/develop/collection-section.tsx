@@ -17,7 +17,11 @@ const _COLLECTION_PROMISES = [
 // Each homepage teaser card is labelled by category, not by watch name. Cards
 // 1/2/3 map to these labels in order; the watch behind the card is whichever
 // 3 newest "available" pieces the inventory hands us.
-const CARD_LABELS = ["Brand New", "Pre-loved", "Limited Editions"] as const;
+const CARD_SLOTS = [
+  { label: "Brand New", category: "brand-new" },
+  { label: "Pre-loved", category: "pre-owned" },
+  { label: "Limited Editions", category: "limited-edition" },
+] as const;
 
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
@@ -173,15 +177,20 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
-  // Limit homepage available section to 3 newest items as a teaser ("Fresh off the Bench")
+  // Pick one watch per category for the 3 teaser cards. Falls back to
+  // first-available if a category has no matching watch, so every slot
+  // always shows a real piece.
   const items = useMemo(() => {
-    return watches.slice(0, 3);
+    return CARD_SLOTS.map((slot) => {
+      const match = watches.find((w) => w.category === slot.category) ?? watches[0];
+      return { watch: match, label: slot.label };
+    }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string }>;
   }, [watches]);
 
   // Track the hovered active card slug
-  const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.slug ?? null);
+  const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.watch?.slug ?? null);
 
-  const activeId = items.find((w) => w.slug === intendedActiveId)?.slug ?? items[0]?.slug ?? null;
+  const activeId = items.find((item) => item.watch.slug === intendedActiveId)?.watch?.slug ?? items[0]?.watch?.slug ?? null;
 
   if (watches.length === 0) {
     return (
@@ -263,16 +272,16 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </p>
         ) : (
           <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((watch, idx) => (
+            {items.map((item) => (
               <AccordionCard
-                key={watch.slug}
-                watch={watch}
+                key={item.watch.slug}
+                watch={item.watch}
                 // On phone every card is expanded so all available pieces are
                 // visible at a glance; desktop keeps the accordion behaviour.
-                isActive={isMobile ? true : activeId === watch.slug}
-                onActivate={() => setActiveId(watch.slug)}
+                isActive={isMobile ? true : activeId === item.watch.slug}
+                onActivate={() => setActiveId(item.watch.slug)}
                 isMobile={isMobile}
-                displayName={CARD_LABELS[idx] ?? watch.name}
+                displayName={item.label}
               />
             ))}
           </div>
