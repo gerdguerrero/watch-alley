@@ -678,6 +678,7 @@ function loadIntoForm(watch) {
   setField('id', watch?.id || '');
   setField('slug', watch?.slug || '');
   setField('status', watch?.status || 'available');
+  setField('category', watch?.category || '');
   setField('brand', watch?.brand || '');
   setField('reference', watch?.reference || '');
   setField('model', watch?.model || '');
@@ -1282,6 +1283,7 @@ function collectFormPayload() {
     price: Number(getField('price')) || 0,
     currency: 'PHP',
     status,
+    category: getField('category'),
     conditionLabel: getField('conditionLabel').trim(),
     badge: getField('badge').trim(),
     movement: getField('movement').trim(),

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageTitle } from "@/components/develop/page-title";
 import { WatchCard } from "@/components/develop/watch-card";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
@@ -13,8 +14,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/available" },
 };
 
-export default async function AvailablePage() {
-  const watches = await fetchWatches({ status: "available" });
+const CATEGORIES = [
+  { value: "", label: "All" },
+  { value: "brand-new", label: "Brand New" },
+  { value: "pre-owned", label: "Pre-owned" },
+  { value: "limited-edition", label: "Limited Edition" },
+] as const;
+
+export default async function AvailablePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+  const watches = await fetchWatches({ status: "available", category });
 
   return (
     <main className="bg-[#080706] text-zinc-100">
@@ -26,6 +39,26 @@ export default async function AvailablePage() {
       />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
+        {/* Category filter pills */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12 max-w-7xl mx-auto">
+          {CATEGORIES.map((cat) => {
+            const isActive = category === cat.value || (!category && cat.value === "");
+            return (
+              <Link
+                key={cat.value}
+                href={cat.value ? `/available?category=${cat.value}` : "/available"}
+                className={`px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                  isActive
+                    ? "bg-amber-500 text-zinc-900 border border-amber-500"
+                    : "bg-transparent text-zinc-400 border border-zinc-700 hover:border-amber-500/50 hover:text-amber-400"
+                }`}
+              >
+                {cat.label}
+              </Link>
+            );
+          })}
+        </div>
+
         {watches.length === 0 ? (
           <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
             No active pieces right now. Message us on Messenger for the next drop.

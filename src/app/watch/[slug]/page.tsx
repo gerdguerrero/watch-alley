@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
-import { formatPhp, formatWatchMeta } from "@/lib/inventory/format";
+import { formatCategory, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 
@@ -161,6 +161,11 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                   {watch.brand}
                   {watch.reference && ` · ${watch.reference}`}
                 </span>
+                {watch.category && (
+                  <span className="px-2.5 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-[9px] uppercase tracking-[0.2em] text-amber-400 font-mono">
+                    {formatCategory(watch.category)}
+                  </span>
+                )}
               </div>
               <h1 className="font-serif text-[clamp(24px,3.5vw,42px)] leading-[1.08] text-zinc-100">
                 {watch.name}

@@ -42,6 +42,7 @@ export interface Watch {
   lowStock: boolean;
   displayOrder: number | null;
   published: boolean;
+  category: "brand-new" | "pre-owned" | "limited-edition" | null;
 }
 
 /**
@@ -85,4 +86,5 @@ export interface WatchRow {
   low_stock: boolean | null;
   display_order: number | null;
   published: boolean | null;
+  category: string | null;
 }

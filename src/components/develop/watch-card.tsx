@@ -4,7 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { formatPhp } from "@/lib/inventory/format";
+import { formatCategory, formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 interface WatchCardProps {
@@ -44,7 +44,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
   };
 
   const isSold = variant === "sold" || watch.status === "sold";
-  const category = watch.movement || watch.edition || watch.conditionLabel || watch.brand;
+  const categoryLabel = formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
 
   return (
     <Link
@@ -130,7 +130,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
             {watch.name}
           </motion.h3>
 
-          <p className="text-[11px] tracking-[0.18em] uppercase text-cream-60 mb-3">{category}</p>
+          <p className="text-[11px] tracking-[0.18em] uppercase text-cream-60 mb-3">{categoryLabel}</p>
 
           {watch.description && (
             <motion.p

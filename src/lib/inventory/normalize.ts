@@ -2,11 +2,21 @@ import type { Watch, WatchRow, WatchStatus } from "./types";
 
 const VALID_STATUSES: ReadonlySet<WatchStatus> = new Set(["available", "reserved", "sold"]);
 
+const VALID_CATEGORIES: ReadonlySet<string> = new Set([
+  "brand-new",
+  "pre-owned",
+  "limited-edition",
+]);
+
 function normalizeStatus(value: string | null): WatchStatus {
   if (value && VALID_STATUSES.has(value as WatchStatus)) {
     return value as WatchStatus;
   }
   return "available";
+}
+
+function isValidCategory(value: string | null): value is Watch["category"] {
+  return typeof value === "string" && VALID_CATEGORIES.has(value);
 }
 
 function nonNullStringList(value: string[] | null): string[] {
@@ -58,5 +68,6 @@ export function normalizeWatchRow(row: WatchRow): Watch {
     lowStock: row.low_stock === true,
     displayOrder: typeof row.display_order === "number" ? row.display_order : null,
     published: row.published !== false,
+    category: isValidCategory(row.category) ? row.category : null,
   };
 }

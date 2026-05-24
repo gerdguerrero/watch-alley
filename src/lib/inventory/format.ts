@@ -15,6 +15,17 @@ export function formatWatchMeta(parts: Array<string | undefined | null>): string
     .join(" · ");
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  "brand-new": "Brand New",
+  "pre-owned": "Pre-owned",
+  "limited-edition": "Limited Edition",
+};
+
+export function formatCategory(category: string | null | undefined): string {
+  if (!category) return "";
+  return CATEGORY_LABELS[category] ?? category;
+}
+
 export function badgeIsBrandNew(badge: string): boolean {
   return badge.toLowerCase().includes("brand new");
 }

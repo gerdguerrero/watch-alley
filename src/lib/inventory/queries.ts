@@ -16,20 +16,21 @@ const SELECT_COLUMNS = `
   condition_label, badge, movement, case_size, inclusion_set, material, edition,
   description, disclosure, provenance, primary_image, images,
   inquiry_subject, inquiry_body, sold_at, sold_price, has_box, has_papers,
-  service_history, featured, low_stock, display_order, published
+  service_history, featured, low_stock, display_order, published, category
 `;
 
 interface FetchOptions {
   status?: WatchStatus | "all";
+  category?: string;
   limit?: number;
 }
 
 /**
- * Fetch published watches, optionally filtered by status. Sorted by display
+ * Fetch published watches, optionally filtered by status/category. Sorted by display
  * order ascending — admin controls priority via the `display_order` column.
  */
 export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]> {
-  const { status = "all", limit } = options;
+  const { status = "all", category, limit } = options;
   const supabase = createSupabasePublicClient();
   let query = supabase
     .from("watches")
@@ -38,6 +39,7 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
     .order("display_order", { ascending: true, nullsFirst: false });
 
   if (status !== "all") query = query.eq("status", status);
+  if (category) query = query.eq("category", category);
   if (typeof limit === "number" && limit > 0) query = query.limit(limit);
 
   const { data, error } = await query;
