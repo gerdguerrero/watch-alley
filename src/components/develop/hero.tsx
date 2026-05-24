@@ -106,41 +106,46 @@ export function Hero({ featured = null }: HeroProps = {}) {
         <h2 className="max-w-xl text-[clamp(3.25rem,5vw,4.75rem)] font-light leading-[0.98] tracking-tight text-cream">
           <span className="font-serif italic">Curated Timepieces,</span>
           <br />
-          <span className="text-cream-60 font-light">Destined for</span>
+          <span className="text-cream-60 font-bold">destined for</span>
           <br />
-          <span className="font-serif italic">your wrist.</span>
+          <span className="text-cream-60 font-bold">your wrist.</span>
         </h2>
         <p className="mt-6 max-w-[34rem] text-sm leading-relaxed text-cream-60 md:text-base">
           A Manila-based collecting desk curating pre-owned and brand-new timepieces. Disclosed in
           writing, daylight-photographed, and handled with a collector's restraint.
         </p>
 
-        <div className="mt-7 flex flex-wrap items-center gap-3">
+        <div className="mt-7 flex flex-wrap items-center gap-1.5 md:gap-3">
           {TRUST_MARKERS.map((marker) => (
             <span
               key={marker}
-              className="rounded-full border border-amber-400/20 bg-walnut-deep/25 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-cream-60 backdrop-blur"
+              className="rounded-full border border-amber-400/20 bg-walnut-deep/25 px-2.5 py-0.5 text-[9px] uppercase tracking-[0.14em] text-cream-60 backdrop-blur md:px-4 md:py-2 md:text-[10px] md:tracking-[0.18em]"
             >
               {marker}
             </span>
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        {/* CTAs: on phone keep them in one row with Explore on the right and
+            Book a viewing on the left (flex-row-reverse keeps the DOM order
+            Explore-first / Book-second for SEO + accessibility). Buttons share
+            the row via flex-1 and tighten their padding so both fit at 320px. */}
+        <div className="mt-8 flex flex-row-reverse gap-2 sm:gap-3 md:flex-row">
           <MotionLink
             href="/available"
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-amber-300 px-7 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-walnut-deep shadow-[0_20px_50px_rgba(245,158,11,0.18)]"
+            className="group relative inline-flex flex-1 items-center justify-center overflow-hidden rounded-full bg-amber-300 px-3 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-walnut-deep shadow-[0_20px_50px_rgba(245,158,11,0.18)] md:flex-initial md:px-7 md:py-4 md:text-[11px] md:tracking-[0.2em]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <span>Explore Collection</span>
             <svg
-              className="ml-3 h-3 w-3 transition-transform group-hover:translate-x-1"
+              className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1 md:ml-3"
               viewBox="0 0 12 12"
               fill="none"
               aria-hidden="true"
             >
+              <title>Arrow</title>
               <path
                 d="M1 11L11 1M11 1H3M11 1V9"
                 stroke="currentColor"
@@ -152,7 +157,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
           </MotionLink>
           <MotionLink
             href="#contact"
-            className="inline-flex items-center justify-center rounded-full border border-cream/15 bg-walnut-deep/20 px-7 py-4 text-[11px] uppercase tracking-[0.2em] text-cream transition-colors hover:border-amber-300/50 hover:text-amber-200"
+            className="inline-flex flex-1 items-center justify-center rounded-full border border-cream/15 bg-walnut-deep/20 px-3 py-3 text-[10px] uppercase tracking-[0.16em] text-cream transition-colors hover:border-amber-300/50 hover:text-amber-200 md:flex-initial md:px-7 md:py-4 md:text-[11px] md:tracking-[0.2em]"
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
