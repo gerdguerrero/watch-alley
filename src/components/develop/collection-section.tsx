@@ -15,6 +15,11 @@ const _COLLECTION_PROMISES = [
   "Collector-first sourcing",
 ];
 
+// Each homepage teaser card is labelled by category, not by watch name. Cards
+// 1/2/3 map to these labels in order; the watch behind the card is whichever
+// 3 newest "available" pieces the inventory hands us.
+const CARD_LABELS = ["Brand New", "Pre-loved", "Limited Editions"] as const;
+
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
 // when the user flicks the cursor across cards. Curve is Apple's standard
@@ -53,9 +58,12 @@ interface AccordionCardProps {
   isActive: boolean;
   onActivate: () => void;
   isMobile: boolean;
+  /** Card headline override — replaces the watch.name with a category label
+      (e.g. "Brand New", "Pre-loved", "Limited Editions"). */
+  displayName: string;
 }
 
-function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardProps) {
+function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: AccordionCardProps) {
   const Icon = pickIcon(watch);
   const category = deriveCategory(watch);
   const intentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -161,7 +169,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
               {watch.brand}
             </p>
             <h3 className="text-3xl md:text-4xl font-light text-cream leading-none mb-2 break-words">
-              {watch.name}
+              {displayName}
             </h3>
             <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-400">
               {category}
@@ -272,7 +280,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </p>
         ) : (
           <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((watch) => (
+            {items.map((watch, idx) => (
               <AccordionCard
                 key={watch.slug}
                 watch={watch}
@@ -281,6 +289,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
                 isActive={isMobile ? true : activeId === watch.slug}
                 onActivate={() => setActiveId(watch.slug)}
                 isMobile={isMobile}
+                displayName={CARD_LABELS[idx] ?? watch.name}
               />
             ))}
           </div>
