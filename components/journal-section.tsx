@@ -79,7 +79,7 @@ export function JournalSection() {
       {/* Ghost title — matches HERITAGE pattern */}
       <div className="absolute top-24 left-0 right-0 text-center pointer-events-none">
         <h2
-          className="font-light tracking-tight leading-none select-none"
+          className="font-serif font-normal leading-none select-none"
           style={{
             fontSize: 'clamp(4rem, 15vw, 13rem)',
             background:
