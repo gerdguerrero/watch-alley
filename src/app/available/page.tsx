@@ -39,8 +39,7 @@ export default async function AvailablePage() {
         )}
 
         <p className="mx-auto mt-20 max-w-[60ch] text-center font-mono text-[10px] uppercase leading-[1.6] tracking-[0.18em] text-zinc-600">
-          USD figures shown alongside prices are mid-market estimates, refreshed daily. The final
-          amount is calculated in Wise at payment.
+          USD conversions sourced live from Wise. Final amount calculated at payment.
         </p>
       </section>
       <UsdPriceMount />

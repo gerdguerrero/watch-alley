@@ -14,5 +14,5 @@ export function formatUsdFromPhp(php: number, phpPerUsd: number): string {
     usd >= 100
       ? usd.toLocaleString("en-US", { maximumFractionDigits: 0 })
       : usd.toLocaleString("en-US", { maximumFractionDigits: 1 });
-  return `≈ $${formatted} USD`;
+  return `≈ $${formatted} USD (Wise)`;
 }
