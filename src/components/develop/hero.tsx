@@ -19,8 +19,6 @@ interface HeroProps {
   featured?: Watch | null;
 }
 
-const TRUST_MARKERS = ["Quezon City, PH", "Condition disclosed", "Insured shipping"];
-
 export function Hero({ featured = null }: HeroProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const splineContainerRef = useRef<HTMLDivElement>(null);
@@ -110,22 +108,6 @@ export function Hero({ featured = null }: HeroProps = {}) {
           <br />
           <span className="text-cream-60 font-bold">your wrist.</span>
         </h2>
-        <p className="mt-6 max-w-[34rem] text-sm leading-relaxed text-cream-60 md:text-base">
-          A Manila-based collecting desk curating pre-owned and brand-new timepieces. Disclosed in
-          writing, daylight-photographed, and handled with a collector's restraint.
-        </p>
-
-        <div className="mt-7 flex flex-wrap items-center gap-1.5 md:gap-3">
-          {TRUST_MARKERS.map((marker) => (
-            <span
-              key={marker}
-              className="rounded-full border border-amber-400/20 bg-walnut-deep/25 px-2.5 py-0.5 text-[9px] uppercase tracking-[0.14em] text-cream-60 backdrop-blur md:px-4 md:py-2 md:text-[10px] md:tracking-[0.18em]"
-            >
-              {marker}
-            </span>
-          ))}
-        </div>
-
         {/* CTAs: on phone keep them in one row with Explore on the right and
             Book a viewing on the left (flex-row-reverse keeps the DOM order
             Explore-first / Book-second for SEO + accessibility). Buttons share
