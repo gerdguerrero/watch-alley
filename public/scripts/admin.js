@@ -532,6 +532,30 @@ els.cancelBtn.addEventListener('click', () => {
   hideForm();
 });
 
+// Auto-generate slug from display name. Only fills when slug is empty
+// (don't overwrite a manually edited slug). Converts to lowercase,
+// replaces spaces/underscores with hyphens, strips everything else.
+const nameField = field('name');
+const slugField = field('slug');
+if (nameField && slugField) {
+  nameField.addEventListener('input', () => {
+    if (slugField.value.trim() === '' || slugField.dataset.autoSlug === '1') {
+      const slug = nameField.value
+        .toLowerCase()
+        .replace(/[\s_]+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      slugField.value = slug;
+      slugField.dataset.autoSlug = '1';
+    }
+  });
+  // When user manually edits slug, stop auto-filling
+  slugField.addEventListener('input', () => {
+    slugField.dataset.autoSlug = '0';
+  });
+}
+
 els.watchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   await saveCurrentForm();

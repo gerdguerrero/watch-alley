@@ -112,7 +112,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
   const jsonLd = buildProductJsonLd(watch);
 
   return (
-    <main className="bg-[#080706] text-zinc-100 pt-[clamp(120px,16vh,180px)] pb-32 px-6 md:px-12 lg:px-20 relative overflow-hidden">
+    <main className="bg-[#080706] text-zinc-100 pt-[clamp(90px,10vh,130px)] pb-12 px-6 md:px-12 lg:px-16 relative overflow-hidden">
       {/* Subtle amber wash anchored top */}
       <div
         aria-hidden="true"
@@ -126,7 +126,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
       <div className="relative max-w-7xl mx-auto">
         <nav
           aria-label="Breadcrumb"
-          className="mb-10 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500"
+          className="mb-6 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500"
         >
           <Link href="/" className="hover:text-amber-400 transition-colors">
             Home
@@ -142,11 +142,11 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
           <span className="text-zinc-300">{watch.brand}</span>
         </nav>
 
-        <article className="grid gap-10 lg:gap-16 lg:grid-cols-[1.2fr_1fr]">
+        <article className="grid gap-6 lg:gap-10 lg:grid-cols-[1.1fr_1fr]">
           {/* Left — gallery */}
           <div className="flex flex-col gap-4">
             <div
-              className={`relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/30 ${isSold ? "[filter:grayscale(0.5)] opacity-95" : ""}`}
+              className={`relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 ${isSold ? "[filter:grayscale(0.5)] opacity-95" : ""}`}
             >
               {watch.primaryImage && (
                 <Image
@@ -185,7 +185,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
           </div>
 
           {/* Right — details */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             <header>
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-8 h-px bg-amber-500/60" />
@@ -194,7 +194,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                   {watch.reference && ` · ${watch.reference}`}
                 </span>
               </div>
-              <h1 className="font-serif text-[clamp(32px,4.5vw,56px)] leading-[1.05] text-zinc-100">
+              <h1 className="font-serif text-[clamp(24px,3.5vw,42px)] leading-[1.08] text-zinc-100">
                 {watch.name}
               </h1>
               {meta && (
@@ -204,7 +204,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               )}
             </header>
 
-            <div className="flex flex-wrap items-baseline gap-4 border-y border-zinc-900/60 py-6">
+            <div className="flex flex-wrap items-baseline gap-3 border-y border-zinc-900/60 py-4">
               {isSold ? (
                 <>
                   <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
@@ -218,7 +218,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                 </>
               ) : (
                 <>
-                  <span className="font-serif text-[clamp(28px,3vw,40px)] text-amber-500">
+                  <span className="font-serif text-[clamp(22px,2.5vw,32px)] text-amber-500">
                     {formatPhp(watch.price)}
                   </span>
                   <span
@@ -234,7 +234,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               )}
             </div>
 
-            <dl className="grid grid-cols-2 gap-y-5 gap-x-6 text-sm">
+            <dl className="grid grid-cols-2 gap-y-4 gap-x-5 text-sm">
               {watch.conditionLabel && <DetailRow label="Condition" value={watch.conditionLabel} />}
               <DetailRow label="Set" value={boxPapers(watch)} />
               {watch.edition && <DetailRow label="Edition" value={watch.edition} />}
@@ -330,14 +330,14 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-3 border-t border-zinc-900/60 pt-6">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-px bg-amber-500/60" />
+    <section className="flex flex-col gap-2 border-t border-zinc-900/60 pt-4">
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-px bg-amber-500/60" />
         <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
           {title}
         </h2>
       </div>
-      <div className="flex flex-col gap-4 font-serif text-[16px] leading-[1.75] text-zinc-300">
+      <div className="flex flex-col gap-2 font-serif text-[14px] leading-[1.65] text-zinc-300">
         {children}
       </div>
     </section>

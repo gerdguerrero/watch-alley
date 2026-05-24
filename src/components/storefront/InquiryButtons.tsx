@@ -31,7 +31,7 @@ export function InquiryButtons({ watch }: InquiryButtonsProps) {
         href={messengerUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-3 bg-amber-500 px-8 py-4 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-900 transition-colors hover:bg-amber-400"
+        className="inline-flex items-center justify-center gap-2 bg-amber-500 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-900 transition-colors hover:bg-amber-400"
       >
         Message the Seller
         <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" aria-hidden="true">
