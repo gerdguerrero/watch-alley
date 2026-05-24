@@ -104,9 +104,11 @@ export function Hero({ featured = null }: HeroProps = {}) {
           The Watch Alley PH
         </motion.p>
         <h2 className="max-w-xl text-[clamp(3.25rem,5vw,4.75rem)] font-light leading-[0.98] tracking-tight text-cream">
-          <span className="font-serif italic">For pieces worth</span>
+          <span className="font-serif italic">Curated Timepieces,</span>
           <br />
-          <span className="text-cream-60 font-light">slowing down for.</span>
+          <span className="text-cream-60 font-light">Destined for</span>
+          <br />
+          <span className="font-serif italic">your wrist.</span>
         </h2>
         <p className="mt-6 max-w-[34rem] text-sm leading-relaxed text-cream-60 md:text-base">
           A Manila-based collecting desk curating pre-owned and brand-new timepieces. Disclosed in
