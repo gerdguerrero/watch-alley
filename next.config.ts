@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  // Disable fetch-level caching so Supabase queries (which use fetch
+  // internally) always return fresh data. Without this, deletes/edits in
+  // the admin panel take ~5 minutes to appear on the storefront because
+  // Next.js caches the PostgREST fetch responses.
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+      static: 0,
+    },
+  },
   images: {
     // Allow next/image to optimize watch photos served from Supabase Storage.
     // Hostname is derived from the env var so it stays correct if we move
