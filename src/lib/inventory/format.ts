@@ -18,12 +18,23 @@ export function formatWatchMeta(parts: Array<string | undefined | null>): string
 const CATEGORY_LABELS: Record<string, string> = {
   "brand-new": "Brand New",
   "pre-owned": "Pre-owned",
-  "limited-edition": "Limited Edition",
 };
 
 export function formatCategory(category: string | null | undefined): string {
   if (!category) return "";
   return CATEGORY_LABELS[category] ?? category;
+}
+
+const BADGE_LABELS: Record<string, string> = {
+  "limited-edition": "Limited Edition",
+  rare: "Rare",
+  collaboration: "Collaboration",
+  discontinued: "Discontinued",
+  jdm: "JDM",
+};
+
+export function formatBadge(badge: string): string {
+  return BADGE_LABELS[badge] ?? badge;
 }
 
 export function badgeIsBrandNew(badge: string): boolean {

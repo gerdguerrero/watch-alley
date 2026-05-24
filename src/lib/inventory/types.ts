@@ -42,7 +42,8 @@ export interface Watch {
   lowStock: boolean;
   displayOrder: number | null;
   published: boolean;
-  category: "brand-new" | "pre-owned" | "limited-edition" | null;
+  category: "brand-new" | "pre-owned" | null;
+  badges: string[];
 }
 
 /**
@@ -87,4 +88,5 @@ export interface WatchRow {
   display_order: number | null;
   published: boolean | null;
   category: string | null;
+  badges: string[] | null;
 }

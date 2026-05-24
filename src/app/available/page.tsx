@@ -27,7 +27,13 @@ export default async function AvailablePage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const watches = await fetchWatches({ status: "available", category });
+  // "limited-edition" is a badge filter, not a category
+  const isBadge = category === "limited-edition";
+  const watches = await fetchWatches({
+    status: "available",
+    category: isBadge ? undefined : category,
+    badge: isBadge ? "limited-edition" : undefined,
+  });
 
   return (
     <main className="bg-[#080706] text-zinc-100">

@@ -5,7 +5,6 @@ const VALID_STATUSES: ReadonlySet<WatchStatus> = new Set(["available", "reserved
 const VALID_CATEGORIES: ReadonlySet<string> = new Set([
   "brand-new",
   "pre-owned",
-  "limited-edition",
 ]);
 
 function normalizeStatus(value: string | null): WatchStatus {
@@ -69,5 +68,6 @@ export function normalizeWatchRow(row: WatchRow): Watch {
     displayOrder: typeof row.display_order === "number" ? row.display_order : null,
     published: row.published !== false,
     category: isValidCategory(row.category) ? row.category : null,
+    badges: nonNullStringList(row.badges),
   };
 }

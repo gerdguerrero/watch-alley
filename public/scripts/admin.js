@@ -654,6 +654,7 @@ function loadIntoForm(watch) {
   setField('id', watch?.id || '');
   setField('status', watch?.status || 'available');
   setField('category', watch?.category || '');
+  setBadges(watch?.badges || []);
   setField('brand', watch?.brand || '');
   setField('reference', watch?.reference || '');
   setField('model', watch?.model || '');
@@ -1267,6 +1268,7 @@ function collectFormPayload() {
     currency: 'PHP',
     status,
     category: getField('category'),
+    badges: getBadges(),
     conditionLabel: getField('conditionLabel').trim(),
     badge: getField('badge').trim(),
     movement: getField('movement').trim(),
@@ -1494,6 +1496,19 @@ function getCheckbox(name) {
 function setCheckbox(name, on) {
   const el = field(name);
   if (el) el.checked = !!on;
+}
+const BADGE_IDS = ['limited-edition', 'rare', 'collaboration', 'discontinued', 'jdm'];
+function setBadges(list = []) {
+  for (const id of BADGE_IDS) {
+    const el = document.getElementById(`field-badge-${id}`);
+    if (el) el.checked = list.includes(id);
+  }
+}
+function getBadges() {
+  return BADGE_IDS.filter((id) => {
+    const el = document.getElementById(`field-badge-${id}`);
+    return el && el.checked;
+  });
 }
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({

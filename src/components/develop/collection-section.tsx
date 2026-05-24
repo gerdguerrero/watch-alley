@@ -18,9 +18,9 @@ const _COLLECTION_PROMISES = [
 // 1/2/3 map to these labels in order; the watch behind the card is whichever
 // 3 newest "available" pieces the inventory hands us.
 const CARD_SLOTS = [
-  { label: "Brand New", category: "brand-new" },
-  { label: "Pre-loved", category: "pre-owned" },
-  { label: "Limited Editions", category: "limited-edition" },
+  { label: "Brand New", category: "brand-new", badge: undefined },
+  { label: "Pre-loved", category: "pre-owned", badge: undefined },
+  { label: "Limited Editions", category: undefined, badge: "limited-edition" },
 ] as const;
 
 // Single timing source for every motion in the accordion so the container
@@ -182,7 +182,14 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   // always shows a real piece.
   const items = useMemo(() => {
     return CARD_SLOTS.map((slot) => {
-      const match = watches.find((w) => w.category === slot.category) ?? watches[0];
+      let match: Watch | undefined;
+      if (slot.badge) {
+        match = watches.find((w) => w.badges.includes(slot.badge!)) ?? watches[0];
+      } else if (slot.category) {
+        match = watches.find((w) => w.category === slot.category) ?? watches[0];
+      } else {
+        match = watches[0];
+      }
       return { watch: match, label: slot.label };
     }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string }>;
   }, [watches]);

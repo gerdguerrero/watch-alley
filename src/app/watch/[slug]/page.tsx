@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
-import { formatCategory, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
+import { formatBadge, formatCategory, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 
@@ -166,6 +166,11 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                     {formatCategory(watch.category)}
                   </span>
                 )}
+                {watch.badges.map((b) => (
+                  <span key={b} className="px-2.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800/50 text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-mono">
+                    {formatBadge(b)}
+                  </span>
+                ))}
               </div>
               <h1 className="font-serif text-[clamp(24px,3.5vw,42px)] leading-[1.08] text-zinc-100">
                 {watch.name}
