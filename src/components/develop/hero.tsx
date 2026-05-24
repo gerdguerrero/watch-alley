@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
@@ -27,6 +28,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
   const ghostTextRef = useRef<HTMLHeadingElement>(null);
   const bottomLeftRef = useRef<HTMLDivElement>(null);
   const bottomRightRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -118,16 +120,22 @@ export function Hero({ featured = null }: HeroProps = {}) {
         </h1>
       </motion.div>
 
-      {/* 3D Watch Container - Centered with scroll animations */}
+      {/* 3D Watch Container - Centered with scroll animations.
+          Scroll-tied y/scale/opacity transforms apply only at md+ so the watch
+          doesn't visibly shrink and fade out under the user's finger on phone. */}
       <motion.div
         ref={splineContainerRef}
         id="watch-canvas-container"
         className="absolute inset-0 z-10 flex items-center justify-center"
-        style={{
-          y: splineY,
-          scale: splineScale,
-          opacity: splineOpacity,
-        }}
+        style={
+          isMobile
+            ? undefined
+            : {
+                y: splineY,
+                scale: splineScale,
+                opacity: splineOpacity,
+              }
+        }
       >
         <div className="mx-auto h-full max-h-[74vh] w-full max-w-4xl lg:translate-x-[16vw]">
           <WatchScene />
