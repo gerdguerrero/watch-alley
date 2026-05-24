@@ -33,9 +33,10 @@ export function Hero({ featured = null }: HeroProps = {}) {
     offset: ["start start", "end start"],
   });
 
-  const splineY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const splineScale = useTransform(scrollYProgress, [0, 1], [1, 0.86]);
-  const splineOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  // Scroll-tied transforms for the background "WATCH" ghost type only. The
+  // 3D watch container is intentionally static across all viewports — the
+  // scroll-tied scale/y/opacity it used to have made the canvas visibly
+  // shrink and fade in/out under the user as they scrolled past the hero.
   const ghostTextX = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const ghostTextOpacity = useTransform(scrollYProgress, [0, 0.5], [0.35, 0]);
 
@@ -118,21 +119,19 @@ export function Hero({ featured = null }: HeroProps = {}) {
         </h1>
       </motion.div>
 
-      {/* 3D Watch Container - Centered with scroll animations */}
-      <motion.div
+      {/* 3D Watch Container - static across all viewports. Earlier this had
+          scroll-tied y/scale/opacity transforms that caused the canvas to
+          visibly shrink and fade as the user scrolled past the hero (and
+          spring back on scroll-up). Removed so the canvas stays put. */}
+      <div
         ref={splineContainerRef}
         id="watch-canvas-container"
         className="absolute inset-0 z-10 flex items-center justify-center"
-        style={{
-          y: splineY,
-          scale: splineScale,
-          opacity: splineOpacity,
-        }}
       >
         <div className="mx-auto h-full max-h-[74vh] w-full max-w-4xl lg:translate-x-[16vw]">
           <WatchScene />
         </div>
-      </motion.div>
+      </div>
 
       {/* Bottom Left Content */}
       <div

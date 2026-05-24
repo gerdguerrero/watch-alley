@@ -42,6 +42,18 @@ export function ContactSection() {
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            {/* Mobile-only standalone logo so the order on phone reads:
+                logo -> watch -> text. On desktop the logo lives inside the
+                text column on the right. */}
+            <motion.div
+              className="order-1 flex justify-center lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : {}}
+              transition={{ delay: 0.15, duration: 0.6 }}
+            >
+              <BrandLogo className="h-24 w-24" sizes="96px" />
+            </motion.div>
+
             <motion.div
               className="relative order-2 lg:order-1"
               initial={{ opacity: 0, x: -40 }}
@@ -63,9 +75,11 @@ export function ContactSection() {
               </div>
             </motion.div>
 
-            <div className="order-1 text-center lg:order-2 lg:text-left">
+            <div className="order-3 text-center lg:order-2 lg:text-left">
+              {/* Desktop-only logo inside text column. Mobile logo above the
+                  watch is rendered as a separate grid item. */}
               <motion.div
-                className="mb-8 flex justify-center lg:justify-start"
+                className="mb-8 hidden justify-start lg:flex"
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ delay: 0.15, duration: 0.6 }}

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
-import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 const _COLLECTION_PROMISES = [
@@ -14,6 +13,11 @@ const _COLLECTION_PROMISES = [
   "Condition disclosed",
   "Collector-first sourcing",
 ];
+
+// Each homepage teaser card is labelled by category, not by watch name. Cards
+// 1/2/3 map to these labels in order; the watch behind the card is whichever
+// 3 newest "available" pieces the inventory hands us.
+const CARD_LABELS = ["Brand New", "Pre-loved", "Limited Editions"] as const;
 
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
@@ -44,20 +48,18 @@ function pickIcon(watch: Watch): LucideIcon {
   return WatchIcon;
 }
 
-function deriveCategory(watch: Watch): string {
-  return watch.edition || watch.movement || watch.conditionLabel || "Curated";
-}
-
 interface AccordionCardProps {
   watch: Watch;
   isActive: boolean;
   onActivate: () => void;
   isMobile: boolean;
+  /** Card headline override — replaces the watch.name with a category label
+      (e.g. "Brand New", "Pre-loved", "Limited Editions"). */
+  displayName: string;
 }
 
-function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardProps) {
+function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: AccordionCardProps) {
   const Icon = pickIcon(watch);
-  const category = deriveCategory(watch);
   const intentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hover-intent: only activate after the cursor lingers HOVER_INTENT_MS so a
@@ -79,14 +81,14 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
   // unmount text.
   return (
     <motion.div
-      className="relative overflow-hidden cursor-pointer rounded-[28px] flex-shrink basis-0 isolate"
+      className="relative overflow-hidden cursor-pointer rounded-[28px] isolate min-h-[340px] md:min-h-0 md:flex-shrink md:basis-0"
       style={{
         backgroundImage: watch.primaryImage ? `url(${watch.primaryImage})` : undefined,
         backgroundColor: "oklch(0.17 0.015 55)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      animate={isMobile ? { height: isActive ? 340 : 80 } : { flexGrow: isActive ? 5 : 1 }}
+      animate={isMobile ? {} : { flexGrow: isActive ? 5 : 1 }}
       transition={{ duration: DUR_CONTAINER, ease: EASE }}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
@@ -157,20 +159,9 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
           </div>
           <div className="min-w-0">
             <div className="w-8 h-px bg-amber-500/60 mb-3" />
-            <p className="text-[10px] tracking-[0.3em] uppercase text-amber-500/80 mb-1 font-mono">
-              {watch.brand}
-            </p>
-            <h3 className="text-3xl md:text-4xl font-light text-cream leading-none mb-2 break-words">
-              {watch.name}
+            <h3 className="text-3xl md:text-4xl font-light text-cream leading-none break-words">
+              {displayName}
             </h3>
-            <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-400">
-              {category}
-              {watch.price > 0 && (
-                <span className="ml-3 text-amber-500/90 normal-case tracking-wide font-serif text-base">
-                  {formatPhp(watch.price)}
-                </span>
-              )}
-            </p>
           </div>
         </div>
       </motion.div>
@@ -272,13 +263,16 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </p>
         ) : (
           <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((watch) => (
+            {items.map((watch, idx) => (
               <AccordionCard
                 key={watch.slug}
                 watch={watch}
-                isActive={activeId === watch.slug}
+                // On phone every card is expanded so all available pieces are
+                // visible at a glance; desktop keeps the accordion behaviour.
+                isActive={isMobile ? true : activeId === watch.slug}
                 onActivate={() => setActiveId(watch.slug)}
                 isMobile={isMobile}
+                displayName={CARD_LABELS[idx] ?? watch.name}
               />
             ))}
           </div>
