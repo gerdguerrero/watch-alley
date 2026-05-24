@@ -250,8 +250,9 @@
         <div id="watch-form-errors" class="admin-validation-summary" hidden aria-live="polite"></div>
 
         <div class="admin-form-grid">
-          <label>Slug *
-            <input type="text" id="field-slug" required pattern="^[a-z0-9]+(-[a-z0-9]+)*$" />
+          <label class="admin-col-2">Display Name *
+            <span class="admin-meta">The slug (URL) is auto-generated from this name. e.g. "Bulova Super Seville" → /watch/bulova-super-seville</span>
+            <input type="text" id="field-name" required />
           </label>
           <label>Status *
             <select id="field-status" required>
@@ -276,9 +277,6 @@
           </label>
           <label class="admin-col-2">Model *
             <input type="text" id="field-model" required />
-          </label>
-          <label class="admin-col-2">Display Name *
-            <input type="text" id="field-name" required />
           </label>
           <label>Price (PHP) *
             <input type="number" id="field-price" min="0" step="1" required />

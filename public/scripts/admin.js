@@ -532,30 +532,6 @@ els.cancelBtn.addEventListener('click', () => {
   hideForm();
 });
 
-// Auto-generate slug from display name. Only fills when slug is empty
-// (don't overwrite a manually edited slug). Converts to lowercase,
-// replaces spaces/underscores with hyphens, strips everything else.
-const nameField = field('name');
-const slugField = field('slug');
-if (nameField && slugField) {
-  nameField.addEventListener('input', () => {
-    if (slugField.value.trim() === '' || slugField.dataset.autoSlug === '1') {
-      const slug = nameField.value
-        .toLowerCase()
-        .replace(/[\s_]+/g, '-')
-        .replace(/[^a-z0-9-]/g, '')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
-      slugField.value = slug;
-      slugField.dataset.autoSlug = '1';
-    }
-  });
-  // When user manually edits slug, stop auto-filling
-  slugField.addEventListener('input', () => {
-    slugField.dataset.autoSlug = '0';
-  });
-}
-
 els.watchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   await saveCurrentForm();
@@ -676,7 +652,6 @@ function loadIntoForm(watch) {
   activeWatchSnapshot = watch ? { ...watch } : null;
 
   setField('id', watch?.id || '');
-  setField('slug', watch?.slug || '');
   setField('status', watch?.status || 'available');
   setField('category', watch?.category || '');
   setField('brand', watch?.brand || '');
@@ -1273,13 +1248,21 @@ function collectFormPayload() {
     throw new Error('Primary image must appear in the image paths list.');
   }
 
+  const displayName = getField('name').trim();
+  const slug = displayName
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
   const payload = {
     id: getField('id') || null,
-    slug: getField('slug').trim(),
+    slug,
     brand: getField('brand').trim(),
     model: getField('model').trim(),
     reference: getField('reference').trim(),
-    name: getField('name').trim(),
+    name: displayName,
     price: Number(getField('price')) || 0,
     currency: 'PHP',
     status,
@@ -1353,7 +1336,6 @@ function watchValidationMessage(control) {
   const label = watchControlLabel(control);
   if (control.validity?.valueMissing) return `Please fill out ${label}.`;
   if (control.validity?.patternMismatch) {
-    if (control.id === 'field-slug') return 'Use a slug like seiko-sarg015-blue: lowercase letters, numbers, and hyphens only.';
     return control.title || `${label} is not in the expected format.`;
   }
   if (control.validity?.rangeUnderflow) return `${label} cannot be below ${control.min}.`;
