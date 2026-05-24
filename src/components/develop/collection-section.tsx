@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
-import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 const _COLLECTION_PROMISES = [
@@ -49,10 +48,6 @@ function pickIcon(watch: Watch): LucideIcon {
   return WatchIcon;
 }
 
-function deriveCategory(watch: Watch): string {
-  return watch.edition || watch.movement || watch.conditionLabel || "Curated";
-}
-
 interface AccordionCardProps {
   watch: Watch;
   isActive: boolean;
@@ -65,7 +60,6 @@ interface AccordionCardProps {
 
 function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: AccordionCardProps) {
   const Icon = pickIcon(watch);
-  const category = deriveCategory(watch);
   const intentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hover-intent: only activate after the cursor lingers HOVER_INTENT_MS so a
@@ -165,20 +159,9 @@ function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: A
           </div>
           <div className="min-w-0">
             <div className="w-8 h-px bg-amber-500/60 mb-3" />
-            <p className="text-[10px] tracking-[0.3em] uppercase text-amber-500/80 mb-1 font-mono">
-              {watch.brand}
-            </p>
-            <h3 className="text-3xl md:text-4xl font-light text-cream leading-none mb-2 break-words">
+            <h3 className="text-3xl md:text-4xl font-light text-cream leading-none break-words">
               {displayName}
             </h3>
-            <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-400">
-              {category}
-              {watch.price > 0 && (
-                <span className="ml-3 text-amber-500/90 normal-case tracking-wide font-serif text-base">
-                  {formatPhp(watch.price)}
-                </span>
-              )}
-            </p>
           </div>
         </div>
       </motion.div>
