@@ -1,20 +1,6 @@
 import type { Watch } from "./types";
 
-const HIDDEN_WATCH_IDS = new Set([
-  "twa-005",
-  "twa-006",
-  "twa-007",
-  "twa-008",
-  "twa-009",
-  "twa-010",
-  "orient-star-01",
-  "citizen-nb1050-01",
-  "gshock-gw5000u-01",
-  "tudor-bbgmt-01",
-  "seiko-skx007-01",
-  "twa-102",
-  "twa-103",
-]);
+const HIDDEN_WATCH_IDS = new Set<string>([]);
 
 const WATCH_OVERRIDES: Record<string, Partial<Watch>> = {
   "gs-sbgx261-01": {
