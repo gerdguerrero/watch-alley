@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
@@ -23,14 +23,6 @@ export function HeritageSection({
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const imageY = useTransform(scrollYProgress, [0, 1], [90, -90]);
-  const textY = useTransform(scrollYProgress, [0, 1], [45, -45]);
-
   const stats = [
     {
       value: typeof inventorySize === "number" ? `${inventorySize}` : "50+",
@@ -46,7 +38,7 @@ export function HeritageSection({
     <section
       id="heritage"
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#080706] py-32 md:py-48"
+      className="relative overflow-hidden bg-walnut-deep lg:h-screen lg:min-h-[750px] lg:max-h-[900px] flex flex-col justify-center py-16 lg:py-0"
     >
       <div
         aria-hidden="true"
@@ -55,48 +47,44 @@ export function HeritageSection({
       />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(245,158,11,0.08),transparent_42%)]" />
 
-      {/* Large ghost title */}
-      <div className="pointer-events-none absolute top-24 left-0 right-0 text-center">
-        <h2
-          className="font-serif font-normal leading-none select-none text-transparent"
-          style={{
-            fontSize: "clamp(4rem, 15vw, 13rem)",
-            background:
-              "linear-gradient(180deg, rgba(250, 250, 249, 0.46) 0%, rgba(250, 250, 249, 0.14) 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          HERITAGE
+      {/* Unified Editorial Section Title */}
+      <div className="relative z-10 text-center mb-10 lg:mb-12">
+        <span className="text-[10px] tracking-[0.3em] text-amber-300/80 uppercase font-mono block mb-2">
+          ◆ Our Standard
+        </span>
+        <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-cream font-light tracking-tight uppercase">
+          Heritage
         </h2>
+        <p className="font-serif italic text-sm text-cream-60 mt-2">
+          Honest provenance. Collected with care.
+        </p>
       </div>
 
-      <div className="relative z-10 px-6 pt-32 md:px-12 md:pt-48 lg:px-20">
+      <div className="relative z-10 px-6 lg:px-20">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
-            <motion.div className="relative lg:col-span-7" style={{ y: imageY }}>
-              <div className="group relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-amber-400/10 bg-black/30 shadow-[0_40px_120px_rgba(0,0,0,0.45)]">
+          <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-16">
+            <div className="relative lg:col-span-6 w-full flex justify-center lg:justify-end">
+              <div className="group relative aspect-[4/3] w-full max-w-lg max-h-[280px] lg:max-h-[340px] overflow-hidden rounded-[2rem] border border-amber-400/10 bg-walnut-deep/30 shadow-[0_40px_120px_rgba(0,0,0,0.45)]">
                 <Image
                   src={BRAND_ASSETS.coverPhoto}
                   alt="The Watch Alley storefront signage and boutique frontage"
                   fill
                   className="object-cover opacity-90 transition-transform duration-1000 ease-out group-hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  sizes="(max-width: 1024px) 100vw, 45vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute right-6 bottom-6 left-6 rounded-2xl border border-white/10 bg-black/45 p-5 backdrop-blur-md md:right-auto md:max-w-sm">
-                  <span className="mb-2 block text-[10px] uppercase tracking-[0.3em] text-amber-300/80 font-mono">
+                <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep/70 via-walnut-deep/20 to-transparent" />
+                <div className="absolute right-6 bottom-6 left-6 rounded-2xl border border-white/10 bg-walnut-deep/45 p-4 backdrop-blur-md md:right-auto md:max-w-xs">
+                  <span className="mb-1 block text-[9px] uppercase tracking-[0.3em] text-amber-300/80 font-mono">
                     Manila-based curator
                   </span>
-                  <span className="block font-serif text-2xl leading-tight text-cream md:text-3xl">
+                  <span className="block font-serif text-lg leading-tight text-cream">
                     A quiet alley for serious watch conversations.
                   </span>
                 </div>
               </div>
 
               <motion.div
-                className="absolute -right-4 -bottom-14 hidden aspect-square w-48 overflow-hidden rounded-[1.5rem] border border-amber-400/10 bg-black shadow-2xl md:right-10 md:block md:w-64"
+                className="absolute -right-4 -bottom-6 hidden aspect-square w-32 overflow-hidden rounded-[1.5rem] border border-amber-400/10 bg-walnut-deep shadow-2xl md:right-10 md:block md:w-36"
                 initial={{ opacity: 0, scale: 0.86 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -110,42 +98,31 @@ export function HeritageSection({
                   sizes="256px"
                 />
               </motion.div>
-            </motion.div>
+            </div>
 
-            <motion.div className="lg:col-span-5 lg:pl-10" style={{ y: textY }}>
+            <div className="lg:col-span-6 lg:pl-6 max-w-xl">
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 animate={isInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.8 }}
               >
-                <div className="mb-8 flex items-center gap-4">
-                  <div className="h-px w-12 bg-amber-300/70" />
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-amber-300/80 font-mono">
-                    Our Standard
-                  </span>
+                <div className="mb-6 font-serif text-sm leading-relaxed text-cream-80 space-y-4">
+                  <p className="italic text-amber-300/90 font-light">Dear fellow collector,</p>
+                  <p>
+                    We believe that timepieces aren&apos;t just instruments; they are stories we
+                    carry. The Watch Alley was founded from a simple, personal desire: to create a
+                    quiet space for transparent, patient watch conversations in Manila. No
+                    high-pressure sales pitches, no scarcity. Just pieces we love, disclosed in
+                    writing.
+                  </p>
+                  <p className="text-[13px] text-cream-60 font-sans leading-relaxed">
+                    Every watch we source is daylight-photographed to capture its true character,
+                    and handed over personally. Whether we meet over a coffee or ship fully insured,
+                    you receive a piece handled with collector restraint.
+                  </p>
                 </div>
 
-                <h2 className="mb-8 font-serif text-4xl leading-[1.08] text-cream md:text-5xl lg:text-6xl">
-                  <span className="italic">Honest</span>{" "}
-                  <span className="font-light text-cream-60">watch dealing,</span>
-                  <br />
-                  <span className="font-light text-cream-60">styled with</span>{" "}
-                  <span className="italic">restraint.</span>
-                </h2>
-
-                <p className="mb-6 max-w-md text-base leading-relaxed text-cream-80">
-                  The Watch Alley pairs a collector&apos;s eye with a polished, human buying
-                  experience: clear photos, written disclosure, fair conversation, and careful
-                  handoff.
-                </p>
-
-                <p className="mb-12 max-w-md text-sm leading-relaxed text-cream-60">
-                  The brand system from the Drive refresh — black, warm gold, textured watch
-                  photography, and the compass-hand mark — now anchors the storefront as a boutique
-                  rather than a catalog.
-                </p>
-
-                <div className="flex gap-10 border-t border-amber-400/10 pt-8 md:gap-12">
+                <div className="flex gap-10 border-t border-amber-400/10 pt-6 md:gap-12">
                   {stats.map((stat, i) => (
                     <motion.div
                       key={stat.label}
@@ -154,7 +131,10 @@ export function HeritageSection({
                       viewport={{ once: true }}
                       transition={{ delay: 0.55 + i * 0.1, duration: 0.6 }}
                     >
-                      <span className="mb-2 block font-serif text-4xl text-cream md:text-5xl">
+                      <span
+                        className="mb-1 block font-serif text-3xl text-cream md:text-4xl [font-variant-numeric:oldstyle-nums] tabular-nums"
+                        style={{ fontVariantNumeric: "oldstyle-nums" }}
+                      >
                         {stat.value}
                       </span>
                       <span className="text-[10px] uppercase tracking-[0.2em] text-cream-60">
@@ -164,10 +144,10 @@ export function HeritageSection({
                   ))}
                 </div>
 
-                <div className="mt-12 flex flex-col gap-4 sm:flex-row">
+                <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                   <MotionLink
                     href="/authenticity"
-                    className="group inline-flex items-center justify-center rounded-full border border-amber-300/30 px-6 py-3 text-[11px] uppercase tracking-[0.2em] text-amber-200 transition-colors hover:border-amber-300/70 hover:bg-amber-300 hover:text-[#090806]"
+                    className="group inline-flex items-center justify-center rounded-full border border-amber-300/30 px-6 py-3 text-[11px] uppercase tracking-[0.2em] text-amber-200 transition-colors hover:border-amber-300/70 hover:bg-amber-300 hover:text-walnut-deep"
                     whileHover={{ x: 5 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -192,7 +172,7 @@ export function HeritageSection({
                   </MotionLink>
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

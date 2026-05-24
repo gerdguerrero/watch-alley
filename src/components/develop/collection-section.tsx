@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Compass, type LucideIcon, Timer, Watch as WatchIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
@@ -9,7 +9,7 @@ import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
-const COLLECTION_PROMISES = [
+const _COLLECTION_PROMISES = [
   "Daylight-photographed",
   "Condition disclosed",
   "Collector-first sourcing",
@@ -82,7 +82,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
       className="relative overflow-hidden cursor-pointer rounded-[28px] flex-shrink basis-0 isolate"
       style={{
         backgroundImage: watch.primaryImage ? `url(${watch.primaryImage})` : undefined,
-        backgroundColor: "#111",
+        backgroundColor: "oklch(0.17 0.015 55)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -99,7 +99,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
       <div
         aria-hidden="true"
         className="absolute inset-0"
-        style={{ background: "rgba(0, 0, 0, 0.45)" }}
+        style={{ background: "rgba(33, 31, 29, 0.45)" }}
       />
       <motion.div
         aria-hidden="true"
@@ -108,7 +108,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
         transition={{ duration: DUR_OVERLAY, ease: EASE }}
         style={{
           background:
-            "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0) 100%)",
+            "linear-gradient(to top, rgba(33,31,29,0.95) 0%, rgba(33,31,29,0.5) 45%, rgba(33,31,29,0) 100%)",
           willChange: "opacity",
         }}
       />
@@ -131,8 +131,8 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
         }}
         style={{ pointerEvents: isActive ? "none" : "auto", willChange: "opacity" }}
       >
-        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-          <Icon className="w-5 h-5 text-black" />
+        <div className="w-12 h-12 rounded-full bg-cream flex items-center justify-center">
+          <Icon className="w-5 h-5 text-walnut-deep" />
         </div>
       </motion.div>
 
@@ -152,15 +152,15 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
         style={{ pointerEvents: isActive ? "auto" : "none", willChange: "opacity" }}
       >
         <div className="flex items-end gap-5">
-          <div className="w-12 h-12 rounded-full bg-white flex-shrink-0 flex items-center justify-center">
-            <Icon className="w-5 h-5 text-black" />
+          <div className="w-12 h-12 rounded-full bg-cream flex-shrink-0 flex items-center justify-center">
+            <Icon className="w-5 h-5 text-walnut-deep" />
           </div>
           <div className="min-w-0">
             <div className="w-8 h-px bg-amber-500/60 mb-3" />
             <p className="text-[10px] tracking-[0.3em] uppercase text-amber-500/80 mb-1 font-mono">
               {watch.brand}
             </p>
-            <h3 className="text-3xl md:text-4xl font-light text-white leading-none mb-2 break-words">
+            <h3 className="text-3xl md:text-4xl font-light text-cream leading-none mb-2 break-words">
               {watch.name}
             </h3>
             <p className="text-[10px] tracking-[0.25em] uppercase text-zinc-400">
@@ -180,54 +180,26 @@ function AccordionCard({ watch, isActive, onActivate, isMobile }: AccordionCardP
 
 export function CollectionSection({ watches = [] }: CollectionSectionProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const isMobile = useIsMobile();
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-  // Pills derived from the brands actually present in the inventory.
-  // "ALL" is always first; the rest are unique brands, capped at 5 so the row
-  // doesn't overflow at mid-breakpoints.
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    for (const w of watches) if (w.brand) set.add(w.brand);
-    return ["All", ...Array.from(set).slice(0, 5)];
+  // Limit homepage available section to 3 newest items as a teaser ("Fresh off the Bench")
+  const items = useMemo(() => {
+    return watches.slice(0, 3);
   }, [watches]);
 
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  // Watches filtered by the active pill, then capped at 5 for the accordion.
-  const items = useMemo(() => {
-    const filtered =
-      activeCategory === "All" ? watches : watches.filter((w) => w.brand === activeCategory);
-    return filtered.slice(0, 5);
-  }, [watches, activeCategory]);
-
-  // Track only the user's intent; the actual active slug is derived below
-  // so we never need a useEffect to reconcile filter changes
-  // (rerender-derived-state-no-effect).
+  // Track the hovered active card slug
   const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.slug ?? null);
 
-  // If the intended slug is no longer in the visible set (filter changed or
-  // inventory updated), fall back to the first visible card. Pure render-time
-  // derivation — no extra state, no effect, no second render pass.
   const activeId = items.find((w) => w.slug === intendedActiveId)?.slug ?? items[0]?.slug ?? null;
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const titleY = useTransform(scrollYProgress, [0, 1], [100, -100]);
-
-  // Whole-section empty: no inventory at all. (Empty per-filter is handled
-  // inline below so the pills stay visible.)
   if (watches.length === 0) {
     return (
       <section
         id="collection"
         ref={sectionRef}
-        className="relative bg-[#080706] py-32 md:py-48 text-center"
+        className="relative bg-walnut-deep py-32 md:py-48 text-center"
       >
-        <p className="text-zinc-500 font-mono uppercase tracking-[0.3em] text-sm">
+        <p className="text-zinc-500 uppercase tracking-[0.18em] text-xs">
           No pieces available right now —{" "}
           <Link href="/sold" className="text-amber-400 underline-offset-4 hover:underline">
             browse the sold archive
@@ -242,16 +214,17 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
     <section
       id="collection"
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#080706] py-32 md:py-48"
+      className="relative overflow-hidden bg-walnut-deep lg:h-screen lg:min-h-[750px] lg:max-h-[900px] flex flex-col justify-center py-16 lg:py-0"
     >
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center opacity-[0.08] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundTwo})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#080706] via-transparent to-[#080706]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-walnut-deep via-transparent to-walnut-deep" />
+
       {/* Ambient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] pointer-events-none">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
@@ -260,7 +233,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           }}
         />
         <svg
-          className="absolute top-32 left-1/2 -translate-x-1/2 w-[800px] h-[200px] opacity-30"
+          className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[150px] opacity-25"
           viewBox="0 0 800 200"
           aria-hidden="true"
         >
@@ -280,88 +253,25 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
         </svg>
       </div>
 
-      {/* Title */}
-      <motion.div className="relative z-10 text-center mb-12" style={{ y: titleY }}>
-        <h2
-          ref={titleRef}
-          className="font-serif font-normal leading-none select-none text-transparent"
-          style={{
-            fontSize: "clamp(3.5rem, 13vw, 11rem)",
-            background:
-              "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          COLLECTION
+      {/* Unified Editorial Section Title */}
+      <div className="relative z-10 text-center mb-10 lg:mb-12">
+        <span className="text-[10px] tracking-[0.32em] text-amber-300/80 uppercase font-mono block mb-2">
+          ◆ Curated Selection
+        </span>
+        <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-cream font-light tracking-tight uppercase">
+          Available Pieces
         </h2>
-      </motion.div>
+        <p className="font-serif italic text-sm text-cream-60 mt-2">In rotation, right now.</p>
+      </div>
 
-      <motion.div
-        className="relative z-10 mx-auto -mt-8 mb-14 max-w-3xl px-6 text-center md:mb-20"
-        initial={{ opacity: 0, y: 24 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, delay: 0.15 }}
-      >
-        <p className="mb-4 text-[11px] uppercase tracking-[0.32em] text-amber-300/80 font-mono">
-          Current Rotation
-        </p>
-        <h3 className="font-serif text-3xl leading-tight text-cream md:text-5xl">
-          A tighter edit of watches worth slowing down for.
-        </h3>
-        <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-cream-60 md:text-base">
-          Every listing is selected for presence, story, and everyday wearability — from attainable
-          Japanese references to collector-grade rarities.
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          {COLLECTION_PROMISES.map((promise) => (
-            <span
-              key={promise}
-              className="rounded-full border border-amber-400/20 bg-black/20 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-cream-60 backdrop-blur"
-            >
-              {promise}
-            </span>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Filter pills — derived from real inventory brands. Selecting a pill
-          re-filters the accordion (caps at 5 cards). */}
-      {categories.length > 1 && (
-        <motion.div
-          className="relative z-10 flex flex-wrap justify-center gap-3 mb-16 md:mb-20 px-6"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          {categories.map((category) => (
-            <motion.button
-              type="button"
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 rounded-full text-[11px] tracking-[0.15em] uppercase border transition-all duration-300 ${
-                activeCategory === category
-                  ? "bg-white text-black border-white"
-                  : "bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-zinc-200"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {category}
-            </motion.button>
-          ))}
-        </motion.div>
-      )}
-
-      {/* Accordion (or inline "no matches" message when a filter rejects everything) */}
+      {/* Accordion Teaser Grid */}
       <div className="relative z-10 px-6 md:px-12 lg:px-20">
         {items.length === 0 ? (
-          <p className="text-center text-zinc-500 font-mono uppercase tracking-[0.3em] text-sm py-12">
-            No {activeCategory} pieces in rotation right now.
+          <p className="text-center text-zinc-500 uppercase tracking-[0.18em] text-xs py-8">
+            No pieces in rotation right now.
           </p>
         ) : (
-          <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[580px]">
+          <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
             {items.map((watch) => (
               <AccordionCard
                 key={watch.slug}
@@ -374,30 +284,28 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </div>
         )}
 
-        {watches.length > items.length && (
-          <div className="mt-12 flex justify-center">
-            <Link
-              href="/available"
-              className="group inline-flex items-center gap-3 border-b border-amber-500/40 pb-1 text-[12px] tracking-[0.22em] uppercase text-amber-400 transition-colors hover:text-amber-300 hover:border-amber-400"
+        <div className="mt-8 flex justify-center">
+          <Link
+            href="/available"
+            className="group inline-flex items-center gap-3 border-b border-amber-500/40 pb-1 text-[12px] tracking-[0.22em] uppercase text-amber-400 transition-colors hover:text-amber-300 hover:border-amber-400"
+          >
+            Browse Full Collection — {watches.length} pieces
+            <svg
+              className="w-3 h-3 transition-transform group-hover:translate-x-1"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
             >
-              See full collection — {watches.length} pieces
-              <svg
-                className="w-3 h-3 transition-transform group-hover:translate-x-1"
-                viewBox="0 0 12 12"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M1 11L11 1M11 1H3M11 1V9"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          </div>
-        )}
+              <path
+                d="M1 11L11 1M11 1H3M11 1V9"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+        </div>
       </div>
     </section>
   );
