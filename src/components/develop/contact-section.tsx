@@ -70,7 +70,7 @@ export function ContactSection() {
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ delay: 0.15, duration: 0.6 }}
               >
-                <BrandLogo className="h-16 w-[190px]" sizes="190px" />
+                <BrandLogo className="h-24 w-24" sizes="96px" />
               </motion.div>
 
               <motion.p

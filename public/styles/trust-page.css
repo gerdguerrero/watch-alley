@@ -22,7 +22,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--navy-deep);
   color: var(--cream);
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,7 @@ a:hover { color: var(--cream); }
   align-items: center;
 }
 .trust-nav a {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -61,7 +61,7 @@ a:hover { color: var(--cream); }
 }
 .trust-nav a:hover { color: var(--gold); }
 .trust-nav-home {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   color: var(--cream);
   letter-spacing: 0.04em;
@@ -135,7 +135,7 @@ a:hover { color: var(--cream); }
 }
 #main-nav.scrolled .nav-logo img { transform: scale(0.68); }
 .nav-logo-text {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -149,7 +149,7 @@ a:hover { color: var(--cream); }
   align-items: center;
 }
 .nav-right .mono {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -160,7 +160,7 @@ a:hover { color: var(--cream); }
   padding: 6px 14px;
   background: var(--gold);
   color: var(--navy-deep);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -203,7 +203,7 @@ main.trust-page {
 }
 
 .trust-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -212,7 +212,7 @@ main.trust-page {
 }
 
 .trust-title {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(36px, 5vw, 64px);
   line-height: 1.1;
   color: var(--cream);
@@ -220,7 +220,7 @@ main.trust-page {
 }
 
 .trust-meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -234,13 +234,13 @@ main.trust-page {
   margin-bottom: 48px;
 }
 .trust-page h2 {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(22px, 3vw, 30px);
   color: var(--cream);
   margin-bottom: 16px;
 }
 .trust-page h3 {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -283,7 +283,7 @@ main.trust-page {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;

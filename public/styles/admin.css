@@ -8,7 +8,7 @@
 
 .admin-status {
   margin-bottom: 16px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -46,13 +46,13 @@
   max-width: 540px;
 }
 .admin-card h1 {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(28px, 4vw, 40px);
   color: var(--cream);
   margin-bottom: 12px;
 }
 .admin-meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -62,7 +62,7 @@
 /* Email addresses inside .admin-meta should NOT be uppercased — keep their
    real casing. They're rendered inside <strong> tags. */
 .admin-meta strong {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   letter-spacing: normal;
   text-transform: none;
@@ -76,14 +76,14 @@
   margin-top: 12px;
 }
 .admin-eyebrow {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
 }
 .admin-count {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 28px;
   color: var(--cream);
 }
@@ -91,7 +91,7 @@
   background: oklch(0.10 0.01 55 / 0.4);
   border: 1px solid oklch(0.91 0.018 78 / 0.08);
   padding: 12px 14px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 12px;
   color: var(--cream-80);
   overflow-x: auto;
@@ -107,7 +107,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -116,7 +116,7 @@
 .admin-form input,
 .admin-form select,
 .admin-form textarea {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   letter-spacing: normal;
   text-transform: none;
@@ -162,7 +162,7 @@
 .admin-form-actions .btn-ghost,
 .admin-form-actions .btn-danger {
   padding: 11px 22px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -242,7 +242,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   background: transparent;
   border: 1px solid transparent;
   color: var(--cream-80);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 12px;
   padding: 6px 10px;
   cursor: pointer;
@@ -276,7 +276,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   background: oklch(0.10 0.01 55 / 0.4);
   color: var(--cream);
   padding: 16px 18px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 14px;
   line-height: 1.65;
   letter-spacing: normal;
@@ -296,12 +296,12 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   overflow-y: auto;
   max-height: 60vh;
   color: var(--cream-80);
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.75;
 }
 .journal-preview h2 {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 22px;
   font-weight: 500;
   color: var(--cream);
@@ -309,7 +309,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   line-height: 1.2;
 }
 .journal-preview h3 {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 18px;
   font-weight: 500;
   color: var(--cream);
@@ -326,14 +326,14 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   padding: 12px 16px;
   border-top: 1px solid oklch(0.76 0.12 75 / 0.30);
   border-bottom: 1px solid oklch(0.76 0.12 75 / 0.30);
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: 16px;
   color: var(--cream);
 }
 .journal-preview blockquote p { margin: 0; max-width: none; font-size: 16px; }
 .journal-preview a { color: var(--gold); border-bottom: 1px solid oklch(0.76 0.12 75 / 0.30); }
-.journal-preview code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: oklch(0.76 0.12 75 / 0.10); padding: 1px 5px; }
+.journal-preview code { font-family: 'Geist Mono', monospace; font-size: 13px; background: oklch(0.76 0.12 75 / 0.10); padding: 1px 5px; }
 .journal-preview pre { background: oklch(0.10 0.01 55 / 0.4); padding: 12px 14px; overflow-x: auto; margin: 12px 0; border: 1px solid oklch(0.91 0.018 78 / 0.08); }
 .journal-preview pre code { background: transparent; padding: 0; }
 .journal-preview img { width: 100%; height: auto; margin: 14px 0; border: 1px solid oklch(0.91 0.018 78 / 0.08); }
@@ -357,7 +357,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 /* Journal post list pills (status badges) */
 .journal-list-status {
   display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.20em;
   text-transform: uppercase;
@@ -375,7 +375,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .watch-list-draft-pill {
   display: inline-block;
   margin-left: 8px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.20em;
   padding: 2px 8px;
@@ -423,7 +423,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   color: var(--navy-deep);
   border: 1px solid var(--gold);
   padding: 8px 14px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -432,7 +432,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .admin-new-btn:hover { filter: brightness(1.08); }
 #watch-filter {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   background: oklch(0.10 0.01 55 / 0.35);
   border: 1px solid oklch(0.91 0.018 78 / 0.12);
@@ -469,7 +469,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border: 1px solid oklch(0.91 0.018 78 / 0.06);
   color: var(--cream);
   padding: 10px 12px;
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   cursor: pointer;
   border-radius: 2px;
@@ -487,7 +487,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   display: flex;
   justify-content: space-between;
   margin-top: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -529,7 +529,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   gap: 12px;
 }
 .admin-form-grid .admin-fieldset legend {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -556,7 +556,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .admin-social-header h3 {
   margin: 4px 0 8px;
   color: var(--cream);
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 24px;
   font-weight: 600;
 }
@@ -566,7 +566,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   background: transparent;
   border-radius: 2px;
   cursor: pointer;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   padding: 10px 14px;
@@ -655,7 +655,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 /* ===========================================================================
    Compact Preview & Limits panel
    ===========================================================================
-   Heritage atelier register: paper-toned summary tile, JetBrains Mono labels,
+   Heritage atelier register: paper-toned summary tile, Geist Mono labels,
    gold rules. Replaces the previous Facebook/Instagram impersonation cards.
    The textareas above the panel are the source of truth for caption copy;
    this surface tells the operator the *useful* facts (cover image, link,
@@ -692,7 +692,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -723,14 +723,14 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   background: oklch(0.91 0.018 78 / 0.02);
 }
 .social-preview-summary-platform {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--cream-60);
 }
 .social-preview-summary-figures {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   color: var(--cream);
   letter-spacing: 0.01em;
@@ -744,7 +744,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .social-preview-summary-cap { color: var(--cream-60); }
 .social-preview-summary-state {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.20em;
   text-transform: uppercase;
@@ -770,7 +770,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .social-preview-summary-link-label { color: var(--cream-60); }
 .social-preview-summary-link a {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   color: var(--gold);
   border-bottom: 1px solid var(--gold-20);
@@ -816,7 +816,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 
 code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 12px;
   color: var(--gold);
 }
@@ -843,7 +843,7 @@ code {
   border-bottom: 2px solid transparent;
   color: var(--cream-80);
   padding: 10px 14px;
-  font: 500 13px/1 'Spectral', Georgia, serif;
+  font: 500 13px/1 'Geist', system-ui, sans-serif;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: color 160ms ease, border-color 160ms ease;
@@ -863,7 +863,7 @@ code {
 
 /* =====================================================================
  * Dashboard tab — the operator's landing surface. Heritage atelier
- * register: paper-tinted KPI tiles, Petrona figures, JetBrains Mono labels,
+ * register: paper-tinted KPI tiles, Playfair figures, Geist Mono labels,
  * thin gold rules. The single grid up top is "this week at a glance"; the
  * row of cards below is per-domain detail (top inquired, lost reasons,
  * recent activity, journal).
@@ -881,7 +881,7 @@ code {
   flex-wrap: wrap;
 }
 .admin-dashboard-title {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(28px, 3vw, 36px);
   font-weight: 500;
   line-height: 1.15;
@@ -903,14 +903,14 @@ code {
 }
 .kpi-tile:hover { border-color: var(--gold-20); }
 .kpi-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--cream-60);
 }
 .kpi-value {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(36px, 4vw, 52px);
   font-weight: 500;
   color: var(--cream);
@@ -918,7 +918,7 @@ code {
   font-variant-numeric: oldstyle-nums tabular-nums;
 }
 .kpi-foot {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-style: italic;
   font-size: 13px;
   color: var(--cream-60);
@@ -951,14 +951,14 @@ code {
 }
 .dashboard-list li:first-child { border-top: none; }
 .dashboard-list .dashboard-list-label {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   color: var(--cream);
   flex: 1;
   min-width: 0;
 }
 .dashboard-list .dashboard-list-meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -986,14 +986,14 @@ code {
   align-items: baseline;
 }
 .dashboard-activity-kind {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
 }
 .dashboard-activity-when {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1001,7 +1001,7 @@ code {
   white-space: nowrap;
 }
 .dashboard-activity-label {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   color: var(--cream);
   line-height: 1.5;
@@ -1028,14 +1028,14 @@ code {
   background: oklch(0.76 0.12 75 / 0.04);
 }
 .dashboard-keyvals dt {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--cream-60);
 }
 .dashboard-keyvals dd {
-  font-family: 'Petrona', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(22px, 2vw, 28px);
   color: var(--cream);
   margin: 0;
@@ -1061,7 +1061,7 @@ code {
   background: oklch(0.91 0.018 78 / 0.02);
 }
 #admins-list .admin-row-name {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   text-transform: none;
   letter-spacing: normal;
@@ -1073,7 +1073,7 @@ code {
   margin-top: 0;
 }
 #admins-list .admin-row-meta > span {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-size: 12px;
   letter-spacing: normal;
   text-transform: none;
@@ -1086,7 +1086,7 @@ code {
 }
 #admins-list .admin-row-meta > span:nth-child(2) {
   /* Date column */
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -1096,7 +1096,7 @@ code {
   border: 1px solid rgba(255, 96, 96, 0.4);
   color: oklch(0.74 0.13 28);
   padding: 6px 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1139,7 +1139,7 @@ code {
   color: var(--cream);
   border: 1px solid oklch(0.91 0.018 78 / 0.3);
   padding: 10px 16px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1219,7 +1219,7 @@ code {
   left: 6px;
   background: var(--gold);
   color: var(--ink);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1247,7 +1247,7 @@ code {
   background: oklch(0.10 0.01 55 / 0.6);
   color: var(--cream);
   border: 1px solid oklch(0.91 0.018 78 / 0.2);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.06em;
   padding: 4px 6px;
@@ -1273,10 +1273,10 @@ code {
 .admin-image-paths-details label { display: block; margin-top: 8px; }
 .admin-image-paths-details .admin-meta { margin-top: 6px; }
 
-/* Inline helper text inside an admin-form label — Spectral italic, lowercase,
+/* Inline helper text inside an admin-form label — Geist italic, lowercase,
    so it reads as a calm hint rather than another shouting mono label. */
 .admin-form label .admin-meta {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Geist', system-ui, sans-serif;
   font-style: italic;
   font-size: 12px;
   letter-spacing: normal;
@@ -1300,7 +1300,7 @@ code {
   border: 1px solid oklch(0.91 0.018 78 / 0.2);
   color: var(--cream);
   padding: 8px 14px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1329,7 +1329,7 @@ code {
   margin-bottom: 6px;
 }
 .inbox-metric-value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 22px;
   color: var(--gold);
 }
@@ -1388,7 +1388,7 @@ code {
   font-size: 14px;
 }
 .inbox-row-meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--cream-60);
@@ -1407,7 +1407,7 @@ code {
 }
 .inbox-row-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .inbox-status-pill {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1425,7 +1425,7 @@ code {
 .inbox-status-pill[data-status="lost"] { color: oklch(0.78 0.13 28); }
 .inbox-status-pill[data-status="spam"] { color: var(--cream-60); }
 .inbox-row-age {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 10px;
   color: var(--cream-60);
   letter-spacing: 0.06em;
@@ -1486,7 +1486,7 @@ code {
   color: var(--ink);
   border: 1px solid var(--gold);
   padding: 8px 14px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1515,7 +1515,7 @@ code {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 12px;
   color: var(--cream-80);
 }

@@ -15,15 +15,15 @@ interface PageTitleProps {
 function renderHeadline(node: ReactNode) {
   if (typeof node !== "string") return node;
   const parts = node.split(/(\*[^*]+\*)/g).filter(Boolean);
-  return parts.map((part, i) => {
+  return parts.map((part) => {
     if (part.startsWith("*") && part.endsWith("*")) {
       return (
-        <em key={i} className="italic text-amber-300">
+        <em key={part} className="italic text-amber-300">
           {part.slice(1, -1)}
         </em>
       );
     }
-    return <span key={i}>{part}</span>;
+    return <span key={part}>{part}</span>;
   });
 }
 
@@ -65,8 +65,9 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
       />
 
       <h1
-        className="wa-page-rise relative z-0 text-center text-[15vw] md:text-[12vw] font-light tracking-tight leading-none select-none mb-8 md:mb-12"
+        className="wa-page-rise relative z-0 mb-8 text-center font-serif font-normal leading-none select-none text-transparent md:mb-12"
         style={{
+          fontSize: "clamp(3.5rem, 13vw, 11rem)",
           background:
             "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
           WebkitBackgroundClip: "text",

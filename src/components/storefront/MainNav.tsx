@@ -71,11 +71,11 @@ export function MainNav({ active }: MainNavProps) {
         className="wa-logo-wrap order-1 flex min-w-0 items-center justify-center gap-3 md:order-none"
       >
         <Image
-          src="/logo.jpg"
+          src="/brand/logo-dp-flat-cropped.png"
           alt=""
           width={50}
           height={50}
-          className="wa-logo-img rounded-full object-cover"
+          className="wa-logo-img object-contain"
           priority
         />
         <span className="font-serif text-sm tracking-[0.1em] text-[color:var(--color-cream)]">

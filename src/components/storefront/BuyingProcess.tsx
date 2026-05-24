@@ -5,8 +5,8 @@ import { BigNum } from "./BigNum";
  * → Ship.
  *
  * Compact 2x2 grid sized to fit within a single viewport. Each step is a
- * compact card with italic Petrona numeral inset on the left, mono eyebrow
- * + Petrona name + Spectral body on the right. Hairline-divided. Server
+ * compact card with italic Playfair numeral inset on the left, mono eyebrow
+ * + Playfair name + Geist body on the right. Hairline-divided. Server
  * Component.
  */
 const STEPS: ReadonlyArray<{

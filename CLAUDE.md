@@ -99,7 +99,7 @@ scrollbars accordingly.
 
 **Font names in `@theme inline` are literal strings, not `var()` references.**
 Tailwind v4 resolves `@theme inline` at parse time, before `next/font` injects
-its runtime CSS variables. The `next/font` Petrona/Spectral/JetBrains_Mono
+its runtime CSS variables. The `next/font` Playfair_Display/Geist/Geist_Mono
 imports in [src/app/layout.tsx](./src/app/layout.tsx) register `@font-face`
 under those canonical family names, which the theme block references.
 

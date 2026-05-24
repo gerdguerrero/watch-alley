@@ -95,7 +95,7 @@ export function BgcMap() {
           textAnchor="middle"
           fill="oklch(0.91 0.018 78 / 0.60)"
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Geist Mono', monospace",
             fontSize: "7px",
             letterSpacing: "0.18em",
           }}
@@ -104,12 +104,16 @@ export function BgcMap() {
         </text>
       </g>
 
-      {/* Label — Petrona italic, anchored at the marker. */}
+      {/* Label — Playfair italic, anchored at the marker. */}
       <text
         x="232"
         y="135"
         fill="oklch(0.91 0.018 78)"
-        style={{ fontFamily: "'Petrona', Georgia, serif", fontSize: "13px", fontStyle: "italic" }}
+        style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: "13px",
+          fontStyle: "italic",
+        }}
       >
         The Watch Alley
       </text>
@@ -118,7 +122,7 @@ export function BgcMap() {
         y="151"
         fill="oklch(0.91 0.018 78 / 0.55)"
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Geist Mono', monospace",
           fontSize: "7px",
           letterSpacing: "0.22em",
           textTransform: "uppercase",

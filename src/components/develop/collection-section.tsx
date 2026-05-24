@@ -284,8 +284,9 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
       <motion.div className="relative z-10 text-center mb-12" style={{ y: titleY }}>
         <h2
           ref={titleRef}
-          className="text-[15vw] md:text-[12vw] font-light tracking-tight leading-none select-none"
+          className="font-serif font-normal leading-none select-none text-transparent"
           style={{
+            fontSize: "clamp(3.5rem, 13vw, 11rem)",
             background:
               "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
             WebkitBackgroundClip: "text",

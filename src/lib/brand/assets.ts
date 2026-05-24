@@ -1,6 +1,7 @@
 export const BRAND_ASSETS = {
   logoGold: "/brand/logo-gold.png",
   logoWhite: "/brand/logo-white.png",
+  logoDpFlat: "/brand/logo-dp-flat-cropped.png",
   logoOnBlack: "/brand/logo-on-black.png",
   logoOnWhite: "/brand/logo-on-white.png",
   backgroundOne: "/brand/background-1.webp",

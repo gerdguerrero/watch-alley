@@ -18,35 +18,35 @@ colors:
   alert: "oklch(0.55 0.14 25)"
 typography:
   display:
-    fontFamily: "Petrona, Georgia, serif"
+    fontFamily: "Playfair Display, Georgia, serif"
     fontSize: "clamp(36px, min(7.5vw, 13vh), 88px)"
     fontWeight: 400
     lineHeight: 0.98
     letterSpacing: "-0.02em"
   headline:
-    fontFamily: "Petrona, Georgia, serif"
+    fontFamily: "Playfair Display, Georgia, serif"
     fontSize: "clamp(28px, 4vw, 48px)"
     fontWeight: 500
     lineHeight: 1.1
   title:
-    fontFamily: "Petrona, Georgia, serif"
+    fontFamily: "Playfair Display, Georgia, serif"
     fontSize: "clamp(20px, 2.4vw, 26px)"
     fontWeight: 500
     lineHeight: 1.25
   body:
-    fontFamily: "Spectral, Georgia, serif"
+    fontFamily: "Geist, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.65
     letterSpacing: "0.01em"
   body-italic:
-    fontFamily: "Spectral, Georgia, serif"
+    fontFamily: "Geist, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
     fontStyle: "italic"
     lineHeight: 1.55
   label:
-    fontFamily: "JetBrains Mono, monospace"
+    fontFamily: "Geist Mono, monospace"
     fontSize: "10px"
     fontWeight: 500
     letterSpacing: "0.22em"
@@ -114,7 +114,7 @@ The Watch Alley reads like a Filipino atelier in Escolta after dusk: paper, oil-
 
 The system is dark, but **warm dark**. Walnut and espresso, never navy or cyan. A single brass-honey accent does the highlighting. A "paper" surface enters sparingly for callouts, confirmation slips, and the Viber band: those moments earn light to feel personal, like a handwritten note from the watchmaker.
 
-Anti-references: SaaS feature-card grids, gradient text, "modern dashboard" glassmorphism, side-stripe callouts, neon glows under buttons. None of those belong here.
+Anti-references: SaaS feature-card grids, decorative gradient text outside the approved ghost-title treatment, "modern dashboard" glassmorphism, side-stripe callouts, neon glows under buttons. None of those belong here.
 
 Drive asset review, May 2026: the downloaded brand files confirm the strongest native motif is the drafting compass / watchmaker caliper that forms the `A` in WATCH. Treat it as the brand's precision signal. The old social graphics are useful source material for trust, disclosure, shipping, and inspection language, but they are not the final web UI standard. Full review lives in [docs/brand-analysis/watch-alley-drive-brand-guidelines.md](./docs/brand-analysis/watch-alley-drive-brand-guidelines.md).
 
@@ -130,17 +130,18 @@ OKLCH everywhere with backwards-compatible aliases on legacy `--navy-*` tokens, 
 - `ink-paper` is the body type *on* paper. Never use cream on paper or gold on paper for body text.
 - `alert` is reserved for the error callout. No other red on the page.
 
-**Never use `#000` or `#fff`.** Tint every neutral toward walnut.
+**Never use `#000` or `#fff` for UI chrome or text.** Client-supplied raster brand assets may retain their original black and white pixels.
 
 ## Typography
 
-- **Display: Petrona** (Anton Koovit, Google Fonts). Wedge serif with character. Italic style preferred for emphasis spans (`<em class="gold">` over the headline).
-- **Body: Spectral** (Production Type, Google Fonts). Italic Spectral at 13–14px replaces uppercase mono labels longer than 24 characters.
-- **Labels: JetBrains Mono.** Reserved for short metadata (≤24 chars). Anything longer drops to Spectral italic body, never long uppercase mono.
+- **Display: Playfair Display** (Google Fonts). Used for editorial headlines, watch names, and the approved display ghost titles.
+- **Body/UI: Geist** (Google Fonts). Used for body copy, navigation, buttons, and general interface text.
+- **Labels: Geist Mono.** Reserved for short metadata (≤24 chars). Anything longer drops to Geist body text, never long uppercase mono.
+- **Display ghost title exception:** `COLLECTION`, `HERITAGE`, and `JOURNAL` use Playfair Display `400`, `leading-none`, `select-none`, default tracking, and gradient text fill. The hero ghost word uses Playfair Display `500`, `tracking-tight`, `leading-none`, `select-none`, and gradient text fill.
 
 Hierarchy is scale + weight, not color. Scale ratio holds at ≥1.25 between steps. Body line length capped at 65–75ch. Light-on-dark gets 0.05–0.10 extra `line-height` to compensate for perceived weight.
 
-**Reflex-reject fonts (banned for this project):** Inter, Playfair Display, Fraunces, Newsreader, Lora, Crimson, Cormorant, DM Sans/Serif, Outfit, Plus Jakarta, Instrument, Syne, IBM Plex, Space Mono, Space Grotesk.
+**Reflex-reject fonts (banned for this project):** Inter, Fraunces, Newsreader, Lora, Crimson, Cormorant, DM Sans/Serif, Outfit, Plus Jakarta, Instrument, Syne, IBM Plex, Space Mono, Space Grotesk.
 
 ## Elevation
 
@@ -158,7 +159,8 @@ No glow under buttons. No bright glassmorphism. No box-shadow used decoratively.
 
 ### Logo and brand assets
 
-- The production logo should come from the vector source in `drive-assets/AI/` or `drive-assets/VECTOR PDF/`, then be exported as optimized SVG variants before web use. Do not build the site around the raw PNG downloads.
+- Current client-approved logo source: `drive-assets/PNG/Copy of DP FLAT.png`, exported as a cropped web-serving derivative at `public/brand/logo-dp-flat-cropped.png` so the lockup remains legible in nav/footer.
+- Long-term production logo should still come from the vector source in `drive-assets/AI/` or `drive-assets/VECTOR PDF/`, then be exported as optimized SVG variants before web use.
 - Required variants: full horizontal lockup, single-color lockup, brass-only seal, simplified compass `A` micro mark, and nav lockup.
 - The compass / caliper `A` is the signature motif. Echo it through measured rules, ticks, and inspection overlays, but do not repeat the full logo as decoration.
 - Minimum practical width: 112-140px for the nav lockup, 96px absolute floor for the full lockup. Below that, use the simplified mark.
@@ -169,24 +171,24 @@ No glow under buttons. No bright glassmorphism. No box-shadow used decoratively.
 
 - `button-primary` is the only solid-fill button on the page. Gold ground, walnut text, no rounded corners, label-mono type. On hover it shifts one pixel up with a 1px inner highlight; **no colored glow under it** (that's a banned AI-template tell).
 - `button-ghost` is the cream outline with a subtle cream-tinted ground. No `backdrop-filter` blur — the original blur was invisible against the page background.
-- The hero carries one primary button only. Secondary actions become quiet Spectral-italic text links (`hero-cta-quiet`), not a second outlined button.
+- The hero carries one primary button only. Secondary actions become quiet Geist text links (`hero-cta-quiet`), not a second outlined button.
 
 ### Callouts
 
 All callouts use **full thin borders + faint background tints + a `.mono` eyebrow.** No `border-left` stripes — that's an absolute ban.
 
 - `callout-error` (`.inquiry-error`): full 1px border in muted brick, brick-tinted ground, generated `Couldn't send` eyebrow via `::before`.
-- `callout-paper` (`.inquiry-success`): the atelier handwritten note. Paper ground, ink-paper type, 1px gold border, `.mono` eyebrow with the reference ID, single Petrona italic line, Spectral note in the watchmaker's voice, signoff "— The Watch Alley." This is the peak-end of the funnel and earns its own treatment.
+- `callout-paper` (`.inquiry-success`): the atelier handwritten note. Paper ground, ink-paper type, 1px gold border, `.mono` eyebrow with the reference ID, single Playfair italic line, Geist note in the watchmaker's voice, signoff "— The Watch Alley." This is the peak-end of the funnel and earns its own treatment.
 - `product-modal-sold-note`: full thin gold-20 border on a faint gold-tinted ground.
 
 ### Cards and rows
 
 - `watch-card`: editorial portrait card with a numbered `.watch-num` overlay. Lives in a horizontal carousel, not a grid.
-- `ledger-row` (`.sold-card`): the Sold Archive entry. 56px image marginalia, brand+ref label, Petrona name, sold price (italic gold) + month (mono) at the right. Single 1px gold-20 border-bottom. Renders as a record, not a tombstone.
+- `ledger-row` (`.sold-card`): the Sold Archive entry. 56px image marginalia, brand+ref label, Playfair name, sold price (italic gold) + month (mono) at the right. Single 1px gold-20 border-bottom. Renders as a record, not a tombstone.
 
 ### Trust band
 
-A single horizontal ledger line under the hero. Petrona figures with `font-variant-numeric: oldstyle-nums`, mono labels underneath, generous gap. No card chrome. Replaces what was a four-box grid inside the hero.
+A single horizontal ledger line under the hero. Playfair figures with `font-variant-numeric: oldstyle-nums`, mono labels underneath, generous gap. No card chrome. Replaces what was a four-box grid inside the hero.
 
 ## Do's and Don'ts
 
@@ -195,26 +197,26 @@ A single horizontal ledger line under the hero. Petrona figures with `font-varia
 - Use full borders + tints for emphasis. Lead with a `.mono` eyebrow in markup if the callout needs a label.
 - Animate `transform` and `opacity`. Use exponential ease-out (`cubic-bezier(0.22, 1, 0.36, 1)` or `cubic-bezier(0.16, 1, 0.3, 1)`).
 - Treat paper as a deliberate appearance, not a theme. Confirmation slips, Viber band, callouts only.
-- Cap body line length at 65–75ch. Drop uppercase to title-case Spectral italic at 24+ characters.
-- Frame sold pieces as provenance, not loss. Show sold price, sold month, named in Petrona.
+- Cap body line length at 65–75ch. Drop uppercase to title-case Geist at 24+ characters.
+- Frame sold pieces as provenance, not loss. Show sold price, sold month, named in Playfair.
 - Reply within four hours, Mon–Sat — that promise is the brand voice. Echo it on the inquiry form, the success slip, and the ticker.
 - Use OKLCH for new color decisions. Reduce chroma toward extremes.
 - Use the Drive asset backgrounds as atmosphere only: hero, journal cover, trust section, or empty state. Always add a scrim before setting text over them.
 - Translate old announcement copy into clean web trust modules. One message per module, no paragraph-heavy social graphics in the UI.
-- Resolve typography drift before major visual work: `DESIGN.md` says Petrona/Spectral/JetBrains Mono, while the current app imports Playfair/Geist/Geist Mono.
+- Keep typography docs and code aligned: the active Next app imports Playfair Display, Geist, and Geist Mono.
 
 ### Don't
 
 - **No `border-left`** colored stripes on cards, callouts, or alerts. Absolute ban.
-- **No gradient text.** Single solid color; emphasis via weight and scale.
+- **No gradient text except approved display ghost titles.** Single solid color elsewhere; emphasis via weight and scale.
 - **No glassmorphism for decoration.** A real glass surface (over a video) can survive; decorative blurs cannot.
 - **No neon glow under buttons.** No `box-shadow: 0 8px 32px rgba(gold, 0.35)`. Tactile lift via `transform: translateY(-1px)` instead.
 - **No layout-property animation.** Don't transition `padding`, `margin`, `width`, `height`, `top`, `left`. Animate `transform` and `opacity` only. (1px decorative rules animating `width` from 0 → fill are the single allowed exception.)
-- **No reflex fonts.** No Inter, Playfair, Fraunces, Outfit, Plus Jakarta, IBM Plex, Space Mono. Petrona + Spectral + JetBrains Mono is the project's commitment.
-- **No long uppercase body.** Mono caps survive only at ≤24 characters. Anything longer drops to Spectral italic.
+- **No reflex fonts.** No Inter, Fraunces, Outfit, Plus Jakarta, IBM Plex, Space Mono. Playfair Display + Geist + Geist Mono is the project's current commitment.
+- **No long uppercase body.** Mono caps survive only at ≤24 characters. Anything longer drops to Geist.
 - **No 3-equal-card feature rows.** No icon-tile-stack above headings. No hero-metric template (big number / small label / supporting stats / gradient accent).
 - **No #000 or #fff.** Always tint neutrals toward walnut.
 - **No em dashes.** Use commas, colons, semicolons, periods, or parentheses.
 - **No false urgency.** No countdowns, no scarcity badges, no auction-style timers. Restraint outsells flash.
-- **No raw Drive PNGs as production UI logos.** Use optimized SVG exports from the vector source.
+- **No raw Drive PNGs as production UI logos except the current client-approved DP FLAT asset.** Use optimized SVG exports from the vector source when available.
 - **No detailed full logo at tiny sizes.** Use the simplified compass mark when the lockup would collapse.

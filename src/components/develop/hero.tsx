@@ -104,9 +104,14 @@ export function Hero({ featured = null }: HeroProps = {}) {
       >
         <h1
           ref={ghostTextRef}
-          className="font-serif text-[18vw] font-medium leading-none tracking-[-0.08em] text-transparent"
+          className="font-serif font-medium leading-none tracking-tight select-none text-transparent"
           style={{
-            WebkitTextStroke: "1px rgba(245, 200, 120, 0.22)",
+            fontSize: "clamp(5rem, 18vw, 18rem)",
+            background:
+              "linear-gradient(180deg, rgba(250, 250, 249, 0.42) 0%, rgba(250, 250, 249, 0.08) 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
           }}
         >
           WATCH
@@ -124,7 +129,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
           opacity: splineOpacity,
         }}
       >
-        <div className="mx-auto h-full max-h-[90vh] w-full max-w-6xl">
+        <div className="mx-auto h-full max-h-[82vh] w-full max-w-4xl lg:translate-x-[12vw]">
           <WatchScene />
         </div>
       </motion.div>
@@ -142,15 +147,14 @@ export function Hero({ featured = null }: HeroProps = {}) {
         >
           The Watch Alley PH
         </motion.p>
-        <h2 className="text-4xl font-light leading-[1.05] tracking-tight text-cream md:text-5xl lg:text-7xl">
-          <span className="font-serif italic">Curated</span>{" "}
-          <span className="text-cream-60">watches for</span>
+        <h2 className="max-w-lg text-[clamp(3.25rem,5vw,4.75rem)] font-light leading-[0.98] tracking-tight text-cream">
+          <span className="font-serif italic">Curated watches.</span>
           <br />
-          <span className="text-cream-60">collectors with taste.</span>
+          <span className="text-cream-60">Clearly disclosed.</span>
         </h2>
-        <p className="mt-6 max-w-md text-sm leading-relaxed text-cream-60 md:text-base">
-          Pre-owned and brand-new timepieces, photographed honestly, described in writing, and
-          handled with a collector-first concierge standard.
+        <p className="mt-6 max-w-[34rem] text-sm leading-relaxed text-cream-60 md:text-base">
+          Pre-owned and brand-new timepieces, photographed honestly and handled through a calm
+          Manila collecting desk.
         </p>
 
         <div className="mt-7 flex flex-wrap items-center gap-3">

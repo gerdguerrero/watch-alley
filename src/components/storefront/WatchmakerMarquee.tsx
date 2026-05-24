@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Editorial broadcasting masthead — replaces a generic horizontal ticker
- * with a single, large, slowly rotating italic Petrona quote in the
+ * with a single, large, slowly rotating italic Playfair quote in the
  * watchmaker's voice. One quote at a time, ~12s each, cubic fade+blur
  * transition. Pagination dots, live Manila bench-time stamp, and a thin
  * gold rule that scans across the section between quote transitions.
@@ -199,9 +199,9 @@ export function WatchmakerMarquee() {
             role="tablist"
             aria-label="Choose a bench note"
           >
-            {QUOTES.map((_, i) => (
+            {QUOTES.map((benchQuote, i) => (
               <button
-                key={i}
+                key={benchQuote.text}
                 type="button"
                 role="tab"
                 aria-selected={i === index}

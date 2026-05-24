@@ -37,7 +37,7 @@ export function Footer() {
       <div className="relative z-10 mx-auto grid max-w-7xl gap-12 md:grid-cols-[1.4fr_1fr_1fr] md:items-start">
         <div>
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
-            <BrandLogo className="h-16 w-[190px]" sizes="190px" />
+            <BrandLogo className="h-24 w-24" sizes="96px" />
           </Link>
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-cream-60">
             A Manila-based curator of pre-owned and brand-new watches — selected with taste,

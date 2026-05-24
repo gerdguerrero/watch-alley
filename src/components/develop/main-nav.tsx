@@ -69,12 +69,12 @@ export function MainNav() {
 
   return (
     <motion.header
-      className="fixed top-3 left-0 right-0 z-50 px-3 md:top-5 md:px-6"
+      className="fixed top-2 left-0 right-0 z-50 px-3 md:top-4 md:px-6"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-amber-400/15 bg-[#090806]/75 px-4 py-3 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl md:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-amber-400/15 bg-[#090806]/75 px-4 py-2 shadow-[0_18px_58px_rgba(0,0,0,0.32)] backdrop-blur-xl md:px-5">
         {/* Logo — home */}
         <MotionLink
           href="/"
@@ -85,14 +85,14 @@ export function MainNav() {
           transition={{ type: "spring", stiffness: 400 }}
         >
           <BrandLogo
-            className="h-10 w-[138px] md:h-12 md:w-[164px]"
+            className="h-9 w-[70px] md:h-10 md:w-[78px]"
             priority
-            sizes="(max-width: 768px) 138px, 164px"
+            sizes="(max-width: 768px) 70px, 78px"
           />
         </MotionLink>
 
         {/* Nav */}
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-9 lg:flex">
           {NAV_ITEMS.map((item) => {
             const href = resolveHref(pathname, item);
             return (
@@ -100,7 +100,7 @@ export function MainNav() {
                 key={item.label}
                 href={href}
                 onClick={item.anchor ? handleAnchorClick(item.anchor) : handleHomeClick}
-                className="text-[11px] uppercase tracking-[0.22em] text-cream-60 transition-colors hover:text-cream"
+                className="text-[12px] uppercase tracking-[0.2em] text-cream-60 transition-colors hover:text-cream"
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
@@ -114,7 +114,7 @@ export function MainNav() {
         <motion.a
           href={inquireHref}
           onClick={handleAnchorClick("contact")}
-          className="group inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-amber-300 transition-colors hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:px-5"
+          className="group inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-[12px] font-medium uppercase tracking-[0.18em] text-amber-300 transition-colors hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:px-4"
           whileHover={{ x: 3 }}
           transition={{ type: "spring", stiffness: 400 }}
         >

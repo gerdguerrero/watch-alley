@@ -80,7 +80,10 @@ function buildArticleJsonLd(post: JournalPost) {
     publisher: {
       "@type": "Organization",
       name: "The Watch Alley",
-      logo: { "@type": "ImageObject", url: "https://watchalley.ph/logo.jpg" },
+      logo: {
+        "@type": "ImageObject",
+        url: "https://watchalley.ph/brand/logo-dp-flat-cropped.png",
+      },
     },
     mainEntityOfPage: `https://watchalley.ph/journal/${post.slug}`,
     keywords: post.tags.join(", "),

@@ -34,11 +34,11 @@ Emotional goals: *quiet confidence*, *trust earned through restraint*, *the sati
 
 **Theme:** Dark — but **warm dark**, not navy/blue dark. Move toward walnut, espresso, oil-finish brown rather than the current `--navy-deep`. The interior of a watchmaker's workshop at dusk, lit by a single brass lamp.
 
-**Typography:** Refresh both display and body away from Playfair Display + Inter. Pick a pairing with character that reads as *crafted* rather than *templated*.
+**Typography:** Current client-approved web stack is Playfair Display + Geist + Geist Mono. Keep it intentional and consistent across code and living design docs.
 
-- **Display: Petrona** — wedge serif by Anton Koovit (Google Fonts). Atypical proportions, warmth, soul. Not the default Playfair reach. Reads like a hand-cut sign rather than a set sample.
-- **Body: Spectral** — Production Type, made for screens (Google Fonts). Editorial gravitas, holds up at small sizes, pairs with Petrona by sharing serif DNA.
-- **Labels (mono):** Keep JetBrains Mono for now — labels are minimal enough that the swap is low-leverage today. Revisit if the dev-tool association ever feels off-brand.
+- **Display: Playfair Display** — editorial serif for headlines, watch names, italic emphasis, and approved ghost titles.
+- **Body/UI: Geist** — clean, readable sans for body copy, navigation, buttons, and dense interface text.
+- **Labels (mono):** Geist Mono for short metadata labels and all-caps tracking-wide UI labels.
 
 **Color — directional shift, not a rebuild.** Stay on the existing `--gold / --cream / --ink` token system, but tint warmer over time:
 
@@ -60,8 +60,8 @@ Emotional goals: *quiet confidence*, *trust earned through restraint*, *the sati
 ## Banned patterns (per impeccable skill) reaffirmed for this project
 
 - No `border-left:` colored stripes on cards/callouts/listings.
-- No gradient text (`background-clip: text` with a gradient fill).
+- No decorative gradient text outside the approved display ghost-title treatment.
 - No purple-to-blue gradients anywhere.
 - No glassmorphism for decoration.
 - No bouncy/elastic easing.
-- No reflex fonts: Playfair Display, Fraunces, Newsreader, Lora, Crimson, Cormorant, Inter, DM Sans/Serif, Outfit, Plus Jakarta, Instrument, Syne, IBM Plex, Space Mono, Space Grotesk.
+- No reflex fonts: Fraunces, Newsreader, Lora, Crimson, Cormorant, Inter, DM Sans/Serif, Outfit, Plus Jakarta, Instrument, Syne, IBM Plex, Space Mono, Space Grotesk.

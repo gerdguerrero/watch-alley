@@ -193,8 +193,8 @@ Issues:
 Improve future social graphics by using:
 
 - One message per square.
-- Larger headline in Petrona or the chosen display serif.
-- Short supporting copy in Spectral or the chosen body face.
+- Larger headline in Playfair Display or the chosen display serif.
+- Short supporting copy in Geist or the chosen body face.
 - Brass rule or caliper line as structure.
 - Logo at a consistent size and location.
 - Warm walnut and cream instead of hard black and white.
@@ -218,15 +218,10 @@ Recommended relationship:
 - Body: readable serif or humanist text face.
 - Metadata: restrained mono for short labels only.
 
-Current gap:
+Current decision:
 
-- `DESIGN.md` recommends Petrona, Spectral, JetBrains Mono.
-- `src/app/layout.tsx` and `src/app/globals.css` currently use Playfair Display, Geist, Geist Mono.
-
-Recommendation:
-
-- Keep Petrona/Spectral as the stronger long-term brand direction if the goal is atelier warmth.
-- If Playfair/Geist remains in code, update `DESIGN.md` to declare that intentionally. Right now the docs and implementation disagree.
+- `DESIGN.md`, `src/app/layout.tsx`, and `src/app/globals.css` declare Playfair Display, Geist, and Geist Mono for the active Next site.
+- The approved display ghost title treatment uses Playfair Display with gradient text fill.
 - Avoid using the logo wordmark font as general UI type. Let the logo stay special.
 
 ## Dynamism and motion direction
@@ -275,9 +270,9 @@ The Watch Alley can feel more dynamic without becoming flashy. Motion should fee
    - Suggested path: `public/brand/`
    - Keep raw downloads in `drive-assets/`, but do not reference raw filenames directly in UI.
 
-3. **Resolve typography drift**
-   - Pick either Petrona/Spectral or Playfair/Geist as the canonical web type system.
-   - Update both docs and code together.
+3. **Keep typography aligned**
+   - Playfair Display, Geist, and Geist Mono are the canonical active web type system.
+   - Update docs and code together when the client changes the type system again.
 
 4. **Use the caliper motif as the connective tissue**
    - It already appears in the logo and current `CaliperOverlay` component.
@@ -299,7 +294,7 @@ The Watch Alley can feel more dynamic without becoming flashy. Motion should fee
 
 Use now:
 
-- `PNG/Copy of DP FLAT.png`: best current all-purpose logo preview.
+- `PNG/Copy of DP FLAT.png`: current client-approved site logo source, exported as a cropped web-serving derivative at `public/brand/logo-dp-flat-cropped.png`.
 - `PNG/Logo on Black.png`: reference for dark-surface lockup.
 - `PNG/Logo on White.png`: reference for paper or light-surface lockup.
 - `BACKGROUNDS/background 3.png`: strongest atelier/workbench background.

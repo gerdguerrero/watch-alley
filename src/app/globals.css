@@ -39,8 +39,8 @@
   --color-gold-30: oklch(0.76 0.12 75 / 0.30);
   --color-gold-20: oklch(0.76 0.12 75 / 0.20);
 
-  /* Develop-branch font stack — Playfair Display for editorial headlines,
-     Geist for body / UI, Geist Mono for eyebrows and tracking-wide labels.
+  /* Develop-branch font stack — Playfair Display for editorial headlines and
+     display ghost titles, Geist for body / UI, Geist Mono for eyebrows and labels.
      Family names are literals because Tailwind v4 resolves @theme at parse
      time; next/font registers the @font-face under these canonical names. */
   --font-serif: "Playfair Display", Georgia, serif;
@@ -142,22 +142,18 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* The editorial register: body copy is Spectral, never Petrona — Petrona
-       is reserved for headlines and watch names. */
+    /* The editorial register: Geist carries body/UI copy, while Playfair
+       Display is reserved for headlines, watch names, and approved ghost type. */
     font-family: var(--font-sans);
-    /* Premium serif rendering — enables ligatures, kerning, proportional
-       oldstyle figures across the entire site. The visual lift on Petrona
-       headlines and Spectral body copy is substantial. */
+    /* Premium text rendering — enables ligatures, kerning, proportional
+       oldstyle figures across the entire site. */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga", "kern", "pnum", "onum";
   }
   /* Develop branch convention: headings inherit the body font (Geist) unless
-     a Tailwind utility (font-serif) opts them into Playfair Display. This
-     keeps the giant gradient ghost titles (COLLECTION / HERITAGE / JOURNAL)
-     in Geist Sans Light while editorial titles that set font-serif stay
-     in Playfair. */
+     a Tailwind utility (font-serif) opts them into Playfair Display. */
   .serif {
     font-family: var(--font-serif);
     font-weight: 500;

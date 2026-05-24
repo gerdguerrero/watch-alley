@@ -83,8 +83,9 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
       {/* Ghost title */}
       <div className="absolute top-24 left-0 right-0 text-center pointer-events-none">
         <h2
-          className="text-[18vw] md:text-[14vw] font-light tracking-tight leading-none select-none"
+          className="font-serif font-normal leading-none select-none text-transparent"
           style={{
+            fontSize: "clamp(4rem, 15vw, 13rem)",
             background:
               "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
             WebkitBackgroundClip: "text",

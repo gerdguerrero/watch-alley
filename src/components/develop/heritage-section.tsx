@@ -58,8 +58,9 @@ export function HeritageSection({
       {/* Large ghost title */}
       <div className="pointer-events-none absolute top-24 left-0 right-0 text-center">
         <h2
-          className="select-none text-[18vw] font-light leading-none tracking-tight md:text-[14vw]"
+          className="font-serif font-normal leading-none select-none text-transparent"
           style={{
+            fontSize: "clamp(4rem, 15vw, 13rem)",
             background:
               "linear-gradient(180deg, rgba(250, 250, 249, 0.46) 0%, rgba(250, 250, 249, 0.14) 100%)",
             WebkitBackgroundClip: "text",
