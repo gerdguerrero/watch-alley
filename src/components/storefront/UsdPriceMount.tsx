@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { formatUsdFromPhp } from "@/lib/fx/format";
-import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD, WISE_URL } from "@/lib/fx/sources";
+import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD, PRIMARY_URL } from "@/lib/fx/sources";
 
 const CACHE_KEY = "WA_FX_PHP_USD_V2";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -32,21 +32,14 @@ function writeCache(rate: number) {
   }
 }
 
-async function fetchRate(url: string, useWiseFormat = false): Promise<number> {
+async function fetchRate(url: string): Promise<number> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), FX_TIMEOUT_MS);
   const res = await fetch(url, { cache: "no-store", signal: controller.signal }).finally(() => {
     window.clearTimeout(timeout);
   });
   if (!res.ok) throw new Error(`FX ${url}: ${res.status}`);
-  const data = await res.json();
-  if (useWiseFormat) {
-    // Wise returns [{ rate: "58.12345", source: "USD", target: "PHP" }]
-    const rate = Number(data?.[0]?.rate);
-    if (!Number.isFinite(rate) || rate <= 0) throw new Error(`FX ${url}: no PHP rate`);
-    return rate;
-  }
-  // exchangerate.host returns { rates: { PHP: 58.12345 } }
+  const data = (await res.json()) as { rates?: Record<string, number> };
   const php = Number(data?.rates?.PHP);
   if (!Number.isFinite(php) || php <= 0) throw new Error(`FX ${url}: no PHP rate`);
   return php;
@@ -56,7 +49,7 @@ async function getRate(): Promise<number> {
   const cached = readCache();
   if (cached) return cached;
   try {
-    const rate = await fetchRate(WISE_URL, true);
+    const rate = await fetchRate(PRIMARY_URL);
     writeCache(rate);
     return rate;
   } catch (primaryErr) {

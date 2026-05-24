@@ -1,16 +1,18 @@
 /**
- * Mid-market PHP↔USD rate source:
+ * Mid-market PHP↔USD rate sources, in fallback order:
  *
- *   1. Wise public API (api.wise.com/v1/rates) — official mid-market rate,
- *      no key required. This is what the buyer sees in the Wise app at
- *      payment time, just before Wise adds its ~0.4% transfer spread.
- *   2. exchangerate.host — free, no key, ECB mid-market. Fallback.
- *   3. A conservative offline default so the page never shows $0.
+ *   1. exchangerate.host — free, no key, ECB mid-market.
+ *   2. open.er-api.com — free, no key, different feed.
+ *   3. A conservative offline default tuned to a recent PHP/USD rate,
+ *      never lower than reality so we don't under-quote.
+ *
+ * The rate is adjusted by WISE_SPREAD (0.4%) to match Wise's actual
+ * payment conversion, so the USD figure the buyer sees is within ~0.5%
+ * of what they'd pay in the Wise app.
  */
 
-export const WISE_URL =
-  "https://api.wise.com/v1/rates?source=USD&target=PHP";
-export const FALLBACK_URL = "https://api.exchangerate.host/latest?base=USD&symbols=PHP";
+export const PRIMARY_URL = "https://api.exchangerate.host/latest?base=USD&symbols=PHP";
+export const FALLBACK_URL = "https://open.er-api.com/v6/latest/USD";
 export const OFFLINE_DEFAULT_PHP_PER_USD = 58;
 
 /**
