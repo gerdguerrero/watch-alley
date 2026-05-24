@@ -246,7 +246,9 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
 
             {watch.description && (
               <Section title="About this piece">
-                <p>{watch.description}</p>
+                {watch.description.split(/\n{2,}/).map((p, i) => (
+                  <p key={`${i}:${p.slice(0, 32)}`}>{p}</p>
+                ))}
               </Section>
             )}
 
