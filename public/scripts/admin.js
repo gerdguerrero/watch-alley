@@ -11,6 +11,7 @@ import { renderMarkdown } from './lib/markdown.mjs';
 // (https://supabase.com/dashboard/project/yrzawkqcifuubtltktbk).
 const SUPABASE_URL = 'https://yrzawkqcifuubtltktbk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
+const REVALIDATION_TOKEN = 'twa-reval-8k2mN7pQ4vX1yF9bR3wL6dH5';
 
 const PLACEHOLDER_URL_HOST = 'YOUR-NEW-PROJECT-REF';
 const isConfigured = !SUPABASE_URL.includes(PLACEHOLDER_URL_HOST) && SUPABASE_ANON_KEY.length > 0;
@@ -217,6 +218,76 @@ function setStatus(message, tone) {
   els.status.textContent = message || '';
   if (tone) els.status.dataset.tone = tone;
   else els.status.removeAttribute('data-tone');
+}
+
+// ---------------- Revalidation ---------------- 
+
+/**
+ * Trigger Next.js on-demand ISR revalidation so the storefront reflects
+ * mutations (save, delete, mark-sold) instantly instead of waiting for
+ * the 60-second time-based window.
+ */
+async function revalidateStorefront(slug) {
+  const paths = ['/available', '/sold', '/journal'];
+  if (slug) paths.push(`/watch/${slug}`);
+  // Fire-and-forget: don't block the UI on revalidation.
+  fetch('/api/revalidate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${REVALIDATION_TOKEN}`,
+    },
+    body: JSON.stringify({ paths }),
+  }).catch(() => {});
+}
+
+// ---------------- Confirmation modal ----------------
+
+let confirmResolve = null;
+
+function showConfirmModal({ title, message, confirmLabel, confirmClass }) {
+  return new Promise((resolve) => {
+    // Remove any existing modal
+    const existing = document.getElementById('admin-confirm-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'admin-confirm-overlay';
+    overlay.className = 'admin-modal-overlay';
+    overlay.innerHTML = `
+      <div class="admin-modal">
+        <h2 class="admin-modal-title">${escapeHtml(title)}</h2>
+        <p class="admin-modal-message">${escapeHtml(message)}</p>
+        <div class="admin-modal-actions">
+          <button class="btn-ghost" id="admin-confirm-cancel">Cancel</button>
+          <button class="${confirmClass || 'btn-danger'}" id="admin-confirm-ok">${escapeHtml(confirmLabel || 'Confirm')}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const okBtn = overlay.querySelector('#admin-confirm-ok');
+    const cancelBtn = overlay.querySelector('#admin-confirm-cancel');
+
+    const cleanup = (result) => {
+      overlay.remove();
+      resolve(result);
+    };
+
+    okBtn.addEventListener('click', () => cleanup(true));
+    cancelBtn.addEventListener('click', () => cleanup(false));
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) cleanup(false);
+    });
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') {
+        document.removeEventListener('keydown', onEsc);
+        cleanup(false);
+      }
+    });
+
+    okBtn.focus();
+  });
 }
 
 // ---------------- Auth flow ----------------
@@ -499,16 +570,25 @@ if (els.socialInstagramCaption) {
 
 els.deleteBtn.addEventListener('click', async () => {
   if (!activeId) return;
-  if (!confirm(`Delete ${activeId}? This cannot be undone.`)) return;
+  const watchName = activeWatchSnapshot?.name || activeWatchSnapshot?.slug || activeId;
+  const confirmed = await showConfirmModal({
+    title: 'Delete listing',
+    message: `Delete "${watchName}"?\n\nThis permanently removes the watch from the database. This cannot be undone.`,
+    confirmLabel: 'Delete',
+    confirmClass: 'btn-danger',
+  });
+  if (!confirmed) return;
   setStatus('Deleting…');
+  const slug = activeWatchSnapshot?.slug;
   const { error } = await supabase.rpc('admin_delete_watch', { watch_id: activeId });
   if (error) {
     setStatus(`Delete failed: ${error.message}`, 'error');
     return;
   }
-  setStatus('Deleted. The website updates automatically.', 'success');
+  setStatus('Deleted. The website updates in seconds.', 'success');
   hideForm();
   await loadWatches();
+  revalidateStorefront(slug);
 });
 
 els.markSoldBtn.addEventListener('click', async () => {
@@ -538,10 +618,12 @@ els.markSoldBtn.addEventListener('click', async () => {
     setStatus(`Mark sold failed: ${error.message}`, 'error');
     return;
   }
-  setStatus('Marked sold. The website updates automatically.', 'success');
+  setStatus('Marked sold. The website updates in seconds.', 'success');
   await loadWatches();
   const refreshed = allWatches.find((w) => w.id === activeId);
   if (refreshed) loadIntoForm(refreshed);
+  const slug = activeWatchSnapshot?.slug;
+  revalidateStorefront(slug);
 });
 
 function hideForm() {
@@ -643,10 +725,11 @@ async function saveCurrentForm({ publishNow = false, skipValidation = false } = 
     await saveSocialDrafts({ silentIfEmpty: true });
     setStatus(
       publishNow
-        ? 'Published. View Listing is ready and the website updates automatically.'
-        : 'Saved. The website updates automatically.',
+        ? 'Published. View Listing is ready and the website updates in seconds.'
+        : 'Saved. The website updates in seconds.',
       'success'
     );
+    revalidateStorefront(payload.slug);
     return data || null;
   } catch (error) {
     setStatus(`Save failed: ${error.message}`, 'error');

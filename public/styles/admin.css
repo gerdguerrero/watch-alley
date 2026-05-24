@@ -1576,3 +1576,90 @@ code {
     padding: 16px !important;
   }
 }
+
+/* ---------------- Confirmation modal ---------------- */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 7, 6, 0.75);
+  backdrop-filter: blur(4px);
+  animation: admin-modal-fade-in 0.15s ease;
+}
+
+@keyframes admin-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.admin-modal {
+  background: oklch(0.13 0.012 55);
+  border: 1px solid oklch(0.91 0.018 78 / 0.10);
+  padding: 32px;
+  max-width: 480px;
+  width: calc(100vw - 48px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  animation: admin-modal-scale-in 0.18s ease;
+}
+
+@keyframes admin-modal-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.admin-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.admin-modal-message {
+  font-size: 14px;
+  color: var(--cream-60);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.admin-modal-actions .btn-danger,
+.admin-modal-actions .btn-ghost {
+  padding: 10px 22px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-modal-actions .btn-danger {
+  background: transparent;
+  border: 1px solid rgba(255, 96, 96, 0.5);
+  color: oklch(0.74 0.13 28);
+}
+
+.admin-modal-actions .btn-danger:hover {
+  background: rgba(255, 96, 96, 0.1);
+}
+
+.admin-modal-actions .btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cream-60);
+}
+
+.admin-modal-actions .btn-ghost:hover {
+  color: var(--gold);
+}
