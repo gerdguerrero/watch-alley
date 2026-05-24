@@ -7,6 +7,9 @@ import type { NextRequest } from "next/server";
  * /admin requires a valid token: /admin?token=<ADMIN_ACCESS_TOKEN>
  * Once accessed, a cookie is set so you don't need the URL param every time.
  * Without a valid token, /admin returns 404 — invisible to scanners.
+ *
+ * Only activates when ADMIN_ACCESS_TOKEN is explicitly set to a non-empty
+ * value in Vercel environment variables. Until then, /admin is open.
  */
 const COOKIE_NAME = "wa_admin_access";
 
@@ -17,10 +20,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const expectedToken = process.env.ADMIN_ACCESS_TOKEN;
+  const expectedToken = (process.env.ADMIN_ACCESS_TOKEN ?? "").trim();
 
-  // If token isn't configured yet, allow access (dev / not set up)
-  if (!expectedToken) {
+  // Token not configured on Vercel yet — allow open access
+  if (expectedToken.length === 0) {
     return NextResponse.next();
   }
 
