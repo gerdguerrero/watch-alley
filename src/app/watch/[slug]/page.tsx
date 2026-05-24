@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
@@ -12,8 +13,6 @@ import type { Watch } from "@/lib/inventory/types";
 // propagate within `revalidate` seconds without a redeploy.
 export const revalidate = 60;
 export const dynamicParams = true;
-
-const MESSENGER_URL = "https://m.me/thewatchalley";
 
 export async function generateStaticParams() {
   const slugs = await fetchPublishedSlugs();
@@ -46,14 +45,6 @@ export async function generateMetadata({
       images: watch.primaryImage ? [{ url: watch.primaryImage }] : undefined,
     },
   };
-}
-
-function buildMailtoHref(watch: Watch): string {
-  const subject = watch.inquirySubject || `Inquiry: ${watch.brand} ${watch.name}`;
-  const body =
-    watch.inquiryBody ||
-    `Hi Watch Alley, I'm interested in the ${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""}. Could you share current availability, condition photos, and included set details?`;
-  return `mailto:hello@watchalley.ph?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function buildProductJsonLd(watch: Watch) {
@@ -273,33 +264,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               </Section>
             )}
 
-            {!isSold && (
-              <div className="mt-4 flex flex-col sm:flex-row gap-4">
-                <a
-                  href={MESSENGER_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 bg-amber-500 px-8 py-4 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-900 transition-colors hover:bg-amber-400"
-                >
-                  Message on Messenger
-                  <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path
-                      d="M1 11L11 1M11 1H3M11 1V9"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href={buildMailtoHref(watch)}
-                  className="inline-flex items-center justify-center gap-3 border border-zinc-700 px-8 py-4 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:border-zinc-500 hover:text-zinc-100"
-                >
-                  Email inquiry
-                </a>
-              </div>
-            )}
+            {!isSold && <InquiryButtons watch={watch} />}
             {isSold && (
               <Link
                 href="/sold"
