@@ -74,7 +74,7 @@ export function MainNav() {
             className="flex items-center gap-2 md:gap-3 group"
           >
             <Image
-              src="/brand/logo-dp-flat-cropped.png"
+              src="/favicon.svg"
               alt=""
               width={isScrolled ? 32 : 38}
               height={isScrolled ? 32 : 38}

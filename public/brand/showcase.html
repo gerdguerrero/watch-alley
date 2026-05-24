@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brand Identity & Vector Assets · The Watch Alley</title>
+<meta name="theme-color" content="#13110f" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles/trust-page.css" />
+<link rel="stylesheet" href="../styles/admin.css" />
+<style>
+  :root {
+    --color-walnut-deep: oklch(0.13 0.012 55);
+    --color-walnut-card: oklch(0.21 0.018 60);
+    --color-gold: oklch(0.76 0.12 75);
+    --color-cream: oklch(0.91 0.018 78);
+  }
+  body {
+    background: var(--color-walnut-deep);
+    color: var(--color-cream);
+  }
+  .showcase-hero {
+    text-align: center;
+    padding: 80px 20px 48px;
+    border-bottom: 1px solid rgba(231, 215, 191, 0.1);
+  }
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+  }
+  .showcase-card {
+    background: var(--color-walnut-card);
+    border: 1px solid rgba(231, 215, 191, 0.1);
+    padding: 32px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+  .showcase-card.light-mode {
+    background: #fdfbf7;
+    border-color: rgba(43, 37, 33, 0.1);
+    color: #2b2521;
+  }
+  .showcase-card.light-mode h3, 
+  .showcase-card.light-mode p {
+    color: #2b2521 !important;
+  }
+  .showcase-card-img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    object-contain: fit;
+  }
+  .showcase-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    width: 100%;
+  }
+  .showcase-color-tile {
+    padding: 24px 16px;
+    border: 1px solid rgba(231, 215, 191, 0.1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .showcase-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--color-gold);
+    color: var(--color-walnut-deep) !important;
+    padding: 10px 20px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: filter 0.15s ease;
+  }
+  .showcase-dl-btn:hover {
+    filter: brightness(1.08);
+  }
+</style>
+</head>
+<body>
+
+<header class="trust-nav">
+  <a class="trust-nav-home" href="../">The Watch Alley · Brand Identity</a>
+  <nav>
+    <a href="../">Storefront</a>
+    <a href="./index.html">Admin</a>
+  </nav>
+</header>
+
+<main class="admin-shell">
+  <div class="showcase-hero">
+    <div class="admin-eyebrow">Escolta Dusk Atelier</div>
+    <h1 class="trust-title" style="margin-top: 12px; font-size: clamp(32px, 5vw, 56px);">Design System &amp; Vector Assets</h1>
+    <p class="admin-meta" style="margin-bottom: 0;">SOTA Brand Guidelines &amp; Digital Logo Repository</p>
+  </div>
+
+  <section style="margin-top: 48px;">
+    <h2>1. The Brand Identity</h2>
+    <p style="font-size: 16px; line-height: 1.7; max-width: 80ch; color: var(--cream-80);">
+      The Watch Alley PH is a precision bench workshop and private collecting desk for dedicated Filipino watch collectors. The brand logo leverages the **drafting compass** or **watchmaker&apos;s inspection caliper** to form the letters inside the wordmark—symbolizing rigorous calibration, honest written disclosures, and horological expertise.
+    </p>
+  </section>
+
+  <section style="margin-top: 48px;">
+    <h2>2. Scale &amp; Medium Variants</h2>
+    <p class="admin-meta">All assets are vector SVGs, infinitely scalable for prints, responsive websites, DPs, and tiny favicons.</p>
+    
+    <div class="showcase-grid">
+      <!-- Variant 1: Micro Favicon Icon -->
+      <article class="showcase-card">
+        <div style="text-align: center;">
+          <div class="admin-eyebrow">Micro favicon / dp</div>
+          <h3 class="admin-dashboard-title" style="font-size: 20px; margin-top: 4px;">Atelier Seal</h3>
+        </div>
+        <img class="showcase-card-img" src="../favicon.svg" alt="Micro Favicon" style="max-width: 120px;" />
+        <a class="showcase-dl-btn" href="../favicon.svg" download="twa-favicon.svg">
+          Download SVG
+        </a>
+      </article>
+
+      <!-- Variant 2: Horizontal Wordmark -->
+      <article class="showcase-card">
+        <div style="text-align: center;">
+          <div class="admin-eyebrow">Primary lockup</div>
+          <h3 class="admin-dashboard-title" style="font-size: 20px; margin-top: 4px;">Horizontal Wordmark</h3>
+        </div>
+        <img class="showcase-card-img" src="./logo-horizontal.svg" alt="Horizontal Wordmark" />
+        <a class="showcase-dl-btn" href="./logo-horizontal.svg" download="twa-logo-horizontal.svg">
+          Download SVG
+        </a>
+      </article>
+
+      <!-- Variant 3: Inline Header Lockup -->
+      <article class="showcase-card">
+        <div style="text-align: center;">
+          <div class="admin-eyebrow">Inline navbar / footer</div>
+          <h3 class="admin-dashboard-title" style="font-size: 20px; margin-top: 4px;">Left Icon Lockup</h3>
+        </div>
+        <img class="showcase-card-img" src="./logo-inline.svg" alt="Inline Lockup" />
+        <a class="showcase-dl-btn" href="./logo-inline.svg" download="twa-logo-inline.svg">
+          Download SVG
+        </a>
+      </article>
+
+      <!-- Variant 4: Monochrome Print Lockup -->
+      <article class="showcase-card light-mode">
+        <div style="text-align: center;">
+          <div class="admin-eyebrow" style="color: #61554c;">Print / stamp mode</div>
+          <h3 class="admin-dashboard-title" style="font-size: 20px; margin-top: 4px; color: #2b2521;">Black &amp; White</h3>
+        </div>
+        <img class="showcase-card-img" src="./logo-bw.svg" alt="Monochrome B&W" style="filter: invert(1);" />
+        <a class="showcase-dl-btn" href="./logo-bw.svg" download="twa-logo-bw.svg" style="background: #2b2521; color: #fdfbf7 !important;">
+          Download SVG
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <section style="margin-top: 64px;">
+    <h2>3. The Color System</h2>
+    <p class="admin-meta">Harmonious oklch and hex values from Escolta Dusk guidelines.</p>
+    
+    <div class="showcase-color-grid">
+      <div class="showcase-color-tile" style="background: var(--color-walnut-deep);">
+        <span style="color: var(--color-cream);">Walnut Deep</span>
+        <span style="color: var(--color-cream-60);">#13110f</span>
+        <span style="color: var(--color-cream-60);">oklch(0.13 0.012 55)</span>
+      </div>
+      <div class="showcase-color-tile" style="background: var(--color-walnut-card);">
+        <span style="color: var(--color-cream);">Walnut Card</span>
+        <span style="color: var(--color-cream-60);">#211b18</span>
+        <span style="color: var(--color-cream-60);">oklch(0.21 0.018 60)</span>
+      </div>
+      <div class="showcase-color-tile" style="background: var(--color-gold); color: var(--color-walnut-deep) !important;">
+        <span>Honey Brass Gold</span>
+        <span style="opacity: 0.8;">#c5a880</span>
+        <span style="opacity: 0.8;">oklch(0.76 0.12 75)</span>
+      </div>
+      <div class="showcase-color-tile" style="background: var(--color-cream); color: var(--color-walnut-deep) !important;">
+        <span>Atelier Cream</span>
+        <span style="opacity: 0.8;">#ece4d3</span>
+        <span style="opacity: 0.8;">oklch(0.91 0.018 78)</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top: 64px; border-top: 1px solid rgba(231, 215, 191, 0.1); padding-top: 48px;">
+    <h2>4. Typography</h2>
+    <div class="admin-dashboard-rows" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      <div class="showcase-card" style="align-items: flex-start; justify-content: flex-start; gap: 8px;">
+        <span class="admin-eyebrow">Playfair Display · Serif</span>
+        <h3 class="admin-dashboard-title" style="margin: 0; font-size: 32px; font-style: italic;">The Watch Alley</h3>
+        <p class="admin-meta" style="margin-top: 4px;">Used for all headlines, watch names, and brand narratives.</p>
+      </div>
+      <div class="showcase-card" style="align-items: flex-start; justify-content: flex-start; gap: 8px;">
+        <span class="admin-eyebrow">Geist · Sans</span>
+        <p style="font-size: 16px; margin: 4px 0 0 0; font-family: 'Geist', sans-serif;">Disclosed in writing, daylight-photographed, and handled with a collector&apos;s restraint.</p>
+        <p class="admin-meta" style="margin-top: 12px;">Used for body copy, description texts, lists, and form labels.</p>
+      </div>
+      <div class="showcase-card" style="align-items: flex-start; justify-content: flex-start; gap: 8px;">
+        <span class="admin-eyebrow">Geist Mono · Monospace</span>
+        <p style="font-size: 14px; margin: 4px 0 0 0; font-family: 'Geist Mono', monospace; letter-spacing: 0.18em; text-transform: uppercase;">◆ Notes from the Bench</p>
+        <p class="admin-meta" style="margin-top: 12px;">Used for short metadata labels, display stats, and status indicators.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="trust-footer" style="margin-top: 80px;">
+  <span>© MMXXVI · The Watch Alley PH · Brand Guidelines</span>
+  <div class="trust-footer-links">
+    <a href="../">Site</a>
+    <a href="./index.html">Admin</a>
+  </div>
+</footer>
+
+</body>
+</html>

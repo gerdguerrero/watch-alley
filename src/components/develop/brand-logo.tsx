@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { BRAND_ASSETS } from "@/lib/brand/assets";
 
 interface BrandLogoProps {
   variant?: "gold" | "white" | "dpFlat" | "blackLockup" | "whiteLockup";
@@ -9,11 +8,11 @@ interface BrandLogoProps {
 }
 
 const LOGO_SRC = {
-  gold: BRAND_ASSETS.logoGold,
-  white: BRAND_ASSETS.logoWhite,
-  dpFlat: BRAND_ASSETS.logoDpFlat,
-  blackLockup: BRAND_ASSETS.logoOnBlack,
-  whiteLockup: BRAND_ASSETS.logoOnWhite,
+  gold: "/favicon.svg",
+  white: "/brand/logo-bw.svg",
+  dpFlat: "/brand/logo-inline.svg",
+  blackLockup: "/brand/logo-horizontal.svg",
+  whiteLockup: "/brand/logo-bw.svg",
 } as const;
 
 export function BrandLogo({
