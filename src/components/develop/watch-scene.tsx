@@ -1,67 +1,21 @@
 "use client";
 
 import { Center, Environment, Float, useGLTF } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { type MotionValue, useScroll, useTransform } from "framer-motion";
-import { Suspense, useMemo, useRef } from "react";
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
+import { Suspense, useMemo } from "react";
 
-interface WatchModelProps {
-  scrollYProgress: MotionValue<number>;
-}
-
-function WatchModel({ scrollYProgress }: WatchModelProps) {
-  const meshRef = useRef<THREE.Group>(null);
+function WatchModel() {
   const { scene } = useGLTF("/models/watch.glb");
 
-  // Clone scene once
+  // Clone scene once so multiple mounts don't share mutations.
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
-  // Scroll-based transforms - MDX.so style smooth transitions
-  const rotationY = useTransform(scrollYProgress, [0, 1], [0, Math.PI * 1.5]);
-  const rotationX = useTransform(scrollYProgress, [0, 0.5, 1], [-0.3, -0.1, 0.2]);
-  const rotationZ = useTransform(scrollYProgress, [0, 1], [0, 0.3]);
-  const positionY = useTransform(scrollYProgress, [0, 1], [0, -1]);
-  const positionZ = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.3, -0.5]);
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [1, 1.1, 1.05, 0.75]);
-
-  useFrame((_, delta) => {
-    if (meshRef.current) {
-      // Smooth interpolation for scroll values
-      meshRef.current.rotation.y = THREE.MathUtils.lerp(
-        meshRef.current.rotation.y,
-        rotationY.get(),
-        delta * 3
-      );
-      meshRef.current.rotation.x = THREE.MathUtils.lerp(
-        meshRef.current.rotation.x,
-        rotationX.get(),
-        delta * 3
-      );
-      meshRef.current.rotation.z = THREE.MathUtils.lerp(
-        meshRef.current.rotation.z,
-        rotationZ.get() + Math.sin(Date.now() * 0.0005) * 0.02,
-        delta * 3
-      );
-      meshRef.current.position.y = THREE.MathUtils.lerp(
-        meshRef.current.position.y,
-        positionY.get(),
-        delta * 3
-      );
-      meshRef.current.position.z = THREE.MathUtils.lerp(
-        meshRef.current.position.z,
-        positionZ.get(),
-        delta * 3
-      );
-      const s = scale.get();
-      const currentScale = meshRef.current.scale.x;
-      const newScale = THREE.MathUtils.lerp(currentScale, s, delta * 3);
-      meshRef.current.scale.setScalar(newScale);
-    }
-  });
-
+  // Static model. The earlier version had scroll-tied scale/position/rotation
+  // (scale ramped 1 -> 1.1 -> 1.05 -> 0.75) that visibly shrank and zoomed
+  // the watch as the user scrolled past the hero. Removed so the canvas
+  // content stays put; gentle ambient motion still comes from <Float>.
   return (
-    <group ref={meshRef}>
+    <group rotation={[-0.1, 0, 0]}>
       <Center>
         <primitive object={clonedScene} scale={18} />
       </Center>
@@ -92,8 +46,6 @@ function LoadingFallback() {
 }
 
 export function WatchScene() {
-  const { scrollYProgress } = useScroll();
-
   return (
     <div className="w-full h-full">
       <Canvas
@@ -109,7 +61,7 @@ export function WatchScene() {
             floatIntensity={0.3}
             floatingRange={[-0.05, 0.05]}
           >
-            <WatchModel scrollYProgress={scrollYProgress} />
+            <WatchModel />
           </Float>
           <Environment preset="studio" environmentIntensity={0.5} />
         </Suspense>
