@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { formatUsdFromPhp } from "@/lib/fx/format";
-import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD, PRIMARY_URL } from "@/lib/fx/sources";
+import { FALLBACK_URL, OFFLINE_DEFAULT_PHP_PER_USD } from "@/lib/fx/sources";
 
-const CACHE_KEY = "WA_FX_PHP_USD_V2";
+const CACHE_KEY = "WA_FX_PHP_USD_V3";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const APPLIED_ATTR = "data-fx-applied";
 const FX_TIMEOUT_MS = 4000;
@@ -28,51 +28,68 @@ function writeCache(rate: number) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ rate, at: Date.now() }));
   } catch {
-    /* localStorage unavailable (private browsing / quota) — non-fatal */
+    /* localStorage unavailable — non-fatal */
   }
 }
 
-async function fetchRate(url: string): Promise<number> {
+/**
+ * Fetch rate from our own server-side Wise proxy.
+ * Response: { phpPerUsd: 58.12345 }
+ */
+async function fetchWiseRate(): Promise<number> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), FX_TIMEOUT_MS);
-  const res = await fetch(url, { cache: "no-store", signal: controller.signal }).finally(() => {
-    window.clearTimeout(timeout);
-  });
-  if (!res.ok) throw new Error(`FX ${url}: ${res.status}`);
+  const res = await fetch("/api/wise-rate", {
+    cache: "no-store",
+    signal: controller.signal,
+  }).finally(() => window.clearTimeout(timeout));
+  if (!res.ok) throw new Error(`Wise proxy: ${res.status}`);
+  const data = (await res.json()) as { phpPerUsd?: number };
+  const php = Number(data?.phpPerUsd);
+  if (!Number.isFinite(php) || php <= 0) throw new Error("Wise proxy: no PHP rate");
+  return php;
+}
+
+/**
+ * Fallback: fetch from exchangerate.host directly.
+ * Response: { rates: { PHP: 58.12345 } }
+ */
+async function fetchExchangeRateHost(): Promise<number> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), FX_TIMEOUT_MS);
+  const res = await fetch(FALLBACK_URL, {
+    cache: "no-store",
+    signal: controller.signal,
+  }).finally(() => window.clearTimeout(timeout));
+  if (!res.ok) throw new Error(`FX fallback: ${res.status}`);
   const data = (await res.json()) as { rates?: Record<string, number> };
   const php = Number(data?.rates?.PHP);
-  if (!Number.isFinite(php) || php <= 0) throw new Error(`FX ${url}: no PHP rate`);
+  if (!Number.isFinite(php) || php <= 0) throw new Error("FX fallback: no PHP rate");
   return php;
 }
 
 async function getRate(): Promise<number> {
   const cached = readCache();
   if (cached) return cached;
+
+  // 1. Wise (via our server proxy — token stays secret)
   try {
-    const rate = await fetchRate(PRIMARY_URL);
+    const rate = await fetchWiseRate();
     writeCache(rate);
     return rate;
-  } catch (primaryErr) {
+  } catch {
+    // 2. exchangerate.host (direct — free, no key)
     try {
-      const rate = await fetchRate(FALLBACK_URL);
+      const rate = await fetchExchangeRateHost();
       writeCache(rate);
       return rate;
-    } catch (fallbackErr) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("FX sources failed, using offline default", { primaryErr, fallbackErr });
-      }
+    } catch {
+      // 3. Offline default
       return OFFLINE_DEFAULT_PHP_PER_USD;
     }
   }
 }
 
-/**
- * Walks every `<span data-price-php>` placeholder and fills it with `≈ $X USD`.
- *
- * Idempotent: nodes already filled (`data-fx-applied="1"`) are skipped. No
- * MutationObserver — explicit re-run on hydrate is enough for our render
- * surface, and avoids the feedback loop that took down the Vite site once.
- */
 function applyToPlaceholders(rate: number) {
   const nodes = document.querySelectorAll<HTMLElement>("[data-price-php]");
   for (const el of nodes) {
@@ -86,12 +103,6 @@ function applyToPlaceholders(rate: number) {
   }
 }
 
-/**
- * Drop a single `<UsdPriceMount />` anywhere in a page's tree to enable USD
- * augmentation on every `<span data-price-php="...">` placeholder in the DOM.
- *
- * The component itself renders nothing. It hydrates once per route.
- */
 export function UsdPriceMount() {
   useEffect(() => {
     let cancelled = false;
