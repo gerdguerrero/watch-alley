@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
@@ -24,21 +24,8 @@ const TRUST_MARKERS = ["Quezon City, PH", "Condition disclosed", "Insured shippi
 export function Hero({ featured = null }: HeroProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const splineContainerRef = useRef<HTMLDivElement>(null);
-  const ghostTextRef = useRef<HTMLHeadingElement>(null);
   const bottomLeftRef = useRef<HTMLDivElement>(null);
   const bottomRightRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Scroll-tied transforms for the background "WATCH" ghost type only. The
-  // 3D watch container is intentionally static across all viewports — the
-  // scroll-tied scale/y/opacity it used to have made the canvas visibly
-  // shrink and fade in/out under the user as they scrolled past the hero.
-  const ghostTextX = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const ghostTextOpacity = useTransform(scrollYProgress, [0, 0.5], [0.35, 0]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -65,17 +52,6 @@ export function Hero({ featured = null }: HeroProps = {}) {
           ease: "power3.out",
         }
       );
-
-      gsap.to(ghostTextRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-        y: 150,
-        scale: 1.08,
-      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -98,27 +74,6 @@ export function Hero({ featured = null }: HeroProps = {}) {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_55%_at_52%_42%,rgba(214,166,74,0.16),transparent_58%),linear-gradient(180deg,rgba(33,31,29,0.48)_0%,rgba(33,31,29,0.78)_58%,oklch(0.13_0.012_55)_100%)]" />
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-walnut-deep to-transparent" />
 
-      {/* Background Ghost Text */}
-      <motion.div
-        className="pointer-events-none absolute inset-0 flex select-none items-center justify-center"
-        style={{ x: ghostTextX, opacity: ghostTextOpacity }}
-      >
-        <h1
-          ref={ghostTextRef}
-          className="font-serif font-medium leading-none tracking-tight select-none text-transparent"
-          style={{
-            fontSize: "clamp(5rem, 18vw, 18rem)",
-            background:
-              "linear-gradient(180deg, rgba(236, 228, 211, 0.35) 0%, rgba(236, 228, 211, 0.05) 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
-        >
-          WATCH
-        </h1>
-      </motion.div>
-
       {/* 3D Watch Container - static across all viewports. Earlier this had
           scroll-tied y/scale/opacity transforms that caused the canvas to
           visibly shrink and fade as the user scrolled past the hero (and
@@ -133,10 +88,12 @@ export function Hero({ featured = null }: HeroProps = {}) {
         </div>
       </div>
 
-      {/* Bottom Left Content */}
+      {/* Bottom Left Content. On phone the text sits over the 3D watch which
+          tanks contrast, so wrap the block in a frosted-glass card; on md+ the
+          card styling resets and copy reads flat over the brand bg. */}
       <div
         ref={bottomLeftRef}
-        className="absolute bottom-20 left-6 z-20 max-w-xl opacity-0 md:bottom-16 md:left-12 lg:left-20"
+        className="absolute bottom-20 left-6 right-6 z-20 max-w-xl rounded-2xl border border-amber-400/15 bg-walnut-deep/25 p-5 opacity-0 backdrop-blur-md md:bottom-16 md:left-12 md:right-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none lg:left-20"
       >
         <motion.p
           className="mb-4 text-[11px] uppercase tracking-[0.32em] text-amber-300/80 font-mono"
