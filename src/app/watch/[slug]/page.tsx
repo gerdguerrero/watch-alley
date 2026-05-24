@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
+import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
@@ -144,45 +144,13 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
 
         <article className="grid gap-6 lg:gap-10 lg:grid-cols-[1.1fr_1fr]">
           {/* Left — gallery */}
-          <div className="flex flex-col gap-4">
-            <div
-              className={`relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 ${isSold ? "[filter:grayscale(0.5)] opacity-95" : ""}`}
-            >
-              {watch.primaryImage && (
-                <Image
-                  src={watch.primaryImage}
-                  alt={`${watch.brand} ${watch.name}`}
-                  fill
-                  sizes="(min-width: 1024px) 55vw, 100vw"
-                  className="object-cover"
-                  priority
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-              {watch.badge && !isSold && (
-                <span className="absolute top-5 left-5 px-3 py-1.5 border border-amber-500/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-400">
-                  {watch.badge}
-                </span>
-              )}
-              {isSold && (
-                <span className="absolute top-5 left-5 px-3 py-1.5 border border-white/20 bg-black/50 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-zinc-300">
-                  Sold {watch.soldAt ? `· ${formatSoldMonth(watch.soldAt)}` : ""}
-                </span>
-              )}
-            </div>
-            {watch.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-3">
-                {watch.images.slice(0, 8).map((src) => (
-                  <div
-                    key={src}
-                    className="relative aspect-square overflow-hidden rounded-2xl border border-white/5"
-                  >
-                    <Image src={src} alt="" fill sizes="120px" className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <WatchGallery
+            images={watch.images.length > 0 ? watch.images : watch.primaryImage ? [watch.primaryImage] : []}
+            alt={`${watch.brand} ${watch.name}`}
+            badge={watch.badge}
+            soldAt={watch.soldAt ? formatSoldMonth(watch.soldAt) : undefined}
+            isSold={isSold}
+          />
 
           {/* Right — details */}
           <div className="flex flex-col gap-5">
