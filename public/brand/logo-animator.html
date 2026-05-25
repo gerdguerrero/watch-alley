@@ -401,7 +401,8 @@
           <button id="btn-play" class="btn btn-gold">Play Lockup</button>
           <button id="btn-reverse" class="btn btn-outline">Reverse</button>
           <button id="btn-explode" class="btn btn-outline btn-wide">Explode Layout</button>
-          <button id="btn-clockwork" class="btn btn-outline btn-wide" style="margin-top: 10px;">Clockwork Sweep</button>
+          <button id="btn-clockwork" class="btn btn-outline" style="margin-top: 10px;">Clockwork Sweep</button>
+          <button id="btn-watch-spin" class="btn btn-outline" style="margin-top: 10px;">Watch Timelapse</button>
         </div>
       </div>
 
@@ -469,7 +470,7 @@
     let tl;
     let animSpeed = 1.0;
     let isExploded = false;
-    let currentMode = 'standard'; // 'standard' or 'clockwork'
+    let currentMode = 'standard'; // 'standard', 'clockwork', or 'watch-spin'
 
     // DOM References
     const sliderScrub = document.getElementById('slider-scrub');
@@ -480,6 +481,7 @@
     const btnReverse = document.getElementById('btn-reverse');
     const btnExplode = document.getElementById('btn-explode');
     const btnClockwork = document.getElementById('btn-clockwork');
+    const btnWatchSpin = document.getElementById('btn-watch-spin');
     const statusText = document.getElementById('telemetry-status');
     const hingeGlow = document.getElementById('hinge-glow-ring');
 
@@ -591,7 +593,7 @@
           { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" },
           0.85
         );
-      } else {
+      } else if (currentMode === 'clockwork') {
         // Clockwork Sweep Mode: A thematic timepiece transition
         // Hide the wordmarks initially using a horizontal wipe inset
         gsap.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], {
@@ -656,6 +658,75 @@
           { clipPath: "inset(0 100% 0 0)" },
           { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
           1.45
+        );
+      } else if (currentMode === 'watch-spin') {
+        // Watch Timelapse Mode: Authentic mechanical 2-hour watch spin (continuous, linear/mechanical, no scale/opacity fade-in)
+        // Hide the wordmarks initially using a horizontal wipe inset
+        gsap.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], {
+          clipPath: "inset(0 100% 0 0)",
+          opacity: 1
+        });
+
+        // Ensure the hands are fully visible from the start (no fade-in, no scaling)
+        gsap.set([leftLeg, rightLeg], {
+          opacity: 1,
+          scale: 1
+        });
+
+        tl = gsap.timeline({
+          paused: true,
+          onUpdate: updateScrubSlider,
+          onStart: () => { statusText.textContent = "ANIMATING"; btnPlay.textContent = "Pause"; },
+          onComplete: () => { 
+            statusText.textContent = "RESOLVED"; 
+            btnPlay.textContent = "Replay";
+            triggerHingeGlow();
+          },
+          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Timelapse"; }
+        });
+
+        // 1. Minute Hand rotates exactly 2 full circles (720 degrees) clockwise to meet at 0.
+        // It rotates with a smooth power1.inOut timepiece sweep.
+        tl.fromTo(leftLeg,
+          { rotate: -720 },
+          { rotate: 0, duration: 2.2, ease: "power1.inOut" },
+          0.1
+        );
+
+        // 2. Hour Hand rotates exactly 60 degrees (2 hours delta) in perfect mechanical gear-sync.
+        tl.fromTo(rightLeg,
+          { rotate: -60 },
+          { rotate: 0, duration: 2.2, ease: "power1.inOut" },
+          0.1
+        );
+
+        // Connection lock trigger at the hinge joint
+        tl.add(() => { triggerHingeGlow(); }, 2.15);
+
+        // 3. Windshield swipe reveal: The text reveals like a clean windshield wipe,
+        // following the sweep of the hand as it passes.
+        tl.fromTo("#twa-the",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.0
+        );
+
+        tl.fromTo("#twa-watch-w",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.2
+        );
+
+        tl.fromTo("#twa-watch-tch",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.6
+        );
+
+        tl.fromTo("#twa-lley",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.8
         );
       }
     }
@@ -814,24 +885,54 @@
       }
     });
 
-    // Clockwork Sweep Mode Toggle
-    btnClockwork.addEventListener('click', () => {
+    // Mode toggling helper
+    function setMode(mode) {
       resetExplodeSlider();
-      if (currentMode === 'standard') {
-        currentMode = 'clockwork';
-        btnClockwork.textContent = "Standard Lockup";
+      currentMode = mode;
+      
+      // Reset button styles
+      btnClockwork.style.backgroundColor = '';
+      btnClockwork.style.borderColor = '';
+      btnClockwork.textContent = "Clockwork Sweep";
+      
+      btnWatchSpin.style.backgroundColor = '';
+      btnWatchSpin.style.borderColor = '';
+      btnWatchSpin.textContent = "Watch Timelapse";
+      
+      if (currentMode === 'clockwork') {
         btnClockwork.style.backgroundColor = 'var(--gold-10)';
         btnClockwork.style.borderColor = 'var(--gold)';
+        btnClockwork.textContent = "Standard Lockup";
         btnPlay.textContent = "Play Clockwork";
+      } else if (currentMode === 'watch-spin') {
+        btnWatchSpin.style.backgroundColor = 'var(--gold-10)';
+        btnWatchSpin.style.borderColor = 'var(--gold)';
+        btnWatchSpin.textContent = "Standard Lockup";
+        btnPlay.textContent = "Play Timelapse";
       } else {
-        currentMode = 'standard';
-        btnClockwork.textContent = "Clockwork Sweep";
-        btnClockwork.style.backgroundColor = '';
-        btnClockwork.style.borderColor = '';
         btnPlay.textContent = "Play Lockup";
       }
+      
       initTimeline();
-      tl.play(0); // Auto-play the new timeline!
+      tl.play(0); // Auto-play the selected timeline!
+    }
+
+    // Clockwork Sweep Mode Toggle
+    btnClockwork.addEventListener('click', () => {
+      if (currentMode === 'clockwork') {
+        setMode('standard');
+      } else {
+        setMode('clockwork');
+      }
+    });
+
+    // Watch Timelapse Mode Toggle
+    btnWatchSpin.addEventListener('click', () => {
+      if (currentMode === 'watch-spin') {
+        setMode('standard');
+      } else {
+        setMode('watch-spin');
+      }
     });
 
     // Speed Selector Buttons
