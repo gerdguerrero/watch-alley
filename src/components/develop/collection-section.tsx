@@ -85,7 +85,7 @@ function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: A
   // unmount text.
   return (
     <motion.div
-      className="relative overflow-hidden cursor-pointer rounded-[28px] isolate min-h-[340px] md:min-h-0 md:flex-shrink md:basis-0"
+      className="relative overflow-hidden cursor-pointer rounded-[28px] isolate aspect-[16/9] md:aspect-auto md:min-h-0 md:flex-shrink md:basis-0"
       style={{
         backgroundImage: watch.primaryImage ? `url(${watch.primaryImage})` : undefined,
         backgroundColor: "oklch(0.17 0.015 55)",
@@ -197,7 +197,10 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   // Track the hovered active card slug
   const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.watch?.slug ?? null);
 
-  const activeId = items.find((item) => item.watch.slug === intendedActiveId)?.watch?.slug ?? items[0]?.watch?.slug ?? null;
+  const activeId =
+    items.find((item) => item.watch.slug === intendedActiveId)?.watch?.slug ??
+    items[0]?.watch?.slug ??
+    null;
 
   if (watches.length === 0) {
     return (
