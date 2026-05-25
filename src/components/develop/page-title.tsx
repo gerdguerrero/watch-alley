@@ -35,7 +35,7 @@ function renderHeadline(node: ReactNode) {
  */
 export function PageTitle({ title, eyebrow, headline, description }: PageTitleProps) {
   return (
-    <div className="relative overflow-hidden px-6 pt-[clamp(120px,16vh,180px)] pb-12 md:px-12 md:pb-20 lg:px-20">
+    <div className="relative overflow-hidden px-6 pt-[clamp(120px,16vh,180px)] pb-12 md:px-12 md:pb-20 lg:flex lg:h-[80vh] lg:flex-col lg:justify-center lg:px-20 lg:py-0">
       <style>{`
         @keyframes wa-page-rise {
           from { opacity: 0; transform: translateY(8px); }
