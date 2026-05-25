@@ -60,10 +60,6 @@ export function Footer() {
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
             <BrandLogo className="h-16 w-16" sizes="64px" />
           </Link>
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-cream-60">
-            A Manila-based curator of pre-owned and brand-new watches — selected with taste,
-            photographed honestly, and handled with care.
-          </p>
           <div className="mt-5 flex items-center gap-3">
             {SOCIAL_LINKS.map((social) => (
               <a
