@@ -46,7 +46,7 @@ const LOGO_SRC: Record<BrandLogoVariant, string> = {
 };
 
 export function BrandLogo({
-  variant = "badge",
+  variant = "primary",
   className = "h-14 w-14",
   priority = false,
   sizes = "56px",

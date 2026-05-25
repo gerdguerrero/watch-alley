@@ -67,23 +67,26 @@ export function MainNav() {
           isScrolled ? "rounded-2xl py-2.5 max-w-5xl" : "rounded-3xl py-3 md:py-4"
         }`}
       >
-        {/* Left: Logo + Wordmark */}
+        {/* Left: Full brand lockup (compass + wordmark in one SVG). The
+            primary lockup contains the wordmark, so no adjacent text node —
+            avoids the duplicate-wordmark stutter that the previous
+            badge-plus-text arrangement had. */}
         <Link
           href="/"
           aria-label="The Watch Alley home"
-          className="flex items-center gap-2 md:gap-3 group flex-shrink-0"
+          className="flex items-center group flex-shrink-0"
         >
           <Image
-            src={BRAND_ASSETS.twaBadge}
-            alt=""
-            width={isScrolled ? 30 : 36}
-            height={isScrolled ? 30 : 36}
+            src={BRAND_ASSETS.twaPrimary}
+            alt="The Watch Alley"
+            // Native aspect is 490×365 (≈1.34:1). Keeping height the source
+            // of truth and deriving width preserves the lockup's proportions
+            // through the scroll-shrink transition.
+            width={isScrolled ? 54 : 64}
+            height={isScrolled ? 40 : 48}
             className="object-contain transition-all duration-500"
             priority
           />
-          <span className="font-serif text-[12px] md:text-sm tracking-[0.12em] text-[color:var(--color-cream)] uppercase transition-all duration-500 hidden sm:inline">
-            The Watch Alley
-          </span>
         </Link>
 
         {/* Middle: Section Links (hidden on phone, visible lg+) */}
