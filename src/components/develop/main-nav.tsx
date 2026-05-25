@@ -57,7 +57,7 @@ export function MainNav() {
   // pattern used by src/components/storefront/InquiryButtons.tsx — the visitor
   // still has to tap Send, but the body is already typed for them.
   const INQUIRE_TEMPLATE =
-    "Hi! I visited The Watch Alley website and I'm interested in your collection — could you share more details?";
+    "Hi! 👋 I visited The Watch Alley website and I'm interested in your collection ⌚ — could you share more details?";
   const inquireHref = `https://m.me/thewatchalley?text=${encodeURIComponent(INQUIRE_TEMPLATE)}`;
 
   return (
