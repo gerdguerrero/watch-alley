@@ -10,7 +10,15 @@ import { useCallback, useRef, useState } from "react";
 /*  viewport, like Cartier / Hodinkee / high‑end watch retailers.     */
 /* ------------------------------------------------------------------ */
 
-function MagnifiedImage({ src, alt }: { src: string; alt: string }) {
+function MagnifiedImage({
+  images,
+  selectedIndex,
+  alt,
+}: {
+  images: string[];
+  selectedIndex: number;
+  alt: string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
@@ -33,19 +41,29 @@ function MagnifiedImage({ src, alt }: { src: string; alt: string }) {
       onMouseLeave={() => setHover(false)}
       className="relative w-full h-full overflow-hidden"
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(max-width: 1024px) 100vw, 55vw"
-        draggable={false}
-        className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-75 ease-out"
-        style={{
-          transform: hover ? "scale(3)" : "scale(1)",
-          transformOrigin: `${origin.x}% ${origin.y}%`,
-          willChange: "transform",
-        }}
-      />
+      {images.map((src, index) => {
+        const selected = index === selectedIndex;
+        return (
+          <Image
+            key={src}
+            src={src}
+            alt={selected ? alt : ""}
+            fill
+            sizes="(max-width: 1024px) calc(100vw - 48px), 760px"
+            preload={index === 0}
+            loading={index === 0 ? undefined : "eager"}
+            draggable={false}
+            className={`absolute top-0 left-0 h-full w-full object-cover transition-opacity duration-150 ease-out ${
+              selected ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              transform: hover ? "scale(3)" : "scale(1)",
+              transformOrigin: `${origin.x}% ${origin.y}%`,
+              willChange: selected ? "transform" : "auto",
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -67,8 +85,6 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
 
   if (images.length === 0) return null;
 
-  const selectedImage = images[selectedIndex] ?? images[0];
-
   return (
     <div className="flex flex-col gap-4">
       {/* Main image with cursor-tracking zoom */}
@@ -77,7 +93,7 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
           isSold ? "[filter:grayscale(0.5)] opacity-95" : ""
         }`}
       >
-        <MagnifiedImage key={selectedImage} src={selectedImage} alt={alt} />
+        <MagnifiedImage images={images.slice(0, 8)} selectedIndex={selectedIndex} alt={alt} />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
         {badge && !isSold && (
