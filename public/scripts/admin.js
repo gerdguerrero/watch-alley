@@ -2,8 +2,10 @@
 // Auth via Supabase Auth (email + password). Authorization via watch_alley.admin_emails
 // allowlist (checked server-side inside SECURITY DEFINER RPCs). The page never
 // writes to the watches table directly.
+//
+// supabase-js is loaded as a regular <script> (UMD build) from
+// ../scripts/vendor/supabase.min.js — zero external CDN dependencies.
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 import { renderMarkdown } from './lib/markdown.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
@@ -17,7 +19,7 @@ const PLACEHOLDER_URL_HOST = 'YOUR-NEW-PROJECT-REF';
 const isConfigured = !SUPABASE_URL.includes(PLACEHOLDER_URL_HOST) && SUPABASE_ANON_KEY.length > 0;
 
 const supabase = isConfigured
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true },
     })
   : null;
