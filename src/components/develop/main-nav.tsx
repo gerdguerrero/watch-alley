@@ -56,8 +56,11 @@ export function MainNav() {
   // Inquire pill opens Messenger with a pre-filled draft message. Same `?text=`
   // pattern used by src/components/storefront/InquiryButtons.tsx — the visitor
   // still has to tap Send, but the body is already typed for them.
+  // NOTE: Facebook's m.me ?text= parameter does not reliably decode UTF-8
+  // emojis (both 👋 4-byte SMP and ⌚ 3-byte BMP rendered as � in testing).
+  // Keep the template ASCII-only.
   const INQUIRE_TEMPLATE =
-    "Hi! 👋 I visited The Watch Alley website and I'm interested in your collection ⌚ — could you share more details?";
+    "Hi! I visited The Watch Alley website and I'm interested in your collection. Could you share more details?";
   const inquireHref = `https://m.me/thewatchalley?text=${encodeURIComponent(INQUIRE_TEMPLATE)}`;
 
   return (
