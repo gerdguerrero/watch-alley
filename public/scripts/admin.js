@@ -441,48 +441,61 @@ function setPasswordSetupStatus(message, tone) {
 // ---------------- Authorization gate ----------------
 
 async function renderForCurrentSession() {
-  if (!supabase) {
-    showOnly('unconfigured');
-    setStatus('Supabase project not configured yet.', 'error');
-    return;
-  }
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    showOnly('auth');
-    return;
-  }
-  // If the session arrived via an invite or recovery link, force the user
-  // through the password-setup panel before anything else.
-  if (mustSetPassword) {
-    if (els.passwordSetupMeta) {
-      els.passwordSetupMeta.textContent = passwordSetupReason === 'recovery'
-        ? 'Reset link verified. Choose a new password to continue.'
-        : 'Welcome to Watch Alley admin. Set a password to finish setting up your account.';
+  // Reentrancy guard: the initial kickoff at file bottom, the INITIAL_SESSION
+  // event, and the SIGNED_IN event can all land within the same tick. Without
+  // this guard each one fires admin_whoami + admin_list_watches +
+  // admin_dashboard_metrics in parallel, producing the post-sign-in "hang".
+  if (renderInFlight) return;
+  renderInFlight = true;
+  try {
+    if (!supabase) {
+      showOnly('unconfigured');
+      setStatus('Supabase project not configured yet.', 'error');
+      return;
     }
-    showOnly('passwordSetup');
-    return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      showOnly('auth');
+      return;
+    }
+    // If the session arrived via an invite or recovery link, force the user
+    // through the password-setup panel before anything else.
+    if (mustSetPassword) {
+      if (els.passwordSetupMeta) {
+        els.passwordSetupMeta.textContent = passwordSetupReason === 'recovery'
+          ? 'Reset link verified. Choose a new password to continue.'
+          : 'Welcome to Watch Alley admin. Set a password to finish setting up your account.';
+      }
+      showOnly('passwordSetup');
+      return;
+    }
+    // Ask the server whether this email is on the allowlist.
+    const { data, error } = await supabase.rpc('admin_whoami');
+    if (error) {
+      // Distinguish "you're not an admin" (clean forbidden state) from
+      // "the RPC errored" (network blip, project paused, RLS misconfig).
+      // The previous behavior bounced everyone back to the sign-in form,
+      // which made transient errors look like a sign-in failure.
+      setStatus(`Could not verify admin status: ${error.message}. Try refreshing.`, 'error');
+      els.forbiddenEmail.textContent = session.user?.email || '(unknown)';
+      showOnly('forbidden');
+      return;
+    }
+    if (!data?.is_admin) {
+      els.forbiddenEmail.textContent = data?.email || session.user?.email || '(unknown)';
+      showOnly('forbidden');
+      return;
+    }
+    if (els.accountEmail) {
+      els.accountEmail.textContent = data?.email || session.user?.email || '(unknown)';
+    }
+    showOnly('workspace');
+    // Parallelize the two heavy reads so the workspace paints in one
+    // round-trip's worth of latency instead of two.
+    await Promise.all([loadWatches(), loadDashboard()]);
+  } finally {
+    renderInFlight = false;
   }
-  // Ask the server whether this email is on the allowlist.
-  const { data, error } = await supabase.rpc('admin_whoami');
-  if (error) {
-    setStatus(`whoami failed: ${error.message}`, 'error');
-    showOnly('auth');
-    return;
-  }
-  if (!data?.is_admin) {
-    els.forbiddenEmail.textContent = data?.email || session.user?.email || '(unknown)';
-    showOnly('forbidden');
-    return;
-  }
-  if (els.accountEmail) {
-    els.accountEmail.textContent = data?.email || session.user?.email || '(unknown)';
-  }
-  showOnly('workspace');
-  await loadWatches();
-  // Dashboard is the default landing tab now (Wave 3 of Bet 3). Inbox loads
-  // when the operator switches to it.
-  loadDashboard();
-  initialSessionRendered = true;
 }
 
 function showOnly(panel) {
