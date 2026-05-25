@@ -2,14 +2,15 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 /**
- * Admin panel access gate (proxy).
+ * Admin panel cookie persistence (proxy).
  *
- * /admin requires a valid token: /admin?token=<ADMIN_ACCESS_TOKEN>
- * Once accessed, a cookie is set so you don't need the URL param every time.
- * Without a valid token, /admin returns 404 — invisible to scanners.
+ * When /admin is accessed with a valid ?token= query parameter, a secure
+ * HTTP-only cookie is set so return visitors don't need the URL param.
  *
- * Only activates when ADMIN_ACCESS_TOKEN is explicitly set to a non-empty
- * value in Vercel environment variables. Until then, /admin is open.
+ * The proxy does NOT block access — the admin panel's own Supabase Auth
+ * and `admin_whoami()` allowlist handle authorization. Blocking here would
+ * also block Supabase password-reset links, which arrive as bare /admin
+ * with an #access_token hash that never reaches the server.
  */
 const COOKIE_NAME = "wa_admin_access";
 
@@ -21,19 +22,17 @@ export function proxy(request: NextRequest) {
   }
 
   const expectedToken = (process.env.ADMIN_ACCESS_TOKEN ?? "").trim();
-
-  // Token not configured on Vercel yet — allow open access
   if (expectedToken.length === 0) {
     return NextResponse.next();
   }
 
-  // Check cookie
+  // If the visitor already has a valid cookie, pass through.
   const cookieValue = request.cookies.get(COOKIE_NAME)?.value;
   if (cookieValue === expectedToken) {
     return NextResponse.next();
   }
 
-  // Check URL query parameter
+  // If they arrived with a valid token, set the cookie and pass through.
   const urlToken = request.nextUrl.searchParams.get("token");
   if (urlToken === expectedToken) {
     const response = NextResponse.next();
@@ -47,8 +46,11 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  // No access — looks like any other 404
-  return new NextResponse("Not Found", { status: 404 });
+  // No valid token — allow access anyway. The admin panel's Supabase Auth
+  // and allowlist handle real security. Blocking here would also block
+  // password-reset links from Supabase email (hash fragments never reach
+  // the server, so we can't distinguish a reset link from a scanner).
+  return NextResponse.next();
 }
 
 export const config = {
