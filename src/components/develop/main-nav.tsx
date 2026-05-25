@@ -53,7 +53,12 @@ export function MainNav() {
     { label: "Journal", href: "/journal" },
   ];
 
-  const inquireHref = onHome ? "#contact" : "/#contact";
+  // Inquire pill opens Messenger with a pre-filled draft message. Same `?text=`
+  // pattern used by src/components/storefront/InquiryButtons.tsx — the visitor
+  // still has to tap Send, but the body is already typed for them.
+  const INQUIRE_TEMPLATE =
+    "Hi! I visited The Watch Alley website and I'm interested in your collection — could you share more details?";
+  const inquireHref = `https://m.me/thewatchalley?text=${encodeURIComponent(INQUIRE_TEMPLATE)}`;
 
   return (
     <motion.header
@@ -132,9 +137,10 @@ export function MainNav() {
           <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[color:var(--color-gold)] hidden md:inline">
             EN · ₱ PHP
           </span>
-          <Link
+          <a
             href={inquireHref}
-            onClick={handleAnchor("contact")}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[10px] md:text-[11px] font-medium uppercase tracking-[0.18em] text-amber-300 transition-all duration-300 hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:gap-2 md:px-5 md:py-2"
           >
             <span>Inquire</span>
@@ -153,7 +159,7 @@ export function MainNav() {
                 strokeLinejoin="round"
               />
             </svg>
-          </Link>
+          </a>
         </div>
 
         <MobileNavOverlay
@@ -161,7 +167,6 @@ export function MainNav() {
           onClose={() => setMenuOpen(false)}
           links={overlayLinks}
           inquireHref={inquireHref}
-          onInquireClick={handleAnchor("contact")}
         />
       </div>
     </motion.header>

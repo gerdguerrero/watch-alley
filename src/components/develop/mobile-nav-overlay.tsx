@@ -15,7 +15,6 @@ interface MobileNavDropdownProps {
   onClose: () => void;
   links: MobileNavLink[];
   inquireHref: string;
-  onInquireClick?: (e: MouseEvent) => void;
 }
 
 /**
@@ -23,13 +22,7 @@ interface MobileNavDropdownProps {
  * hamburger trigger is tapped. Closes on ESC, on outside click, and after the
  * user picks a destination link.
  */
-export function MobileNavOverlay({
-  open,
-  onClose,
-  links,
-  inquireHref,
-  onInquireClick,
-}: MobileNavDropdownProps) {
+export function MobileNavOverlay({ open, onClose, links, inquireHref }: MobileNavDropdownProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -83,10 +76,9 @@ export function MobileNavOverlay({
             <div className="mx-5 my-2 h-px bg-amber-400/15" />
             <a
               href={inquireHref}
-              onClick={(e) => {
-                onInquireClick?.(e);
-                onClose();
-              }}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
               role="menuitem"
               className="mx-3 mb-2 inline-flex items-center justify-center rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-300"
             >
