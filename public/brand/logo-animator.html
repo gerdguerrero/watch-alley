@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelier Logo Animator — The Watch Alley</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --walnut-deep: #13110f;
+      --walnut-card: #211b18;
+      --walnut-border: rgba(197, 168, 128, 0.15);
+      --gold: #c5a880;
+      --gold-30: rgba(197, 168, 128, 0.3);
+      --gold-10: rgba(197, 168, 128, 0.1);
+      --cream: #ece4d3;
+      --cream-80: rgba(236, 228, 211, 0.85);
+      --cream-40: rgba(236, 228, 211, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--walnut-deep);
+      color: var(--cream);
+      font-family: 'Geist', system-ui, sans-serif;
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      border-bottom: 1px solid var(--walnut-border);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(19, 17, 15, 0.95);
+      z-index: 10;
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title img {
+      width: 24px;
+      height: 24px;
+    }
+
+    nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    nav a {
+      color: var(--cream-80);
+      text-decoration: none;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--gold);
+    }
+
+    .main-workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 992px) {
+      .main-workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 340px;
+      }
+    }
+
+    /* Animation Bench (Canvas Area) */
+    .bench-area {
+      background: radial-gradient(circle at center, #231d19 0%, #13110f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 40px;
+      overflow: hidden;
+    }
+
+    .canvas-container {
+      width: 100%;
+      max-width: 680px;
+      aspect-ratio: 490 / 365;
+      border: 1px solid rgba(197, 168, 128, 0.05);
+      background: rgba(19, 17, 15, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Technical grid background */
+    .canvas-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(197, 168, 128, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(197, 168, 128, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: center;
+      pointer-events: none;
+    }
+
+    /* Inline SVG container styling */
+    .logo-vector {
+      width: 90%;
+      height: 90%;
+      overflow: visible;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background-color: var(--walnut-card);
+      border-left: 1px solid var(--walnut-border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 992px) {
+      .controls-panel {
+        border-left: none;
+        border-top: 1px solid var(--walnut-border);
+      }
+    }
+
+    .panel-header {
+      padding: 32px 40px 24px 40px;
+      border-bottom: 1px solid var(--walnut-border);
+    }
+
+    .panel-header h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .panel-header p {
+      font-size: 13px;
+      color: var(--cream-80);
+    }
+
+    .control-section {
+      padding: 32px 40px;
+      border-bottom: 1px solid var(--walnut-border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-label span.value-badge {
+      background: var(--gold-10);
+      border: 1px solid var(--gold-30);
+      padding: 2px 8px;
+      color: var(--cream);
+      font-size: 9px;
+    }
+
+    /* Trigger Buttons */
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+    }
+
+    .btn-gold {
+      background-color: var(--gold);
+      color: var(--walnut-deep);
+      font-weight: 600;
+    }
+
+    .btn-gold:hover {
+      background-color: #dfc198;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--cream);
+      border: 1px solid var(--gold-30);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--gold-10);
+      border-color: var(--gold);
+    }
+
+    .btn-wide {
+      grid-column: span 2;
+    }
+
+    /* Range Sliders */
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: rgba(197, 168, 128, 0.15);
+      outline: none;
+      transition: background 0.2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--gold);
+      cursor: pointer;
+      border-radius: 50%;
+      transition: transform 0.1s;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Info Readout */
+    .stats-container {
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--cream-80);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed rgba(197, 168, 128, 0.08);
+      padding-bottom: 8px;
+    }
+
+    .stat-row span:first-child {
+      font-family: 'Geist Mono', monospace;
+      color: var(--gold-30);
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .stat-row span:last-child {
+      color: var(--cream);
+    }
+
+    /* Active Hinge Ring Glow Overlay */
+    .hinge-glow {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      filter: blur(8px);
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="brand-guide.html" class="brand-title">
+      <img src="twa-logo-badge.svg" alt="Badge Icon">
+      The Watch Alley
+    </a>
+    <nav>
+      <a href="brand-guide.html">Brand Guide</a>
+      <a href="#" class="active">Interactive Motion</a>
+      <a href="../">Storefront</a>
+    </nav>
+  </header>
+
+  <!-- Workspace -->
+  <main class="main-workspace">
+    
+    <!-- Left Side: Animation Bench -->
+    <section class="bench-area">
+      <div class="canvas-container">
+        
+        <!-- Hinge ring center glow layer -->
+        <div id="hinge-glow-ring" class="hinge-glow" style="left: 36.7%; top: 6.8%;"></div>
+
+        <!-- Inline Vector Logo -->
+        <svg class="logo-vector" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 365">
+  <g id="twa-logo">
+    <!-- THE wordmark -->
+    <g id="twa-the" fill="#C09830">
+      <path id="the-t" d="M 11.839844 3.554688 L 2.25 3.554688 L 2.25 0 L 25.269531 0 L 25.269531 3.554688 L 15.679688 3.554688 L 15.679688 35.09375 L 11.839844 35.09375 Z M 11.839844 3.554688 " />
+      <path id="the-h" d="M 62.890625 0 L 62.890625 35.09375 L 59.054688 35.09375 L 59.054688 18.15625 L 36.40625 18.15625 L 36.40625 35.09375 L 32.570312 35.09375 L 32.570312 0 L 36.40625 0 L 36.40625 14.597656 L 59.054688 14.597656 L 59.054688 0 Z M 62.890625 0 " />
+      <path id="the-e" d="M 95.878906 31.535156 L 95.878906 35.09375 L 73.464844 35.09375 L 73.464844 0 L 95.316406 0 L 95.316406 3.554688 L 77.117188 3.554688 L 77.117188 14.550781 L 94.335938 14.550781 L 94.335938 18.058594 L 77.117188 18.058594 L 77.117188 31.535156 Z M 95.878906 31.535156 " />
+    </g>
+    
+    <!-- WATCH wordmark (minus A) -->
+    <g id="twa-watch-w" fill="#FFFFFF">
+      <path id="watch-w" d="M 126.226562 47.417969 L 101.164062 104.085938 L 77.527344 54.339844 L 72.957031 54.339844 L 49.589844 103.695312 L 24.65625 47.417969 L 0.242188 47.417969 L 46.972656 147.042969 L 49.980469 147.042969 L 75.183594 93.378906 L 100.375 147.042969 L 103.378906 147.042969 L 149.992188 47.417969 Z M 126.226562 47.417969 " />
+    </g>
+    <g id="twa-watch-tch" fill="#FFFFFF">
+      <path id="watch-t" d="M 229.496094 47.417969 L 229.496094 67.269531 L 251.292969 67.269531 L 251.292969 117.15625 C 259.230469 121.398438 269.308594 136.628906 271.992188 145.34375 L 274.140625 145.34375 L 274.140625 67.269531 L 295.816406 67.269531 L 295.816406 47.417969 Z M 229.496094 47.417969 " />
+      <path id="watch-c" d="M 357.179688 67.007812 C 363.839844 67.007812 369.320312 68.175781 374.152344 70.664062 L 374.152344 49.375 C 369.320312 47.027344 362.011719 45.980469 355.871094 45.980469 C 326.363281 45.980469 304.296875 67.660156 304.296875 96.644531 C 304.296875 125.625 326.363281 147.300781 355.738281 147.300781 C 361.882812 147.300781 369.320312 146.382812 374.152344 143.777344 L 374.152344 122.757812 C 369.320312 125.105469 363.839844 126.152344 357.179688 126.152344 C 339.941406 126.152344 327.152344 114.011719 327.152344 96.644531 C 327.152344 79.140625 339.941406 67.007812 357.179688 67.007812 " />
+      <path id="watch-h" d="M 463.453125 47.417969 L 463.453125 83.84375 L 419.445312 83.84375 L 419.445312 47.417969 L 396.601562 47.417969 L 396.601562 145.34375 L 419.445312 145.34375 L 419.445312 104.605469 L 463.453125 104.605469 L 463.453125 145.34375 L 486.296875 145.34375 L 486.296875 47.417969 Z M 463.453125 47.417969 " />
+    </g>
+    
+    <!-- Caliper / Compass A Graphic -->
+    <g id="twa-compass" fill="#C09830">
+      <path id="compass-left-leg" d="M 191.316406 46.957031 C 184.949219 50.867188 176.585938 48.863281 172.675781 42.492188 C 168.765625 36.125 170.769531 27.761719 177.140625 23.851562 C 183.511719 19.941406 191.871094 21.945312 195.78125 28.316406 C 199.679688 34.683594 197.6875 43.046875 191.316406 46.957031 M 156.742188 177.445312 C 151.984375 177.457031 141.273438 176.902344 134.214844 172.058594 L 165.371094 70.074219 C 171.273438 68.796875 178.320312 72.902344 181.285156 74.882812 Z M 128.140625 296.972656 C 123.113281 299.347656 113.878906 305.222656 105.722656 318.625 C 105.761719 308.199219 104.003906 297.378906 98.742188 288.179688 L 130.957031 182.753906 C 135.433594 183.738281 149.511719 186.960938 153.839844 189.554688 Z M 208.542969 20.472656 C 200.304688 7.042969 182.722656 2.839844 169.296875 11.078125 C 155.867188 19.328125 151.664062 36.898438 159.902344 50.339844 C 160.957031 52.046875 162.164062 53.621094 163.492188 55.023438 L 91.992188 289.066406 C 92.261719 289.472656 92.53125 289.878906 92.777344 290.296875 C 108.332031 315.625 92.136719 357.800781 92.136719 357.800781 L 98.152344 359.941406 C 106.265625 308.691406 133.429688 301.523438 133.429688 301.523438 L 190.433594 63.261719 C 193.433594 62.597656 196.382812 61.429688 199.164062 59.71875 C 212.589844 51.484375 216.796875 33.910156 208.542969 20.472656 " />
+      <path id="compass-right-leg" d="M 244.535156 160.117188 C 236.46875 150.699219 233.835938 139.386719 236.691406 126.4375 C 241.289062 128.125 250.535156 132.625 255.578125 142.84375 C 259.328125 150.429688 260.066406 159.785156 257.8125 170.742188 C 255.058594 169.253906 249.402344 165.808594 244.535156 160.117188 M 254.925781 181.179688 C 253.472656 184.105469 253.152344 188.054688 253.992188 193.28125 C 250.167969 188.730469 245.371094 184.378906 239.566406 181.402344 C 241.191406 174.847656 241.460938 168.996094 240.832031 163.820312 C 247.019531 170.914062 254.078125 174.75 256.546875 175.957031 C 256.070312 177.664062 255.539062 179.410156 254.925781 181.179688 M 234.734375 179.152344 C 224.566406 174.039062 217.976562 167.101562 215.109375 158.542969 C 211.730469 148.398438 214.507812 138.527344 215.714844 135.550781 C 218.738281 137.371094 223.015625 140.417969 226.851562 144.847656 C 235.117188 154.375 237.773438 165.910156 234.734375 179.152344 M 205.101562 104.257812 L 219.648438 97.285156 L 230.921875 122.761719 L 231.746094 124.691406 C 230.320312 130.851562 230.097656 136.386719 230.6875 141.292969 L 230.652344 141.253906 C 225.328125 135.179688 219.363281 131.492188 216.15625 129.796875 Z M 190.148438 69.71875 L 204.621094 63.285156 L 217.542969 92.503906 L 203.023438 99.460938 Z M 178.75 52.21875 C 169.503906 49.132812 164.476562 39.113281 167.550781 29.851562 C 170.625 20.59375 180.65625 15.566406 189.917969 18.640625 C 199.164062 21.714844 204.203125 31.746094 201.117188 41.003906 C 198.042969 50.265625 188.011719 55.292969 178.75 52.21875 M 259.734375 183.257812 C 275.71875 137.0625 245.199219 123.746094 237.425781 121.164062 C 236.332031 120.808594 235.695312 120.648438 235.695312 120.648438 L 205.816406 53.066406 C 207.941406 50.484375 209.652344 47.472656 210.769531 44.09375 C 215.625 29.484375 207.722656 13.707031 193.101562 8.851562 C 178.492188 3.996094 162.71875 11.902344 157.859375 26.519531 C 153.003906 41.128906 160.910156 56.90625 175.53125 61.761719 C 177.535156 62.425781 179.5625 62.855469 181.566406 63.050781 L 211.519531 132.230469 C 209.824219 135.023438 197.734375 167.753906 234.355469 184.769531 C 252.488281 191.878906 261.035156 215.402344 261.035156 215.402344 L 265.734375 213.1875 C 265.734375 213.1875 255.636719 190.527344 259.734375 183.257812 " />
+    </g>
+    
+    <!-- LLEY wordmark -->
+    <g id="twa-lley" fill="#C09830">
+      <path id="lley-l1" d="M 318.738281 216.417969 L 318.738281 222.9375 L 286.738281 222.9375 L 286.738281 158.59375 L 293.773438 158.59375 L 293.773438 216.417969 Z M 318.738281 216.417969 " />
+      <path id="lley-l2" d="M 365.328125 216.417969 L 365.328125 222.9375 L 333.328125 222.9375 L 333.328125 158.59375 L 340.363281 158.59375 L 340.363281 216.417969 Z M 365.328125 216.417969 " />
+      <path id="lley-e" d="M 421.007812 216.417969 L 421.007812 222.9375 L 379.914062 222.9375 L 379.914062 158.59375 L 419.976562 158.59375 L 419.976562 165.113281 L 386.605469 165.113281 L 386.605469 185.273438 L 418.175781 185.273438 L 418.175781 191.707031 L 386.605469 191.707031 L 386.605469 216.417969 Z M 421.007812 216.417969 " />
+      <path id="lley-y" d="M 461.417969 203.804688 L 461.417969 222.9375 L 454.296875 222.9375 L 454.296875 203.804688 L 429.503906 158.59375 L 437.226562 158.59375 L 457.902344 196.683594 L 478.664062 158.59375 L 486.296875 158.59375 Z M 461.417969 203.804688 " />
+    </g>
+  </g>
+</svg>
+
+      </div>
+    </section>
+
+    <!-- Right Side: Controls Panel -->
+    <section class="controls-panel">
+      
+      <div class="panel-header">
+        <h2>Atelier Motion Desk</h2>
+        <p>Dynamic mechanical simulation of the primary brand lockup elements.</p>
+      </div>
+
+      <!-- Playback Triggers -->
+      <div class="control-section">
+        <span class="control-label">Simulation Triggers</span>
+        <div class="button-group">
+          <button id="btn-play" class="btn btn-gold">Play Lockup</button>
+          <button id="btn-reverse" class="btn btn-outline">Reverse</button>
+          <button id="btn-explode" class="btn btn-outline btn-wide">Explode Layout</button>
+          <button id="btn-clockwork" class="btn btn-outline btn-wide" style="margin-top: 10px;">Clockwork Sweep</button>
+        </div>
+      </div>
+
+      <!-- Timeline Scrubbing -->
+      <div class="control-section">
+        <span class="control-label">
+          Timeline Scrub
+          <span id="scrub-badge" class="value-badge">0%</span>
+        </span>
+        <div class="slider-container">
+          <input id="slider-scrub" type="range" class="slider" min="0" max="100" value="0">
+        </div>
+      </div>
+
+      <!-- Explode Elements Slider -->
+      <div class="control-section">
+        <span class="control-label">
+          Calibration Explode
+          <span id="explode-badge" class="value-badge">0px</span>
+        </span>
+        <div class="slider-container">
+          <input id="slider-explode" type="range" class="slider" min="0" max="150" value="0">
+        </div>
+      </div>
+
+      <!-- Speed Control -->
+      <div class="control-section">
+        <span class="control-label">Choreography Speed</span>
+        <div class="button-group" style="grid-template-columns: repeat(3, 1fr);">
+          <button class="btn btn-outline speed-btn" data-speed="0.25">0.25x</button>
+          <button class="btn btn-outline speed-btn active" data-speed="1.0" style="background-color: var(--gold-10); border-color: var(--gold);">1.0x</button>
+          <button class="btn btn-outline speed-btn" data-speed="2.0">2.0x</button>
+        </div>
+      </div>
+
+      <!-- Simulation telemetry readouts -->
+      <div class="stats-container">
+        <div class="stat-row">
+          <span>Engine Status</span>
+          <span id="telemetry-status">PAUSED</span>
+        </div>
+        <div class="stat-row">
+          <span>Choreographed Nodes</span>
+          <span>13 Isolated Paths</span>
+        </div>
+        <div class="stat-row">
+          <span>Anchors</span>
+          <span>Hinge: (178, 24) · Left Tip: (92, 358)</span>
+        </div>
+        <div class="stat-row">
+          <span>Simulation Target</span>
+          <span>Escolta Dusk v1.2</span>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- GreenSock (GSAP) Core -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <script>
+    // GSAP Setup
+    let tl;
+    let animSpeed = 1.0;
+    let isExploded = false;
+    let currentMode = 'standard'; // 'standard' or 'clockwork'
+
+    // DOM References
+    const sliderScrub = document.getElementById('slider-scrub');
+    const scrubBadge = document.getElementById('scrub-badge');
+    const sliderExplode = document.getElementById('slider-explode');
+    const explodeBadge = document.getElementById('explode-badge');
+    const btnPlay = document.getElementById('btn-play');
+    const btnReverse = document.getElementById('btn-reverse');
+    const btnExplode = document.getElementById('btn-explode');
+    const btnClockwork = document.getElementById('btn-clockwork');
+    const statusText = document.getElementById('telemetry-status');
+    const hingeGlow = document.getElementById('hinge-glow-ring');
+
+    // Vector references inside inline SVG
+    const leftLeg = document.getElementById('compass-left-leg');
+    const rightLeg = document.getElementById('compass-right-leg');
+    const watchW = document.getElementById('watch-w');
+    const watchT = document.getElementById('watch-t');
+    const watchC = document.getElementById('watch-c');
+    const watchH = document.getElementById('watch-h');
+    const lley = document.querySelectorAll('#twa-lley path');
+    const the = document.querySelectorAll('#twa-the path');
+
+    // Mathematically isolated explosion vectors
+    // Center point is the compass hinge ring: X: 178, Y: 24
+    // Each element is pushed away from (245, 180) - the absolute center of the viewBox
+    const explosionOffsets = {
+      'compass-left-leg': { x: -40, y: 30 },
+      'compass-right-leg': { x: 30, y: -20 },
+      'watch-w': { x: -110, y: -20 },
+      'watch-t': { x: 40, y: -40 },
+      'watch-c': { x: 90, y: -30 },
+      'watch-h': { x: 130, y: -10 },
+      'the-t': { x: -140, y: -100 },
+      'the-h': { x: -110, y: -110 },
+      'the-e': { x: -80, y: -110 },
+      'lley-l1': { x: 60, y: 90 },
+      'lley-l2': { x: 90, y: 90 },
+      'lley-e': { x: 120, y: 80 },
+      'lley-y': { x: 150, y: 70 }
+    };
+
+    // Initialize animation timeline
+    function initTimeline() {
+      // Clear any running timeline
+      if (tl) tl.kill();
+
+      // Reset styles before building timeline
+      gsap.set([leftLeg, rightLeg, watchW, watchT, watchC, watchH, lley, the], {
+        clearProps: "all"
+      });
+      gsap.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], {
+        clearProps: "clipPath,opacity"
+      });
+
+      if (currentMode === 'standard') {
+        // Construct a highly detailed GreenSock timeline (Standard Mode)
+        tl = gsap.timeline({
+          paused: true,
+          onUpdate: updateScrubSlider,
+          onStart: () => { statusText.textContent = "ANIMATING"; btnPlay.textContent = "Pause"; },
+          onComplete: () => { 
+            statusText.textContent = "RESOLVED"; 
+            btnPlay.textContent = "Replay";
+            triggerHingeGlow();
+          },
+          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Lockup"; }
+        });
+
+        // 1. Compass Left Leg & joint pivot assembly sweeps in
+        tl.fromTo(leftLeg, 
+          { rotate: -30, opacity: 0, scale: 0.6 },
+          { rotate: 0, opacity: 1, scale: 1, duration: 1.1, ease: "power4.out" },
+          0.1
+        );
+
+        // 2. Compass Right Leg swings in to meet at the joint (magnetic connection)
+        tl.fromTo(rightLeg,
+          { rotate: 50, opacity: 0, scale: 0.6 },
+          { rotate: 0, opacity: 1, scale: 1, duration: 0.95, ease: "back.out(1.2)" },
+          0.35
+        );
+
+        // 3. Staggered reveal of WATCH letters sliding in to frame the caliper A
+        tl.fromTo(watchW,
+          { x: -120, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.85, ease: "power3.out" },
+          0.55
+        );
+
+        tl.fromTo(watchT,
+          { x: 60, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.75, ease: "power3.out" },
+          0.65
+        );
+
+        tl.fromTo(watchC,
+          { x: 110, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.75, ease: "power3.out" },
+          0.73
+        );
+
+        tl.fromTo(watchH,
+          { x: 160, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.75, ease: "power3.out" },
+          0.8
+        );
+
+        // 4. THE falling down from the top
+        tl.fromTo(the,
+          { y: -30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" },
+          0.75
+        );
+
+        // 5. LLEY rising up from the bottom
+        tl.fromTo(lley,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" },
+          0.85
+        );
+      } else {
+        // Clockwork Sweep Mode: A thematic timepiece transition
+        // Hide the wordmarks initially using a horizontal wipe inset
+        gsap.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], {
+          clipPath: "inset(0 100% 0 0)",
+          opacity: 1
+        });
+
+        tl = gsap.timeline({
+          paused: true,
+          onUpdate: updateScrubSlider,
+          onStart: () => { statusText.textContent = "ANIMATING"; btnPlay.textContent = "Pause"; },
+          onComplete: () => { 
+            statusText.textContent = "RESOLVED"; 
+            btnPlay.textContent = "Replay";
+            triggerHingeGlow();
+          },
+          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Clockwork"; }
+        });
+
+        // 1. Minute Hand (Left Leg, long caliper needle) rotates exactly TWICE (720 degrees) to its resting position
+        tl.fromTo(leftLeg,
+          { rotate: -720, opacity: 0, scale: 0.95 },
+          { rotate: 0, opacity: 1, scale: 1, duration: 1.8, ease: "power3.inOut" },
+          0.1
+        );
+
+        // 2. Hour Hand (Right Leg, short caliper nib) rotates 2 hours (60 degrees) to its resting position
+        tl.fromTo(rightLeg,
+          { rotate: -60, opacity: 0, scale: 0.95 },
+          { rotate: 0, opacity: 1, scale: 1, duration: 1.8, ease: "power3.inOut" },
+          0.1
+        );
+
+        // Connection lock trigger at the hinge joint just before they stop rotating
+        tl.add(() => { triggerHingeGlow(); }, 1.75);
+
+        // 3. Windshield brush swipe reveal: the text wipes into existence sequentially
+        // as the long minute hand leg sweeps clockwise past their coordinates.
+        
+        // As the hand sweeps past top-left and left:
+        tl.fromTo("#twa-the",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          0.85
+        );
+
+        tl.fromTo("#twa-watch-w",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          0.95
+        );
+
+        // As the hand sweeps past the right side:
+        tl.fromTo("#twa-watch-tch",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.35
+        );
+
+        // As the hand sweeps past the bottom-right and settles:
+        tl.fromTo("#twa-lley",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
+          1.45
+        );
+      }
+    }
+
+    // Trigger Hinge Connection Glow
+    function triggerHingeGlow() {
+      gsap.fromTo(hingeGlow,
+        { scale: 0.2, opacity: 0 },
+        { scale: 1.6, opacity: 0.6, duration: 0.4, ease: "power2.out", onComplete: () => {
+          gsap.to(hingeGlow, { opacity: 0, duration: 0.6, scale: 2.2, ease: "power2.in" });
+        }}
+      );
+    }
+
+    // Update scrubber slider visually during playback
+    function updateScrubSlider() {
+      const progress = Math.round(tl.progress() * 100);
+      sliderScrub.value = progress;
+      scrubBadge.textContent = `${progress}%`;
+    }
+
+    // Slider scrubbing handler
+    sliderScrub.addEventListener('input', (e) => {
+      // If we scrub, pause timeline and seek
+      tl.pause();
+      statusText.textContent = "SCRUBBING";
+      btnPlay.textContent = "Resume";
+      
+      // Make sure explode is reset first
+      resetExplodeSlider();
+      
+      const progress = e.target.value / 100;
+      tl.progress(progress);
+      scrubBadge.textContent = `${e.target.value}%`;
+    });
+
+    // Reset Explode to 0 when starting timeline animations
+    function resetExplodeSlider() {
+      sliderExplode.value = 0;
+      explodeBadge.textContent = "0px";
+      isExploded = false;
+      
+      // Reset layout positions to baseline GSAP positions
+      gsap.set([leftLeg, rightLeg, watchW, watchT, watchC, watchH], { x: 0, y: 0 });
+      gsap.set(the, { x: 0, y: 0 });
+      gsap.set(lley, { x: 0, y: 0 });
+    }
+
+    // Explode logic rendering loop
+    sliderExplode.addEventListener('input', (e) => {
+      // Pause entrance animation and complete it to standard positions
+      tl.pause();
+      tl.progress(1.0);
+      statusText.textContent = "EXPLODED";
+      btnPlay.textContent = "Reassemble";
+
+      const factor = e.target.value / 100; // 0 to 1.5
+      explodeBadge.textContent = `${e.target.value}px`;
+
+      // Translate every element along its explosion vector
+      applyExplodeOffset(leftLeg, 'compass-left-leg', factor);
+      applyExplodeOffset(rightLeg, 'compass-right-leg', factor);
+      applyExplodeOffset(watchW, 'watch-w', factor);
+      applyExplodeOffset(watchT, 'watch-t', factor);
+      applyExplodeOffset(watchC, 'watch-c', factor);
+      applyExplodeOffset(watchH, 'watch-h', factor);
+
+      applyExplodeOffset(document.getElementById('the-t'), 'the-t', factor);
+      applyExplodeOffset(document.getElementById('the-h'), 'the-h', factor);
+      applyExplodeOffset(document.getElementById('the-e'), 'the-e', factor);
+
+      applyExplodeOffset(document.getElementById('lley-l1'), 'lley-l1', factor);
+      applyExplodeOffset(document.getElementById('lley-l2'), 'lley-l2', factor);
+      applyExplodeOffset(document.getElementById('lley-e'), 'lley-e', factor);
+      applyExplodeOffset(document.getElementById('lley-y'), 'lley-y', factor);
+    });
+
+    function applyExplodeOffset(element, key, factor) {
+      const vector = explosionOffsets[key];
+      gsap.set(element, {
+        x: vector.x * factor,
+        y: vector.y * factor
+      });
+    }
+
+    // Playback Buttons Click Handlers
+    btnPlay.addEventListener('click', () => {
+      // Reset explode slider if active
+      if (sliderExplode.value > 0) {
+        gsap.to(sliderExplode, {
+          value: 0, 
+          duration: 0.6, 
+          ease: "power2.out", 
+          onUpdate: () => {
+            sliderExplode.dispatchEvent(new Event('input'));
+          },
+          onComplete: () => {
+            resetExplodeSlider();
+            tl.play(0); // Restart entrance timeline
+          }
+        });
+        return;
+      }
+
+      if (tl.isActive()) {
+        tl.pause();
+        statusText.textContent = "PAUSED";
+        btnPlay.textContent = "Resume";
+      } else {
+        if (tl.progress() === 1.0) {
+          tl.restart();
+        } else {
+          tl.play();
+        }
+        statusText.textContent = "ANIMATING";
+      }
+    });
+
+    btnReverse.addEventListener('click', () => {
+      resetExplodeSlider();
+      tl.reverse();
+      statusText.textContent = "REVERSING";
+    });
+
+    // Toggle Explode state automatically
+    btnExplode.addEventListener('click', () => {
+      if (isExploded) {
+        // Reassemble back to standard
+        gsap.to(sliderExplode, {
+          value: 0,
+          duration: 1.0,
+          ease: "power4.out",
+          onUpdate: () => {
+            sliderExplode.dispatchEvent(new Event('input'));
+          },
+          onComplete: () => {
+            resetExplodeSlider();
+            statusText.textContent = "RESOLVED";
+            btnPlay.textContent = "Replay";
+          }
+        });
+      } else {
+        // Blow apart
+        tl.progress(1.0); // complete timeline first
+        gsap.to(sliderExplode, {
+          value: 100,
+          duration: 1.2,
+          ease: "power3.out",
+          onUpdate: () => {
+            sliderExplode.dispatchEvent(new Event('input'));
+          },
+          onComplete: () => {
+            isExploded = true;
+          }
+        });
+      }
+    });
+
+    // Clockwork Sweep Mode Toggle
+    btnClockwork.addEventListener('click', () => {
+      resetExplodeSlider();
+      if (currentMode === 'standard') {
+        currentMode = 'clockwork';
+        btnClockwork.textContent = "Standard Lockup";
+        btnClockwork.style.backgroundColor = 'var(--gold-10)';
+        btnClockwork.style.borderColor = 'var(--gold)';
+        btnPlay.textContent = "Play Clockwork";
+      } else {
+        currentMode = 'standard';
+        btnClockwork.textContent = "Clockwork Sweep";
+        btnClockwork.style.backgroundColor = '';
+        btnClockwork.style.borderColor = '';
+        btnPlay.textContent = "Play Lockup";
+      }
+      initTimeline();
+      tl.play(0); // Auto-play the new timeline!
+    });
+
+    // Speed Selector Buttons
+    const speedButtons = document.querySelectorAll('.speed-btn');
+    speedButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Remove active class
+        speedButtons.forEach(b => {
+          b.style.backgroundColor = '';
+          b.style.borderColor = '';
+        });
+
+        // Set active class
+        btn.style.backgroundColor = 'var(--gold-10)';
+        btn.style.borderColor = 'var(--gold)';
+
+        animSpeed = parseFloat(btn.dataset.speed);
+        tl.timeScale(animSpeed);
+      });
+    });
+
+    // Initialize desk
+    window.addEventListener('load', () => {
+      initTimeline();
+      // Auto play on load
+      setTimeout(() => {
+        tl.play();
+      }, 600);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brand Guidelines & Reference Desk — The Watch Alley</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --walnut-deep: #13110f;
+      --walnut-card: #211b18;
+      --walnut-border: rgba(197, 168, 128, 0.15);
+      --gold: #c5a880;
+      --gold-30: rgba(197, 168, 128, 0.3);
+      --gold-10: rgba(197, 168, 128, 0.1);
+      --cream: #ece4d3;
+      --cream-80: rgba(236, 228, 211, 0.85);
+      --cream-40: rgba(236, 228, 211, 0.4);
+      --paper: #f9f6f0;
+      --ink: #2b2521;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--walnut-deep);
+      color: var(--cream);
+      font-family: 'Geist', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 120px;
+    }
+
+    /* Selection & Scrollbar styles */
+    ::selection {
+      background-color: var(--gold);
+      color: var(--walnut-deep);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--walnut-deep);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--walnut-card);
+      border: 2px solid var(--walnut-deep);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gold-30);
+    }
+
+    /* Grid & Container */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* Navigation Header */
+    header {
+      border-bottom: 1px solid var(--walnut-border);
+      padding: 24px 0;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(19, 17, 15, 0.85);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title img {
+      width: 28px;
+      height: 28px;
+    }
+
+    nav {
+      display: flex;
+      gap: 32px;
+    }
+
+    nav a {
+      color: var(--cream-80);
+      text-decoration: none;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--gold);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 100px 0 60px 0;
+      border-bottom: 1px solid var(--walnut-border);
+    }
+
+    .eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 76px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      color: var(--cream);
+    }
+
+    .hero-desc {
+      font-size: 18px;
+      max-width: 72ch;
+      color: var(--cream-80);
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* Core Layout */
+    .section-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 80px;
+      padding: 80px 0;
+      border-bottom: 1px solid var(--walnut-border);
+    }
+
+    @media (max-width: 992px) {
+      .section-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 60px 0;
+      }
+    }
+
+    .sidebar h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--cream);
+      position: sticky;
+      top: 100px;
+    }
+
+    .sidebar p {
+      font-size: 14px;
+      color: var(--cream-40);
+      margin-top: 12px;
+      line-height: 1.5;
+      position: sticky;
+      top: 145px;
+    }
+
+    .content-body {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* Subheadings */
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--walnut-border);
+    }
+
+    /* Color Swatches */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .color-card {
+      background: var(--walnut-card);
+      border: 1px solid var(--walnut-border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    }
+
+    .color-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-30);
+    }
+
+    .color-swatch {
+      width: 100%;
+      height: 100px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .color-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .color-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--cream);
+    }
+
+    .color-value {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--cream-40);
+    }
+
+    /* Typography Showcase */
+    .type-card {
+      background: var(--walnut-card);
+      border: 1px solid var(--walnut-border);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .type-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid rgba(197, 168, 128, 0.08);
+      padding-bottom: 32px;
+    }
+
+    .type-row:last-child {
+      border: none;
+      padding-bottom: 0;
+    }
+
+    .type-meta {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+
+    .type-specimen-serif {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 38px;
+      line-height: 1.2;
+      color: var(--cream);
+    }
+
+    .type-specimen-sans {
+      font-family: 'Geist', sans-serif;
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--cream-80);
+    }
+
+    .type-specimen-mono {
+      font-family: 'Geist Mono', monospace;
+      font-size: 18px;
+      color: var(--gold);
+    }
+
+    /* Vector Catalog Grid */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 32px;
+    }
+
+    @media (max-width: 576px) {
+      .catalog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .catalog-card {
+      background: var(--walnut-card);
+      border: 1px solid var(--walnut-border);
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s ease;
+    }
+
+    .catalog-card:hover {
+      border-color: var(--gold-30);
+    }
+
+    .catalog-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--walnut-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .catalog-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .catalog-bg-toggles {
+      display: flex;
+      gap: 8px;
+    }
+
+    .bg-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .bg-toggle.walnut { background-color: var(--walnut-deep); }
+    .bg-toggle.paper { background-color: var(--paper); border-color: rgba(0,0,0,0.1); }
+    .bg-toggle.scrim { background-image: radial-gradient(circle, #332a24 0%, #13110f 100%); }
+
+    .catalog-preview {
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      position: relative;
+      transition: background-color 0.25s ease;
+    }
+
+    .catalog-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .catalog-desc {
+      padding: 24px 32px;
+      border-top: 1px solid var(--walnut-border);
+      font-size: 14px;
+      color: var(--cream-80);
+      min-height: 80px;
+    }
+
+    .catalog-actions {
+      padding: 20px 32px 28px 32px;
+      display: flex;
+      gap: 16px;
+    }
+
+    /* Core Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--walnut-deep);
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background: #dfc198;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid var(--gold-30);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gold-10);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* Animation Banner */
+    .anim-banner {
+      background: linear-gradient(135deg, #211b18 0%, #171311 100%);
+      border: 1px solid var(--walnut-border);
+      padding: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .anim-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px;
+      }
+    }
+
+    .anim-text {
+      max-width: 600px;
+    }
+
+    .anim-text h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .anim-text p {
+      color: var(--cream-80);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .anim-preview-box {
+      width: 240px;
+      height: 180px;
+      border: 1px dashed var(--gold-30);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(19, 17, 15, 0.5);
+      border-radius: 8px;
+      transition: border-color 0.2s ease;
+    }
+
+    .anim-preview-box:hover {
+      border-color: var(--gold);
+    }
+
+    .compass-pulse {
+      width: 60px;
+      height: 80px;
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+      50% { transform: scale(1.1) rotate(3deg); opacity: 1; filter: drop-shadow(0 0 8px rgba(197, 168, 128, 0.3)); }
+      100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+    }
+
+    /* Grid & Rule Overlays */
+    .grid-rules {
+      background: var(--walnut-card);
+      border: 1px solid var(--walnut-border);
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+    }
+
+    .measure-box {
+      border: 1px solid var(--gold-30);
+      padding: 40px;
+      position: relative;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .measure-line-x {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 1px dashed var(--gold);
+      opacity: 0.3;
+    }
+
+    .measure-tick {
+      position: absolute;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      background: var(--walnut-card);
+      padding: 2px 6px;
+    }
+
+    .tick-top { top: -10px; left: 50%; transform: translateX(-50%); }
+    .tick-bottom { bottom: -10px; left: 50%; transform: translateX(-50%); }
+    .tick-left { left: -15px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .tick-right { right: -15px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      background: var(--gold);
+      color: var(--walnut-deep);
+      padding: 16px 28px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="brand-title">
+        <img src="twa-logo-badge.svg" alt="Badge Icon">
+        The Watch Alley
+      </a>
+      <nav>
+        <a href="#" class="active">Brand Guide</a>
+        <a href="logo-animator.html">Interactive Motion</a>
+        <a href="../">Storefront</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow">Escolta Dusk Atelier</span>
+      <h1>Branding Guides &amp;<br>Vector Asset Repositories</h1>
+      <p class="hero-desc">
+        A quiet inspection desk for curated timepieces. This desk houses the mathematical geometries of the official brand lockups. Every SVG is engineered with clean vector paths, optimized scales, and calibrated hex colors for websites, stamps, prints, and dynamic favicons.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    
+    <!-- SECTION 1: Logo Variants -->
+    <section class="section-grid" id="variants">
+      <div class="sidebar">
+        <h2>The Logo System</h2>
+        <p>
+          Five exact scale and medium variants designed for digital and print deployment. Select different background overlays to check contrast levels.
+        </p>
+      </div>
+      <div class="content-body">
+        <div class="catalog-grid">
+          
+          <!-- Variant 1: Primary Lockup -->
+          <article class="catalog-card">
+            <div class="catalog-header">
+              <span class="catalog-title">Primary Lockup</span>
+              <div class="catalog-bg-toggles">
+                <button class="bg-toggle walnut" onclick="setBg(this, 'walnut')"></button>
+                <button class="bg-toggle paper" onclick="setBg(this, 'paper')"></button>
+                <button class="bg-toggle scrim" onclick="setBg(this, 'scrim')"></button>
+              </div>
+            </div>
+            <div class="catalog-preview" style="background-color: var(--walnut-deep);">
+              <img id="logo-img-primary" src="twa-logo-primary.svg" alt="Primary Logo">
+            </div>
+            <div class="catalog-desc">
+              Cream wordmark and gold compass caliper arranged horizontally. Ideal for desktop website headers, footers, and large media.
+            </div>
+            <div class="catalog-actions">
+              <a href="twa-logo-primary.svg" download="twa-logo-primary.svg" class="btn btn-primary">Download SVG</a>
+            </div>
+          </article>
+
+          <!-- Variant 2: Standalone Icon -->
+          <article class="catalog-card">
+            <div class="catalog-header">
+              <span class="catalog-title">Compass Icon</span>
+              <div class="catalog-bg-toggles">
+                <button class="bg-toggle walnut" onclick="setBg(this, 'walnut')"></button>
+                <button class="bg-toggle paper" onclick="setBg(this, 'paper')"></button>
+                <button class="bg-toggle scrim" onclick="setBg(this, 'scrim')"></button>
+              </div>
+            </div>
+            <div class="catalog-preview" style="background-color: var(--walnut-deep);">
+              <img src="twa-logo-icon.svg" alt="Compass Icon" style="max-height: 140px;">
+            </div>
+            <div class="catalog-desc">
+              The signature drafting compass caliper mark. Symmetrical, balanced, and highly legible for favicons, DPs, and UI elements.
+            </div>
+            <div class="catalog-actions">
+              <a href="twa-logo-icon.svg" download="twa-logo-icon.svg" class="btn btn-primary">Download SVG</a>
+            </div>
+          </article>
+
+          <!-- Variant 3: Atelier Seal -->
+          <article class="catalog-card">
+            <div class="catalog-header">
+              <span class="catalog-title">Atelier Badge Seal</span>
+              <div class="catalog-bg-toggles">
+                <button class="bg-toggle walnut" onclick="setBg(this, 'walnut')"></button>
+                <button class="bg-toggle paper" onclick="setBg(this, 'paper')"></button>
+                <button class="bg-toggle scrim" onclick="setBg(this, 'scrim')"></button>
+              </div>
+            </div>
+            <div class="catalog-preview" style="background-color: var(--walnut-deep);">
+              <img src="twa-logo-badge.svg" alt="Badge Seal" style="max-height: 180px;">
+            </div>
+            <div class="catalog-desc">
+              A premium circular seal with outer bezel ticks. Excellent for physical prints, package embossing, loading screens, and wax stamps.
+            </div>
+            <div class="catalog-actions">
+              <a href="twa-logo-badge.svg" download="twa-logo-badge.svg" class="btn btn-primary">Download SVG</a>
+            </div>
+          </article>
+
+          <!-- Variant 4: Monochrome White -->
+          <article class="catalog-card">
+            <div class="catalog-header">
+              <span class="catalog-title">White Lockup</span>
+              <div class="catalog-bg-toggles">
+                <button class="bg-toggle walnut" onclick="setBg(this, 'walnut')"></button>
+                <button class="bg-toggle paper" onclick="setBg(this, 'paper')"></button>
+                <button class="bg-toggle scrim" onclick="setBg(this, 'scrim')"></button>
+              </div>
+            </div>
+            <div class="catalog-preview" style="background-color: var(--walnut-deep);">
+              <img src="twa-logo-white.svg" alt="Monochrome White Logo">
+            </div>
+            <div class="catalog-desc">
+              All-white / cream version. Necessary for extremely dark background layers, high-contrast print surfaces, or overlay stamps.
+            </div>
+            <div class="catalog-actions">
+              <a href="twa-logo-white.svg" download="twa-logo-white.svg" class="btn btn-primary">Download SVG</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Interactive Colors -->
+    <section class="section-grid" id="colors">
+      <div class="sidebar">
+        <h2>Color Calibration</h2>
+        <p>
+          The warm dusk palette of the Manila Escolta workshop. Click on any color card to copy the precise HEX representation to your clipboard.
+        </p>
+      </div>
+      <div class="content-body">
+        <div class="color-grid">
+          
+          <div class="color-card" onclick="copyColor(this, '#13110f')">
+            <div class="color-swatch" style="background-color: var(--walnut-deep);"></div>
+            <div class="color-info">
+              <span class="color-name">Walnut Deep</span>
+              <span class="color-value">#13110F</span>
+              <span class="color-value">oklch(0.13 0.012 55)</span>
+            </div>
+          </div>
+
+          <div class="color-card" onclick="copyColor(this, '#211b18')">
+            <div class="color-swatch" style="background-color: var(--walnut-card);"></div>
+            <div class="color-info">
+              <span class="color-name">Walnut Card</span>
+              <span class="color-value">#211B18</span>
+              <span class="color-value">oklch(0.21 0.018 60)</span>
+            </div>
+          </div>
+
+          <div class="color-card" onclick="copyColor(this, '#c5a880')">
+            <div class="color-swatch" style="background-color: var(--gold);"></div>
+            <div class="color-info">
+              <span class="color-name">Honey Brass Gold</span>
+              <span class="color-value">#C5A880</span>
+              <span class="color-value">oklch(0.76 0.12 75)</span>
+            </div>
+          </div>
+
+          <div class="color-card" onclick="copyColor(this, '#ece4d3')">
+            <div class="color-swatch" style="background-color: var(--cream);"></div>
+            <div class="color-info">
+              <span class="color-name">Atelier Cream</span>
+              <span class="color-value">#ECE4D3</span>
+              <span class="color-value">oklch(0.91 0.018 78)</span>
+            </div>
+          </div>
+
+          <div class="color-card" onclick="copyColor(this, '#C09830')">
+            <div class="color-swatch" style="background-color: #C09830;"></div>
+            <div class="color-info">
+              <span class="color-name">Official Brand Gold</span>
+              <span class="color-value">#C09830</span>
+              <span class="color-value">From Copy of DP FLAT.png</span>
+            </div>
+          </div>
+
+          <div class="color-card" onclick="copyColor(this, '#FFFFFF')">
+            <div class="color-swatch" style="background-color: #FFFFFF;"></div>
+            <div class="color-info">
+              <span class="color-name">Official Brand White</span>
+              <span class="color-value">#FFFFFF</span>
+              <span class="color-value">From Copy of DP FLAT.png</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Typography -->
+    <section class="section-grid" id="typography">
+      <div class="sidebar">
+        <h2>Type Hierarchy</h2>
+        <p>
+          High-end serif and geometric type pairings. Designed for editorial watch catalogs, inspections, and metadata tables.
+        </p>
+      </div>
+      <div class="content-body">
+        <div class="type-card">
+          
+          <div class="type-row">
+            <span class="type-meta">DISPLAY — PLAYFAIR DISPLAY (REGULAR 400)</span>
+            <p class="type-specimen-serif">The Calibre Heritage 1890</p>
+          </div>
+
+          <div class="type-row">
+            <span class="type-meta">BODY / UI — GEIST SANS (LIGHT/REGULAR 300)</span>
+            <p class="type-specimen-sans">Restraint outsells flash. A quiet inspection room at dusk, warm oil-finished walnut, brass rules, and handwritten notes.</p>
+          </div>
+
+          <div class="type-row">
+            <span class="type-meta">METADATA / LABELS — GEIST MONO (REGULAR 400)</span>
+            <p class="type-specimen-mono">REF: 16710-CALIBRE3185-BOX&amp;PAPERS</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Optical Clearance & Geometry -->
+    <section class="section-grid" id="geometry">
+      <div class="sidebar">
+        <h2>optical bounds &amp; clearance</h2>
+        <p>
+          The caliper logo is structured inside strict mathematical gridlines to enforce clear space during advertising overlay placements.
+        </p>
+      </div>
+      <div class="content-body">
+        <div class="grid-rules">
+          <div class="measure-box">
+            <div class="measure-line-x"></div>
+            <img src="twa-logo-primary.svg" alt="Primary Logo Grid" style="opacity: 0.85;">
+            <span class="measure-tick tick-top">W = 490px</span>
+            <span class="measure-tick tick-bottom">CLEAR SPACE = 45px</span>
+            <span class="measure-tick tick-left">H = 365px</span>
+            <span class="measure-tick tick-right">CENTER HINGE (180, 181)</span>
+          </div>
+          <p style="font-size: 13px; color: var(--cream-40); text-align: center; max-width: 50ch;">
+            *Do not compress, stretch, skew, or recolor. The signature compass caliper requires clearance equal to the top ring diameter on all sides.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Logo Animation Link -->
+    <section style="padding: 80px 0 0 0;">
+      <div class="anim-banner">
+        <div class="anim-text">
+          <span class="eyebrow" style="color: var(--gold);">dynamic motion</span>
+          <h3>Looking for separated logo animations?</h3>
+          <p>
+            We have engineered a high-fidelity interactive animator dashboard. Every visual component of the logo has been mathematically isolated inside the vector layers so you can witness their beautiful reassembly choreography in real-time.
+          </p>
+          <a href="logo-animator.html" class="btn btn-primary">Enter Motion Desk</a>
+        </div>
+        <div class="anim-preview-box">
+          <img class="compass-pulse" src="twa-logo-icon.svg" alt="Compass Pulse">
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Clipboard Toast -->
+  <div id="copy-toast" class="toast">COPIED TO CLIPBOARD!</div>
+
+  <script>
+    // Background Toggle Helper
+    function setBg(button, bgType) {
+      const card = button.closest('.catalog-card');
+      const preview = card.querySelector('.catalog-preview');
+      const primaryLogo = card.querySelector('#logo-img-primary');
+      
+      // Clear current inline style
+      preview.style.background = '';
+      
+      if (bgType === 'walnut') {
+        preview.style.backgroundColor = 'var(--walnut-deep)';
+        // Reset logo to primary if it's the primary card
+        if (primaryLogo) primaryLogo.src = 'twa-logo-primary.svg';
+      } else if (bgType === 'paper') {
+        preview.style.backgroundColor = 'var(--paper)';
+        // If it's the primary card, swap to a darker version for readability on white paper
+        if (primaryLogo) primaryLogo.src = 'twa-logo-gold.svg';
+      } else if (bgType === 'scrim') {
+        preview.style.background = 'radial-gradient(circle, #332a24 0%, #13110f 100%)';
+        if (primaryLogo) primaryLogo.src = 'twa-logo-primary.svg';
+      }
+      
+      // Highlight the active button slightly
+      const buttons = card.querySelectorAll('.bg-toggle');
+      buttons.forEach(btn => btn.style.boxShadow = '');
+      button.style.boxShadow = '0 0 0 2px var(--gold)';
+    }
+
+    // Color Copy Helper
+    function copyColor(card, value) {
+      navigator.clipboard.writeText(value).then(() => {
+        const toast = document.getElementById('copy-toast');
+        toast.textContent = `COPIED: ${value}`;
+        toast.classList.add('show');
+        
+        // Brief border glow feedback on the card
+        card.style.borderColor = 'var(--gold)';
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          card.style.borderColor = '';
+        }, 1800);
+      });
+    }
+  </script>
+</body>
+</html>
