@@ -337,8 +337,20 @@ Deno.serve(async (req: Request) => {
   }
 
   const inquiry = payload.record;
-  if (!inquiry || !inquiry.id || !inquiry.buyer_email) {
+  if (!inquiry || !inquiry.id) {
     return json({ error: 'Missing inquiry record' }, 400);
+  }
+
+  // Manually-logged inquiries (admin recorded a Messenger / walk-in / phone
+  // conversation after the fact) are already in our hands. Don't email
+  // ourselves about them. Also bail early if there's no buyer_email — the
+  // Resend path has no destination and the row was probably logged manually.
+  if (inquiry.source === 'admin-manual' || !inquiry.buyer_email) {
+    return json({
+      skipped: true,
+      reason: inquiry.source === 'admin-manual' ? 'admin-manual source' : 'no buyer_email',
+      inquiryId: inquiry.id,
+    });
   }
 
   // 3. Service-role client for downstream lookups + audit log.

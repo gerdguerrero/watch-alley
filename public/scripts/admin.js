@@ -144,6 +144,16 @@ const els = {
   inboxMetrics: document.getElementById('inbox-metrics'),
   inboxTopWatches: document.getElementById('inbox-top-watches'),
   inboxTopWatchesList: document.getElementById('inbox-top-watches-list'),
+  inboxLogFormWrap: document.getElementById('inbox-log-form-wrap'),
+  inboxLogForm: document.getElementById('inbox-log-form'),
+  inboxLogName: document.getElementById('log-inq-name'),
+  inboxLogWatchSlug: document.getElementById('log-inq-watch-slug'),
+  inboxLogChannel: document.getElementById('log-inq-channel'),
+  inboxLogEmail: document.getElementById('log-inq-email'),
+  inboxLogPhone: document.getElementById('log-inq-phone'),
+  inboxLogMessage: document.getElementById('log-inq-message'),
+  inboxLogSubmit: document.getElementById('inbox-log-submit'),
+  inboxLogStatus: document.getElementById('inbox-log-status'),
   inviteForm: document.getElementById('invite-admin-form'),
   inviteEmail: document.getElementById('invite-email'),
   inviteNote: document.getElementById('invite-note'),
@@ -2088,7 +2098,7 @@ function renderInboxDrawer(row) {
   return `
     <p class="inbox-drawer-message">${escapeHtml(fullMessage)}</p>
     <dl class="inbox-drawer-meta">
-      <div><dt>Email</dt><dd><a href="mailto:${escapeAttr(row.buyer_email || '')}">${escapeHtml(row.buyer_email || '—')}</a></dd></div>
+      <div><dt>Email</dt><dd>${row.buyer_email ? `<a href="mailto:${escapeAttr(row.buyer_email)}">${escapeHtml(row.buyer_email)}</a>` : '—'}</dd></div>
       ${row.buyer_phone ? `<div><dt>Phone</dt><dd>${escapeHtml(row.buyer_phone)}</dd></div>` : ''}
       <div><dt>Watch</dt><dd>${watchHref ? `<a href="${escapeAttr(watchHref)}" target="_blank" rel="noopener">${escapeHtml(watchLabel)}</a>` : escapeHtml(watchLabel || '—')}</dd></div>
       <div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div>
@@ -2217,6 +2227,48 @@ if (els.inboxList) {
     if (isLost) lostReasonSelect.focus();
   });
   els.inboxRefreshBtn.addEventListener('click', () => loadInbox());
+}
+
+if (els.inboxLogForm) {
+  els.inboxLogForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!supabase) return;
+
+    const name = (els.inboxLogName?.value || '').trim();
+    const message = (els.inboxLogMessage?.value || '').trim();
+    if (!name || !message) {
+      els.inboxLogStatus.textContent = 'Name and message are required.';
+      return;
+    }
+
+    const payload = {
+      name,
+      message,
+      channel: els.inboxLogChannel?.value || 'messenger',
+      watchSlug: (els.inboxLogWatchSlug?.value || '').trim() || null,
+      email: (els.inboxLogEmail?.value || '').trim() || null,
+      phone: (els.inboxLogPhone?.value || '').trim() || null,
+    };
+
+    els.inboxLogSubmit.disabled = true;
+    els.inboxLogStatus.textContent = 'Logging…';
+    try {
+      const { error } = await supabase.rpc('admin_log_inquiry', { payload });
+      if (error) throw error;
+      els.inboxLogForm.reset();
+      if (els.inboxLogChannel) els.inboxLogChannel.value = 'messenger';
+      els.inboxLogStatus.textContent = 'Logged.';
+      if (els.inboxLogFormWrap) els.inboxLogFormWrap.open = false;
+      await loadInbox();
+      setStatus('Inquiry logged in Inbox.', 'success');
+    } catch (error) {
+      const detail = error?.message || String(error);
+      els.inboxLogStatus.textContent = `Failed: ${detail}`;
+      setStatus(`Log inquiry failed: ${detail}`, 'error');
+    } finally {
+      els.inboxLogSubmit.disabled = false;
+    }
+  });
 }
 
 function cssEscape(value) {

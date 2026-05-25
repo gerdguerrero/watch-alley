@@ -197,6 +197,45 @@
           <div class="inbox-metric"><div class="inbox-metric-label">Last 7d</div><div class="inbox-metric-value" data-metric="last7">—</div></div>
         </div>
 
+        <details class="inbox-log-form" id="inbox-log-form-wrap">
+          <summary>+ Log a Messenger inquiry</summary>
+          <p class="admin-meta">
+            Use this when a buyer reached out via Messenger (or walk-in / phone) and you want to track the conversation in the Inbox. No email is sent — the row is tagged as manually logged.
+          </p>
+          <form id="inbox-log-form" class="inbox-log-form-grid">
+            <label>Buyer name *
+              <input type="text" id="log-inq-name" required maxlength="120" autocomplete="off" />
+            </label>
+            <label>Watch slug <span class="admin-meta">(optional)</span>
+              <input type="text" id="log-inq-watch-slug" placeholder="e.g. rolex-submariner-126610ln" autocomplete="off" />
+            </label>
+            <label>Channel
+              <select id="log-inq-channel">
+                <option value="messenger" selected>Messenger</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="viber">Viber</option>
+                <option value="telegram">Telegram</option>
+                <option value="signal">Signal</option>
+                <option value="sms">SMS</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>Email <span class="admin-meta">(optional)</span>
+              <input type="email" id="log-inq-email" autocomplete="off" />
+            </label>
+            <label>Phone <span class="admin-meta">(optional)</span>
+              <input type="text" id="log-inq-phone" maxlength="32" autocomplete="off" />
+            </label>
+            <label class="inbox-log-form-message">Message / what they asked *
+              <textarea id="log-inq-message" rows="3" required maxlength="4000" placeholder="Short summary of what the buyer asked about."></textarea>
+            </label>
+            <div class="inbox-log-form-actions">
+              <button type="submit" id="inbox-log-submit">Log inquiry</button>
+              <span class="admin-meta" id="inbox-log-status" aria-live="polite"></span>
+            </div>
+          </form>
+        </details>
+
         <div class="inbox-toolbar">
           <label>
             <span class="admin-eyebrow">Filter</span>
