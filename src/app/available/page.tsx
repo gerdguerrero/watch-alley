@@ -40,7 +40,6 @@ export default async function AvailablePage({
       <PageTitle
         title="AVAILABLE"
         eyebrow="◆ Currently in rotation"
-        headline="In rotation, *right now.*"
         description="Every watch currently for sale through The Watch Alley. Daylight-photographed, disclosed in writing, shipped insured. Tap any piece for full details and to inquire."
       />
 
