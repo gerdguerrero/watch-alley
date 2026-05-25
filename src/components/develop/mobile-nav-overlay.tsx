@@ -15,6 +15,10 @@ interface MobileNavDropdownProps {
   onClose: () => void;
   links: MobileNavLink[];
   inquireHref: string;
+  /** Ref to the hamburger trigger button. Outside-click handler ignores
+      clicks that originate inside this element so the trigger can toggle
+      the dropdown without close-then-reopen in the same gesture. */
+  triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -22,7 +26,13 @@ interface MobileNavDropdownProps {
  * hamburger trigger is tapped. Closes on ESC, on outside click, and after the
  * user picks a destination link.
  */
-export function MobileNavOverlay({ open, onClose, links, inquireHref }: MobileNavDropdownProps) {
+export function MobileNavOverlay({
+  open,
+  onClose,
+  links,
+  inquireHref,
+  triggerRef,
+}: MobileNavDropdownProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -31,8 +41,9 @@ export function MobileNavOverlay({ open, onClose, links, inquireHref }: MobileNa
       if (e.key === "Escape") onClose();
     };
     const onPointerDown = (e: PointerEvent) => {
-      if (!panelRef.current) return;
-      if (panelRef.current.contains(e.target as Node)) return;
+      const target = e.target as Node;
+      if (panelRef.current?.contains(target)) return;
+      if (triggerRef?.current?.contains(target)) return;
       onClose();
     };
     document.addEventListener("keydown", onKey);
@@ -43,7 +54,7 @@ export function MobileNavOverlay({ open, onClose, links, inquireHref }: MobileNa
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointerDown, true);
     };
-  }, [open, onClose]);
+  }, [open, onClose, triggerRef]);
 
   return (
     <AnimatePresence>

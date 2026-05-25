@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
@@ -12,6 +12,10 @@ export function MainNav() {
   const pathname = usePathname() || "";
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Trigger ref so the overlay's outside-click handler can ignore clicks on
+  // the hamburger itself; without this, clicking the trigger while the
+  // dropdown is open closes-then-reopens it in the same gesture.
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,10 +124,11 @@ export function MainNav() {
         {/* Right: Hamburger (mobile) + Locale + Inquire */}
         <div className="flex items-center justify-end gap-2 md:gap-5 flex-shrink-0">
           <button
+            ref={menuTriggerRef}
             type="button"
-            aria-label="Open menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen(true)}
+            onClick={() => setMenuOpen((open) => !open)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-400/20 text-cream lg:hidden"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true" fill="none">
@@ -170,6 +175,7 @@ export function MainNav() {
           onClose={() => setMenuOpen(false)}
           links={overlayLinks}
           inquireHref={inquireHref}
+          triggerRef={menuTriggerRef}
         />
       </div>
     </motion.header>
