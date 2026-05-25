@@ -10,12 +10,6 @@ import { WatchDisplay } from "./watch-display";
 const MESSENGER_URL = "https://m.me/thewatchalley";
 const MotionLink = motion.create(Link);
 
-const SERVICE_POINTS = [
-  "Messenger-first concierge",
-  "Written condition notes",
-  "Safe handoff or insured shipping",
-];
-
 export function ContactSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -104,20 +98,6 @@ export function ContactSection() {
                 Tell us what you are looking for — reference, budget, wrist size, occasion, or
                 simply the feeling you want from the watch. We will guide you toward the right fit.
               </p>
-
-              <div className="mb-10 grid gap-3 sm:grid-cols-3 lg:max-w-xl">
-                {SERVICE_POINTS.map((point, index) => (
-                  <motion.div
-                    key={point}
-                    className="rounded-2xl border border-amber-400/10 bg-black/20 px-4 py-4 text-center text-[10px] uppercase leading-relaxed tracking-[0.18em] text-cream-60 lg:text-left"
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ delay: 0.32 + index * 0.08, duration: 0.55 }}
-                  >
-                    {point}
-                  </motion.div>
-                ))}
-              </div>
 
               <motion.div
                 className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:items-start lg:justify-start"
