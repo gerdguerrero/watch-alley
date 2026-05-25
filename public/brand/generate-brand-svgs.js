@@ -45,7 +45,7 @@ const pathWatchC = paths[15];
 const pathWatchH = paths[16];
 
 // Color variables
-const COLOR_GOLD = '#C09830';
+const COLOR_GOLD = '#BD9A32';
 const COLOR_CREAM = '#FFFFFF';
 const COLOR_WALNUT_DEEP = '#13110f';
 
