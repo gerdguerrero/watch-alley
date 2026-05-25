@@ -6,7 +6,7 @@
 
 -- 1. Clean the toga picture placeholder and replace it with the macro Alpinist steel bracelet shot
 update watch_alley.journal_posts
-set hero_image = '/journal/whiskered-pitta.png'
+set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/whiskered-pitta.png'
 where slug = 'seiko-launches-5th-philippine-limited-edition';
 
 -- 2. Upsert the three brand new articles with automatic conflict resolution on unique slug
@@ -46,7 +46,7 @@ If you are looking to enter the neo-vintage market in the Philippines, keep thre
 Neo-vintage is not a compromise. It is a recognition that the watch industry got it right the first time, and that real character is earned, not manufactured.
 
 *— The Watch Alley desk*',
-  '/journal/neo-vintage.png',
+  'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/neo-vintage.png',
   array['Neo-Vintage', 'Speedmaster', 'Patina', 'Collecting'],
   'published',
   'The Watch Alley',
@@ -94,7 +94,7 @@ If you love the military look of a NATO, opt for lightweight, single-pass nylon 
 Just as you rotate your watches, rotate your straps. Give a nylon or rubber strap a quick rinse in fresh water at the end of a hot day. Taking two minutes to flush out sweat and skin oils will easily double the lifespan of your straps and keep your wrist free of irritation.
 
 *— The Watch Alley desk*',
-  '/journal/watch-straps.png',
+  'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/watch-straps.png',
   array['Straps', 'Guide', 'Tropics', 'Maintenance'],
   'published',
   'The Watch Alley',
@@ -135,11 +135,11 @@ When you look at the textured, paper-like snow dial, framed by Zaratsu-polished 
 
 When Seiko first demonstrated Spring Drive concepts to the Swiss industry, many dismissed it as a gimmick or a ''cheat'' because it used a quartz crystal. 
 
-* But decades later, collectors have recognized that Spring Drive represents the peak of modern horological innovation. It does not compromise the craft of mechanical watchmaking; instead, it elevates it by solving the mechanical escapement''s oldest enemy: friction. 
+* Reference: Spring Drive represents the peak of modern horological innovation. It does not compromise the craft of mechanical watchmaking; instead, it elevates it by solving the mechanical escapement''s oldest enemy: friction. 
 * By using an electromagnetic brake instead of physical pallet stones striking an escape wheel, a Spring Drive movement undergoes far less wear and tear, ensuring long-term reliability and a lifetime of silent, mesmerizing glide.
 
 *— The Watch Alley desk*',
-  '/journal/gs-spring-drive.png',
+  'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/gs-spring-drive.png',
   array['Grand Seiko', 'Spring Drive', 'Snowflake', 'Japanese Craft'],
   'published',
   'The Watch Alley',
