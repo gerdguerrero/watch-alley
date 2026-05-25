@@ -22,7 +22,6 @@ export default async function SoldPage() {
       <PageTitle
         title="SOLD"
         eyebrow="◆ Recently honored"
-        headline="The pieces that *found a home.*"
         description="A running record of watches placed through The Watch Alley. If you missed one, message us — similar references come around."
       />
 

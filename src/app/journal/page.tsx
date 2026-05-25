@@ -20,7 +20,6 @@ export default async function JournalIndexPage() {
       <PageTitle
         title="JOURNAL"
         eyebrow="◆ Notes from the bench"
-        headline="Dispatches, *slowly written.*"
         description="A slow-build collector library: dispatches on watches we love, market observations from Manila, and the conversations we keep having with buyers. New entries land when there is something honestly worth saying — not on a content calendar."
       />
 

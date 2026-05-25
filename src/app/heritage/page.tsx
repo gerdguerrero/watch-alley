@@ -17,7 +17,6 @@ export default function HeritagePage() {
       <PageTitle
         title="HERITAGE"
         eyebrow="◆ Our Curation Standard"
-        headline="Honest provenance. *Collected with care.*"
         description="A Manila boutique created from a personal, collector-first desire: to build a quiet space for transparent watch conversations, daylight-photographed disclosures, and patient curation."
       />
 
