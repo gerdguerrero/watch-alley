@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageTitle } from "@/components/develop/page-title";
-import { SoldRow } from "@/components/storefront/SoldRow";
+import { WatchCard } from "@/components/develop/watch-card";
 import { fetchWatches } from "@/lib/inventory/queries";
 
 export const revalidate = 60;
@@ -31,9 +31,9 @@ export default async function SoldPage() {
             Once pieces find their next collector, they will appear here.
           </p>
         ) : (
-          <div className="max-w-4xl mx-auto flex flex-col border-t border-[color:var(--color-gold-20)]">
-            {sold.map((w) => (
-              <SoldRow key={w.slug} watch={w} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+            {sold.map((w, i) => (
+              <WatchCard key={w.slug} watch={w} index={i} variant="sold" />
             ))}
           </div>
         )}
