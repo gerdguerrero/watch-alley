@@ -168,11 +168,15 @@ let activeWatchSnapshot = null;
 // decide whether to set this flag.
 let mustSetPassword = false;
 let passwordSetupReason = 'invite';
-// Guard against duplicate session renders: the top-level renderForCurrentSession
-// call at the bottom of this file already handles the initial session. The
-// onAuthStateChange listener also fires INITIAL_SESSION on load — without this
-// guard the watch list and dashboard would load twice on every page load.
-let initialSessionRendered = false;
+// Guard against duplicate session renders. The top-level renderForCurrentSession
+// call at the bottom of this file handles the initial session. The
+// onAuthStateChange listener also fires INITIAL_SESSION on load, and SIGNED_IN
+// fires after a successful signInWithPassword() — both of which would
+// re-render the workspace and trigger admin_whoami + admin_list_watches +
+// admin_dashboard_metrics a second time. That tripled the post-sign-in RPC
+// load and surfaced as the workspace appearing to "hang" for 3-5 seconds
+// after submitting the sign-in form.
+let renderInFlight = false;
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
@@ -308,14 +312,20 @@ els.authForm.addEventListener('submit', async (event) => {
   const password = els.authPassword.value;
   if (!email || !password) return;
 
+  const submitBtn = els.authForm.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
   setStatus('Signing in…');
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     setStatus('Signed in.', 'success');
-    await renderForCurrentSession();
+    // onAuthStateChange will fire SIGNED_IN and run renderForCurrentSession().
+    // Don't call it explicitly here — doing so doubled every post-sign-in
+    // RPC (admin_whoami, admin_list_watches, admin_dashboard_metrics).
   } catch (error) {
     setStatus(error.message || 'Sign-in failed', 'error');
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
 });
 
@@ -372,10 +382,10 @@ if (supabase) {
     // change the gate state and reloading inventory on every refresh would
     // disrupt the workspace UI.
     if (event === 'TOKEN_REFRESHED') return;
-    // INITIAL_SESSION fires on every page load right after the top-level
-    // renderForCurrentSession() below. Skip it when we've already rendered
-    // to avoid doubling the watch + dashboard RPC calls.
-    if (event === 'INITIAL_SESSION' && initialSessionRendered) return;
+    // USER_UPDATED fires after we change the password from the Account tab.
+    // The workspace is already loaded; rerendering would needlessly refire
+    // every dashboard RPC.
+    if (event === 'USER_UPDATED') return;
     // Don't auto-flip mustSetPassword off here — the password-setup form
     // handler clears it on success.
     renderForCurrentSession();

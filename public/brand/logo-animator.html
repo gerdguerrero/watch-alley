@@ -541,17 +541,17 @@
           onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Lockup"; }
         });
 
-        // 1. Compass Left Leg & joint pivot assembly sweeps in
+        // 1. Compass Left Leg & joint pivot assembly sweeps in (rotating around fixed hinge center)
         tl.fromTo(leftLeg, 
-          { rotate: -30, opacity: 0, scale: 0.6 },
-          { rotate: 0, opacity: 1, scale: 1, duration: 1.1, ease: "power4.out" },
+          { rotate: -30, opacity: 0, scale: 0.6, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 1.1, ease: "power4.out" },
           0.1
         );
 
-        // 2. Compass Right Leg swings in to meet at the joint (magnetic connection)
+        // 2. Compass Right Leg swings in to meet at the joint (rotating around fixed hinge center)
         tl.fromTo(rightLeg,
-          { rotate: 50, opacity: 0, scale: 0.6 },
-          { rotate: 0, opacity: 1, scale: 1, duration: 0.95, ease: "back.out(1.2)" },
+          { rotate: 50, opacity: 0, scale: 0.6, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 0.95, ease: "back.out(1.2)" },
           0.35
         );
 
@@ -613,17 +613,17 @@
           onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Clockwork"; }
         });
 
-        // 1. Minute Hand (Left Leg, long caliper needle) rotates exactly TWICE (720 degrees) to its resting position
+        // 1. Minute Hand (Left Leg, long caliper needle) rotates exactly TWICE (720 degrees) around fixed hinge center
         tl.fromTo(leftLeg,
-          { rotate: -720, opacity: 0, scale: 0.95 },
-          { rotate: 0, opacity: 1, scale: 1, duration: 1.8, ease: "power3.inOut" },
+          { rotate: -720, opacity: 0, scale: 0.95, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 1.8, ease: "power3.inOut" },
           0.1
         );
 
-        // 2. Hour Hand (Right Leg, short caliper nib) rotates 2 hours (60 degrees) to its resting position
+        // 2. Hour Hand (Right Leg, short caliper nib) rotates 2 hours (60 degrees) around fixed hinge center
         tl.fromTo(rightLeg,
-          { rotate: -60, opacity: 0, scale: 0.95 },
-          { rotate: 0, opacity: 1, scale: 1, duration: 1.8, ease: "power3.inOut" },
+          { rotate: -60, opacity: 0, scale: 0.95, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 1.8, ease: "power3.inOut" },
           0.1
         );
 
@@ -685,18 +685,18 @@
           onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Timelapse"; }
         });
 
-        // 1. Minute Hand rotates exactly 2 full circles (720 degrees) clockwise to meet at 0.
+        // 1. Minute Hand rotates exactly 2 full circles (720 degrees) clockwise around fixed hinge center.
         // It rotates with a smooth power1.inOut timepiece sweep.
         tl.fromTo(leftLeg,
-          { rotate: -720 },
-          { rotate: 0, duration: 2.2, ease: "power1.inOut" },
+          { rotate: -720, svgOrigin: "184.3 35.4" },
+          { rotate: 0, svgOrigin: "184.3 35.4", duration: 2.2, ease: "power1.inOut" },
           0.1
         );
 
-        // 2. Hour Hand rotates exactly 60 degrees (2 hours delta) in perfect mechanical gear-sync.
+        // 2. Hour Hand rotates exactly 60 degrees (2 hours delta) around fixed hinge center.
         tl.fromTo(rightLeg,
-          { rotate: -60 },
-          { rotate: 0, duration: 2.2, ease: "power1.inOut" },
+          { rotate: -60, svgOrigin: "184.3 35.4" },
+          { rotate: 0, svgOrigin: "184.3 35.4", duration: 2.2, ease: "power1.inOut" },
           0.1
         );
 
