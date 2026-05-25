@@ -273,7 +273,7 @@
         </div>
         <button type="button" id="new-watch-btn" class="btn-primary admin-new-btn">+ New</button>
       </div>
-      <input type="search" id="watch-filter" placeholder="Filter by brand, model, slug…" />
+      <input type="search" id="watch-filter" placeholder="Filter by brand, reference, slug…" />
       <ul class="admin-watch-list" id="watch-list"></ul>
     </aside>
 
@@ -321,9 +321,7 @@
           <label>Reference *
             <input type="text" id="field-reference" required />
           </label>
-          <label class="admin-col-2">Model *
-            <input type="text" id="field-model" required />
-          </label>
+          <input type="hidden" id="field-model" />
           <label>Price (PHP) *
             <input type="number" id="field-price" min="0" step="1" required />
           </label>

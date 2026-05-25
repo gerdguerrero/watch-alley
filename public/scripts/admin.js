@@ -827,7 +827,7 @@ function readSocialPreviewListingFromForm() {
     slug: getField('slug').trim(),
     status: getField('status') || 'available',
     brand: getField('brand').trim(),
-    model: getField('model').trim(),
+    model: deriveModelValue(),
     reference: getField('reference').trim(),
     name: getField('name').trim(),
     price: Number(getField('price')) || 0,
@@ -837,6 +837,12 @@ function readSocialPreviewListingFromForm() {
     hasPapers: getCheckbox('hasPapers'),
     primaryImage,
   };
+}
+
+function deriveModelValue() {
+  const displayName = getField('name').trim();
+  if (displayName) return displayName;
+  return [getField('brand').trim(), getField('reference').trim()].filter(Boolean).join(' ');
 }
 
 function buildPublicWatchUrl(slug) {
@@ -1317,7 +1323,7 @@ function collectFormPayload() {
     id: getField('id') || null,
     slug,
     brand: getField('brand').trim(),
-    model: getField('model').trim(),
+    model: deriveModelValue(),
     reference: getField('reference').trim(),
     name: displayName,
     price: Number(getField('price')) || 0,
