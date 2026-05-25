@@ -44,7 +44,8 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
   };
 
   const isSold = variant === "sold" || watch.status === "sold";
-  const categoryLabel = formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
+  const categoryLabel =
+    formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
 
   return (
     <Link
@@ -109,9 +110,14 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
           )}
         </div>
 
-        {/* Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="flex items-center gap-3 mb-4">
+        {/* Content. On mobile this sits in normal flow below the image so
+            long watch names never collide with the photo (cards that have
+            multi-line names like "Bulova Super Seville — Green Dial 262 kHz
+            Precisionist — Retro TV Style" overflow the gradient otherwise).
+            On lg+ it returns to an absolute overlay anchored to the image
+            bottom so the desktop aesthetic is preserved. */}
+        <div className="relative p-5 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:p-8">
+          <div className="flex items-center gap-3 mb-3 lg:mb-4">
             <motion.div
               className="w-8 h-px bg-amber-300/70"
               animate={{ width: isHovered ? 48 : 32 }}
@@ -123,25 +129,16 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
           </div>
 
           <motion.h3
-            className="text-2xl md:text-3xl font-light text-cream mb-2"
+            className="text-lg md:text-xl lg:text-2xl font-light text-cream mb-2 leading-tight line-clamp-3"
             animate={{ y: isHovered ? -8 : 0 }}
             transition={{ duration: 0.4 }}
           >
             {watch.name}
           </motion.h3>
 
-          <p className="text-[11px] tracking-[0.18em] uppercase text-cream-60 mb-3">{categoryLabel}</p>
-
-          {watch.description && (
-            <motion.p
-              className="text-sm text-cream-60 leading-relaxed mb-6 line-clamp-2"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 15 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              {watch.description}
-            </motion.p>
-          )}
+          <p className="text-[11px] tracking-[0.18em] uppercase text-cream-60 mb-3">
+            {categoryLabel}
+          </p>
 
           <motion.div
             className="flex items-center justify-between gap-3"
