@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { JournalPost, JournalRow, JournalStatus } from "./types";
 
@@ -31,32 +32,59 @@ function normalizeRow(row: JournalRow): JournalPost {
  * Fetch published journal posts, newest first.
  */
 export async function fetchJournalPosts(limit?: number): Promise<JournalPost[]> {
-  const supabase = createSupabasePublicClient();
-  let query = supabase
-    .from("journal_posts")
-    .select(SELECT_COLUMNS)
-    .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false });
-  if (typeof limit === "number" && limit > 0) query = query.limit(limit);
+  const cacheKey = ["fetchJournalPosts", limit?.toString() || "all"];
 
-  const { data, error } = await query;
-  if (error) {
-    console.error("fetchJournalPosts failed:", error.message);
-    return [];
-  }
-  return ((data ?? []) as unknown as JournalRow[]).map(normalizeRow);
+  const getCachedPosts = unstable_cache(
+    async () => {
+      const supabase = createSupabasePublicClient();
+      let query = supabase
+        .from("journal_posts")
+        .select(SELECT_COLUMNS)
+        .eq("status", "published")
+        .order("published_at", { ascending: false, nullsFirst: false });
+      if (typeof limit === "number" && limit > 0) query = query.limit(limit);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("fetchJournalPosts failed:", error.message);
+        return [];
+      }
+      return (data ?? []) as unknown as JournalRow[];
+    },
+    cacheKey,
+    {
+      revalidate: 15, // Cache for 15 seconds to keep edge transition speeds high
+      tags: ["journal"],
+    }
+  );
+
+  const rows = await getCachedPosts();
+  return rows.map(normalizeRow);
 }
 
 export async function fetchJournalPost(slug: string): Promise<JournalPost | null> {
-  const supabase = createSupabasePublicClient();
-  const { data, error } = await supabase
-    .from("journal_posts")
-    .select(SELECT_COLUMNS)
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
-  if (error || !data) return null;
-  return normalizeRow(data as unknown as JournalRow);
+  const getCachedPost = unstable_cache(
+    async (s: string) => {
+      const supabase = createSupabasePublicClient();
+      const { data, error } = await supabase
+        .from("journal_posts")
+        .select(SELECT_COLUMNS)
+        .eq("slug", s)
+        .eq("status", "published")
+        .maybeSingle();
+      if (error || !data) return null;
+      return data as unknown as JournalRow;
+    },
+    [`journal-post-by-slug-${slug}`],
+    {
+      revalidate: 15,
+      tags: [`journal-${slug}`],
+    }
+  );
+
+  const data = await getCachedPost(slug);
+  if (!data) return null;
+  return normalizeRow(data);
 }
 
 /**

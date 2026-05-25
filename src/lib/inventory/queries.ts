@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { curateWatch, curateWatches, isHiddenWatchId } from "./curation";
 import { normalizeWatchRow } from "./normalize";
@@ -32,24 +33,45 @@ interface FetchOptions {
  */
 export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]> {
   const { status = "all", category, badge, limit } = options;
-  const supabase = createSupabasePublicClient();
-  let query = supabase
-    .from("watches")
-    .select(SELECT_COLUMNS)
-    .eq("published", true)
-    .order("display_order", { ascending: true, nullsFirst: false });
 
-  if (status !== "all") query = query.eq("status", status);
-  if (category) query = query.eq("category", category);
-  if (badge) query = query.contains("badges", [badge]);
-  if (typeof limit === "number" && limit > 0) query = query.limit(limit);
+  // Generate a stable key for Next.js cache based on option inputs
+  const cacheKey = [
+    "fetchWatches",
+    status,
+    category || "none",
+    badge || "none",
+    limit?.toString() || "all"
+  ];
 
-  const { data, error } = await query;
-  if (error) {
-    console.error("fetchWatches failed:", error.message);
-    return [];
-  }
-  const rows = (data ?? []) as unknown as WatchRow[];
+  const getCachedWatches = unstable_cache(
+    async () => {
+      const supabase = createSupabasePublicClient();
+      let query = supabase
+        .from("watches")
+        .select(SELECT_COLUMNS)
+        .eq("published", true)
+        .order("display_order", { ascending: true, nullsFirst: false });
+
+      if (status !== "all") query = query.eq("status", status);
+      if (category) query = query.eq("category", category);
+      if (badge) query = query.contains("badges", [badge]);
+      if (typeof limit === "number" && limit > 0) query = query.limit(limit);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("fetchWatches failed:", error.message);
+        return [];
+      }
+      return (data ?? []) as unknown as WatchRow[];
+    },
+    cacheKey,
+    {
+      revalidate: 15, // Edge-cache for 15 seconds to ensure instantaneous transitions
+      tags: ["watches"],
+    }
+  );
+
+  const rows = await getCachedWatches();
   return curateWatches(rows.map(normalizeWatchRow));
 }
 
@@ -69,15 +91,28 @@ export async function fetchFeaturedWatch(): Promise<Watch | null> {
  * code. Used by /watch/[slug] (SSG + ISR).
  */
 export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
-  const supabase = createSupabasePublicClient();
-  const { data, error } = await supabase
-    .from("watches")
-    .select(SELECT_COLUMNS)
-    .eq("slug", slug)
-    .eq("published", true)
-    .maybeSingle();
-  if (error || !data) return null;
-  return curateWatch(normalizeWatchRow(data as unknown as WatchRow));
+  const getCachedWatch = unstable_cache(
+    async (s: string) => {
+      const supabase = createSupabasePublicClient();
+      const { data, error } = await supabase
+        .from("watches")
+        .select(SELECT_COLUMNS)
+        .eq("slug", s)
+        .eq("published", true)
+        .maybeSingle();
+      if (error || !data) return null;
+      return data as unknown as WatchRow;
+    },
+    [`watch-by-slug-${slug}`],
+    {
+      revalidate: 15,
+      tags: [`watch-${slug}`],
+    }
+  );
+
+  const data = await getCachedWatch(slug);
+  if (!data) return null;
+  return curateWatch(normalizeWatchRow(data));
 }
 
 /**
