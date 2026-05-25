@@ -156,3 +156,15 @@ on conflict (slug) do update set
   author = excluded.author,
   read_minutes = excluded.read_minutes,
   published_at = coalesce(watch_alley.journal_posts.published_at, excluded.published_at);
+
+-- ===========================================================================
+-- Backfill pre-existing audited watch articles with custom photography CDN URLs
+-- ===========================================================================
+
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/four-movements.png' where slug = 'automatic-hand-wind-quartz-solar';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/watch-care.png' where slug = 'keeping-your-mechanical-watch-healthy';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/market-trends.png' where slug = 'the-state-of-watch-collecting-in-2026';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/presage-dial.png' where slug = 'seiko-presage-and-the-art-of-japanese-dials';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/seamaster-75th.png' where slug = 'omega-marks-75-years-of-the-seamaster';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/preowned-guide.png' where slug = 'buying-pre-owned-in-the-philippines';
+update watch_alley.journal_posts set hero_image = 'https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/journal-images/moonswatch-cools.png' where slug = 'moonswatch-resale-cools-time-to-buy';
