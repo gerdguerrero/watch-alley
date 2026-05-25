@@ -86,6 +86,7 @@ const els = {
   tabpanelJournal: document.getElementById('tabpanel-journal'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
+  inventoryBackBtn: document.getElementById('inventory-back-btn'),
   // Dashboard tab
   dashboardMeta: document.getElementById('admin-dashboard-meta'),
   dashboardRefresh: document.getElementById('admin-dashboard-refresh'),
@@ -102,6 +103,7 @@ const els = {
   journalCount: document.getElementById('journal-count'),
   journalFilter: document.getElementById('journal-filter'),
   journalNewBtn: document.getElementById('journal-new-btn'),
+  journalBackBtn: document.getElementById('journal-back-btn'),
   journalDetail: document.getElementById('journal-detail'),
   journalDetailEmpty: document.getElementById('journal-detail-empty'),
   journalForm: document.getElementById('journal-form'),
@@ -589,6 +591,13 @@ els.cancelBtn.addEventListener('click', () => {
   hideForm();
 });
 
+if (els.inventoryBackBtn) {
+  els.inventoryBackBtn.addEventListener('click', () => {
+    hideForm();
+    if (els.watchFilter) els.watchFilter.focus({ preventScroll: true });
+  });
+}
+
 els.watchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   await saveCurrentForm();
@@ -686,6 +695,7 @@ els.markSoldBtn.addEventListener('click', async () => {
 function hideForm() {
   els.watchForm.hidden = true;
   els.detailEmpty.hidden = false;
+  if (els.tabpanelInventory) els.tabpanelInventory.dataset.mobileView = 'list';
   els.deleteBtn.hidden = true;
   els.markSoldBtn.hidden = true;
   if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
@@ -705,6 +715,7 @@ function hideForm() {
 function loadIntoForm(watch) {
   els.detailEmpty.hidden = true;
   els.watchForm.hidden = false;
+  if (els.tabpanelInventory) els.tabpanelInventory.dataset.mobileView = 'detail';
   activeId = watch?.id || null;
   activeWatchSnapshot = watch ? { ...watch } : null;
 
@@ -2609,10 +2620,17 @@ if (els.journalFilter) {
 if (els.journalNewBtn) {
   els.journalNewBtn.addEventListener('click', () => loadJournalPostIntoForm(null));
 }
+if (els.journalBackBtn) {
+  els.journalBackBtn.addEventListener('click', () => {
+    closeJournalForm();
+    if (els.journalFilter) els.journalFilter.focus({ preventScroll: true });
+  });
+}
 
 function loadJournalPostIntoForm(post) {
   if (!els.journalForm) return;
   activeJournalId = post?.id || null;
+  if (els.tabpanelJournal) els.tabpanelJournal.dataset.mobileView = 'detail';
   els.journalDetailEmpty.hidden = true;
   els.journalForm.hidden = false;
 
@@ -2930,10 +2948,7 @@ if (els.journalPublishBtn) {
 }
 if (els.journalCancelBtn) {
   els.journalCancelBtn.addEventListener('click', () => {
-    activeJournalId = null;
-    els.journalForm.hidden = true;
-    els.journalDetailEmpty.hidden = false;
-    renderJournalList();
+    closeJournalForm();
   });
 }
 if (els.journalDeleteBtn) {
@@ -2948,6 +2963,7 @@ if (els.journalDeleteBtn) {
       if (error) throw error;
       setStatus('Deleted. The website updates automatically.', 'success');
       activeJournalId = null;
+      if (els.tabpanelJournal) els.tabpanelJournal.dataset.mobileView = 'list';
       els.journalForm.hidden = true;
       els.journalDetailEmpty.hidden = false;
       await loadJournalPosts();
@@ -2957,6 +2973,14 @@ if (els.journalDeleteBtn) {
       els.journalDeleteBtn.disabled = false;
     }
   });
+}
+
+function closeJournalForm() {
+  activeJournalId = null;
+  if (els.tabpanelJournal) els.tabpanelJournal.dataset.mobileView = 'list';
+  if (els.journalForm) els.journalForm.hidden = true;
+  if (els.journalDetailEmpty) els.journalDetailEmpty.hidden = false;
+  renderJournalList();
 }
 if (els.journalPreviewBtn) {
   els.journalPreviewBtn.addEventListener('click', () => {

@@ -4,6 +4,7 @@
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
 }
 
 .admin-status {
@@ -36,6 +37,7 @@
   padding: clamp(24px, 3vw, 40px);
   margin-bottom: 24px;
   max-width: 720px;
+  min-width: 0;
 }
 /* Sign-in / forbidden / password-setup keep the narrower max-width, since
    they're standalone full-page panels not crowded with siblings. */
@@ -116,6 +118,8 @@
 .admin-form input,
 .admin-form select,
 .admin-form textarea {
+  width: 100%;
+  min-width: 0;
   font-family: 'Geist', system-ui, sans-serif;
   font-size: 14px;
   letter-spacing: normal;
@@ -201,19 +205,20 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 .admin-workspace[hidden] { display: none; }
+.admin-workspace .admin-card { max-width: none; }
 
 /* Inventory master-detail: the inventory tabpanel itself is the grid host. */
 #tabpanel-inventory {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 24px;
+  align-items: start;
+  min-width: 0;
 }
 #tabpanel-inventory[hidden] { display: none; }
-@media (max-width: 900px) {
-  #tabpanel-inventory { grid-template-columns: 1fr; }
-}
 
 /* Journal tab uses the same master-detail shape as Inventory: post list on
    the left, editor on the right. */
@@ -221,11 +226,10 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 24px;
+  align-items: start;
+  min-width: 0;
 }
 #tabpanel-journal[hidden] { display: none; }
-@media (max-width: 900px) {
-  #tabpanel-journal { grid-template-columns: 1fr; }
-}
 
 /* Journal editor: split textarea + live preview. Toolbar above. */
 .journal-toolbar {
@@ -411,6 +415,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   max-height: 75vh;
   position: sticky;
   top: 24px;
+  min-width: 0;
 }
 .admin-sidebar-header {
   display: flex;
@@ -431,7 +436,10 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border-radius: 2px;
 }
 .admin-new-btn:hover { filter: brightness(1.08); }
-#watch-filter {
+#watch-filter,
+#journal-filter {
+  width: 100%;
+  min-width: 0;
   font-family: 'Geist', system-ui, sans-serif;
   font-size: 13px;
   background: oklch(0.10 0.01 55 / 0.35);
@@ -464,6 +472,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .admin-watch-list li button {
   width: 100%;
+  min-width: 0;
   text-align: left;
   background: transparent;
   border: 1px solid oklch(0.91 0.018 78 / 0.06);
@@ -486,7 +495,26 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .admin-watch-list .admin-row-meta {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   margin-top: 4px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cream-60);
+}
+.admin-watch-list .admin-row-name,
+.admin-watch-list .admin-watch-list-name,
+.admin-watch-list .admin-watch-list-meta,
+.admin-watch-list .admin-row-meta > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-watch-list .admin-watch-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 6px;
   font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -504,7 +532,22 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border: 1px solid oklch(0.91 0.018 78 / 0.06);
   padding: clamp(20px, 3vw, 32px);
   min-height: 420px;
+  min-width: 0;
 }
+.admin-mobile-detail-bar { display: none; }
+.admin-back-btn {
+  background: transparent;
+  border: 1px solid oklch(0.91 0.018 78 / 0.20);
+  color: var(--cream);
+  cursor: pointer;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  min-height: 44px;
+  padding: 10px 14px;
+  text-transform: uppercase;
+}
+.admin-back-btn:hover { border-color: var(--gold); color: var(--gold); }
 .admin-detail-empty {
   color: var(--cream-60);
   font-size: 14px;
@@ -1601,48 +1644,350 @@ code {
 }
 
 /* ===========================================================================
-   Responsive Mobile Overrides — Anti-overlap and solid panel styling
+   Responsive admin / CRM shell
    =========================================================================== */
+@media (max-width: 1100px) {
+  .admin-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-dashboard-rows { grid-template-columns: 1fr; }
+  #admins-list li { grid-template-columns: minmax(0, 1fr) auto; }
+  #admins-list .admin-row-meta {
+    display: flex;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+}
+
 @media (max-width: 900px) {
-  /* INVENTORY TAB RESPONSIVE UX */
-  /* If the watch form is hidden (activeId is null / listing is empty), hide the detail block */
-  #tabpanel-inventory:has(#watch-form[hidden]) #admin-detail {
-    display: none !important;
-  }
-  
-  /* If the watch form is visible, hide the sidebar watch list completely to prevent collision */
-  #tabpanel-inventory:has(#watch-form:not([hidden])) .admin-sidebar {
-    display: none !important;
-  }
-  
-  /* JOURNAL TAB RESPONSIVE UX */
-  /* If the journal form is hidden, hide the detail block */
-  #tabpanel-journal:has(#journal-form[hidden]) #journal-detail {
-    display: none !important;
-  }
-  
-  /* If the journal form is visible, hide the sidebar list completely to prevent collision */
-  #tabpanel-journal:has(#journal-form:not([hidden])) .admin-sidebar {
-    display: none !important;
+  .admin-shell {
+    padding: 16px 12px 28px;
   }
 
-  /* Solid premium design for details panel on mobile */
-  .admin-detail {
-    background: var(--walnut-card) !important;
-    border: 1px solid var(--gold-20) !important;
-    padding: 20px 16px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
-    margin-top: 8px;
+  .trust-nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: oklch(0.13 0.012 55 / 0.96);
+    backdrop-filter: blur(14px);
   }
-  
-  /* Sidebar responsive padding adjustments */
+
+  .admin-status {
+    position: sticky;
+    top: 72px;
+    z-index: 35;
+    margin: -4px 0 10px;
+    padding: 6px 0;
+    background: var(--navy-deep);
+  }
+
+  .admin-card,
+  .admin-detail,
   .admin-sidebar {
-    max-height: 80vh !important;
-    border-radius: 12px !important;
-    background: var(--walnut-card) !important;
-    border: 1px solid oklch(0.91 0.018 78 / 0.08) !important;
-    padding: 16px !important;
+    border-color: oklch(0.91 0.018 78 / 0.10);
+    background: var(--walnut-card);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+  }
+
+  .admin-card,
+  .admin-detail {
+    padding: 18px 14px;
+    margin-bottom: 16px;
+  }
+
+  .admin-workspace { gap: 14px; }
+
+  .admin-tabs {
+    position: sticky;
+    top: 62px;
+    z-index: 30;
+    gap: 6px;
+    margin: 0 -12px 10px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border: 1px solid oklch(0.91 0.018 78 / 0.10);
+    border-left: 0;
+    border-right: 0;
+    background: oklch(0.13 0.012 55 / 0.96);
+    backdrop-filter: blur(14px);
+  }
+  .admin-tabs::-webkit-scrollbar { display: none; }
+  .admin-tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid oklch(0.91 0.018 78 / 0.10);
+    border-radius: 999px;
+    background: oklch(0.91 0.018 78 / 0.035);
+    white-space: nowrap;
+  }
+  .admin-tab.is-active {
+    border-color: var(--gold);
+    background: oklch(0.76 0.12 75 / 0.12);
+  }
+
+  #tabpanel-inventory,
+  #tabpanel-journal {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #tabpanel-inventory[data-mobile-view="detail"] .admin-sidebar,
+  #tabpanel-journal[data-mobile-view="detail"] .admin-sidebar,
+  #tabpanel-inventory:not([data-mobile-view="detail"]) #admin-detail,
+  #tabpanel-journal:not([data-mobile-view="detail"]) #journal-detail {
+    display: none;
+  }
+
+  .admin-sidebar {
+    position: static;
+    max-height: none;
+    padding: 14px;
+  }
+  .admin-sidebar-header {
+    position: sticky;
+    top: 121px;
+    z-index: 8;
+    padding-bottom: 10px;
+    background: var(--walnut-card);
+  }
+  .admin-new-btn,
+  .admin-image-upload-btn,
+  .admin-form-actions .btn-primary,
+  .admin-form-actions .btn-secondary,
+  .admin-form-actions .btn-ghost,
+  .admin-form-actions .btn-danger,
+  .inbox-header .btn-ghost,
+  .inbox-drawer-actions button,
+  .inbox-log-form-actions button,
+  .admin-social-panel .btn-secondary,
+  .admin-social-panel .btn-ghost {
+    min-height: 44px;
+  }
+  .admin-watch-list {
+    overflow: visible;
+    gap: 8px;
+  }
+  .admin-watch-list li button {
+    min-height: 58px;
+    padding: 12px;
+  }
+
+  .admin-detail {
+    min-height: 0;
+    scroll-margin-top: 128px;
+  }
+  .admin-mobile-detail-bar {
+    display: flex;
+    position: sticky;
+    top: 121px;
+    z-index: 12;
+    margin: -18px -14px 16px;
+    padding: 10px 14px;
+    border-bottom: 1px solid oklch(0.91 0.018 78 / 0.10);
+    background: oklch(0.21 0.018 60 / 0.98);
+    backdrop-filter: blur(12px);
+  }
+
+  .admin-form-grid,
+  .inbox-log-form-grid,
+  .social-preview-layout,
+  .social-preview-grid,
+  .journal-editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-form-grid label.admin-col-2,
+  .admin-form-grid > .admin-col-2,
+  .inbox-log-form-message,
+  .inbox-log-form-actions {
+    grid-column: auto;
+  }
+  .admin-form-grid .admin-fieldset {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .admin-workspace .admin-form-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 18;
+    margin: 18px -14px -18px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid oklch(0.91 0.018 78 / 0.12);
+    background: oklch(0.13 0.012 55 / 0.96);
+    backdrop-filter: blur(14px);
+  }
+  .admin-workspace .admin-form-actions > button {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+
+  .admin-dashboard-header,
+  .inbox-header,
+  .admin-social-header,
+  .admin-image-uploader-header {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .admin-dashboard-header .btn-ghost,
+  .inbox-header .btn-ghost,
+  .admin-social-header .btn-secondary,
+  .admin-image-upload-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dashboard-activity li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .dashboard-activity-when { white-space: normal; }
+
+  .journal-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .journal-toolbar::-webkit-scrollbar { display: none; }
+  .journal-toolbar-btn {
+    flex: 0 0 auto;
+    min-height: 40px;
+  }
+  .journal-toolbar-sep { flex: 0 0 1px; }
+  .journal-editor-grid textarea { min-height: 360px; }
+  .journal-preview {
+    border-left: none;
+    border-top: 1px solid oklch(0.91 0.018 78 / 0.12);
+    max-height: none;
+  }
+
+  .inbox-toolbar label,
+  .inbox-toolbar select,
+  .inbox-count,
+  #inbox-count {
+    width: 100%;
+  }
+  .inbox-row { grid-template-columns: 1fr; }
+  .inbox-row-side {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+  .inbox-row-name,
+  .inbox-row-meta,
+  .inbox-row-message,
+  .inbox-drawer-message,
+  .inbox-drawer-meta dd {
+    overflow-wrap: anywhere;
+  }
+  .inbox-drawer-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .inbox-drawer-actions input,
+  .inbox-drawer-actions select,
+  .inbox-drawer-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .social-preview-summary {
+    grid-template-columns: 1fr;
+  }
+  .social-preview-summary-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .social-preview-summary-counts li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .trust-nav {
+    align-items: flex-start;
+    padding: 14px 12px;
+  }
+  .trust-nav-home {
+    flex: 1 1 100%;
+    font-size: 16px;
+  }
+  .trust-nav nav { width: 100%; justify-content: space-between; }
+  .trust-nav a { font-size: 10px; letter-spacing: 0.18em; }
+
+  .admin-shell { padding-inline: 10px; }
+  .admin-status { top: 94px; }
+  .admin-tabs {
+    top: 84px;
+    margin-inline: -10px;
+    padding-inline: 10px;
+  }
+  .admin-sidebar-header,
+  .admin-mobile-detail-bar {
+    top: 142px;
+  }
+
+  .admin-card h1 { font-size: 30px; }
+  .admin-dashboard-title { font-size: 28px; }
+  .admin-dashboard-grid,
+  .inbox-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .kpi-tile,
+  .inbox-metric {
+    padding: 12px;
+  }
+  .kpi-label,
+  .inbox-metric-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+  .kpi-value { font-size: 36px; }
+
+  .admin-meta,
+  .admin-eyebrow,
+  .admin-form label {
+    letter-spacing: 0.12em;
+  }
+
+  .admin-image-thumbs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-image-thumb-controls {
+    opacity: 1;
+  }
+
+  #admins-list li {
+    grid-template-columns: 1fr;
+  }
+  #admins-list button[data-remove-email] {
+    justify-self: stretch;
+    min-height: 44px;
+  }
+
+  .admin-modal {
+    width: calc(100vw - 24px);
+    padding: 22px 16px;
+  }
+  .admin-modal-actions {
+    flex-direction: column-reverse;
+  }
+  .admin-modal-actions .btn-danger,
+  .admin-modal-actions .btn-ghost {
+    min-height: 44px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-dashboard-grid,
+  .inbox-metrics,
+  .dashboard-keyvals {
+    grid-template-columns: 1fr;
   }
 }
 
