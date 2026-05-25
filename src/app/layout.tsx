@@ -38,9 +38,7 @@ export const metadata: Metadata = {
     "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.",
   metadataBase: new URL("https://watchalley.ph"),
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" }
-    ],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: "/apple-icon.png",
   },
   openGraph: {

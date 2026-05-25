@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   experimental: {
     staleTimes: {
       dynamic: 0,
-      static: 0,
+      static: 30,
     },
   },
   images: {
@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/admin", destination: "/admin/index.html" },
       { source: "/admin/", destination: "/admin/index.html" },
+      { source: "/admin/:path*", destination: "/admin/:path*" },
       { source: "/privacy", destination: "/privacy.html" },
       { source: "/terms", destination: "/terms.html" },
       { source: "/authenticity", destination: "/authenticity.html" },

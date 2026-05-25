@@ -24,10 +24,7 @@ export async function GET() {
     });
 
     if (!res.ok) {
-      return NextResponse.json(
-        { error: `Wise API returned ${res.status}` },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: `Wise API returned ${res.status}` }, { status: 502 });
     }
 
     const data = (await res.json()) as Array<{
@@ -43,9 +40,6 @@ export async function GET() {
 
     return NextResponse.json({ phpPerUsd: rate });
   } catch (err) {
-    return NextResponse.json(
-      { error: `Wise API unreachable: ${String(err)}` },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: `Wise API unreachable: ${String(err)}` }, { status: 502 });
   }
 }

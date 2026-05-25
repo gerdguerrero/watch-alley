@@ -3,7 +3,7 @@
 // allowlist (checked server-side inside SECURITY DEFINER RPCs). The page never
 // writes to the watches table directly.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 import { renderMarkdown } from './lib/markdown.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
@@ -166,6 +166,11 @@ let activeWatchSnapshot = null;
 // decide whether to set this flag.
 let mustSetPassword = false;
 let passwordSetupReason = 'invite';
+// Guard against duplicate session renders: the top-level renderForCurrentSession
+// call at the bottom of this file already handles the initial session. The
+// onAuthStateChange listener also fires INITIAL_SESSION on load — without this
+// guard the watch list and dashboard would load twice on every page load.
+let initialSessionRendered = false;
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
@@ -365,6 +370,10 @@ if (supabase) {
     // change the gate state and reloading inventory on every refresh would
     // disrupt the workspace UI.
     if (event === 'TOKEN_REFRESHED') return;
+    // INITIAL_SESSION fires on every page load right after the top-level
+    // renderForCurrentSession() below. Skip it when we've already rendered
+    // to avoid doubling the watch + dashboard RPC calls.
+    if (event === 'INITIAL_SESSION' && initialSessionRendered) return;
     // Don't auto-flip mustSetPassword off here — the password-setup form
     // handler clears it on success.
     renderForCurrentSession();
@@ -461,6 +470,7 @@ async function renderForCurrentSession() {
   // Dashboard is the default landing tab now (Wave 3 of Bet 3). Inbox loads
   // when the operator switches to it.
   loadDashboard();
+  initialSessionRendered = true;
 }
 
 function showOnly(panel) {

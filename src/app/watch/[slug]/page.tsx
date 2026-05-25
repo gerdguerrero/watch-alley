@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
-import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
+import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { formatBadge, formatCategory, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
@@ -145,7 +145,13 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
         <article className="grid gap-6 lg:gap-10 lg:grid-cols-[1.1fr_1fr]">
           {/* Left — gallery */}
           <WatchGallery
-            images={watch.images.length > 0 ? watch.images : watch.primaryImage ? [watch.primaryImage] : []}
+            images={
+              watch.images.length > 0
+                ? watch.images
+                : watch.primaryImage
+                  ? [watch.primaryImage]
+                  : []
+            }
             alt={`${watch.brand} ${watch.name}`}
             badge={watch.badge}
             soldAt={watch.soldAt ? formatSoldMonth(watch.soldAt) : undefined}
@@ -167,7 +173,10 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                   </span>
                 )}
                 {watch.badges.map((b) => (
-                  <span key={b} className="px-2.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800/50 text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-mono">
+                  <span
+                    key={b}
+                    className="px-2.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800/50 text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-mono"
+                  >
                     {formatBadge(b)}
                   </span>
                 ))}

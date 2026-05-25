@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
- * Admin panel access gate.
+ * Admin panel access gate (proxy).
  *
  * /admin requires a valid token: /admin?token=<ADMIN_ACCESS_TOKEN>
  * Once accessed, a cookie is set so you don't need the URL param every time.
@@ -13,7 +13,7 @@ import type { NextRequest } from "next/server";
  */
 const COOKIE_NAME = "wa_admin_access";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname !== "/admin" && pathname !== "/admin/") {
