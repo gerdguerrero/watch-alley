@@ -19,6 +19,21 @@ Migrations applied to production:
 | 20260428032830    | watch_alley_inquiries_pipeline        | inquiries table + status workflow (new → contacted → viewing → reserved → sold/lost), submit_inquiry / admin_list_inquiries / admin_update_inquiry_status / admin_inquiry_metrics RPCs. |
 | 20260428032849    | watch_alley_storage_policies          | (superseded by 0005-storage-policies in this folder.) |
 | —                 | (post-deployment) bucket listing fix  | Removed public-listing storage policy. |
+| 20260428032938    | watch_alley_id_prefix_twa              | Changed ID prefix from wa- to twa-, updated admin_upsert_watch with auto-ID generation. |
+| 20260428034843    | watch_alley_admin_allowlist_rpcs       | Admin email management RPCs. |
+| 20260428050925    | watch_alley_revoke_anon_admin_inquiry_rpcs | Revoked anon EXECUTE on admin/inquiry RPCs. |
+| 20260428082611    | watch_alley_social_publishing_drafts    | Social publishing drafts table + RPCs. |
+| 20260428153233    | watch_alley_provenance_v2              | Provenance column + updated admin_upsert_watch. |
+| 20260428155134    | watch_alley_inquiry_notifications       | Notification log + notification RPCs. |
+| 20260428160037    | watch_alley_inquiry_lost_reason        | Lost reason support in inquiry status workflow. |
+| 20260428164348    | watch_alley_journal                    | Journal posts table + admin RPCs. |
+| 20260428225031    | watch_alley_published_state            | Published boolean + draft support. Updated admin_upsert_watch. |
+| 20260428225443    | watch_alley_admin_list_watches         | admin_list_watches RPC (bypasses draft RLS). |
+| 20260428230110    | watch_alley_admin_dashboard            | Dashboard metrics RPC. |
+| 20260524143033    | 0017-watch-alley-category              | Added category column, backfilled data, updated public.watches view. |
+| 20260524143247    | 0018-watch-alley-category-upsert       | Updated admin_upsert_watch to persist category + badges JSONB. (Applied directly, no repo file.) |
+| 20260524144801    | 0019-watch-alley-badges               | Added badges JSONB column, migrated limited-edition category to badges, updated public.watches view. |
+| 20260525120000    | 0020-watch-alley-admin-upsert-full     | Restored auto-ID generation (twa-NNN) lost in 0018. Full admin_upsert_watch with category, badges, auto-ID. |
 
 13 watches seeded from the legacy JSON snapshot now carried at `next/public/data/watches.json` (10 available + 3 sold archive).
 
@@ -31,6 +46,7 @@ Migrations applied to production:
 | 0003-watch-alley-admin-rpc-hardening.sql              | Anon revokes + explicit admin_emails deny-all. |
 | 0004-watch-alley-inquiries-pipeline.sql               | Buyer inquiry pipeline + admin RPCs + metrics. |
 | 0005-watch-alley-storage.sql                          | watches storage bucket + admin write policies. |
+| 0020-watch-alley-admin-upsert-full.sql                | Full admin_upsert_watch: category + badges + auto-ID. |
 
 These are kept as the canonical migration history. If you wipe/recreate the
 project, run them in numeric order.
@@ -70,7 +86,7 @@ project, run them in numeric order.
 | ---------------------------------- | --------------- | ------------ |
 | `submit_inquiry(payload)`          | anon            | Insert a buyer inquiry. payload keys: `name`, `email`, `phone`, `channel`, `message`, `watchSlug` or `watchId`, `source`. |
 | `admin_whoami()`                   | anon, authed    | Returns `{email, is_admin}`. Used by `/admin` to gate UI. |
-| `admin_upsert_watch(payload)`      | authed + admin  | Insert or update a watch row. Auto-assigns `wa-NNN` ID if missing. |
+| `admin_upsert_watch(payload)`      | authed + admin  | Insert or update a watch row. Validates category, normalizes badges, auto-assigns `twa-NNN` ID if missing. |
 | `admin_delete_watch(watch_id)`     | authed + admin  | Delete a watch. |
 | `admin_mark_watch_sold(id,sold_at,sold_price)` | authed + admin | Move a watch to sold archive. |
 | `admin_list_inquiries(status, limit, offset)`  | authed + admin | Paginated, status-filtered inquiry list. |

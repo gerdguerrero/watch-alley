@@ -126,7 +126,18 @@
       "Bash(/usr/bin/grep -oE '\\(Seiko|Omega|Hamilton|Tissot|>All<|tracking-\\\\[0\\\\.15em\\\\]\\)')",
       "Skill(vercel-plugin:react-best-practices)",
       "Skill(vercel-plugin:react-best-practices:*)",
-      "Bash(/usr/bin/curl -s -o /dev/null -w \"HTTP %{http_code} %{time_total}s\\\\n\" http://localhost:3000/)"
+      "Bash(/usr/bin/curl -s -o /dev/null -w \"HTTP %{http_code} %{time_total}s\\\\n\" http://localhost:3000/)",
+      "Bash(git pull *)",
+      "Bash(pnpm dev > /tmp/watch-alley-dev.log 2>&1 & *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(kill 48226)",
+      "Bash(xargs kill -9)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(kill 53938)",
+      "Bash(git commit -m 'fix\\(nav\\): revert navbar logo back to logo-dp-flat-cropped.png *)",
+      "Bash(jobs)",
+      "Bash(curl -sv http://localhost:3000/)"
     ]
   },
   "enableAllProjectMcpServers": true,

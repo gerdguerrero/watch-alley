@@ -660,7 +660,6 @@ function loadIntoForm(watch) {
   setField('model', watch?.model || '');
   setField('name', watch?.name || '');
   setField('price', watch?.price ?? '');
-  setField('badge', watch?.badge || '');
   setField('conditionLabel', watch?.condition_label || '');
   setField('movement', watch?.movement || '');
   setField('caseSize', watch?.case_size || '');
@@ -1270,7 +1269,7 @@ function collectFormPayload() {
     category: getField('category'),
     badges: getBadges(),
     conditionLabel: getField('conditionLabel').trim(),
-    badge: getField('badge').trim(),
+    badge: deriveBadgeDisplay(),
     movement: getField('movement').trim(),
     caseSize: getField('caseSize').trim(),
     set: getField('set').trim(),
@@ -1509,6 +1508,19 @@ function getBadges() {
     const el = document.getElementById(`field-badge-${id}`);
     return el && el.checked;
   });
+}
+
+const BADGE_DISPLAY = {
+  'limited-edition': 'Limited Edition',
+  rare: 'Rare',
+  collaboration: 'Collaboration',
+  discontinued: 'Discontinued',
+  jdm: 'JDM',
+};
+
+function deriveBadgeDisplay() {
+  const checked = getBadges();
+  return checked.map((id) => BADGE_DISPLAY[id] || id).join(' · ');
 }
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
