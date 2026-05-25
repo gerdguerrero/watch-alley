@@ -26,12 +26,12 @@ export function InquiryButtons({ watch }: InquiryButtonsProps) {
   const messengerUrl = buildMessengerUrl(watch);
 
   return (
-    <div className="mt-4">
+    <div className="mt-2">
       <a
         href={messengerUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-2 bg-amber-500 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-900 transition-colors hover:bg-amber-400"
+        className="inline-flex w-full items-center justify-center gap-2 bg-amber-500 px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-950 transition-colors hover:bg-amber-400 sm:w-auto sm:px-6"
       >
         Message the Seller
         <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" aria-hidden="true">

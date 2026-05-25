@@ -112,7 +112,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
   const jsonLd = buildProductJsonLd(watch);
 
   return (
-    <main className="bg-[#080706] text-zinc-100 pt-[clamp(90px,10vh,130px)] pb-12 px-6 md:px-12 lg:px-16 relative overflow-hidden">
+    <main className="bg-[#080706] text-zinc-100 pt-[clamp(118px,13vh,150px)] pb-12 px-6 md:px-12 lg:px-16 relative overflow-hidden">
       {/* Subtle amber wash anchored top */}
       <div
         aria-hidden="true"
@@ -142,7 +142,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
           <span className="text-zinc-300">{watch.brand}</span>
         </nav>
 
-        <article className="grid gap-6 lg:gap-10 lg:grid-cols-[1.1fr_1fr]">
+        <article className="grid gap-7 lg:gap-10 lg:grid-cols-[1.08fr_1fr]">
           {/* Left — gallery */}
           <WatchGallery
             images={
@@ -159,9 +159,9 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
           />
 
           {/* Right — details */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 lg:pt-1">
             <header>
-              <div className="flex items-center gap-3 mb-5">
+              <div className="mb-4 flex flex-wrap items-center gap-2.5">
                 <div className="w-8 h-px bg-amber-500/60" />
                 <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
                   {watch.brand}
@@ -185,27 +185,27 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
                 {watch.name}
               </h1>
               {meta && (
-                <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+                <p className="mt-4 font-sans text-[13px] uppercase tracking-[0.08em] text-zinc-500">
                   {meta}
                 </p>
               )}
             </header>
 
-            <div className="flex flex-wrap items-baseline gap-3 border-y border-zinc-900/60 py-4">
+            <div className="flex flex-wrap items-baseline gap-3 border-y border-zinc-900/70 py-4">
               {isSold ? (
                 <>
                   <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
                     ● Sold {watch.soldAt && ` · ${formatSoldMonth(watch.soldAt)}`}
                   </span>
                   {watch.soldPrice && (
-                    <span className="font-serif text-3xl italic text-amber-500">
+                    <span className="font-sans text-3xl font-semibold text-amber-500">
                       ₱ {watch.soldPrice.toLocaleString("en-PH")}
                     </span>
                   )}
                 </>
               ) : (
                 <>
-                  <span className="font-serif text-[clamp(22px,2.5vw,32px)] text-amber-500">
+                  <span className="font-sans text-[clamp(24px,2.5vw,34px)] font-semibold text-amber-500">
                     {formatPhp(watch.price)}
                   </span>
                   <span
@@ -221,7 +221,9 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               )}
             </div>
 
-            <dl className="grid grid-cols-2 gap-y-4 gap-x-5 text-sm">
+            {!isSold && <InquiryButtons watch={watch} />}
+
+            <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-y border-zinc-900/70 py-4 sm:grid-cols-2">
               {watch.conditionLabel && <DetailRow label="Condition" value={watch.conditionLabel} />}
               <DetailRow label="Set" value={boxPapers(watch)} />
               {watch.edition && <DetailRow label="Edition" value={watch.edition} />}
@@ -232,42 +234,19 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             </dl>
 
             {watch.description && (
-              <Section title="About this piece">
-                {watch.description.split(/\n{2,}/).map((p, i) => (
-                  <p key={`${i}:${p.slice(0, 32)}`}>
-                    {p.split("\n").map((line, j) => (
-                      <span key={j}>
-                        {j > 0 && <br />}
-                        {line}
-                      </span>
-                    ))}
-                  </p>
-                ))}
-              </Section>
+              <Section title="About this piece">{renderTextBlocks(watch.description)}</Section>
             )}
 
             {watch.provenance && (
-              <Section title="Provenance">
-                {watch.provenance.split(/\n{2,}/).map((p, i) => (
-                  <p key={`${i}:${p.slice(0, 32)}`}>
-                    {p.split("\n").map((line, j) => (
-                      <span key={j}>
-                        {j > 0 && <br />}
-                        {line}
-                      </span>
-                    ))}
-                  </p>
-                ))}
-              </Section>
+              <Section title="Provenance">{renderTextBlocks(watch.provenance)}</Section>
             )}
 
             {watch.disclosure && (
               <Section title="Disclosure">
-                <p className="italic text-zinc-500">{watch.disclosure}</p>
+                <p className="text-zinc-500">{watch.disclosure}</p>
               </Section>
             )}
 
-            {!isSold && <InquiryButtons watch={watch} />}
             {isSold && (
               <Link
                 href="/sold"
@@ -310,23 +289,57 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <dt className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/70">
         {label}
       </dt>
-      <dd className="font-serif text-[15px] text-zinc-200">{value}</dd>
+      <dd className="font-sans text-[15px] leading-6 text-zinc-100">{value}</dd>
     </div>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-2 border-t border-zinc-900/60 pt-4">
+    <section className="flex flex-col gap-3 border-t border-zinc-900/70 pt-4">
       <div className="flex items-center gap-2">
         <div className="w-6 h-px bg-amber-500/60" />
         <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
           {title}
         </h2>
       </div>
-      <div className="flex flex-col gap-2 font-serif text-[14px] leading-[1.65] text-zinc-300">
+      <div className="flex flex-col gap-3 font-sans text-[15px] leading-7 text-zinc-300">
         {children}
       </div>
     </section>
   );
+}
+
+function renderTextBlocks(text: string) {
+  return text
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => {
+      const lines = block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const isList = lines.length > 1 && lines.every((line) => /^[-•]\s+/.test(line));
+
+      if (isList) {
+        return (
+          <ul key={block} className="list-disc space-y-1.5 pl-5">
+            {lines.map((line) => (
+              <li key={line}>{line.replace(/^[-•]\s+/, "")}</li>
+            ))}
+          </ul>
+        );
+      }
+
+      return (
+        <p key={block}>
+          {lines.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </p>
+      );
+    });
 }

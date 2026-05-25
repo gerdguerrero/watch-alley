@@ -69,14 +69,14 @@ export function MainNav() {
 
   return (
     <motion.header
-      className="fixed top-2 left-0 right-0 z-50 px-3 md:top-4 md:px-6"
+      className="fixed top-2 left-0 right-0 z-50 px-3 md:top-3 md:px-6"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
-        className={`relative mx-auto max-w-7xl items-center border border-amber-400/15 bg-[#090806]/85 px-4 shadow-[0_18px_58px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-500 ease-out sm:px-6 md:px-8 flex justify-between gap-3 ${
-          isScrolled ? "rounded-2xl py-2.5 max-w-5xl" : "rounded-3xl py-3 md:py-4"
+        className={`relative mx-auto max-w-6xl items-center border border-amber-400/15 bg-[#090806]/88 px-4 shadow-[0_14px_42px_rgba(0,0,0,0.42)] backdrop-blur-xl transition-all duration-500 ease-out sm:px-5 md:px-6 flex justify-between gap-3 ${
+          isScrolled ? "rounded-xl py-1.5 max-w-5xl" : "rounded-2xl py-2 md:py-2.5"
         }`}
       >
         {/* Left: Full brand lockup (compass + wordmark in one SVG). The
@@ -94,15 +94,15 @@ export function MainNav() {
             // Native aspect is 490×365 (≈1.34:1). Keeping height the source
             // of truth and deriving width preserves the lockup's proportions
             // through the scroll-shrink transition.
-            width={isScrolled ? 54 : 64}
-            height={isScrolled ? 40 : 48}
+            width={isScrolled ? 46 : 56}
+            height={isScrolled ? 34 : 42}
             className="object-contain transition-all duration-500"
             priority
           />
         </Link>
 
         {/* Middle: Section Links (hidden on phone, visible lg+) */}
-        <div className="hidden items-center gap-5 lg:flex lg:gap-7">
+        <div className="hidden items-center gap-5 lg:flex lg:gap-6">
           <Link href="/available" className={linkClass(pathname === "/available")}>
             Available
           </Link>
@@ -149,7 +149,7 @@ export function MainNav() {
             href={inquireHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[10px] md:text-[11px] font-medium uppercase tracking-[0.18em] text-amber-300 transition-all duration-300 hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:gap-2 md:px-5 md:py-2"
+            className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-300 transition-all duration-300 hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:gap-2 md:px-4 md:py-1.5"
           >
             <span>Inquire</span>
             <svg
