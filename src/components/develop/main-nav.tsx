@@ -25,35 +25,17 @@ export function MainNav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const onHome = pathname === "/";
-
-  // Smooth-scroll to an in-page anchor when we're on the homepage; otherwise
-  // let the link navigate to the home route with the hash.
-  const handleAnchor = (anchor: string) => (e: MouseEvent) => {
-    if (!onHome) return;
-    e.preventDefault();
-    const target = document.getElementById(anchor);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
   // Section links styling for the desktop bar.
   const linkClass = (active: boolean) =>
     `text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-mono transition-colors ${
       active ? "text-[color:var(--color-gold)] font-medium" : "text-cream-60 hover:text-cream"
     }`;
 
-  // Mirror of the desktop section links for the mobile overlay. Heritage uses
-  // the smooth-scroll handler when we're on the homepage.
+  // Mirror of the desktop section links for the mobile overlay.
   const overlayLinks: MobileNavLink[] = [
     { label: "Available", href: "/available" },
     { label: "Sold", href: "/sold" },
-    {
-      label: "Heritage",
-      href: onHome ? "#heritage" : "/#heritage",
-      onClick: handleAnchor("heritage"),
-    },
+    { label: "Heritage", href: "/heritage" },
     { label: "Journal", href: "/journal" },
   ];
 
@@ -109,11 +91,7 @@ export function MainNav() {
           <Link href="/sold" className={linkClass(pathname === "/sold")}>
             Sold
           </Link>
-          <Link
-            href={onHome ? "#heritage" : "/#heritage"}
-            onClick={handleAnchor("heritage")}
-            className={linkClass(false)}
-          >
+          <Link href="/heritage" className={linkClass(pathname === "/heritage")}>
             Heritage
           </Link>
           <Link href="/journal" className={linkClass(pathname.startsWith("/journal"))}>
