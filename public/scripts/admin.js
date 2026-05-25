@@ -176,7 +176,10 @@ function isValidEmail(value) {
 }
 
 function getAdminRedirectTo() {
-  return `${window.location.origin}/admin`;
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get('token');
+  const base = `${window.location.origin}/admin`;
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
 }
 
 function passwordResetSuccessMessage(email) {
