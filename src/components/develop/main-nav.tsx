@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type MouseEvent, useEffect, useState } from "react";
+import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
 export function MainNav() {
@@ -73,7 +74,7 @@ export function MainNav() {
           className="flex items-center gap-2 md:gap-3 group flex-shrink-0"
         >
           <Image
-            src="/brand/logo-dp-flat-cropped.png"
+            src={BRAND_ASSETS.twaBadge}
             alt=""
             width={isScrolled ? 30 : 36}
             height={isScrolled ? 30 : 36}

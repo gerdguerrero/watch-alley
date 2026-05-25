@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/develop/footer";
 import { MainNav } from "@/components/develop/main-nav";
+import { BRAND_COLORS } from "@/lib/brand/assets";
 import "./globals.css";
 
 // Develop-branch font stack (replaces the Petrona/Spectral/JetBrains_Mono set):
@@ -33,20 +34,28 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "The Watch Alley PH — Curated Watches in Manila",
+  title: {
+    default: "The Watch Alley PH — Curated Watches in Manila",
+    template: "%s · The Watch Alley",
+  },
   description:
     "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.",
   metadataBase: new URL("https://watchalley.ph"),
-  icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    apple: "/apple-icon.png",
-  },
+  applicationName: "The Watch Alley",
+  // Icons are managed by the file-based metadata API:
+  //   src/app/icon.svg          → modern browsers (vector)
+  //   src/app/apple-icon.png    → iOS home screen
+  //   src/app/favicon.ico       → legacy IE/Edge fallback
+  // Next.js auto-emits the correct <link rel="icon" …> tags from those files,
+  // so this object only sets things the file convention can't.
+  manifest: "/manifest.webmanifest",
   openGraph: {
     type: "website",
     title: "The Watch Alley PH",
     description: "A Manila-based curator of pre-owned and brand-new timepieces.",
     url: "https://watchalley.ph",
     siteName: "The Watch Alley",
+    locale: "en_PH",
     images: [
       {
         url: "/brand/cover-photo.png",
@@ -56,6 +65,20 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Watch Alley PH",
+    description: "Curated pre-owned and brand-new timepieces, Manila.",
+    images: ["/brand/cover-photo.png"],
+  },
+};
+
+// Viewport is its own export in Next.js 16 — `themeColor` inside metadata is
+// deprecated. The walnut here matches the page background so iOS Safari's
+// chrome blends into the design instead of flashing white.
+export const viewport: Viewport = {
+  themeColor: BRAND_COLORS.walnut,
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
