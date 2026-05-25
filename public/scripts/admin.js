@@ -537,6 +537,14 @@ function renderList() {
   for (const w of filtered) {
     const li = document.createElement('li');
     if (w.id === activeId) li.classList.add('is-active');
+    // Render the DRAFT pill inline. A prior version used a MutationObserver
+    // on #watch-list to retrofit pills after the fact — that observer fired
+    // on every subtree mutation, and its own appendChild/removeChild calls
+    // re-triggered itself, locking up the page with an infinite loop the
+    // moment any inventory loaded.
+    const draftPill = w.published === false
+      ? '<span class="watch-list-draft-pill">DRAFT</span>'
+      : '';
     li.innerHTML = `
       <button type="button" data-id="${escapeAttr(w.id)}">
         <div class="admin-row-name">${escapeHtml(w.name || w.slug || w.id)}</div>
@@ -544,6 +552,7 @@ function renderList() {
           <span>${escapeHtml(w.brand || '')}</span>
           <span class="admin-status-pill" data-status="${escapeAttr(w.status)}">${escapeHtml(w.status)} · ₱${formatPrice(w.price)}</span>
         </div>
+        ${draftPill}
       </button>
     `;
     els.watchList.appendChild(li);
@@ -2435,35 +2444,11 @@ document.addEventListener('click', (event) => {
   openListingUrlFromButton(btn);
 });
 
-// Mark draft listings in the inventory sidebar so the operator sees status
-// at a glance. Hooks into renderWatchList by patching the rendered DOM
-// after the existing list renders. We watch for changes via a small
-// MutationObserver set up after first paint.
-function decorateInventoryListWithDraftPills() {
-  const list = document.getElementById('watch-list');
-  if (!list) return;
-  const apply = () => {
-    list.querySelectorAll('button[data-id]').forEach((btn) => {
-      const id = btn.dataset.id;
-      const watch = allWatches.find((w) => w.id === id);
-      if (!watch) return;
-      // Idempotent: remove an existing pill before re-inserting.
-      btn.querySelectorAll('.watch-list-draft-pill').forEach((el) => el.remove());
-      if (watch.published === false) {
-        const pill = document.createElement('span');
-        pill.className = 'watch-list-draft-pill';
-        pill.textContent = 'DRAFT';
-        btn.appendChild(pill);
-      }
-    });
-  };
-  apply();
-  new MutationObserver(apply).observe(list, { childList: true, subtree: true });
-}
-// Run once after auth + workspace mount; safe to invoke now since the list
-// either exists already or will be re-rendered by loadAllWatches().
-if (document.readyState !== 'loading') decorateInventoryListWithDraftPills();
-else document.addEventListener('DOMContentLoaded', decorateInventoryListWithDraftPills);
+// (DRAFT pill rendering moved into renderList()'s template directly.
+// The previous MutationObserver-based approach was a CPU bomb: each
+// pill add/remove triggered the observer, which re-ran the decoration,
+// which mutated the DOM again, locking the page with "Page Unresponsive"
+// the moment any inventory loaded.)
 
 // =====================================================================
 // Journal tab — list, edit, save, delete, toolbar, live preview, hero
