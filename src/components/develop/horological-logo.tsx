@@ -36,7 +36,7 @@ export function HorologicalLogo({
 
       const hingeGlow = hingeGlowRef.current;
 
-      // Hide the wordmarks initially using a horizontal wipe inset
+      // Hide the wordmarks initially using a clean translation offset
       gsap.set(
         [
           ".wa-wordmark-the",
@@ -45,8 +45,8 @@ export function HorologicalLogo({
           ".wa-wordmark-lley",
         ],
         {
-          clipPath: "inset(0 100% 0 0)",
-          opacity: 1,
+          opacity: 0,
+          x: -18,
         }
       );
 
@@ -62,16 +62,16 @@ export function HorologicalLogo({
       // Minute Hand (Left Leg) rotates exactly once (360 degrees) around fixed center (184.3, 35.4)
       tl.fromTo(
         ".wa-left-leg",
-        { rotate: -360, svgOrigin: "184.3 35.4" },
-        { rotate: 0, svgOrigin: "184.3 35.4", duration: 1.5, ease: "power3.inOut" },
+        { rotation: -360, svgOrigin: "184.3 35.4" },
+        { rotation: 0, svgOrigin: "184.3 35.4", duration: 1.5, ease: "power3.inOut" },
         0.15
       );
 
       // Hour Hand (Right Leg) rotates exactly 1 hour (30 degrees) around fixed center (184.3, 35.4)
       tl.fromTo(
         ".wa-right-leg",
-        { rotate: -30, svgOrigin: "184.3 35.4" },
-        { rotate: 0, svgOrigin: "184.3 35.4", duration: 1.5, ease: "power3.inOut" },
+        { rotation: -30, svgOrigin: "184.3 35.4" },
+        { rotation: 0, svgOrigin: "184.3 35.4", duration: 1.5, ease: "power3.inOut" },
         0.15
       );
 
@@ -94,32 +94,32 @@ export function HorologicalLogo({
         }
       }, 1.4);
 
-      // Sequential windshield-wipe text reveals following the hand movement
+      // Sequential slide and fade reveals following the hand movement
       tl.fromTo(
         ".wa-wordmark-the",
-        { clipPath: "inset(0 100% 0 0)" },
-        { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+        { x: -18, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
         0.7
       );
 
       tl.fromTo(
         ".wa-wordmark-watch-w",
-        { clipPath: "inset(0 100% 0 0)" },
-        { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+        { x: -18, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
         0.8
       );
 
       tl.fromTo(
         ".wa-wordmark-watch-tch",
-        { clipPath: "inset(0 100% 0 0)" },
-        { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+        { x: -18, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
         1.1
       );
 
       tl.fromTo(
         ".wa-wordmark-lley",
-        { clipPath: "inset(0 100% 0 0)" },
-        { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+        { x: -18, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
         1.2
       );
     },
@@ -138,15 +138,15 @@ export function HorologicalLogo({
 
     tl.fromTo(
       ".wa-left-leg",
-      { rotate: -360, svgOrigin: "184.3 35.4" },
-      { rotate: 0, svgOrigin: "184.3 35.4", duration: 0.85, ease: "back.out(1.4)" },
+      { rotation: -360, svgOrigin: "184.3 35.4" },
+      { rotation: 0, svgOrigin: "184.3 35.4", duration: 0.85, ease: "back.out(1.4)" },
       0
     );
 
     tl.fromTo(
       ".wa-right-leg",
-      { rotate: -30, svgOrigin: "184.3 35.4" },
-      { rotate: 0, svgOrigin: "184.3 35.4", duration: 0.85, ease: "back.out(1.4)" },
+      { rotation: -30, svgOrigin: "184.3 35.4" },
+      { rotation: 0, svgOrigin: "184.3 35.4", duration: 0.85, ease: "back.out(1.4)" },
       0
     );
 
@@ -199,17 +199,17 @@ export function HorologicalLogo({
       >
         <g fill="none">
           {/* THE wordmark */}
-          <g className="wa-wordmark-the" fill="#BD9A32" style={{ willChange: "clip-path" }}>
+          <g className="wa-wordmark-the" fill="#BD9A32" style={{ willChange: "transform, opacity" }}>
             <path d="M 11.839844 3.554688 L 2.25 3.554688 L 2.25 0 L 25.269531 0 L 25.269531 3.554688 L 15.679688 3.554688 L 15.679688 35.09375 L 11.839844 35.09375 Z M 11.839844 3.554688 " />
             <path d="M 62.890625 0 L 62.890625 35.09375 L 59.054688 35.09375 L 59.054688 18.15625 L 36.40625 18.15625 L 36.40625 35.09375 L 32.570312 35.09375 L 32.570312 0 L 36.40625 0 L 36.40625 14.597656 L 59.054688 14.597656 L 59.054688 0 Z M 62.890625 0 " />
             <path d="M 95.878906 31.535156 L 95.878906 35.09375 L 73.464844 35.09375 L 73.464844 0 L 95.316406 0 L 95.316406 3.554688 L 77.117188 3.554688 L 77.117188 14.550781 L 94.335938 14.550781 L 94.335938 18.058594 L 77.117188 18.058594 L 77.117188 31.535156 Z M 95.878906 31.535156 " />
           </g>
 
           {/* WATCH wordmark (minus A) */}
-          <g className="wa-wordmark-watch-w" fill="#FFFFFF" style={{ willChange: "clip-path" }}>
+          <g className="wa-wordmark-watch-w" fill="#FFFFFF" style={{ willChange: "transform, opacity" }}>
             <path d="M 126.226562 47.417969 L 101.164062 104.085938 L 77.527344 54.339844 L 72.957031 54.339844 L 49.589844 103.695312 L 24.65625 47.417969 L 0.242188 47.417969 L 46.972656 147.042969 L 49.980469 147.042969 L 75.183594 93.378906 L 100.375 147.042969 L 103.378906 147.042969 L 149.992188 47.417969 Z M 126.226562 47.417969 " />
           </g>
-          <g className="wa-wordmark-watch-tch" fill="#FFFFFF" style={{ willChange: "clip-path" }}>
+          <g className="wa-wordmark-watch-tch" fill="#FFFFFF" style={{ willChange: "transform, opacity" }}>
             <path d="M 229.496094 47.417969 L 229.496094 67.269531 L 251.292969 67.269531 L 251.292969 117.15625 C 259.230469 121.398438 269.308594 136.628906 271.992188 145.34375 L 274.140625 145.34375 L 274.140625 67.269531 L 295.816406 67.269531 L 295.816406 47.417969 Z M 229.496094 47.417969 " />
             <path d="M 357.179688 67.007812 C 363.839844 67.007812 369.320312 68.175781 374.152344 70.664062 L 374.152344 49.375 C 369.320312 47.027344 362.011719 45.980469 355.871094 45.980469 C 326.363281 45.980469 304.296875 67.660156 304.296875 96.644531 C 304.296875 125.625 326.363281 147.300781 355.738281 147.300781 C 361.882812 147.300781 369.320312 146.382812 374.152344 143.777344 L 374.152344 122.757812 C 369.320312 125.105469 363.839844 126.152344 357.179688 126.152344 C 339.941406 126.152344 327.152344 114.011719 327.152344 96.644531 C 327.152344 79.140625 339.941406 67.007812 357.179688 67.007812 " />
             <path d="M 463.453125 47.417969 L 463.453125 83.84375 L 419.445312 83.84375 L 419.445312 47.417969 L 396.601562 47.417969 L 396.601562 145.34375 L 419.445312 145.34375 L 419.445312 104.605469 L 463.453125 104.605469 L 463.453125 145.34375 L 486.296875 145.34375 L 486.296875 47.417969 Z M 463.453125 47.417969 " />
@@ -230,7 +230,7 @@ export function HorologicalLogo({
           </g>
 
           {/* LLEY wordmark */}
-          <g className="wa-wordmark-lley" fill="#BD9A32" style={{ willChange: "clip-path" }}>
+          <g className="wa-wordmark-lley" fill="#BD9A32" style={{ willChange: "transform, opacity" }}>
             <path d="M 318.738281 216.417969 L 318.738281 222.9375 L 286.738281 222.9375 L 286.738281 158.59375 L 293.773438 158.59375 L 293.773438 216.417969 Z M 318.738281 216.417969 " />
             <path d="M 365.328125 216.417969 L 365.328125 222.9375 L 333.328125 222.9375 L 333.328125 158.59375 L 340.363281 158.59375 L 340.363281 216.417969 Z M 365.328125 216.417969 " />
             <path d="M 421.007812 216.417969 L 421.007812 222.9375 L 379.914062 222.9375 L 379.914062 158.59375 L 419.976562 158.59375 L 419.976562 165.113281 L 386.605469 165.113281 L 386.605469 185.273438 L 418.175781 185.273438 L 418.175781 191.707031 L 386.605469 191.707031 L 386.605469 216.417969 Z M 421.007812 216.417969 " />
