@@ -4,24 +4,58 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { useEffect, useRef, useState } from "react";
 
+// Module-level memory gate. In Next.js client-side navigation (SPA),
+// the Javascript environment persists in memory across route changes.
+// This flag guarantees that the preloader component will NEVER trigger
+// or re-evaluate state during SPA client routing.
+let hasPlayedInSession = false;
+
 export function EntrancePreloader() {
   const [showPreloader, setShowPreloader] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hingeGlowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check if the user has already seen the preloader in this session
-    const seen = sessionStorage.getItem("twa-preloader-seen");
+    // 1. Instant check of our in-memory SPA routing gate.
+    // If the user is actively navigating within the client-side SPA lifecycle,
+    // they should never experience the full-screen preloader overlay, regardless of timing.
+    if (hasPlayedInSession) {
+      return;
+    }
+
     const force = new URLSearchParams(window.location.search).get("force-preload") === "true";
 
-    if (!seen || force) {
+    // 2. Safe check of localStorage with a 5-minute (300,000 ms) cooldown
+    let shouldPlay = true;
+    const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+    try {
+      const lastRunStr = localStorage.getItem("twa-preloader-last-run");
+      if (lastRunStr) {
+        const lastRun = parseInt(lastRunStr, 10);
+        const now = Date.now();
+        if (now - lastRun < COOLDOWN_MS) {
+          shouldPlay = false;
+        }
+      }
+    } catch (e) {
+      console.warn("Storage access blocked, falling back to in-memory safety:", e);
+    }
+
+    if (shouldPlay || force) {
       setShowPreloader(true);
-      // Mark it immediately so subsequent route changes never mount it again
       if (!force) {
-        sessionStorage.setItem("twa-preloader-seen", "true");
+        hasPlayedInSession = true;
+        try {
+          localStorage.setItem("twa-preloader-last-run", Date.now().toString());
+        } catch (e) {
+          console.warn("Writing to localStorage failed:", e);
+        }
       }
       // Prevent scrolling while preloading is running
       document.body.style.overflow = "hidden";
+    } else {
+      hasPlayedInSession = true;
     }
   }, []);
 
