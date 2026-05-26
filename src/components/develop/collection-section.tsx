@@ -194,12 +194,12 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
     }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string }>;
   }, [watches]);
 
-  // Track the hovered active card slug
-  const [intendedActiveId, setActiveId] = useState<string | null>(items[0]?.watch?.slug ?? null);
+  // Track the hovered active card label
+  const [intendedActiveLabel, setActiveLabel] = useState<string | null>(items[0]?.label ?? null);
 
-  const activeId =
-    items.find((item) => item.watch.slug === intendedActiveId)?.watch?.slug ??
-    items[0]?.watch?.slug ??
+  const activeLabel =
+    items.find((item) => item.label === intendedActiveLabel)?.label ??
+    items[0]?.label ??
     null;
 
   if (watches.length === 0) {
@@ -282,14 +282,14 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </p>
         ) : (
           <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <AccordionCard
-                key={item.watch.slug}
+                key={`${item.label}-${item.watch.slug}-${index}`}
                 watch={item.watch}
                 // On phone every card is expanded so all available pieces are
                 // visible at a glance; desktop keeps the accordion behaviour.
-                isActive={isMobile ? true : activeId === item.watch.slug}
-                onActivate={() => setActiveId(item.watch.slug)}
+                isActive={isMobile ? true : activeLabel === item.label}
+                onActivate={() => setActiveLabel(item.label)}
                 isMobile={isMobile}
                 displayName={item.label}
               />
