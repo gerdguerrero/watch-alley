@@ -9,7 +9,19 @@ import { useEffect, useRef } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
-import { WatchScene } from "./watch-scene";
+import dynamic from "next/dynamic";
+
+const WatchScene = dynamic(
+  () => import("./watch-scene").then((mod) => mod.WatchScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-300/25 border-t-amber-300" />
+      </div>
+    ),
+  }
+);
 
 gsap.registerPlugin(ScrollTrigger);
 
