@@ -401,8 +401,9 @@
           <button id="btn-play" class="btn btn-gold">Play Lockup</button>
           <button id="btn-reverse" class="btn btn-outline">Reverse</button>
           <button id="btn-explode" class="btn btn-outline btn-wide">Explode Layout</button>
-          <button id="btn-clockwork" class="btn btn-outline" style="margin-top: 10px;">Clockwork Sweep</button>
-          <button id="btn-watch-spin" class="btn btn-outline" style="margin-top: 10px;">Watch Timelapse</button>
+          <button id="btn-clockwork" class="btn btn-outline" style="margin-top: 10px;">Clockwork (2H)</button>
+          <button id="btn-clockwork-1h" class="btn btn-outline" style="margin-top: 10px;">Clockwork (1H)</button>
+          <button id="btn-watch-spin" class="btn btn-outline btn-wide" style="margin-top: 10px;">Watch Timelapse</button>
         </div>
       </div>
 
@@ -481,6 +482,7 @@
     const btnReverse = document.getElementById('btn-reverse');
     const btnExplode = document.getElementById('btn-explode');
     const btnClockwork = document.getElementById('btn-clockwork');
+    const btnClockwork1h = document.getElementById('btn-clockwork-1h');
     const btnWatchSpin = document.getElementById('btn-watch-spin');
     const statusText = document.getElementById('telemetry-status');
     const hingeGlow = document.getElementById('hinge-glow-ring');
@@ -610,7 +612,7 @@
             btnPlay.textContent = "Replay";
             triggerHingeGlow();
           },
-          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Clockwork"; }
+          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Clockwork (2H)"; }
         });
 
         // 1. Minute Hand (Left Leg, long caliper needle) rotates exactly TWICE (720 degrees) around fixed hinge center
@@ -658,6 +660,70 @@
           { clipPath: "inset(0 100% 0 0)" },
           { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" },
           1.45
+        );
+      } else if (currentMode === 'clockwork-1h') {
+        // Clockwork Sweep Mode (1-Hour): A faster single-rotation timepiece transition
+        // Hide the wordmarks initially using a horizontal wipe inset
+        gsap.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], {
+          clipPath: "inset(0 100% 0 0)",
+          opacity: 1
+        });
+
+        tl = gsap.timeline({
+          paused: true,
+          onUpdate: updateScrubSlider,
+          onStart: () => { statusText.textContent = "ANIMATING"; btnPlay.textContent = "Pause"; },
+          onComplete: () => { 
+            statusText.textContent = "RESOLVED"; 
+            btnPlay.textContent = "Replay";
+            triggerHingeGlow();
+          },
+          onReverseComplete: () => { statusText.textContent = "INITIAL"; btnPlay.textContent = "Play Clockwork (1H)"; }
+        });
+
+        // 1. Minute Hand (Left Leg, long caliper needle) rotates exactly ONCE (-360 degrees) around fixed hinge center
+        tl.fromTo(leftLeg,
+          { rotate: -360, opacity: 0, scale: 0.95, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 1.4, ease: "power3.inOut" },
+          0.1
+        );
+
+        // 2. Hour Hand (Right Leg, short caliper nib) rotates 1 hour (-30 degrees) around fixed hinge center
+        tl.fromTo(rightLeg,
+          { rotate: -30, opacity: 0, scale: 0.95, svgOrigin: "184.3 35.4" },
+          { rotate: 0, opacity: 1, scale: 1, svgOrigin: "184.3 35.4", duration: 1.4, ease: "power3.inOut" },
+          0.1
+        );
+
+        // Connection lock trigger at the hinge joint just before they stop rotating
+        tl.add(() => { triggerHingeGlow(); }, 1.35);
+
+        // 3. Windshield brush swipe reveal: the text wipes into existence sequentially
+        // top-left and left:
+        tl.fromTo("#twa-the",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+          0.65
+        );
+
+        tl.fromTo("#twa-watch-w",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+          0.75
+        );
+
+        // right side:
+        tl.fromTo("#twa-watch-tch",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+          1.05
+        );
+
+        // bottom-right:
+        tl.fromTo("#twa-lley",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "power2.out" },
+          1.15
         );
       } else if (currentMode === 'watch-spin') {
         // Watch Timelapse Mode: Authentic mechanical 2-hour watch spin (continuous, linear/mechanical, no scale/opacity fade-in)
@@ -893,7 +959,11 @@
       // Reset button styles
       btnClockwork.style.backgroundColor = '';
       btnClockwork.style.borderColor = '';
-      btnClockwork.textContent = "Clockwork Sweep";
+      btnClockwork.textContent = "Clockwork (2H)";
+      
+      btnClockwork1h.style.backgroundColor = '';
+      btnClockwork1h.style.borderColor = '';
+      btnClockwork1h.textContent = "Clockwork (1H)";
       
       btnWatchSpin.style.backgroundColor = '';
       btnWatchSpin.style.borderColor = '';
@@ -903,7 +973,12 @@
         btnClockwork.style.backgroundColor = 'var(--gold-10)';
         btnClockwork.style.borderColor = 'var(--gold)';
         btnClockwork.textContent = "Standard Lockup";
-        btnPlay.textContent = "Play Clockwork";
+        btnPlay.textContent = "Play Clockwork (2H)";
+      } else if (currentMode === 'clockwork-1h') {
+        btnClockwork1h.style.backgroundColor = 'var(--gold-10)';
+        btnClockwork1h.style.borderColor = 'var(--gold)';
+        btnClockwork1h.textContent = "Standard Lockup";
+        btnPlay.textContent = "Play Clockwork (1H)";
       } else if (currentMode === 'watch-spin') {
         btnWatchSpin.style.backgroundColor = 'var(--gold-10)';
         btnWatchSpin.style.borderColor = 'var(--gold)';
@@ -917,12 +992,21 @@
       tl.play(0); // Auto-play the selected timeline!
     }
 
-    // Clockwork Sweep Mode Toggle
+    // Clockwork (2-Hour) Mode Toggle
     btnClockwork.addEventListener('click', () => {
       if (currentMode === 'clockwork') {
         setMode('standard');
       } else {
         setMode('clockwork');
+      }
+    });
+
+    // Clockwork (1-Hour) Mode Toggle
+    btnClockwork1h.addEventListener('click', () => {
+      if (currentMode === 'clockwork-1h') {
+        setMode('standard');
+      } else {
+        setMode('clockwork-1h');
       }
     });
 
