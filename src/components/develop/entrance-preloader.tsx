@@ -122,8 +122,8 @@ export function EntrancePreloader() {
         1.2
       );
 
-      // Add a 1.5-second standby pause at the end of the reveal before starting the fade-out
-      tl.to({}, { duration: 1.5 });
+      // Add a 0.5-second standby pause at the end of the reveal before starting the fade-out
+      tl.to({}, { duration: 0.5 });
     },
     { dependencies: [showPreloader], scope: containerRef }
   );
