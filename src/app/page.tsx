@@ -1,5 +1,6 @@
 import { CollectionSection } from "@/components/develop/collection-section";
 import { ContactSection } from "@/components/develop/contact-section";
+import { EntrancePreloader } from "@/components/develop/entrance-preloader";
 import { HeritageSection } from "@/components/develop/heritage-section";
 import { Hero } from "@/components/develop/hero";
 import { JournalSection } from "@/components/develop/journal-section";
@@ -23,6 +24,7 @@ export default async function Page() {
 
   return (
     <SmoothScrollProvider>
+      <EntrancePreloader />
       <main className="bg-[#080706]">
         <Hero featured={featured} />
         <CollectionSection watches={collectionWatches} />
