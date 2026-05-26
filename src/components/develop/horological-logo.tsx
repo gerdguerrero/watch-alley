@@ -28,8 +28,6 @@ export function HorologicalLogo({
   const containerRef = useRef<HTMLDivElement>(null);
   const hingeGlowRef = useRef<HTMLDivElement>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
-  const lastTriggered = useRef<number>(0);
-  const COOLDOWN_MS = 60000; // 60-second cooldown to prevent animation fatigue
 
   // 1. Mount Animation Sequence (for 'mount-sweep' mode)
   useGSAP(
@@ -131,11 +129,6 @@ export function HorologicalLogo({
   // 2. Micro-Interaction Trigger on Hover (for 'hover-sweep' mode)
   const handleMouseEnter = () => {
     if (mode !== "hover-sweep") return;
-
-    const now = Date.now();
-    // Guard against rapid triggers or hover spam (only sweeps once every 60s)
-    if (now - lastTriggered.current < COOLDOWN_MS) return;
-    lastTriggered.current = now;
 
     const hingeGlow = hingeGlowRef.current;
 

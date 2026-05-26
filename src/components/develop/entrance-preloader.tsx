@@ -16,6 +16,10 @@ export function EntrancePreloader() {
 
     if (!seen || force) {
       setShowPreloader(true);
+      // Mark it immediately so subsequent route changes never mount it again
+      if (!force) {
+        sessionStorage.setItem("twa-preloader-seen", "true");
+      }
       // Prevent scrolling while preloading is running
       document.body.style.overflow = "hidden";
     }
@@ -41,9 +45,6 @@ export function EntrancePreloader() {
 
       const tl = gsap.timeline({
         onComplete: () => {
-          // Store key in session storage so it doesn't repeat
-          sessionStorage.setItem("twa-preloader-seen", "true");
-
           // Elegant fade-out of the entire preloader screen
           gsap.to(containerRef.current, {
             opacity: 0,
