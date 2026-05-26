@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { HorologicalLogo } from "./horological-logo";
 
 interface PageTitleProps {
   /** Giant gradient word displayed behind/above the eyebrow + headline. */
-  title: string;
+  title?: string;
+  /** If true, renders the animated horological logo instead of the plain title string. */
+  showHorologicalLogo?: boolean;
   /** Small amber uppercase tag above the headline. */
   eyebrow?: string;
   /** Italic-emphasized headline rendered as serif text. Use *...* for amber emphasis. */
@@ -29,11 +32,14 @@ function renderHeadline(node: ReactNode) {
 
 /**
  * Develop-aesthetic page header: huge gradient title, amber eyebrow, serif headline, lede.
- *
- * Pure Server Component — no client JS, no scroll listeners, no framer-motion
- * hooks. The entrance is a tiny CSS fade so navigation between routes is instant.
  */
-export function PageTitle({ title, eyebrow, headline, description }: PageTitleProps) {
+export function PageTitle({
+  title,
+  showHorologicalLogo = false,
+  eyebrow,
+  headline,
+  description,
+}: PageTitleProps) {
   return (
     <div className="relative overflow-hidden px-6 pt-[clamp(120px,16vh,180px)] pb-12 md:px-12 md:pb-20 lg:flex lg:h-[65vh] lg:flex-col lg:justify-center lg:px-20 lg:py-0">
       <style>{`
@@ -64,19 +70,30 @@ export function PageTitle({ title, eyebrow, headline, description }: PageTitlePr
         }}
       />
 
-      <h1
-        className="wa-page-rise relative z-0 mb-8 text-center font-serif font-normal leading-none select-none text-transparent md:mb-12"
-        style={{
-          fontSize: "clamp(3.5rem, 13vw, 11rem)",
-          background:
-            "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-        }}
-      >
-        {title}
-      </h1>
+      {showHorologicalLogo ? (
+        <div className="wa-page-rise relative z-0 mb-8 flex justify-center md:mb-12">
+          <HorologicalLogo
+            mode="mount-sweep"
+            width="min(320px, 75vw)"
+            height="auto"
+            className="aspect-[490/365]"
+          />
+        </div>
+      ) : (
+        <h1
+          className="wa-page-rise relative z-0 mb-8 text-center font-serif font-normal leading-none select-none text-transparent md:mb-12"
+          style={{
+            fontSize: "clamp(3.5rem, 13vw, 11rem)",
+            background:
+              "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          {title}
+        </h1>
+      )}
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         {eyebrow && (

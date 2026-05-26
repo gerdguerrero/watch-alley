@@ -15,7 +15,7 @@ export default function HeritagePage() {
   return (
     <main className="bg-[#080706] text-zinc-100 min-h-screen">
       <PageTitle
-        title="HERITAGE"
+        showHorologicalLogo={true}
         eyebrow="◆ Our Curation Standard"
         description="A Manila boutique created from a personal, collector-first desire: to build a quiet space for transparent watch conversations, daylight-photographed disclosures, and patient curation."
       />

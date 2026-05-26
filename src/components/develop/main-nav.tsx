@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type MouseEvent, useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { HorologicalLogo } from "./horological-logo";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
 export function MainNav() {
@@ -70,16 +71,11 @@ export function MainNav() {
           aria-label="The Watch Alley home"
           className="flex items-center group flex-shrink-0"
         >
-          <Image
-            src={BRAND_ASSETS.twaPrimary}
-            alt="The Watch Alley"
-            // Native aspect is 490×365 (≈1.34:1). Keeping height the source
-            // of truth and deriving width preserves the lockup's proportions
-            // through the scroll-shrink transition.
+          <HorologicalLogo
+            mode="hover-sweep"
             width={isScrolled ? 46 : 56}
             height={isScrolled ? 34 : 42}
-            className="object-contain transition-all duration-500"
-            priority
+            className="transition-all duration-500"
           />
         </Link>
 
