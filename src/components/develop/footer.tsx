@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { BrandLogo } from "./brand-logo";
@@ -102,9 +103,29 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 flex max-w-7xl flex-col gap-3 border-t border-amber-400/10 pt-5 text-[11px] text-cream-60 md:flex-row md:items-center md:justify-between">
-        <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
-        <p className="uppercase tracking-[0.22em]">Black · Gold · Collector-first</p>
+      <div className="relative z-10 mx-auto mt-8 flex max-w-7xl flex-col gap-4 border-t border-amber-400/10 pt-5 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
+          <span className="hidden sm:inline text-amber-400/20">|</span>
+          <a
+            href="https://www.vibecoders.ph"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-1.5 transition-colors hover:text-cream"
+          >
+            <span className="opacity-60 transition-opacity group-hover:opacity-100">Built by</span>
+            <Image
+              src="/brand/vibecodersph-logo-white.png"
+              alt="Vibe Coders PH"
+              width={95}
+              height={40}
+              className="h-10 w-auto object-contain opacity-60 transition-opacity group-hover:opacity-100 shrink-0"
+            />
+          </a>
+        </div>
+        <p className="uppercase tracking-[0.22em] opacity-80 sm:opacity-100">
+          Black · Gold · Collector-first
+        </p>
       </div>
     </footer>
   );
