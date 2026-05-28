@@ -177,19 +177,53 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
-  // Pick one watch per category for the 3 teaser cards. Falls back to
-  // first-available if a category has no matching watch, so every slot
-  // always shows a real piece.
+  // Pick one watch per category for the 3 teaser cards. Evaluates them in order of
+  // specificity (Limited Editions first as it's the most restricted, then Pre-loved,
+  // then Brand New) to prevent duplicates and ensure each card shows a unique piece.
   const items = useMemo(() => {
-    return CARD_SLOTS.map((slot) => {
+    const selectedIds = new Set<string>();
+    const slotMatches: Record<string, Watch> = {};
+
+    const sortedSlots = [
+      { label: "Limited Editions", category: undefined, badge: "limited-edition" },
+      { label: "Pre-loved", category: "pre-owned", badge: undefined },
+      { label: "Brand New", category: "brand-new", badge: undefined },
+    ] as const;
+
+    // First pass: find a unique match for each slot
+    for (const slot of sortedSlots) {
       let match: Watch | undefined;
       if (slot.badge) {
-        match = watches.find((w) => w.badges.includes(slot.badge!)) ?? watches[0];
+        match = watches.find((w) => w.badges.includes(slot.badge!) && !selectedIds.has(w.id));
       } else if (slot.category) {
-        match = watches.find((w) => w.category === slot.category) ?? watches[0];
-      } else {
-        match = watches[0];
+        match = watches.find((w) => w.category === slot.category && !selectedIds.has(w.id));
       }
+      if (match) {
+        slotMatches[slot.label] = match;
+        selectedIds.add(match.id);
+      }
+    }
+
+    // Second pass: fill in any remaining slots with standard fallbacks
+    for (const slot of CARD_SLOTS) {
+      if (!slotMatches[slot.label]) {
+        let fallback: Watch | undefined;
+        if (slot.badge) {
+          fallback = watches.find((w) => w.badges.includes(slot.badge!)) ?? watches[0];
+        } else if (slot.category) {
+          fallback = watches.find((w) => w.category === slot.category) ?? watches[0];
+        } else {
+          fallback = watches[0];
+        }
+        if (fallback) {
+          slotMatches[slot.label] = fallback;
+        }
+      }
+    }
+
+    // Return the matches mapped back to the original CARD_SLOTS layout order
+    return CARD_SLOTS.map((slot) => {
+      const match = slotMatches[slot.label];
       return { watch: match, label: slot.label };
     }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string }>;
   }, [watches]);
@@ -198,9 +232,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   const [intendedActiveLabel, setActiveLabel] = useState<string | null>(items[0]?.label ?? null);
 
   const activeLabel =
-    items.find((item) => item.label === intendedActiveLabel)?.label ??
-    items[0]?.label ??
-    null;
+    items.find((item) => item.label === intendedActiveLabel)?.label ?? items[0]?.label ?? null;
 
   if (watches.length === 0) {
     return (
@@ -282,9 +314,9 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
           </p>
         ) : (
           <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((item, index) => (
+            {items.map((item) => (
               <AccordionCard
-                key={`${item.label}-${item.watch.slug}-${index}`}
+                key={item.label}
                 watch={item.watch}
                 // On phone every card is expanded so all available pieces are
                 // visible at a glance; desktop keeps the accordion behaviour.
