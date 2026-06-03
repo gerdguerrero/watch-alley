@@ -40,7 +40,7 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
     status,
     category || "none",
     badge || "none",
-    limit?.toString() || "all"
+    limit?.toString() || "all",
   ];
 
   const getCachedWatches = unstable_cache(
@@ -54,7 +54,11 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
 
       if (status !== "all") query = query.eq("status", status);
       if (category) query = query.eq("category", category);
-      if (badge) query = query.contains("badges", [badge]);
+      // `badges` is jsonb, not a Postgres text[] column. Supabase's
+      // `.contains("badges", [badge])` serializes arrays as `{badge}`, which
+      // only matches Postgres array columns. Pass JSON text so PostgREST emits
+      // `badges=cs.["limited-edition"]` for jsonb containment.
+      if (badge) query = query.contains("badges", JSON.stringify([badge]));
       if (typeof limit === "number" && limit > 0) query = query.limit(limit);
 
       const { data, error } = await query;

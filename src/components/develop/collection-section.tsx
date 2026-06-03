@@ -14,13 +14,28 @@ const _COLLECTION_PROMISES = [
   "Collector-first sourcing",
 ];
 
-// Each homepage teaser card is labelled by category, not by watch name. Cards
-// 1/2/3 map to these labels in order; the watch behind the card is whichever
-// 3 newest "available" pieces the inventory hands us.
+// Each homepage teaser card is labelled by category, not by watch name. The
+// watch image behind each card is only a representative hero image; clicking a
+// card must open the matching filtered catalog grid, not that single watch.
 const CARD_SLOTS = [
-  { label: "Brand New", category: "brand-new", badge: undefined },
-  { label: "Pre-loved", category: "pre-owned", badge: undefined },
-  { label: "Limited Editions", category: undefined, badge: "limited-edition" },
+  {
+    label: "Brand New",
+    category: "brand-new",
+    badge: undefined,
+    href: "/available?category=brand-new",
+  },
+  {
+    label: "Pre-owned",
+    category: "pre-owned",
+    badge: undefined,
+    href: "/available?category=pre-owned",
+  },
+  {
+    label: "Limited Edition",
+    category: undefined,
+    badge: "limited-edition",
+    href: "/available?category=limited-edition",
+  },
 ] as const;
 
 // Single timing source for every motion in the accordion so the container
@@ -58,11 +73,19 @@ interface AccordionCardProps {
   onActivate: () => void;
   isMobile: boolean;
   /** Card headline override — replaces the watch.name with a category label
-      (e.g. "Brand New", "Pre-loved", "Limited Editions"). */
+      (e.g. "Brand New", "Pre-owned", "Limited Edition"). */
   displayName: string;
+  href: string;
 }
 
-function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: AccordionCardProps) {
+function AccordionCard({
+  watch,
+  isActive,
+  onActivate,
+  isMobile,
+  displayName,
+  href,
+}: AccordionCardProps) {
   const Icon = pickIcon(watch);
   const intentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,10 +142,10 @@ function AccordionCard({ watch, isActive, onActivate, isMobile, displayName }: A
         }}
       />
 
-      {/* Whole card is also a real link to the watch detail page. */}
+      {/* Whole card is a real link to the filtered catalog, not the teaser watch. */}
       <Link
-        href={`/watch/${watch.slug}`}
-        aria-label={`${watch.brand} ${watch.name}`}
+        href={href}
+        aria-label={`Browse ${displayName} watches`}
         className="absolute inset-0 z-20"
       />
 
@@ -178,17 +201,13 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
   const isMobile = useIsMobile();
 
   // Pick one watch per category for the 3 teaser cards. Evaluates them in order of
-  // specificity (Limited Editions first as it's the most restricted, then Pre-loved,
+  // specificity (Limited Edition first as it's the most restricted, then Pre-owned,
   // then Brand New) to prevent duplicates and ensure each card shows a unique piece.
   const items = useMemo(() => {
     const selectedIds = new Set<string>();
     const slotMatches: Record<string, Watch> = {};
 
-    const sortedSlots = [
-      { label: "Limited Editions", category: undefined, badge: "limited-edition" },
-      { label: "Pre-loved", category: "pre-owned", badge: undefined },
-      { label: "Brand New", category: "brand-new", badge: undefined },
-    ] as const;
+    const sortedSlots = [CARD_SLOTS[2], CARD_SLOTS[1], CARD_SLOTS[0]] as const;
 
     // First pass: find a unique match for each slot
     for (const slot of sortedSlots) {
@@ -224,8 +243,8 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
     // Return the matches mapped back to the original CARD_SLOTS layout order
     return CARD_SLOTS.map((slot) => {
       const match = slotMatches[slot.label];
-      return { watch: match, label: slot.label };
-    }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string }>;
+      return { watch: match, label: slot.label, href: slot.href };
+    }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string; href: string }>;
   }, [watches]);
 
   // Track the hovered active card label
@@ -324,6 +343,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
                 onActivate={() => setActiveLabel(item.label)}
                 isMobile={isMobile}
                 displayName={item.label}
+                href={item.href}
               />
             ))}
           </div>

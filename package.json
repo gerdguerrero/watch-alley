@@ -9,7 +9,8 @@
     "start": "next start",
     "check": "biome check src && tsc --noEmit",
     "test": "pnpm run check && pnpm run build",
-    "transcribe:feedback": "node scripts/transcribe-feedback.mjs"
+    "transcribe:feedback": "node scripts/transcribe-feedback.mjs",
+    "export-poster": "node scripts/export-social-poster.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
