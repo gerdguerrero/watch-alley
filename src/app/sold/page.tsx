@@ -23,6 +23,7 @@ export default async function SoldPage() {
         title="SOLD"
         eyebrow="◆ Recently honored"
         description="A running record of watches placed through The Watch Alley. If you missed one, message us — similar references come around."
+        variant="catalog"
       />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
@@ -31,7 +32,7 @@ export default async function SoldPage() {
             Once pieces find their next collector, they will appear here.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8 max-w-[1680px] mx-auto">
             {sold.map((w, i) => (
               <WatchCard key={w.slug} watch={w} index={i} variant="sold" />
             ))}

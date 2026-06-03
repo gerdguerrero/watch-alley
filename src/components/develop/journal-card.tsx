@@ -50,7 +50,7 @@ export function JournalCard({ post, index = 0 }: JournalCardProps) {
               alt={post.title}
               fill
               className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, (max-width: 1536px) 33vw, 25vw"
             />
           ) : (
             <div className="absolute inset-0 bg-black" />

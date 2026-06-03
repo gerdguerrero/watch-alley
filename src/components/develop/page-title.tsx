@@ -2,17 +2,20 @@ import type { ReactNode } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { HorologicalLogo } from "./horological-logo";
 
+type PageTitleVariant = "hero" | "catalog" | "editorial";
+
 interface PageTitleProps {
-  /** Giant gradient word displayed behind/above the eyebrow + headline. */
   title?: string;
-  /** If true, renders the animated horological logo instead of the plain title string. */
   showHorologicalLogo?: boolean;
-  /** Small amber uppercase tag above the headline. */
   eyebrow?: string;
-  /** Italic-emphasized headline rendered as serif text. Use *...* for amber emphasis. */
   headline?: ReactNode;
-  /** Body lede below the headline. */
   description?: ReactNode;
+  /**
+   * - "hero" (default): Full cinematic hero — homepage.
+   * - "catalog": Compact — first product row visible on desktop. Available / Sold.
+   * - "editorial": Capped cinematic — Journal.
+   */
+  variant?: PageTitleVariant;
 }
 
 function renderHeadline(node: ReactNode) {
@@ -30,8 +33,17 @@ function renderHeadline(node: ReactNode) {
   });
 }
 
+const TITLE_FONT_SIZE: Record<PageTitleVariant, string> = {
+  hero: "clamp(3.5rem, 13vw, 11rem)",
+  catalog: "clamp(3rem, 10vw, 8.5rem)",
+  editorial: "clamp(3.25rem, 11vw, 9.5rem)",
+};
+
 /**
- * Develop-aesthetic page header: huge gradient title, amber eyebrow, serif headline, lede.
+ * Develop-aesthetic page header with three height variants:
+ * - hero: lg:h-[68vh] — full cinematic for homepage
+ * - catalog: lg min-height clamp(360px,46svh,560px) — compact for Available/Sold
+ * - editorial: lg min-height clamp(420px,52svh,640px) — capped for Journal
  */
 export function PageTitle({
   title,
@@ -39,13 +51,32 @@ export function PageTitle({
   eyebrow,
   headline,
   description,
+  variant = "hero",
 }: PageTitleProps) {
+  const showDescription = variant !== "catalog" && !!description;
+
   return (
     <div
-      className={`relative overflow-hidden px-6 pb-12 md:px-12 md:pb-20 lg:flex lg:h-[68vh] lg:flex-col lg:justify-center lg:px-20 lg:py-0 ${
+      className={`relative overflow-hidden px-6 ${
+        variant === "catalog"
+          ? "pb-6 md:pb-12"
+          : variant === "editorial"
+            ? "pb-8 md:pb-14"
+            : "pb-12 md:pb-20"
+      } md:px-12 lg:flex lg:flex-col lg:justify-center lg:px-20 lg:py-0 ${
         showHorologicalLogo
           ? "pt-[clamp(170px,24vh,250px)] lg:pt-36"
-          : "pt-[clamp(120px,16vh,180px)]"
+          : variant === "catalog"
+            ? "pt-[clamp(100px,12vh,150px)] lg:pt-0"
+            : variant === "editorial"
+              ? "pt-[clamp(110px,14vh,170px)] lg:pt-0"
+              : "pt-[clamp(120px,16vh,180px)] lg:pt-0"
+      } ${
+        variant === "catalog"
+          ? "lg:min-h-[clamp(360px,46svh,560px)]"
+          : variant === "editorial"
+            ? "lg:min-h-[clamp(420px,52svh,640px)]"
+            : "lg:h-[68vh]"
       }`}
     >
       <style>{`
@@ -89,7 +120,7 @@ export function PageTitle({
         <h1
           className="wa-page-rise relative z-0 mb-8 text-center font-serif font-normal leading-none select-none text-transparent md:mb-12"
           style={{
-            fontSize: "clamp(3.5rem, 13vw, 11rem)",
+            fontSize: TITLE_FONT_SIZE[variant],
             background:
               "linear-gradient(180deg, rgba(250, 250, 249, 0.5) 0%, rgba(250, 250, 249, 0.2) 100%)",
             WebkitBackgroundClip: "text",
@@ -118,7 +149,7 @@ export function PageTitle({
             {renderHeadline(headline)}
           </h2>
         )}
-        {description && (
+        {showDescription && description && (
           <p
             className="wa-page-rise text-base md:text-lg text-cream-60 leading-relaxed max-w-[60ch] mx-auto"
             style={{ animationDelay: "240ms" }}

@@ -55,7 +55,7 @@ export function Footer() {
         className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundOne})` }}
       />
-      <div className="relative z-10 mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.4fr_1fr_1fr] md:items-start">
+      <div className="relative z-10 mx-auto grid max-w-[1680px] gap-8 md:grid-cols-[1.4fr_1fr_1fr] md:items-start">
         <div>
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
             <BrandLogo className="h-16 w-16" sizes="64px" />
@@ -101,7 +101,7 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 flex max-w-7xl flex-col gap-4 border-t border-amber-400/10 pt-5 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative z-10 mx-auto mt-8 flex max-w-[1680px] flex-col gap-4 border-t border-amber-400/10 pt-5 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
           <span className="hidden sm:inline text-amber-400/20">|</span>

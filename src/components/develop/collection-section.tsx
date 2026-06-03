@@ -332,7 +332,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
             No pieces in rotation right now.
           </p>
         ) : (
-          <div className="max-w-7xl mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
+          <div className="max-w-[1680px] mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
             {items.map((item) => (
               <AccordionCard
                 key={item.label}

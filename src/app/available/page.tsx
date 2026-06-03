@@ -40,11 +40,12 @@ export default async function AvailablePage({
       <PageTitle
         title="AVAILABLE"
         eyebrow="◆ Currently in rotation"
+        variant="catalog"
       />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
         {/* Category filter pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12 max-w-7xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-[1680px] mx-auto">
           {CATEGORIES.map((cat) => {
             const isActive = category === cat.value || (!category && cat.value === "");
             return (
@@ -68,7 +69,7 @@ export default async function AvailablePage({
             No active pieces right now. Message us on Messenger for the next drop.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8 max-w-[1680px] mx-auto">
             {watches.map((w, i) => (
               <WatchCard key={w.slug} watch={w} index={i} />
             ))}

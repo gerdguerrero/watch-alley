@@ -21,15 +21,16 @@ export default async function JournalIndexPage() {
         title="JOURNAL"
         eyebrow="◆ Notes from the bench"
         description="A slow-build collector library: dispatches on watches we love, market observations from Manila, and the conversations we keep having with buyers. New entries land when there is something honestly worth saying — not on a content calendar."
+        variant="editorial"
       />
 
-      <section className="relative px-6 md:px-12 lg:px-20 pb-32 max-w-7xl mx-auto">
+      <section className="relative px-6 md:px-12 lg:px-20 pb-32 max-w-[1680px] mx-auto">
         {posts.length === 0 ? (
           <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
             No published entries yet. Check back soon.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8">
             {posts.map((post, i) => (
               <JournalCard key={post.slug} post={post} index={i} />
             ))}

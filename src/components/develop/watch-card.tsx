@@ -83,7 +83,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
                 alt={`${watch.brand} ${watch.name}`}
                 fill
                 className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, (max-width: 1536px) 33vw, 25vw"
               />
             ) : (
               <div className="absolute inset-0 bg-black" />
