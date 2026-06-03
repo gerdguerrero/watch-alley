@@ -1,7 +1,6 @@
 import { CollectionSection } from "@/components/develop/collection-section";
 import { ContactSection } from "@/components/develop/contact-section";
 import { EntrancePreloader } from "@/components/develop/entrance-preloader";
-import { HeritageSection } from "@/components/develop/heritage-section";
 import { Hero } from "@/components/develop/hero";
 import { JournalSection } from "@/components/develop/journal-section";
 import { SmoothScrollProvider } from "@/components/develop/smooth-scroll-provider";
@@ -11,10 +10,9 @@ import { fetchJournalPosts } from "@/lib/journal/queries";
 export const revalidate = 60;
 
 export default async function Page() {
-  const [featured, available, sold, posts] = await Promise.all([
+  const [featured, available, posts] = await Promise.all([
     fetchFeaturedWatch(),
     fetchWatches({ status: "available", limit: 9 }),
-    fetchWatches({ status: "sold" }),
     fetchJournalPosts(3),
   ]);
 
@@ -24,21 +22,11 @@ export default async function Page() {
 
   return (
     <SmoothScrollProvider>
-      <link
-        rel="preload"
-        href="/models/watch.glb"
-        as="fetch"
-        crossOrigin="anonymous"
-      />
+      <link rel="preload" href="/models/watch.glb" as="fetch" crossOrigin="anonymous" />
       <EntrancePreloader />
       <main className="bg-[#080706]">
         <Hero featured={featured} />
         <CollectionSection watches={collectionWatches} />
-        <HeritageSection
-          latestPost={posts[0] ?? null}
-          inventorySize={available.length}
-          soldSize={sold.length}
-        />
         <JournalSection posts={posts} />
         <ContactSection />
       </main>

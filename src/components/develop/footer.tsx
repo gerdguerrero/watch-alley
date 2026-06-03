@@ -14,14 +14,12 @@ const FOOTER_LINK_GROUPS = [
     links: [
       { label: "Available", href: "/available" },
       { label: "Sold Archive", href: "/sold" },
-      { label: "Authenticity", href: "/heritage#authenticity" },
     ],
   },
   {
     title: "Editorial",
     links: [
       { label: "Journal", href: "/journal" },
-      { label: "Heritage", href: "/heritage" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
     ],

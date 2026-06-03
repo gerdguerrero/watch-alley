@@ -1,11 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type MouseEvent, useEffect, useRef, useState } from "react";
-import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { useEffect, useRef, useState } from "react";
 import { HorologicalLogo } from "./horological-logo";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
@@ -36,7 +34,6 @@ export function MainNav() {
   const overlayLinks: MobileNavLink[] = [
     { label: "Available", href: "/available" },
     { label: "Sold", href: "/sold" },
-    { label: "Heritage", href: "/heritage" },
     { label: "Journal", href: "/journal" },
   ];
 
@@ -86,9 +83,6 @@ export function MainNav() {
           </Link>
           <Link href="/sold" className={linkClass(pathname === "/sold")}>
             Sold
-          </Link>
-          <Link href="/heritage" className={linkClass(pathname === "/heritage")}>
-            Heritage
           </Link>
           <Link href="/journal" className={linkClass(pathname.startsWith("/journal"))}>
             Journal
