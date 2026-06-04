@@ -275,7 +275,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
     <section
       id="collection"
       ref={sectionRef}
-      className="relative flex flex-col justify-center overflow-hidden bg-walnut-deep py-16 md:py-20 lg:min-h-[760px] lg:py-24"
+      className="relative flex flex-col justify-center overflow-hidden bg-walnut-deep py-16 md:py-20 lg:min-h-[700px] lg:py-20"
     >
       <div
         aria-hidden="true"
