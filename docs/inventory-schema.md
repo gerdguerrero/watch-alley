@@ -56,6 +56,7 @@ The static JSON snapshot is no longer the publishing mechanism for normal invent
 | `price` | int (PHP) | Asking price in pesos, integer. `>= 0`. |
 | `currency` | text | Always `PHP` (constraint). |
 | `status` | text | `available` / `reserved` / `sold` (constraint). |
+| `published` | bool | Listing visibility. `false` = Draft/admin-only, `true` = public website. New admin listings start as drafts. |
 | `condition_label` | text | E.g. `Pre-owned 8.5/10`. |
 | `badge` | text | UI badge (e.g. `RARE`, `LIMITED`, `BRAND NEW`, `SOLD`). |
 | `movement` | text | E.g. `6R35 automatic`. |
@@ -65,8 +66,8 @@ The static JSON snapshot is no longer the publishing mechanism for normal invent
 | `edition` | text | E.g. `Limited to 2,020 pieces`. |
 | `description` | text | Card description copy. |
 | `disclosure` | text | Buyer-facing disclosure shown in the modal. |
-| `primary_image` | text | Path under `/watch-assets/`. |
-| `images` | text[] | Ordered list of image paths. Includes `primary_image`. Min length 1. |
+| `primary_image` | text | Path under `/watch-assets/` or Supabase Storage URL. May be blank while `published = false`. |
+| `images` | text[] | Ordered list of image paths. Includes `primary_image` when published. May be empty while `published = false`. |
 | `inquiry_subject` | text | Pre-filled subject for `mailto:` inquiry. |
 | `inquiry_body` | text | Pre-filled body for `mailto:` inquiry. |
 | `sold_at` | text | YYYY-MM. **Required when `status = 'sold'`** (constraint). |
@@ -85,7 +86,8 @@ The static JSON snapshot is no longer the publishing mechanism for normal invent
 - `price >= 0`.
 - `currency = 'PHP'`.
 - `status in ('available', 'reserved', 'sold')`.
-- `images` array has at least one entry.
+- Published listings (`published = true`) must have a non-blank `primary_image` and at least one entry in `images`.
+- Draft listings (`published = false`) may have no photos yet.
 - `sold_at` matches `^[0-9]{4}-[0-9]{2}$` when not null.
 - `sold_price >= 0` when not null.
 - **Sold listings must have both `sold_at` and `sold_price`.**

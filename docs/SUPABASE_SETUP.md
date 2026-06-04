@@ -47,6 +47,7 @@ Migrations applied to production:
 | 0004-watch-alley-inquiries-pipeline.sql               | Buyer inquiry pipeline + admin RPCs + metrics. |
 | 0005-watch-alley-storage.sql                          | watches storage bucket + admin write policies. |
 | 0020-watch-alley-admin-upsert-full.sql                | Full admin_upsert_watch: category + badges + auto-ID. |
+| 0023-watch-alley-draft-listings-without-photos.sql    | Allows draft inventory rows to save without photos while published listings still require at least one photo. |
 
 These are kept as the canonical migration history. If you wipe/recreate the
 project, run them in numeric order.

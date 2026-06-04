@@ -54,10 +54,7 @@ function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: strin
 
   if (listingUrl) lines.push(`- Listing: ${listingUrl}`);
 
-  lines.push(
-    "",
-    "Is this still available? Could you share more condition photos and the included set details? Thank you!"
-  );
+  lines.push("", "Is this still available? Thank you!");
 
   return toAscii(lines.join("\n"));
 }

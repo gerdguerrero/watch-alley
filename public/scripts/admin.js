@@ -47,10 +47,12 @@ const els = {
   watchList: document.getElementById('watch-list'),
   watchCount: document.getElementById('watch-count'),
   watchFilter: document.getElementById('watch-filter'),
+  watchStateFilters: document.querySelectorAll('[data-watch-state-filter]'),
   newBtn: document.getElementById('new-watch-btn'),
   detailEmpty: document.getElementById('admin-detail-empty'),
   watchForm: document.getElementById('watch-form'),
   watchFormErrors: document.getElementById('watch-form-errors'),
+  saveWatchBtn: document.getElementById('save-watch-btn'),
   cancelBtn: document.getElementById('cancel-btn'),
   deleteBtn: document.getElementById('delete-btn'),
   markSoldBtn: document.getElementById('mark-sold-btn'),
@@ -173,6 +175,7 @@ const els = {
 let allWatches = [];
 let activeId = null;
 let activeWatchSnapshot = null;
+let watchStateFilter = 'all';
 // When the page loads via an invite or password-recovery email, we need to
 // force the user through the password-setup panel before showing anything
 // else. Supabase emits onAuthStateChange events with INITIAL_SESSION /
@@ -539,12 +542,19 @@ async function loadWatches() {
 
 function renderList() {
   const filter = (els.watchFilter.value || '').trim().toLowerCase();
-  const filtered = !filter ? allWatches : allWatches.filter((w) => {
+  const stateFiltered = allWatches.filter((w) => {
+    if (watchStateFilter === 'draft') return w.published === false;
+    if (watchStateFilter === 'published') return w.published !== false;
+    return true;
+  });
+  const filtered = !filter ? stateFiltered : stateFiltered.filter((w) => {
     return [w.brand, w.model, w.slug, w.reference, w.name]
       .some((field) => String(field || '').toLowerCase().includes(filter));
   });
 
-  els.watchCount.textContent = `${filtered.length} of ${allWatches.length}`;
+  const draftCount = allWatches.filter((w) => w.published === false).length;
+  const publishedCount = allWatches.length - draftCount;
+  els.watchCount.textContent = `${filtered.length} shown · ${draftCount} drafts · ${publishedCount} published`;
   els.watchList.innerHTML = '';
   for (const w of filtered) {
     const li = document.createElement('li');
@@ -572,6 +582,18 @@ function renderList() {
 }
 
 els.watchFilter.addEventListener('input', renderList);
+
+if (els.watchStateFilters) {
+  els.watchStateFilters.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      watchStateFilter = btn.dataset.watchStateFilter || 'all';
+      els.watchStateFilters.forEach((option) => {
+        option.classList.toggle('is-active', option === btn);
+      });
+      renderList();
+    });
+  });
+}
 
 els.watchList.addEventListener('click', (event) => {
   const btn = event.target.closest('button[data-id]');
@@ -771,7 +793,7 @@ function loadIntoForm(watch) {
 }
 
 async function saveCurrentForm({ publishNow = false, skipValidation = false } = {}) {
-  if (!skipValidation && !validateWatchForm()) {
+  if (!skipValidation && !validateWatchForm({ mode: publishNow ? 'publish' : 'save' })) {
     return null;
   }
   const submitBtn = els.watchForm.querySelector('button[type="submit"]');
@@ -794,7 +816,9 @@ async function saveCurrentForm({ publishNow = false, skipValidation = false } = 
     setStatus(
       publishNow
         ? 'Published. View Listing is ready and the website updates in seconds.'
-        : 'Saved. The website updates in seconds.',
+        : payload.published === false
+          ? 'Draft saved. Add photos later, then use Publish now when ready.'
+          : 'Saved. The website updates in seconds.',
       'success'
     );
     revalidateStorefront(payload.slug);
@@ -1316,9 +1340,8 @@ function collectFormPayload() {
   if (!primaryImage && images.length) primaryImage = images[0];
 
   if (!images.length) {
-    throw new Error('Add at least one image path under "All image paths".');
-  }
-  if (!images.includes(primaryImage)) {
+    primaryImage = '';
+  } else if (!images.includes(primaryImage)) {
     throw new Error('Primary image must appear in the image paths list.');
   }
 
@@ -1361,7 +1384,7 @@ function collectFormPayload() {
     serviceHistory: getField('serviceHistory').trim() || null,
     featured: getCheckbox('featured'),
     lowStock: getCheckbox('lowStock'),
-    published: getCheckbox('published'),
+    published: images.length ? getCheckbox('published') : false,
     displayOrder: Number(getField('displayOrder')) || 0,
   };
 
@@ -1483,13 +1506,13 @@ function validateWatchForm({ mode = 'save' } = {}) {
   const imagesText = getField('images') || '';
   const images = imagesText.split('\n').map((s) => s.trim()).filter(Boolean);
   const primaryImage = getField('primaryImage').trim() || images[0] || '';
-  if (!images.length) {
+  if (mode === 'publish' && !images.length) {
     recordError(addWatchValidationError(
       field('images'),
       'Please upload at least one listing photo.',
       els.imageDropzone || field('images')
     ));
-  } else if (primaryImage && !images.includes(primaryImage)) {
+  } else if (images.length && primaryImage && !images.includes(primaryImage)) {
     recordError(addWatchValidationError(
       field('primaryImage'),
       'Primary image must appear in the image paths list.'
@@ -1542,6 +1565,9 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
 
   if (els.publishWatchBtn) {
     els.publishWatchBtn.hidden = isPublished;
+  }
+  if (els.saveWatchBtn) {
+    els.saveWatchBtn.textContent = isPublished ? 'Save' : 'Save Draft';
   }
 }
 
