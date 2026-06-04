@@ -1,0 +1,11 @@
+{
+  "name": "motion-poster",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.6.48 preview",
+    "check": "npx --yes hyperframes@0.6.48 lint && npx --yes hyperframes@0.6.48 validate && npx --yes hyperframes@0.6.48 inspect",
+    "render": "npx --yes hyperframes@0.6.48 render",
+    "publish": "npx --yes hyperframes@0.6.48 publish"
+  }
+}

@@ -70,9 +70,11 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
           ease: [0.22, 1, 0.36, 1],
         }}
       >
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5" }}>
           <motion.div
-            className={`absolute inset-[-20px] ${isSold ? "[filter:grayscale(0.6)]" : ""}`}
+            className={
+              isSold ? "relative h-full w-full [filter:grayscale(0.6)]" : "relative h-full w-full"
+            }
             style={{ x: imageX, y: imageY }}
             animate={{ scale: isHovered ? 1.1 : 1.05 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}

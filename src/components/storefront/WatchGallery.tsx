@@ -39,7 +39,7 @@ function MagnifiedImage({
       onMouseEnter={() => setHover(true)}
       onMouseMove={handleMove}
       onMouseLeave={() => setHover(false)}
-      className="relative w-full h-full overflow-hidden"
+      className="relative h-full w-full overflow-hidden"
     >
       {images.map((src, index) => {
         const selected = index === selectedIndex;
@@ -49,11 +49,11 @@ function MagnifiedImage({
             src={src}
             alt={selected ? alt : ""}
             fill
-            sizes="(max-width: 1024px) calc(100vw - 48px), 760px"
+            sizes="(max-width: 360px) calc(100vw - 40px), (max-width: 768px) 320px, (max-width: 1024px) 420px, 460px"
             preload={index === 0}
             loading={index === 0 ? undefined : "eager"}
             draggable={false}
-            className={`absolute top-0 left-0 h-full w-full object-cover transition-opacity duration-150 ease-out ${
+            className={`absolute left-0 top-0 h-full w-full object-cover object-center transition-opacity duration-150 ease-out ${
               selected ? "opacity-100" : "opacity-0"
             }`}
             style={{
@@ -85,34 +85,18 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
 
   if (images.length === 0) return null;
 
+  const thumbs = images.slice(0, 8);
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* Main image with cursor-tracking zoom */}
-      <div
-        className={`relative aspect-[16/10] overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 cursor-zoom-in ${
-          isSold ? "[filter:grayscale(0.5)] opacity-95" : ""
-        }`}
-      >
-        <MagnifiedImage images={images.slice(0, 8)} selectedIndex={selectedIndex} alt={alt} />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-        {badge && !isSold && (
-          <span className="absolute top-5 left-5 px-3 py-1.5 border border-amber-500/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-400 z-20">
-            {badge}
-          </span>
-        )}
-        {isSold && soldAt && (
-          <span className="absolute top-5 left-5 px-3 py-1.5 border border-white/20 bg-black/50 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-zinc-300 z-20">
-            Sold · {soldAt}
-          </span>
-        )}
-      </div>
-
-      {/* Thumbnails select the main zoom frame, like a conventional ecommerce PDP. */}
-      {images.length > 1 && (
-        <fieldset className="grid grid-cols-4 gap-3">
+    // Filmstrip layout: vertical thumbnail rail to the LEFT of the main image
+    // on sm+, falling back to a horizontal row below it on mobile. Moving the
+    // thumbnails out from under the frame lets the main image grow taller.
+    <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-stretch">
+      {/* Thumbnail rail */}
+      {thumbs.length > 1 && (
+        <fieldset className="grid grid-cols-5 gap-2 sm:flex sm:w-[clamp(64px,5.2vw,92px)] sm:shrink-0 sm:flex-col sm:gap-2.5 sm:overflow-y-auto">
           <legend className="sr-only">Product photos</legend>
-          {images.slice(0, 8).map((src, i) => {
+          {thumbs.map((src, i) => {
             const selected = i === selectedIndex;
             return (
               <button
@@ -121,7 +105,7 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
                 onClick={() => setSelectedIndex(i)}
                 aria-label={`Show photo ${i + 1} of ${images.length}`}
                 aria-pressed={selected}
-                className={`group relative aspect-square cursor-pointer overflow-hidden rounded-2xl border transition-colors ${
+                className={`group relative aspect-square cursor-pointer overflow-hidden rounded-xl border transition-colors ${
                   selected ? "border-amber-400/80" : "border-white/5 hover:border-amber-400/45"
                 }`}
               >
@@ -132,7 +116,7 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
                   src={src}
                   alt=""
                   fill
-                  sizes="120px"
+                  sizes="72px"
                   className="object-cover transition-transform duration-300 ease-out group-hover:scale-110"
                 />
               </button>
@@ -140,6 +124,28 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
           })}
         </fieldset>
       )}
+
+      {/* Main image with cursor-tracking zoom. Capped by viewport height so the
+          PDP stays above the fold on laptops. */}
+      <div
+        className={`relative mx-auto aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 sm:mx-0 sm:min-w-0 sm:flex-1 ${
+          isSold ? "[filter:grayscale(0.5)] opacity-95" : ""
+        }`}
+      >
+        <MagnifiedImage images={thumbs} selectedIndex={selectedIndex} alt={alt} />
+
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+        {badge && !isSold && (
+          <span className="absolute left-4 top-4 z-20 border border-amber-500/40 bg-black/40 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-amber-400 backdrop-blur-sm">
+            {badge}
+          </span>
+        )}
+        {isSold && soldAt && (
+          <span className="absolute left-4 top-4 z-20 border border-white/20 bg-black/50 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-300 backdrop-blur-sm">
+            Sold · {soldAt}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

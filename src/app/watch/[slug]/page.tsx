@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
-import { formatBadge, formatCategory, formatPhp, formatWatchMeta } from "@/lib/inventory/format";
+import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 
@@ -13,6 +14,15 @@ import type { Watch } from "@/lib/inventory/types";
 // propagate within `revalidate` seconds without a redeploy.
 export const revalidate = 60;
 export const dynamicParams = true;
+
+interface DetailItem {
+  label: string;
+  value: string;
+}
+
+function isDetailItem(item: DetailItem | null): item is DetailItem {
+  return item !== null;
+}
 
 export async function generateStaticParams() {
   const slugs = await fetchPublishedSlugs();
@@ -101,6 +111,27 @@ function boxPapers(watch: Watch): string {
   return "Watch only";
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function stripLeadingBrand(brand: string, name: string): string {
+  const stripped = name.replace(new RegExp(`^${escapeRegExp(brand)}\\s+`, "i"), "").trim();
+  return stripped || name;
+}
+
+function buildDetailItems(watch: Watch): DetailItem[] {
+  return [
+    watch.conditionLabel ? { label: "Condition", value: watch.conditionLabel } : null,
+    { label: "Set", value: boxPapers(watch) },
+    watch.edition ? { label: "Edition", value: watch.edition } : null,
+    watch.movement ? { label: "Movement", value: watch.movement } : null,
+    watch.caseSize ? { label: "Case", value: watch.caseSize } : null,
+    watch.material ? { label: "Material", value: watch.material } : null,
+    watch.serviceHistory ? { label: "Service", value: watch.serviceHistory } : null,
+  ].filter(isDetailItem);
+}
+
 export default async function WatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const watch = await fetchWatchBySlug(slug);
@@ -108,33 +139,34 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
 
   const isSold = watch.status === "sold";
   const isReserved = watch.status === "reserved";
-  const meta = formatWatchMeta([watch.movement, watch.caseSize, watch.material]);
   const jsonLd = buildProductJsonLd(watch);
+  const displayName = stripLeadingBrand(watch.brand, watch.name);
+  const detailItems = buildDetailItems(watch);
 
   return (
-    <main className="bg-[#080706] text-zinc-100 pt-[clamp(118px,13vh,150px)] pb-12 px-6 md:px-12 lg:px-16 relative overflow-hidden">
+    <main className="relative flex min-h-[100svh] flex-col overflow-x-clip bg-[#080706] px-5 pb-6 pt-[clamp(86px,9vh,112px)] text-zinc-100 md:px-8 lg:px-12 xl:px-16">
       {/* Subtle amber wash anchored top */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[600px]"
+        className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-full max-w-4xl -translate-x-1/2"
         style={{
           background:
             "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 158, 11, 0.06) 0%, transparent 60%)",
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto">
+      <div className="relative mx-auto w-full max-w-[1500px] lg:my-auto">
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500"
+          className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500"
         >
-          <Link href="/" className="hover:text-amber-400 transition-colors">
+          <Link href="/" className="transition-colors hover:text-amber-400">
             Home
           </Link>
           <span className="px-2 text-zinc-700">·</span>
           <Link
             href={isSold ? "/sold" : "/available"}
-            className="hover:text-amber-400 transition-colors"
+            className="transition-colors hover:text-amber-400"
           >
             {isSold ? "Sold" : "Available"}
           </Link>
@@ -142,8 +174,11 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
           <span className="text-zinc-300">{watch.brand}</span>
         </nav>
 
-        <article className="grid gap-7 lg:gap-10 lg:grid-cols-[1.08fr_1fr]">
-          {/* Left — gallery */}
+        {/* Amazon-style three-column PDP: gallery (auto) · fluid details ·
+            sticky buy-box rail. The middle column soaks up extra width on
+            large monitors; the buy box stays pinned while the details scroll. */}
+        <article className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(300px,330px)] lg:items-start lg:gap-8 xl:gap-10">
+          {/* Col 1 — Gallery (specs now live in the buy box, so the image fills) */}
           <WatchGallery
             images={
               watch.images.length > 0
@@ -158,102 +193,59 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             isSold={isSold}
           />
 
-          {/* Right — details */}
-          <div className="flex flex-col gap-5 lg:pt-1">
+          {/* Col 2 — Details: title + story */}
+          <div className="flex min-w-0 flex-col gap-4">
             <header>
-              <div className="mb-4 flex flex-wrap items-center gap-2.5">
-                <div className="w-8 h-px bg-amber-500/60" />
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <div className="h-px w-6 bg-amber-500/60" />
                 <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
                   {watch.brand}
                   {watch.reference && ` · ${watch.reference}`}
                 </span>
                 {watch.category && (
-                  <span className="px-2.5 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-[9px] uppercase tracking-[0.2em] text-amber-400 font-mono">
+                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-amber-400">
                     {formatCategory(watch.category)}
                   </span>
                 )}
                 {watch.badges.map((b) => (
                   <span
                     key={b}
-                    className="px-2.5 py-0.5 rounded-full border border-zinc-700 bg-zinc-800/50 text-[9px] uppercase tracking-[0.2em] text-zinc-400 font-mono"
+                    className="rounded-full border border-zinc-700 bg-zinc-800/50 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-400"
                   >
                     {formatBadge(b)}
                   </span>
                 ))}
               </div>
-              <h1 className="font-serif text-[clamp(24px,3.5vw,42px)] leading-[1.08] text-zinc-100">
-                {watch.name}
+              <h1 className="font-serif text-[clamp(24px,2.1vw,34px)] leading-[1.05] text-zinc-100">
+                {displayName}
               </h1>
-              {meta && (
-                <p className="mt-4 font-sans text-[13px] uppercase tracking-[0.08em] text-zinc-500">
-                  {meta}
-                </p>
-              )}
             </header>
 
-            <div className="flex flex-wrap items-baseline gap-3 border-y border-zinc-900/70 py-4">
-              {isSold ? (
-                <>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
-                    ● Sold {watch.soldAt && ` · ${formatSoldMonth(watch.soldAt)}`}
-                  </span>
-                  {watch.soldPrice && (
-                    <span className="font-sans text-3xl font-semibold text-amber-500">
-                      ₱ {watch.soldPrice.toLocaleString("en-PH")}
-                    </span>
-                  )}
-                </>
-              ) : (
-                <>
-                  <span className="font-sans text-[clamp(24px,2.5vw,34px)] font-semibold text-amber-500">
-                    {formatPhp(watch.price)}
-                  </span>
-                  <span
-                    className="font-mono text-[11px] tracking-[0.2em] text-zinc-500"
-                    data-price-php={watch.price}
-                  />
-                  {isReserved && (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-400">
-                      · Reserved
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-
-            {!isSold && <InquiryButtons watch={watch} />}
-
-            <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-y border-zinc-900/70 py-4 sm:grid-cols-2">
-              {watch.conditionLabel && <DetailRow label="Condition" value={watch.conditionLabel} />}
-              <DetailRow label="Set" value={boxPapers(watch)} />
-              {watch.edition && <DetailRow label="Edition" value={watch.edition} />}
-              {watch.movement && <DetailRow label="Movement" value={watch.movement} />}
-              {watch.caseSize && <DetailRow label="Case" value={watch.caseSize} />}
-              {watch.material && <DetailRow label="Material" value={watch.material} />}
-              {watch.serviceHistory && <DetailRow label="Service" value={watch.serviceHistory} />}
-            </dl>
-
             {watch.description && (
-              <Section title="About this piece">{renderTextBlocks(watch.description)}</Section>
+              <CompactSection title="About this piece">
+                {renderTextBlocks(watch.description)}
+              </CompactSection>
             )}
 
             {watch.provenance && (
-              <Section title="Provenance">{renderTextBlocks(watch.provenance)}</Section>
+              <CompactSection title="Provenance">
+                {renderTextBlocks(watch.provenance)}
+              </CompactSection>
             )}
 
             {watch.disclosure && (
-              <Section title="Disclosure">
+              <CompactSection title="Disclosure">
                 <p className="text-zinc-500">{watch.disclosure}</p>
-              </Section>
+              </CompactSection>
             )}
 
             {isSold && (
               <Link
                 href="/sold"
-                className="mt-4 inline-flex items-center gap-2 self-start border-b border-amber-500/40 pb-0.5 font-mono text-[11px] uppercase tracking-[0.22em] text-amber-400 hover:text-amber-300 hover:border-amber-300 transition-colors"
+                className="inline-flex items-center gap-2 self-start border-b border-amber-500/40 pb-0.5 font-mono text-[11px] uppercase tracking-[0.22em] text-amber-400 transition-colors hover:border-amber-300 hover:text-amber-300"
               >
                 <svg
-                  className="w-3 h-3 rotate-180"
+                  className="h-3 w-3 rotate-180"
                   viewBox="0 0 12 12"
                   fill="none"
                   aria-hidden="true"
@@ -270,6 +262,69 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               </Link>
             )}
           </div>
+
+          {/* Col 3 — Sticky buy box */}
+          <aside className="lg:sticky lg:top-[100px] lg:self-start">
+            <div className="flex flex-col gap-4 rounded-2xl border border-zinc-800/70 bg-gradient-to-b from-zinc-900/60 to-zinc-950/40 p-5">
+              <div>
+                {isSold ? (
+                  <>
+                    <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-500">
+                      ● Sold{watch.soldAt && ` · ${formatSoldMonth(watch.soldAt)}`}
+                    </div>
+                    {watch.soldPrice && (
+                      <div className="mt-1 font-sans text-[clamp(26px,2.4vw,32px)] font-semibold text-amber-500">
+                        ₱ {watch.soldPrice.toLocaleString("en-PH")}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <span className="font-sans text-[clamp(28px,2.6vw,36px)] font-semibold leading-none text-amber-500">
+                        {formatPhp(watch.price)}
+                      </span>
+                      {isReserved && (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-400">
+                          Reserved
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className="mt-1 block font-mono text-[11px] tracking-[0.2em] text-zinc-500"
+                      data-price-php={watch.price}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em]">
+                <span className={isSold ? "text-zinc-500" : "text-emerald-400"}>
+                  {isSold ? "● Sold" : isReserved ? "● Reserved" : "● Available"}
+                </span>
+              </div>
+
+              {!isSold && <InquiryButtons watch={watch} title={`${watch.brand} ${displayName}`} />}
+
+              {detailItems.length > 0 && (
+                <dl className="flex flex-col divide-y divide-zinc-800/60 border-t border-zinc-800/60 pt-1">
+                  {detailItems.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-baseline justify-between gap-3 py-2"
+                    >
+                      <dt className="shrink-0 font-mono text-[9px] uppercase tracking-[0.22em] text-zinc-500">
+                        {item.label}
+                      </dt>
+                      <dd className="text-right font-sans text-[12px] leading-snug text-zinc-200">
+                        {item.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+          </aside>
         </article>
       </div>
 
@@ -283,27 +338,16 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function CompactSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <dt className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/70">
-        {label}
-      </dt>
-      <dd className="font-sans text-[15px] leading-6 text-zinc-100">{value}</dd>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-3 border-t border-zinc-900/70 pt-4">
+    <section className="rounded-2xl border border-zinc-900/80 bg-zinc-950/25 p-4">
       <div className="flex items-center gap-2">
-        <div className="w-6 h-px bg-amber-500/60" />
+        <div className="h-px w-5 bg-amber-500/60" />
         <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-500/80">
           {title}
         </h2>
       </div>
-      <div className="flex flex-col gap-3 font-sans text-[15px] leading-7 text-zinc-300">
+      <div className="mt-2 flex flex-col gap-2 font-sans text-[13px] leading-5 text-zinc-300">
         {children}
       </div>
     </section>
@@ -324,7 +368,7 @@ function renderTextBlocks(text: string) {
 
       if (isList) {
         return (
-          <ul key={block} className="list-disc space-y-1.5 pl-5">
+          <ul key={block} className="list-disc space-y-1 pl-5">
             {lines.map((line) => (
               <li key={line}>{line.replace(/^[-•]\s+/, "")}</li>
             ))}
