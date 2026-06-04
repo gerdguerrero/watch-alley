@@ -762,8 +762,8 @@ function loadIntoForm(watch) {
   setField('primaryImage', watch?.primary_image || '');
   setField('images', Array.isArray(watch?.images) ? watch.images.join('\n') : '');
   setImageList(Array.isArray(watch?.images) ? watch.images.slice() : []);
-  setField('inquirySubject', watch?.inquiry_subject || '');
-  setField('inquiryBody', watch?.inquiry_body || '');
+  // Inquiry subject/body fields were removed from the form — the storefront
+  // generates the Messenger message per-watch. Nothing to populate here.
   setField('soldAt', watch?.sold_at || '');
   setField('soldPrice', watch?.sold_price ?? '');
   setField('serviceHistory', watch?.service_history || '');
@@ -1377,8 +1377,11 @@ function collectFormPayload() {
     provenance: getField('provenance').trim() || null,
     primaryImage,
     images,
-    inquirySubject: getField('inquirySubject').trim(),
-    inquiryBody: getField('inquiryBody').trim(),
+    // Deprecated manual inquiry copy. The form fields were removed and the
+    // storefront generates the message per-watch, but the DB columns are still
+    // NOT NULL — persist empty strings to satisfy the constraint.
+    inquirySubject: '',
+    inquiryBody: '',
     hasBox: getCheckbox('hasBox'),
     hasPapers: getCheckbox('hasPapers'),
     serviceHistory: getField('serviceHistory').trim() || null,

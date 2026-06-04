@@ -27,16 +27,10 @@ function toAscii(text: string): string {
  * of an m.me link (officially supported — it lands in the compose box so the
  * buyer just hits send). No AI: a template populated from live watch fields
  * (title, ref, price, listing URL), so every new listing automatically gets a
- * curated message with zero manual work.
- *
- * A genuinely bespoke message set in `inquiry_body` (admin) overrides the
- * generated copy; the legacy generic default has been cleared from the data so
- * it no longer shadows it.
+ * curated message with zero manual work. The legacy manual `inquiry_body`
+ * override was removed (admin field deleted) — every listing uses this format.
  */
 function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: string): string {
-  const custom = watch.inquiryBody?.trim();
-  if (custom) return toAscii(custom);
-
   // `fullTitle` is "Brand + clean name". Only append the reference when it
   // isn't already spelled out in the name (these listings usually embed it).
   const ref = watch.reference?.trim();

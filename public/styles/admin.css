@@ -14,6 +14,11 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   min-height: 16px;
+  /* Pure status readout — never interactive. On mobile it becomes a sticky,
+     opaque, z-index:35 bar; without this it silently intercepts taps on the
+     content scrolling beneath it (e.g. the inventory Drafts/Published filter,
+     which then appears "stuck on All"). */
+  pointer-events: none;
 }
 .admin-status[data-tone="success"] { color: var(--gold); }
 .admin-status[data-tone="error"] { color: oklch(0.74 0.13 28); }
@@ -455,21 +460,33 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 .admin-inventory-state-filter button {
   min-width: 0;
-  min-height: 32px;
+  /* 44px is the iOS/Android minimum reliable touch target. */
+  min-height: 44px;
   border: 1px solid oklch(0.91 0.018 78 / 0.12);
   background: oklch(0.10 0.01 55 / 0.28);
   color: var(--cream-60);
   cursor: pointer;
+  /* Remove the 300ms tap delay / double-tap-zoom that can swallow the tap. */
+  touch-action: manipulation;
   font-family: 'Geist Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.admin-inventory-state-filter button:hover,
+/* Active state reflects the real filter selection. */
 .admin-inventory-state-filter button.is-active {
   border-color: var(--gold);
   color: var(--gold);
   background: oklch(0.76 0.12 75 / 0.08);
+}
+/* Hover only on devices that truly hover — otherwise the style sticks after a
+   tap on touchscreens and a non-selected tab looks active. */
+@media (hover: hover) {
+  .admin-inventory-state-filter button:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: oklch(0.76 0.12 75 / 0.08);
+  }
 }
 .admin-watch-list {
   list-style: none;
