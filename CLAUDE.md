@@ -86,6 +86,14 @@ Display helpers (`formatPhp`, `formatWatchMeta`, `badgeIsBrandNew`) live in
 [lib/inventory/format.ts](./src/lib/inventory/format.ts) — pure functions, safe
 to import from both Server and Client Components.
 
+**Buyer inquiry message is auto-generated — don't add manual fields back.**
+[InquiryButtons](./src/components/storefront/InquiryButtons.tsx) builds the
+"Message the Seller" Messenger draft per-watch from live fields (title, ref,
+price, listing URL) into an `m.me/...?text=` link (folded to ASCII — Messenger
+mangles non-ASCII like `₱`). The old manual `inquiry_subject`/`inquiry_body`
+admin fields were removed; those columns are `NOT NULL` but **deprecated** —
+the admin upsert writes empty strings, and the storefront never reads them.
+
 ## Theming + design tokens
 
 All visual tokens live in [src/app/globals.css](./src/app/globals.css) inside a
@@ -150,3 +158,17 @@ The old Vite root has been removed. The current `/admin`, `/privacy`, `/terms`,
 and `/authenticity` surfaces are static bridge files under `public/`, with
 rewrites in `next.config.ts`. Do not delete that bridge until native App Router
 admin and legal/trust pages are implemented and verified.
+
+**The admin is the bridge, not `src/components/admin/`.** Edit it here:
+
+- [public/admin/index.html](./public/admin/index.html) — markup (form fields, tabs, filters)
+- [public/scripts/admin.js](./public/scripts/admin.js) — logic (vanilla ESM, no build step;
+  loaded `type="module"`). Writes go through the `admin_upsert_watch` Supabase RPC,
+  which maps a camelCase `payload` to snake_case columns.
+- [public/styles/admin.css](./public/styles/admin.css) — styles (plain CSS, mobile
+  media queries at `max-width: 900px/720px/640px`)
+
+The admin UI is **Supabase-auth-gated**, so the inventory/forms aren't in the DOM
+until login — you can't exercise them locally without credentials. To test
+layout/CSS, reveal the panel by clearing `hidden` on its ancestors in the
+browser; the handlers run on the static markup regardless of data.
