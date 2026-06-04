@@ -56,7 +56,7 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
     <section
       id="journal"
       ref={sectionRef}
-      className="relative -mt-24 overflow-hidden bg-walnut-deep py-16 md:-mt-40 lg:-mt-56 lg:h-screen lg:min-h-[750px] lg:max-h-[900px] lg:py-0 flex flex-col justify-center"
+      className="relative flex flex-col justify-center overflow-hidden bg-walnut-deep py-20 md:py-24 lg:min-h-[780px] lg:py-28"
     >
       <div
         aria-hidden="true"
