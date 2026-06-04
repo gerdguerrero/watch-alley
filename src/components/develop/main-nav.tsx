@@ -44,7 +44,7 @@ export function MainNav() {
   // emojis (both 👋 4-byte SMP and ⌚ 3-byte BMP rendered as � in testing).
   // Keep the template ASCII-only.
   const INQUIRE_TEMPLATE =
-    "Hi! I visited The Watch Alley website and I'm interested in your collection. Could you share more details?";
+    "Hi Watch Alley! I was browsing your website and I'd love to learn more about your available pieces. Could you help me find the right watch?";
   const inquireHref = `https://m.me/thewatchalley?text=${encodeURIComponent(INQUIRE_TEMPLATE)}`;
 
   return (

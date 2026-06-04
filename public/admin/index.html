@@ -274,6 +274,11 @@
         <button type="button" id="new-watch-btn" class="btn-primary admin-new-btn">+ New</button>
       </div>
       <input type="search" id="watch-filter" placeholder="Filter by brand, reference, slug…" />
+      <div class="admin-inventory-state-filter" role="group" aria-label="Inventory visibility filter">
+        <button type="button" class="is-active" data-watch-state-filter="all">All</button>
+        <button type="button" data-watch-state-filter="draft">Drafts</button>
+        <button type="button" data-watch-state-filter="published">Published</button>
+      </div>
       <ul class="admin-watch-list" id="watch-list"></ul>
     </aside>
 
@@ -363,8 +368,8 @@
           <div class="admin-col-2 admin-image-uploader" id="image-uploader">
             <div class="admin-image-uploader-header">
               <div>
-                <div class="admin-eyebrow">Photos *</div>
-                <p class="admin-meta">Upload daylight photos. Drag to reorder. The first photo becomes the primary cover image.</p>
+                <div class="admin-eyebrow">Photos</div>
+                <p class="admin-meta">Drafts can be saved without photos. Publish now requires at least one daylight photo.</p>
               </div>
               <label class="btn-secondary admin-image-upload-btn" for="image-upload-input">
                 Upload photos
@@ -383,11 +388,11 @@
             <details class="admin-image-paths-details">
               <summary>Show raw paths (advanced)</summary>
               <p class="admin-meta">These fields are kept in sync with the photo grid above. Edit them directly only if you need to point at an existing asset path.</p>
-              <label>Primary image path *
-                <input type="text" id="field-primaryImage" required placeholder="/watch-assets/example.png" />
+              <label>Primary image path
+                <input type="text" id="field-primaryImage" placeholder="/watch-assets/example.png" />
               </label>
-              <label>All image paths * (one per line; first will become primary if blank)
-                <textarea id="field-images" rows="3" required></textarea>
+              <label>All image paths (one per line; first will become primary if blank)
+                <textarea id="field-images" rows="3"></textarea>
               </label>
             </details>
           </div>
@@ -523,7 +528,7 @@
         </div>
 
         <div class="admin-form-actions">
-          <button type="submit" class="btn-primary">Save</button>
+          <button type="submit" id="save-watch-btn" class="btn-primary">Save Draft</button>
           <button type="button" id="publish-watch-btn" class="btn-secondary" hidden>Publish now</button>
           <button type="button" id="view-listing-btn" class="btn-secondary" hidden>View listing ↗</button>
           <button type="button" id="mark-sold-btn" class="btn-secondary" hidden>Mark sold…</button>

@@ -1,24 +1,42 @@
 "use client";
 
 import { useCallback } from "react";
-import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 const MESSENGER_USERNAME = "thewatchalley";
 
 /**
+ * Messenger's m.me `?text=` parameter does not reliably decode non-ASCII —
+ * emojis, the peso sign (₱), curly quotes and en/em dashes all render as � in
+ * the compose box. Fold everything down to ASCII so the prefilled message is
+ * always clean, regardless of what punctuation a listing's title contains.
+ */
+function toAscii(text: string): string {
+  return text
+    .replace(/[‘’‚‛]/g, "'")
+    .replace(/[“”„‟]/g, '"')
+    .replace(/[–—―]/g, "-")
+    .replace(/[•‣◦⁃]/g, "-")
+    .replace(/…/g, "...")
+    .replace(/ /g, " ")
+    .replace(/₱/g, "PHP");
+}
+
+/**
  * Per-watch inquiry message, prefilled into Messenger via the `text` parameter
  * of an m.me link (officially supported — it lands in the compose box so the
- * buyer just hits send). No AI: a template populated from the watch row, so
- * every new listing automatically gets its own curated message.
+ * buyer just hits send). No AI: a template populated from live watch fields
+ * (title, ref, price, listing URL), so every new listing automatically gets a
+ * curated message with zero manual work.
  *
- * The template is always generated from live fields (title, ref, price, link)
- * so it can never go stale and every new listing gets a curated message with
- * zero manual work. (The legacy `inquiry_body` column holds inconsistent
- * generic strings — "Is this available?", etc. — so it is intentionally not
- * used here; re-introduce it only once real per-watch overrides are authored.)
+ * A genuinely bespoke message set in `inquiry_body` (admin) overrides the
+ * generated copy; the legacy generic default has been cleared from the data so
+ * it no longer shadows it.
  */
 function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: string): string {
+  const custom = watch.inquiryBody?.trim();
+  if (custom) return toAscii(custom);
+
   // `fullTitle` is "Brand + clean name". Only append the reference when it
   // isn't already spelled out in the name (these listings usually embed it).
   const ref = watch.reference?.trim();
@@ -30,18 +48,18 @@ function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: strin
   const lines = [
     "Hi Watch Alley! I saw this listing on your website and I'm interested:",
     "",
-    `• ${title}`,
-    `• Price: ${formatPhp(watch.price)}`,
+    `- ${title}`,
+    `- Price: PHP ${watch.price.toLocaleString("en-PH")}`,
   ];
 
-  if (listingUrl) lines.push(`• Listing: ${listingUrl}`);
+  if (listingUrl) lines.push(`- Listing: ${listingUrl}`);
 
   lines.push(
     "",
     "Is this still available? Could you share more condition photos and the included set details? Thank you!"
   );
 
-  return lines.join("\n");
+  return toAscii(lines.join("\n"));
 }
 
 function buildMessengerUrl(watch: Watch, fullTitle: string, listingUrl?: string): string {
