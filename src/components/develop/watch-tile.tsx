@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatPhp } from "@/lib/inventory/format";
+import { formatCategory, formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 interface WatchTileProps {
@@ -8,15 +8,17 @@ interface WatchTileProps {
 }
 
 /**
- * Instagram-style image tile for the mobile catalog grid. Pure image with a
- * discreet price chip overlaid bottom-left (mirroring IG's view-count badge).
- * No hover/parallax — stays a Server Component, so it ships zero client JS.
- * Used only at `< md`; tablet/desktop render the rich {@link WatchCard}.
+ * Instagram-style image tile for the mobile catalog grid. Mirrors the desktop
+ * {@link WatchCard}: the detail (brand, name, category, price) is overlaid on
+ * the photo over a gradient scrim, not stacked below it. No hover/parallax —
+ * stays a Server Component, so it ships zero client JS. Used only at `< md`.
  */
 export function WatchTile({ watch }: WatchTileProps) {
   const isSold = watch.status === "sold";
   const price = isSold && watch.soldPrice ? watch.soldPrice : watch.price;
   const priceLabel = formatPhp(price);
+  const categoryLabel =
+    formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
 
   return (
     <Link
@@ -36,14 +38,34 @@ export function WatchTile({ watch }: WatchTileProps) {
         <div className="absolute inset-0 bg-black" />
       )}
 
-      {/* Bottom scrim so the price stays legible over any photo */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+      {/* Light scrim — keeps the photo visible behind the overlaid text while
+          a text-shadow (below) carries legibility over bright watch photos. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-      {priceLabel && (
-        <span className="absolute bottom-1.5 left-1.5 font-serif text-[11px] leading-none text-amber-300 drop-shadow">
-          {priceLabel}
+      {watch.badge && !isSold && (
+        <span className="absolute top-1 left-1 border border-amber-300/40 bg-black/50 px-1.5 py-0.5 text-[7px] uppercase tracking-[0.15em] text-amber-300 backdrop-blur-sm">
+          {watch.badge}
         </span>
       )}
+      {isSold && (
+        <span className="absolute top-1 left-1 border border-white/20 bg-black/60 px-1.5 py-0.5 text-[7px] uppercase tracking-[0.15em] text-cream-60 backdrop-blur-sm">
+          Sold
+        </span>
+      )}
+
+      {/* Detail overlaid bottom-left, anchored to the image — like desktop */}
+      <div className="absolute inset-x-0 bottom-0 p-2 [text-shadow:0_1px_4px_rgba(0,0,0,0.95)]">
+        <p className="text-[8px] uppercase tracking-[0.2em] text-amber-300/80">{watch.brand}</p>
+        <h3 className="mt-0.5 line-clamp-2 text-[11px] font-light leading-tight text-cream">
+          {watch.name}
+        </h3>
+        {categoryLabel && (
+          <p className="mt-1 text-[7px] uppercase tracking-[0.15em] text-cream-60">
+            {categoryLabel}
+          </p>
+        )}
+        {priceLabel && <p className="mt-1 font-serif text-[12px] text-amber-300">{priceLabel}</p>}
+      </div>
     </Link>
   );
 }
