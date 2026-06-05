@@ -147,9 +147,11 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
             animate={{ opacity: isHovered ? 1 : 0.85 }}
             transition={{ duration: 0.3 }}
           >
-            <span className="text-lg font-serif text-amber-300">
-              {isSold && watch.soldPrice ? formatPhp(watch.soldPrice) : formatPhp(watch.price)}
-            </span>
+            {isSold ? (
+              <span />
+            ) : (
+              <span className="text-lg font-serif text-amber-300">{formatPhp(watch.price)}</span>
+            )}
             <motion.span
               className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-cream"
               animate={{ x: isHovered ? 4 : 0 }}
