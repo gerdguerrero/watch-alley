@@ -4,6 +4,8 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/develop/footer";
 import { MainNav } from "@/components/develop/main-nav";
 import { BRAND_COLORS } from "@/lib/brand/assets";
+import { fetchFeaturedWatch } from "@/lib/inventory/queries";
+import { FALLBACK_SITE_OG_IMAGE, resolveMetadataImageUrl } from "@/lib/metadata/images";
 import "./globals.css";
 
 // Develop-branch font stack (replaces the Petrona/Spectral/JetBrains_Mono set):
@@ -34,48 +36,61 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const SITE_OG_IMAGE =
-  "https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/watches/unsorted/1780396993109-ly5w4f-img-6212.jpeg";
+const SITE_TITLE = "The Watch Alley PH";
+const SITE_DESCRIPTION =
+  "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.";
 
-export const metadata: Metadata = {
-  title: {
-    default: "The Watch Alley PH — Curated Watches in Manila",
-    template: "%s · The Watch Alley",
-  },
-  description:
-    "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.",
-  metadataBase: new URL("https://watchalley.ph"),
-  applicationName: "The Watch Alley",
-  // Icons are managed by the file-based metadata API:
-  //   src/app/icon.svg          → modern browsers (vector)
-  //   src/app/apple-icon.png    → iOS home screen
-  //   src/app/favicon.ico       → legacy IE/Edge fallback
-  // Next.js auto-emits the correct <link rel="icon" …> tags from those files,
-  // so this object only sets things the file convention can't.
-  manifest: "/manifest.webmanifest",
-  openGraph: {
-    type: "website",
-    title: "The Watch Alley PH",
-    description: "A Manila-based curator of pre-owned and brand-new timepieces.",
-    url: "https://watchalley.ph",
-    siteName: "The Watch Alley",
-    locale: "en_PH",
-    images: [
-      {
-        url: SITE_OG_IMAGE,
-        width: 1946,
-        height: 1946,
-        alt: "The Watch Alley curated watch photography",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "The Watch Alley PH",
-    description: "Curated pre-owned and brand-new timepieces, Manila.",
-    images: [SITE_OG_IMAGE],
-  },
-};
+// Keep site-level metadata on the same freshness window as the inventory pages.
+// When the admin changes the featured available watch, the homepage/general OG
+// image refreshes after ISR and fetch-cache revalidation instead of requiring a code change.
+export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const featured = await fetchFeaturedWatch();
+  const featuredImage = resolveMetadataImageUrl(featured?.primaryImage);
+  const siteOgImage = featuredImage ?? FALLBACK_SITE_OG_IMAGE;
+  const siteOgImageAlt =
+    featuredImage && featured
+      ? `The Watch Alley featured watch: ${featured.brand} ${featured.name}`
+      : "The Watch Alley curated watch photography";
+
+  return {
+    title: {
+      default: "The Watch Alley PH — Curated Watches in Manila",
+      template: "%s · The Watch Alley",
+    },
+    description: SITE_DESCRIPTION,
+    metadataBase: new URL("https://watchalley.ph"),
+    applicationName: "The Watch Alley",
+    // Icons are managed by the file-based metadata API:
+    //   src/app/icon.svg          → modern browsers (vector)
+    //   src/app/apple-icon.png    → iOS home screen
+    //   src/app/favicon.ico       → legacy IE/Edge fallback
+    // Next.js auto-emits the correct <link rel="icon" …> tags from those files,
+    // so this object only sets things the file convention can't.
+    manifest: "/manifest.webmanifest",
+    openGraph: {
+      type: "website",
+      title: SITE_TITLE,
+      description: "A Manila-based curator of pre-owned and brand-new timepieces.",
+      url: "https://watchalley.ph",
+      siteName: "The Watch Alley",
+      locale: "en_PH",
+      images: [
+        {
+          url: siteOgImage,
+          alt: siteOgImageAlt,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: SITE_TITLE,
+      description: "Curated pre-owned and brand-new timepieces, Manila.",
+      images: [siteOgImage],
+    },
+  };
+}
 
 // Viewport is its own export in Next.js 16 — `themeColor` inside metadata is
 // deprecated. The walnut here matches the page background so iOS Safari's

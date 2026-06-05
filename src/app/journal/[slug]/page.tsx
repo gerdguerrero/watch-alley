@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { renderMarkdown } from "@/lib/journal/markdown";
 import { fetchJournalPost, fetchPublishedJournalSlugs } from "@/lib/journal/queries";
 import type { JournalPost } from "@/lib/journal/types";
+import { resolveMetadataImageUrl } from "@/lib/metadata/images";
 
 // Pre-render every published slug at build; unknown slugs ISR at request time.
 // 60s revalidate so admin edits propagate within a minute.
@@ -24,6 +25,8 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await fetchJournalPost(slug);
   if (!post) return { title: "Article not found — The Watch Alley PH" };
+  const imageUrl = resolveMetadataImageUrl(post.heroImage);
+  const image = imageUrl ? [{ url: imageUrl, alt: post.title }] : undefined;
   return {
     title: `${post.title} — The Watch Alley PH`,
     description: post.summary,
@@ -33,10 +36,16 @@ export async function generateMetadata({
       title: post.title,
       description: post.summary,
       url: `/journal/${post.slug}`,
-      images: post.heroImage ? [{ url: post.heroImage }] : undefined,
+      images: image,
       publishedTime: post.publishedAt || undefined,
       authors: post.author ? [post.author] : undefined,
       tags: post.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.summary,
+      images: imageUrl ? [imageUrl] : undefined,
     },
   };
 }

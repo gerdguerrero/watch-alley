@@ -8,6 +8,7 @@ import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
+import { resolveMetadataImageUrl } from "@/lib/metadata/images";
 
 // ISR: every published slug is pre-rendered at build, unknown slugs fall
 // through to on-demand render (dynamicParams defaults to true). Admin edits
@@ -43,6 +44,8 @@ export async function generateMetadata({
   const description =
     watch.description ||
     `${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""} — available at The Watch Alley.`;
+  const imageUrl = resolveMetadataImageUrl(watch.primaryImage);
+  const image = imageUrl ? [{ url: imageUrl, alt: `${watch.brand} ${watch.name}` }] : undefined;
   return {
     title,
     description,
@@ -52,7 +55,13 @@ export async function generateMetadata({
       title,
       description,
       url: `/watch/${watch.slug}`,
-      images: watch.primaryImage ? [{ url: watch.primaryImage }] : undefined,
+      images: image,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
     },
   };
 }
