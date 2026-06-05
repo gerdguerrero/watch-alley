@@ -168,29 +168,65 @@ export function Hero({ featured = null }: HeroProps = {}) {
         {featured ? (
           <Link
             href={`/watch/${featured.slug}`}
-            className="group block rounded-3xl border border-amber-400/15 bg-walnut-deep/30 p-6 text-left shadow-2xl backdrop-blur-md transition-colors hover:border-amber-300/40"
+            className="group relative block w-72 overflow-hidden rounded-3xl border border-amber-400/15 text-left shadow-2xl transition-colors hover:border-amber-300/40"
           >
-            <p className="mb-4 text-[10px] uppercase tracking-[0.3em] text-amber-300/80 font-mono">
-              ◆ Featured Piece
-            </p>
-            <p className="font-serif text-2xl leading-tight text-cream">
-              {featured.brand}
-              <br />
-              <span className="italic text-cream-80">{featured.name}</span>
-            </p>
-            <p className="mt-4 font-serif text-xl text-amber-300">{formatPhp(featured.price)}</p>
-            <span className="mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-cream-60 transition-colors group-hover:text-amber-300">
-              View this piece
-              <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path
-                  d="M1 11L11 1M11 1H3M11 1V9"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+            {/* Actual featured-watch photo as the card backdrop. The info sits
+                on a bottom-anchored gradient so the image reads as the hero of
+                the card — same treatment as the collection WatchCard. */}
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-walnut-deep/40">
+              {featured.primaryImage ? (
+                <Image
+                  src={featured.primaryImage}
+                  alt={`${featured.brand} ${featured.name}`}
+                  fill
+                  sizes="288px"
+                  className="object-cover opacity-50 transition-[transform,filter,opacity] duration-700 ease-out [filter:grayscale(0.85)_sepia(0.25)_brightness(0.82)] group-hover:scale-105 group-hover:opacity-100 group-hover:[filter:grayscale(0)_sepia(0)_brightness(1)]"
                 />
-              </svg>
+              ) : (
+                <div className="absolute inset-0 bg-walnut-deep" />
+              )}
+              {/* Warm walnut/amber wash so the photo reads in the hero palette
+                  rather than fighting it; eases off on hover as color returns. */}
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-900/25 via-walnut-deep/15 to-walnut-deep/55 mix-blend-soft-light transition-opacity duration-500 group-hover:opacity-40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-walnut-deep via-walnut-deep/35 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-300/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            </div>
+
+            <span className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-walnut-deep/50 px-3 py-1.5 text-[10px] uppercase tracking-[0.3em] text-amber-300/90 font-mono backdrop-blur-sm">
+              ◆ Featured
             </span>
+
+            <div className="absolute inset-x-0 bottom-0 p-6">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-amber-300/80 font-mono">
+                {featured.brand}
+              </p>
+              <p className="mt-2 font-serif text-xl italic leading-tight text-cream line-clamp-2">
+                {featured.name}
+              </p>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <span className="font-serif text-xl text-amber-300">
+                  {formatPhp(featured.price)}
+                </span>
+                <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-cream-60 transition-colors group-hover:text-amber-300">
+                  View
+                  <svg
+                    className="h-3 w-3 transition-transform group-hover:translate-x-0.5"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <title>Arrow</title>
+                    <path
+                      d="M1 11L11 1M11 1H3M11 1V9"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </div>
           </Link>
         ) : (
           <div className="rounded-3xl border border-amber-400/15 bg-walnut-deep/30 p-6 backdrop-blur-md">
