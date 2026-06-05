@@ -1,12 +1,7 @@
-"use client";
-
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { BrandLogo } from "./brand-logo";
-
-const MotionLink = motion.create(Link);
 
 const FOOTER_LINK_GROUPS = [
   {
@@ -47,20 +42,30 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
+/**
+ * Site footer. Brand column (logo + blurb + socials) plus link columns, with
+ * a legal bottom bar. Pure markup with CSS-only hover, so it stays a Server
+ * Component and ships zero client JS.
+ */
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-10 md:px-12 lg:px-20">
+    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-12 md:px-12 md:py-14 lg:px-20">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundOne})` }}
       />
-      <div className="relative z-10 mx-auto grid max-w-[1680px] gap-8 md:grid-cols-[1.4fr_1fr_1fr] md:items-start">
-        <div>
+      <div className="relative z-10 mx-auto grid max-w-[1680px] gap-10 md:grid-cols-[1.6fr_1fr_1fr] md:items-start md:gap-8">
+        {/* Brand column */}
+        <div className="max-w-sm">
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
             <BrandLogo className="h-16 w-16" sizes="64px" />
           </Link>
-          <div className="mt-5 flex items-center gap-3">
+          <p className="mt-4 text-sm leading-relaxed text-cream-60">
+            A Manila-based curator of pre-owned and brand-new timepieces — daylight-photographed,
+            disclosed in writing, and handled with care.
+          </p>
+          <div className="mt-6 flex items-center gap-3">
             {SOCIAL_LINKS.map((social) => (
               <a
                 key={social.label}
@@ -81,49 +86,42 @@ export function Footer() {
 
         {FOOTER_LINK_GROUPS.map((group) => (
           <nav key={group.title} aria-label={group.title}>
-            <p className="mb-5 text-[10px] uppercase tracking-[0.3em] text-amber-300/70 font-mono">
+            <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
               {group.title}
             </p>
-            <div className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3">
               {group.links.map((link) => (
-                <MotionLink
-                  key={link.label}
-                  href={link.href}
-                  className="text-sm text-cream-60 transition-colors hover:text-cream"
-                  whileHover={{ x: 4 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  {link.label}
-                </MotionLink>
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="inline-block w-fit text-sm text-cream-60 transition-all duration-200 hover:translate-x-1 hover:text-cream"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </nav>
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 flex max-w-[1680px] flex-col gap-4 border-t border-amber-400/10 pt-5 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-          <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
-          <span className="hidden sm:inline text-amber-400/20">|</span>
-          <a
-            href="https://www.vibecoders.ph"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex items-center gap-1.5 transition-colors hover:text-cream"
-          >
-            <span className="opacity-60 transition-opacity group-hover:opacity-100">Built by</span>
-            <Image
-              src="/brand/vibecodersph-logo-white.png"
-              alt="Vibe Coders PH"
-              width={95}
-              height={40}
-              className="h-10 w-auto object-contain opacity-60 transition-opacity group-hover:opacity-100 shrink-0"
-            />
-          </a>
-        </div>
-        <p className="uppercase tracking-[0.22em] opacity-80 sm:opacity-100">
-          Black · Gold · Collector-first
-        </p>
+      <div className="relative z-10 mx-auto mt-10 flex max-w-[1680px] flex-col gap-4 border-t border-amber-400/10 pt-6 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
+        <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
+        <a
+          href="https://www.vibecoders.ph"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-1.5 transition-colors hover:text-cream"
+        >
+          <span className="opacity-60 transition-opacity group-hover:opacity-100">Built by</span>
+          <Image
+            src="/brand/vibecodersph-logo-white.png"
+            alt="Vibe Coders PH"
+            width={95}
+            height={40}
+            className="h-6 w-auto shrink-0 object-contain opacity-60 transition-opacity group-hover:opacity-100"
+          />
+        </a>
       </div>
     </footer>
   );
