@@ -34,6 +34,9 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const SITE_OG_IMAGE =
+  "https://yrzawkqcifuubtltktbk.supabase.co/storage/v1/object/public/watches/unsorted/1780396993109-ly5w4f-img-6212.jpeg";
+
 export const metadata: Metadata = {
   title: {
     default: "The Watch Alley PH — Curated Watches in Manila",
@@ -59,10 +62,10 @@ export const metadata: Metadata = {
     locale: "en_PH",
     images: [
       {
-        url: "/brand/cover-photo.png",
-        width: 2278,
-        height: 1000,
-        alt: "The Watch Alley storefront signage",
+        url: SITE_OG_IMAGE,
+        width: 1946,
+        height: 1946,
+        alt: "The Watch Alley curated watch photography",
       },
     ],
   },
@@ -70,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Watch Alley PH",
     description: "Curated pre-owned and brand-new timepieces, Manila.",
-    images: ["/brand/cover-photo.png"],
+    images: [SITE_OG_IMAGE],
   },
 };
 
