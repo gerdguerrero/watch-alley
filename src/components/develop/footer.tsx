@@ -84,25 +84,29 @@ export function Footer() {
           </div>
         </div>
 
-        {FOOTER_LINK_GROUPS.map((group) => (
-          <nav key={group.title} aria-label={group.title}>
-            <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
-              {group.title}
-            </p>
-            <ul className="flex flex-col gap-3">
-              {group.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="inline-block w-fit text-sm text-cream-60 transition-all duration-200 hover:translate-x-1 hover:text-cream"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))}
+        {/* On mobile the two link groups sit side by side; md:contents lets
+            them flow into the outer grid's 2nd/3rd columns on desktop. */}
+        <div className="grid grid-cols-2 gap-6 md:contents">
+          {FOOTER_LINK_GROUPS.map((group) => (
+            <nav key={group.title} aria-label={group.title}>
+              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
+                {group.title}
+              </p>
+              <ul className="flex flex-col gap-3">
+                {group.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="inline-block w-fit text-sm text-cream-60 transition-all duration-200 hover:translate-x-1 hover:text-cream"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto mt-10 flex max-w-[1680px] flex-col gap-4 border-t border-amber-400/10 pt-6 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
