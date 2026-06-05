@@ -1,23 +1,20 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRef } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { BrandLogo } from "./brand-logo";
-import dynamic from "next/dynamic";
 
-const WatchDisplay = dynamic(
-  () => import("./watch-display").then((mod) => mod.WatchDisplay),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-300/25 border-t-amber-300" />
-      </div>
-    ),
-  }
-);
+const WatchDisplay = dynamic(() => import("./watch-display").then((mod) => mod.WatchDisplay), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-300/25 border-t-amber-300" />
+    </div>
+  ),
+});
 
 const MESSENGER_URL = "https://m.me/thewatchalley";
 const MotionLink = motion.create(Link);

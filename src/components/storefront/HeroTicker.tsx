@@ -19,7 +19,10 @@ const ITEMS = [
 
 export function HeroTicker() {
   // Double the list so the keyframe -50% loop is seamless.
-  const doubled = [...ITEMS, ...ITEMS];
+  const doubled = [
+    ...ITEMS.map((item) => ({ id: `first-${item}`, label: item })),
+    ...ITEMS.map((item) => ({ id: `second-${item}`, label: item })),
+  ];
 
   return (
     <div
@@ -33,12 +36,12 @@ export function HeroTicker() {
         @media (prefers-reduced-motion: reduce) { .wa-ticker-track { animation: none; } }
       `}</style>
       <div className="wa-ticker-track flex w-max gap-12 whitespace-nowrap will-change-transform">
-        {doubled.map((item, i) => (
+        {doubled.map((item) => (
           <span
-            key={`${i}-${item}`}
+            key={item.id}
             className="font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--color-cream-60)]"
           >
-            ✦ {item}
+            ✦ {item.label}
           </span>
         ))}
       </div>

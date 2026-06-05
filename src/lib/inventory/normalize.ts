@@ -2,10 +2,7 @@ import type { Watch, WatchRow, WatchStatus } from "./types";
 
 const VALID_STATUSES: ReadonlySet<WatchStatus> = new Set(["available", "reserved", "sold"]);
 
-const VALID_CATEGORIES: ReadonlySet<string> = new Set([
-  "brand-new",
-  "pre-owned",
-]);
+const VALID_CATEGORIES: ReadonlySet<string> = new Set(["brand-new", "pre-owned"]);
 
 function normalizeStatus(value: string | null): WatchStatus {
   if (value && VALID_STATUSES.has(value as WatchStatus)) {

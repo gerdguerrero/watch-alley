@@ -25,7 +25,9 @@ export function FilmGrain({ opacity = 0.07, className = "" }: FilmGrainProps) {
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
         className="h-full w-full"
+        focusable="false"
         preserveAspectRatio="xMidYMid slice"
       >
         <filter id="wa-film-grain">

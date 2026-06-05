@@ -17,6 +17,15 @@ interface SplitHeadlineProps {
   initialDelay?: number;
 }
 
+function keyedEntries(values: string[], prefix: string) {
+  const seen = new Map<string, number>();
+  return values.map((value) => {
+    const occurrence = seen.get(value) ?? 0;
+    seen.set(value, occurrence + 1);
+    return { key: `${prefix}-${value}-${occurrence}`, value };
+  });
+}
+
 /**
  * Editorial split-letter reveal for the hero headline. Each character mounts
  * invisible and floats up 0.4em on its own ease-out-quart curve, staggered
@@ -46,23 +55,20 @@ export function SplitHeadline({
   }, []);
 
   // Tokenize: split on whitespace but keep `*...*` segments intact so emphasis spans don't break mid-word.
-  function renderPhrase(phrase: string, lineIndex: number, charOffset: { value: number }) {
-    const parts = phrase.split(/(\*[^*]+\*)/g).filter(Boolean);
-    return parts.map((part, partIndex) => {
+  function renderPhrase(phrase: string, lineKey: string, charOffset: { value: number }) {
+    const parts = keyedEntries(phrase.split(/(\*[^*]+\*)/g).filter(Boolean), lineKey);
+    return parts.map(({ key: partKey, value: part }) => {
       const emphasized = part.startsWith("*") && part.endsWith("*");
       const text = emphasized ? part.slice(1, -1) : part;
       const chars = [...text];
       return (
-        <span
-          key={`${lineIndex}-${partIndex}`}
-          className={emphasized ? "italic text-[color:var(--color-gold)]" : ""}
-        >
-          {chars.map((char, i) => {
+        <span key={partKey} className={emphasized ? "italic text-[color:var(--color-gold)]" : ""}>
+          {chars.map((char) => {
             const globalIndex = charOffset.value++;
             const isSpace = char === " ";
             return (
               <span
-                key={i}
+                key={`${partKey}-char-${globalIndex}`}
                 aria-hidden="true"
                 className="inline-block whitespace-pre will-change-transform"
                 style={{
@@ -81,14 +87,15 @@ export function SplitHeadline({
   }
 
   const charOffset = { value: 0 };
+  const phraseEntries = keyedEntries(phrases, "phrase");
   return (
     <h1 className={className}>
       {/* Visually-hidden static copy for assistive tech + crawlers. */}
       <span className="sr-only">{phrases.map((p) => p.replace(/\*/g, "")).join(" ")}</span>
       <span aria-hidden="true">
-        {phrases.map((phrase, lineIndex) => (
-          <span key={lineIndex} className="block">
-            {renderPhrase(phrase, lineIndex, charOffset)}
+        {phraseEntries.map(({ key: phraseKey, value: phrase }) => (
+          <span key={phraseKey} className="block">
+            {renderPhrase(phrase, phraseKey, charOffset)}
           </span>
         ))}
       </span>

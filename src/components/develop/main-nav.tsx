@@ -63,15 +63,12 @@ export function MainNav() {
             primary lockup contains the wordmark, so no adjacent text node —
             avoids the duplicate-wordmark stutter that the previous
             badge-plus-text arrangement had. */}
-        <Link
-          href="/"
-          aria-label="The Watch Alley home"
-          className="flex items-center group flex-shrink-0"
-        >
+        <Link href="/" className="flex items-center group flex-shrink-0">
           <HorologicalLogo
             mode="hover-sweep"
             width={isScrolled ? 46 : 56}
             height={isScrolled ? 34 : 42}
+            ariaLabel="The Watch Alley home"
             className="transition-all duration-500"
           />
         </Link>
