@@ -168,7 +168,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
         {featured ? (
           <Link
             href={`/watch/${featured.slug}`}
-            className="group relative block w-72 overflow-hidden rounded-3xl border border-amber-400/15 text-left shadow-2xl transition-colors hover:border-amber-300/40"
+            className="group relative block w-72 overflow-hidden rounded-3xl text-left"
           >
             {/* Actual featured-watch photo as the card backdrop. The info sits
                 on a bottom-anchored gradient so the image reads as the hero of
