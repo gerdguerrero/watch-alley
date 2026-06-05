@@ -15,8 +15,7 @@ interface WatchTileProps {
  */
 export function WatchTile({ watch }: WatchTileProps) {
   const isSold = watch.status === "sold";
-  const price = isSold && watch.soldPrice ? watch.soldPrice : watch.price;
-  const priceLabel = formatPhp(price);
+  const priceLabel = formatPhp(watch.price);
   const categoryLabel =
     formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
 
@@ -64,7 +63,9 @@ export function WatchTile({ watch }: WatchTileProps) {
             {categoryLabel}
           </p>
         )}
-        {priceLabel && <p className="mt-1 font-serif text-[12px] text-amber-300">{priceLabel}</p>}
+        {!isSold && priceLabel && (
+          <p className="mt-1 font-serif text-[12px] text-amber-300">{priceLabel}</p>
+        )}
       </div>
     </Link>
   );
