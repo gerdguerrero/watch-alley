@@ -5,6 +5,8 @@ out/
 build/
 coverage/
 *.tsbuildinfo
+__pycache__/
+*.py[cod]
 .DS_Store
 
 # Raw source videos at the repo root — large media we don't want in git.
