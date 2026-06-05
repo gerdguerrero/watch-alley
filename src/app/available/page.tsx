@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageTitle } from "@/components/develop/page-title";
 import { WatchCard } from "@/components/develop/watch-card";
+import { WatchTile } from "@/components/develop/watch-tile";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
 
@@ -37,11 +38,7 @@ export default async function AvailablePage({
 
   return (
     <main className="bg-[#080706] text-zinc-100">
-      <PageTitle
-        title="AVAILABLE"
-        eyebrow="◆ Currently in rotation"
-        variant="catalog"
-      />
+      <PageTitle title="AVAILABLE" eyebrow="◆ Currently in rotation" variant="catalog" />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
         {/* Category filter pills */}
@@ -69,11 +66,21 @@ export default async function AvailablePage({
             No active pieces right now. Message us on Messenger for the next drop.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8 max-w-[1680px] mx-auto">
-            {watches.map((w, i) => (
-              <WatchCard key={w.slug} watch={w} index={i} />
-            ))}
-          </div>
+          <>
+            {/* Mobile: Instagram-style 3-up image tiles, full-bleed, tight gaps */}
+            <div className="grid grid-cols-3 gap-0.5 -mx-6 md:hidden">
+              {watches.map((w) => (
+                <WatchTile key={w.slug} watch={w} />
+              ))}
+            </div>
+
+            {/* Tablet/desktop: immersive rich cards */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 md:gap-8 max-w-[1680px] mx-auto">
+              {watches.map((w, i) => (
+                <WatchCard key={w.slug} watch={w} index={i} />
+              ))}
+            </div>
+          </>
         )}
 
         <p className="mx-auto mt-20 max-w-[60ch] text-center font-mono text-[10px] uppercase leading-[1.6] tracking-[0.18em] text-zinc-600">
