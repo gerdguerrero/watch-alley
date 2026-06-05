@@ -49,13 +49,13 @@ const SOCIAL_LINKS = [
  */
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-12 md:px-12 md:py-14 lg:px-20">
+    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-10 md:px-12 md:py-12 lg:px-20">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundOne})` }}
       />
-      <div className="relative z-10 mx-auto grid max-w-[1680px] gap-10 md:grid-cols-[1.6fr_1fr_1fr] md:items-start md:gap-8">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.5fr_1fr_1fr] md:items-start md:gap-12">
         {/* Brand column */}
         <div className="max-w-sm">
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
@@ -109,7 +109,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto mt-10 flex max-w-[1680px] flex-col gap-4 border-t border-amber-400/10 pt-6 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative z-10 mx-auto mt-8 flex max-w-6xl flex-col gap-4 border-t border-amber-400/10 pt-6 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
         <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
         <a
           href="https://www.vibecoders.ph"
