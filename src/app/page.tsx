@@ -5,6 +5,7 @@ import { Hero } from "@/components/develop/hero";
 import { JournalSection } from "@/components/develop/journal-section";
 import { SmoothScrollProvider } from "@/components/develop/smooth-scroll-provider";
 import { fetchFeaturedWatch, fetchWatches } from "@/lib/inventory/queries";
+import { pickCollectionTeasers } from "@/lib/inventory/teasers";
 import { fetchJournalPosts } from "@/lib/journal/queries";
 
 export const revalidate = 60;
@@ -12,13 +13,15 @@ export const revalidate = 60;
 export default async function Page() {
   const [featured, available, posts] = await Promise.all([
     fetchFeaturedWatch(),
-    fetchWatches({ status: "available", limit: 9 }),
+    fetchWatches({ status: "available" }),
     fetchJournalPosts(3),
   ]);
 
-  const collectionWatches = featured
-    ? available.filter((w) => w.slug !== featured.slug)
-    : available;
+  // Pick the three teaser watches server-side so the Limited Edition card draws
+  // from the whole catalog (not a 9-item slice) and only the chosen pieces are
+  // serialized to the client. Exclude the hero piece so it isn't shown twice.
+  const pool = featured ? available.filter((w) => w.slug !== featured.slug) : available;
+  const teasers = pickCollectionTeasers(pool);
 
   return (
     <SmoothScrollProvider>
@@ -26,7 +29,7 @@ export default async function Page() {
       <EntrancePreloader />
       <main className="bg-[#080706]">
         <Hero featured={featured} />
-        <CollectionSection watches={collectionWatches} />
+        <CollectionSection teasers={teasers} totalCount={available.length} />
         <JournalSection posts={posts} />
         <ContactSection />
       </main>

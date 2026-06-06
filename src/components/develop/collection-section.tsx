@@ -3,40 +3,11 @@
 import { motion } from "framer-motion";
 import { Compass, type LucideIcon, Timer, Watch as WatchIcon } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
+import type { CollectionTeaser } from "@/lib/inventory/teasers";
 import type { Watch } from "@/lib/inventory/types";
-
-const _COLLECTION_PROMISES = [
-  "Daylight-photographed",
-  "Condition disclosed",
-  "Collector-first sourcing",
-];
-
-// Each homepage teaser card is labelled by category, not by watch name. The
-// watch image behind each card is only a representative hero image; clicking a
-// card must open the matching filtered catalog grid, not that single watch.
-const CARD_SLOTS = [
-  {
-    label: "Brand New",
-    category: "brand-new",
-    badge: undefined,
-    href: "/available?category=brand-new",
-  },
-  {
-    label: "Pre-owned",
-    category: "pre-owned",
-    badge: undefined,
-    href: "/available?category=pre-owned",
-  },
-  {
-    label: "Limited Edition",
-    category: undefined,
-    badge: "limited-edition",
-    href: "/available?category=limited-edition",
-  },
-] as const;
 
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
@@ -53,7 +24,10 @@ const DUR_OVERLAY = 0.6;
 const HOVER_INTENT_MS = 60;
 
 interface CollectionSectionProps {
-  watches?: Watch[];
+  /** The three teaser cards, pre-picked server-side (see pickCollectionTeasers). */
+  teasers: CollectionTeaser[];
+  /** Total available pieces, for the "Browse full collection" count. */
+  totalCount: number;
 }
 
 /**
@@ -196,64 +170,17 @@ function AccordionCard({
   );
 }
 
-export function CollectionSection({ watches = [] }: CollectionSectionProps = {}) {
+export function CollectionSection({ teasers, totalCount }: CollectionSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
-  // Pick one watch per category for the 3 teaser cards. Evaluates them in order of
-  // specificity (Limited Edition first as it's the most restricted, then Pre-owned,
-  // then Brand New) to prevent duplicates and ensure each card shows a unique piece.
-  const items = useMemo(() => {
-    const selectedIds = new Set<string>();
-    const slotMatches: Record<string, Watch> = {};
-
-    const sortedSlots = [CARD_SLOTS[2], CARD_SLOTS[1], CARD_SLOTS[0]] as const;
-
-    // First pass: find a unique match for each slot
-    for (const slot of sortedSlots) {
-      let match: Watch | undefined;
-      if (slot.badge) {
-        match = watches.find((w) => w.badges.includes(slot.badge!) && !selectedIds.has(w.id));
-      } else if (slot.category) {
-        match = watches.find((w) => w.category === slot.category && !selectedIds.has(w.id));
-      }
-      if (match) {
-        slotMatches[slot.label] = match;
-        selectedIds.add(match.id);
-      }
-    }
-
-    // Second pass: fill in any remaining slots with standard fallbacks
-    for (const slot of CARD_SLOTS) {
-      if (!slotMatches[slot.label]) {
-        let fallback: Watch | undefined;
-        if (slot.badge) {
-          fallback = watches.find((w) => w.badges.includes(slot.badge!)) ?? watches[0];
-        } else if (slot.category) {
-          fallback = watches.find((w) => w.category === slot.category) ?? watches[0];
-        } else {
-          fallback = watches[0];
-        }
-        if (fallback) {
-          slotMatches[slot.label] = fallback;
-        }
-      }
-    }
-
-    // Return the matches mapped back to the original CARD_SLOTS layout order
-    return CARD_SLOTS.map((slot) => {
-      const match = slotMatches[slot.label];
-      return { watch: match, label: slot.label, href: slot.href };
-    }).filter((item) => !!item.watch) as Array<{ watch: Watch; label: string; href: string }>;
-  }, [watches]);
-
   // Track the hovered active card label
-  const [intendedActiveLabel, setActiveLabel] = useState<string | null>(items[0]?.label ?? null);
+  const [intendedActiveLabel, setActiveLabel] = useState<string | null>(teasers[0]?.label ?? null);
 
   const activeLabel =
-    items.find((item) => item.label === intendedActiveLabel)?.label ?? items[0]?.label ?? null;
+    teasers.find((item) => item.label === intendedActiveLabel)?.label ?? teasers[0]?.label ?? null;
 
-  if (watches.length === 0) {
+  if (totalCount === 0) {
     return (
       <section
         id="collection"
@@ -327,13 +254,13 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
 
       {/* Accordion Teaser Grid */}
       <div className="relative z-10 px-6 md:px-12 lg:px-20">
-        {items.length === 0 ? (
+        {teasers.length === 0 ? (
           <p className="text-center text-zinc-500 uppercase tracking-[0.18em] text-xs py-8">
             No pieces in rotation right now.
           </p>
         ) : (
           <div className="max-w-[1680px] mx-auto gap-3 flex flex-col md:flex-row md:h-[380px] lg:h-[400px]">
-            {items.map((item) => (
+            {teasers.map((item) => (
               <AccordionCard
                 key={item.label}
                 watch={item.watch}
@@ -354,7 +281,7 @@ export function CollectionSection({ watches = [] }: CollectionSectionProps = {})
             href="/available"
             className="group inline-flex items-center gap-3 border-b border-amber-500/40 pb-1 text-[12px] tracking-[0.22em] uppercase text-amber-400 transition-colors hover:text-amber-300 hover:border-amber-400"
           >
-            Browse Full Collection — {watches.length} pieces
+            Browse Full Collection — {totalCount} pieces
             <svg
               className="w-3 h-3 transition-transform group-hover:translate-x-1"
               viewBox="0 0 12 12"
