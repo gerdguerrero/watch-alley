@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { PageTitle } from "@/components/develop/page-title";
 import { WatchCard } from "@/components/develop/watch-card";
 import { WatchTile } from "@/components/develop/watch-tile";
+import { CatalogToolbar } from "@/components/storefront/CatalogToolbar";
 import { fetchWatches } from "@/lib/inventory/queries";
+import { collectBrands, SOLD_SORTS, type SortKey, sortWatches } from "@/lib/inventory/sort";
 
 export const revalidate = 60;
 
@@ -13,10 +15,18 @@ export const metadata: Metadata = {
   alternates: { canonical: "/sold" },
 };
 
-export default async function SoldPage() {
-  const sold = await fetchWatches({ status: "sold" });
-  // Newest sales first — sold_at is "YYYY-MM" so lexicographic compare works.
-  sold.sort((a, b) => (b.soldAt || "").localeCompare(a.soldAt || ""));
+export default async function SoldPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ brand?: string; sort?: string }>;
+}) {
+  const { brand, sort } = await searchParams;
+  const all = await fetchWatches({ status: "sold" });
+
+  const brands = collectBrands(all);
+  const filtered = brand ? all.filter((w) => w.brand === brand) : all;
+  // Default to newest sales first — sold_at is "YYYY-MM" so lexicographic compare works.
+  const sold = sortWatches(filtered, (sort as SortKey) || "recent");
 
   return (
     <main className="bg-[#080706] text-zinc-100">
@@ -28,9 +38,13 @@ export default async function SoldPage() {
       />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
+        <CatalogToolbar brands={brands} sortOptions={SOLD_SORTS} />
+
         {sold.length === 0 ? (
           <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
-            Once pieces find their next collector, they will appear here.
+            {all.length > 0
+              ? "No sold pieces match this brand. Clear the filter to see the full archive."
+              : "Once pieces find their next collector, they will appear here."}
           </p>
         ) : (
           <>

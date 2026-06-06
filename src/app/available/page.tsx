@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageTitle } from "@/components/develop/page-title";
 import { WatchCard } from "@/components/develop/watch-card";
 import { WatchTile } from "@/components/develop/watch-tile";
+import { CatalogToolbar } from "@/components/storefront/CatalogToolbar";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
+import { AVAILABLE_SORTS, collectBrands, type SortKey, sortWatches } from "@/lib/inventory/sort";
 
 export const revalidate = 60;
 
@@ -25,45 +26,35 @@ const CATEGORIES = [
 export default async function AvailablePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; brand?: string; sort?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, brand, sort } = await searchParams;
   // "limited-edition" is a badge filter, not a category
   const isBadge = category === "limited-edition";
-  const watches = await fetchWatches({
+  const all = await fetchWatches({
     status: "available",
     category: isBadge ? undefined : category,
     badge: isBadge ? "limited-edition" : undefined,
   });
+
+  // Brand list reflects the current category, so the menu only offers brands
+  // you can actually land on. Brand + sort are applied in-memory.
+  const brands = collectBrands(all);
+  const filtered = brand ? all.filter((w) => w.brand === brand) : all;
+  const watches = sortWatches(filtered, (sort as SortKey) || "featured");
 
   return (
     <main className="bg-[#080706] text-zinc-100">
       <PageTitle title="AVAILABLE" eyebrow="◆ Currently in rotation" variant="catalog" />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
-        {/* Category filter pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-[1680px] mx-auto">
-          {CATEGORIES.map((cat) => {
-            const isActive = category === cat.value || (!category && cat.value === "");
-            return (
-              <Link
-                key={cat.value}
-                href={cat.value ? `/available?category=${cat.value}` : "/available"}
-                className={`px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
-                  isActive
-                    ? "bg-amber-500 text-zinc-900 border border-amber-500"
-                    : "bg-transparent text-zinc-400 border border-zinc-700 hover:border-amber-500/50 hover:text-amber-400"
-                }`}
-              >
-                {cat.label}
-              </Link>
-            );
-          })}
-        </div>
+        <CatalogToolbar brands={brands} sortOptions={AVAILABLE_SORTS} categories={CATEGORIES} />
 
         {watches.length === 0 ? (
           <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
-            No active pieces right now. Message us on Messenger for the next drop.
+            {all.length > 0
+              ? "No pieces match these filters. Try clearing the brand or category."
+              : "No active pieces right now. Message us on Messenger for the next drop."}
           </p>
         ) : (
           <>
