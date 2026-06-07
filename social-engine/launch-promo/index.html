@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>The Watch Alley — Launch Teaser</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Geist is a variable font — one file covers the 300-600 range we use.
+         Playfair Display is auto-resolved/embedded by the HyperFrames compiler. */
+      @font-face {
+        font-family: "Geist";
+        src: url("fonts/geist.woff2") format("woff2");
+        font-weight: 300 600;
+        font-style: normal;
+        font-display: block;
+      }
+      @font-face {
+        font-family: "Geist Mono";
+        src: url("fonts/geist-mono.woff2") format("woff2");
+        font-weight: 400 500;
+        font-style: normal;
+        font-display: block;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #13110f;
+        font-family: "Geist", system-ui, sans-serif;
+        color: #ece4d3;
+      }
+
+      /* ---- Scene scaffolding ------------------------------------------- */
+      .scene {
+        position: absolute;
+        top: 0; left: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #13110f;
+      }
+      #scene1 { z-index: 1; }
+      #scene2 { z-index: 2; opacity: 0; }
+      #scene3 { z-index: 3; opacity: 0; }
+      #scene4 { z-index: 4; opacity: 0; }
+      #scene5 { z-index: 5; opacity: 0; }
+      #scene-web { z-index: 6; opacity: 0; }
+      #scene6 { z-index: 7; opacity: 0; }
+
+      /* ---- Shared atelier texture -------------------------------------- */
+      .bench-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(201,162,75,0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(201,162,75,0.055) 1px, transparent 1px);
+        background-size: 64px 64px;
+        background-position: center;
+        pointer-events: none;
+      }
+      .glow {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 60% 55% at 50% 46%, rgba(201,162,75,0.16), rgba(201,162,75,0) 62%);
+        pointer-events: none;
+      }
+      .vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(19,17,15,0) 52%, rgba(8,7,6,0.72) 100%);
+        pointer-events: none;
+      }
+
+      /* ---- Typography utility ------------------------------------------ */
+      .mono {
+        font-family: "Geist Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.32em;
+        color: #c9a24b;
+      }
+      .serif { font-family: "Playfair Display", serif; }
+      .rule { background: #c9a24b; height: 2px; transform-origin: left center; }
+
+      /* ================= SCENE 1 — COLD OPEN ============================ */
+      #s1-wrap {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 38px;
+      }
+      #s1-corner {
+        position: absolute; top: 64px; left: 80px;
+        font-size: 20px; letter-spacing: 0.42em;
+      }
+      #s1-corner-r {
+        position: absolute; top: 64px; right: 80px;
+        font-size: 20px; letter-spacing: 0.42em; color: rgba(236,228,211,0.45);
+      }
+      #s1-rulewrap { position: relative; width: 760px; height: 2px; }
+      #s1-rule { position: absolute; inset: 0; }
+      .tick {
+        position: absolute; top: -7px; width: 2px; height: 16px;
+        background: #c9a24b;
+      }
+      #s1-tick-l { left: 0; }
+      #s1-tick-r { right: 0; }
+      #s1-eyebrow { font-size: 30px; letter-spacing: 0.5em; }
+      #s1-sub {
+        font-family: "Playfair Display", serif;
+        font-style: italic; font-size: 30px; color: rgba(236,228,211,0.6);
+      }
+
+      /* ================= SCENE 2 — LOGO BUILD ========================== */
+      #s2-stage {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+      }
+      #s2-logo { width: 1180px; height: auto; overflow: visible; }
+      #s2-hinge {
+        position: absolute; width: 60px; height: 60px; border-radius: 50%;
+        background: #d8b06a; filter: blur(16px); opacity: 0;
+        left: 50%; top: 41%; transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      /* ================= SCENE 3 — TAGLINE ============================= */
+      #s3-wrap {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: 0 160px; gap: 30px;
+      }
+      #s3-eyebrow { font-size: 24px; letter-spacing: 0.46em; }
+      #s3-title {
+        font-family: "Playfair Display", serif;
+        font-weight: 400; font-size: 132px; line-height: 0.98; color: #ece4d3;
+        letter-spacing: -0.01em;
+      }
+      #s3-title .l1 { font-style: italic; display: block; }
+      #s3-title .l2 { display: block; color: rgba(236,228,211,0.62); font-weight: 600; }
+      #s3-title .l2 em { font-style: normal; color: #d8b06a; }
+      #s3-rule { width: 360px; height: 2px; }
+
+      /* ================= SCENE 4 — COLLECTION ========================== */
+      #s4-ghost {
+        position: absolute; left: -40px; bottom: -86px;
+        font-family: "Playfair Display", serif; font-weight: 400;
+        font-size: 460px; line-height: 0.8; letter-spacing: -0.02em;
+        user-select: none; white-space: nowrap;
+        background: linear-gradient(180deg, rgba(201,162,75,0.16), rgba(201,162,75,0.015));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+      }
+      #s4-head {
+        position: absolute; top: 70px; left: 80px;
+        display: flex; align-items: baseline; gap: 26px;
+      }
+      #s4-head .k { font-size: 24px; letter-spacing: 0.4em; }
+      #s4-head .v { font-size: 18px; letter-spacing: 0.34em; color: rgba(236,228,211,0.5); }
+      #s4-row {
+        position: absolute; left: 80px; right: 80px; bottom: 120px; top: 210px;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px;
+      }
+      .card { position: relative; display: flex; flex-direction: column; }
+      .card-img {
+        position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+        background: #1c1814; border: 1px solid rgba(201,162,75,0.16);
+      }
+      .card-img img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+      }
+      .card-num {
+        position: absolute; top: 14px; left: 16px;
+        font-family: "Geist Mono", monospace; font-size: 18px;
+        letter-spacing: 0.2em; color: rgba(236,228,211,0.7);
+      }
+      .card-brand {
+        margin-top: 22px; font-family: "Geist Mono", monospace;
+        font-size: 15px; letter-spacing: 0.3em; text-transform: uppercase;
+        color: #c9a24b;
+      }
+      .card-name {
+        margin-top: 9px; font-family: "Playfair Display", serif;
+        font-size: 30px; line-height: 1.12; color: #ece4d3;
+      }
+      .card-meta {
+        margin-top: 14px; display: flex; align-items: center; justify-content: space-between;
+        border-top: 1px solid rgba(201,162,75,0.22); padding-top: 12px;
+      }
+      .card-ref { font-family: "Geist Mono", monospace; font-size: 15px; letter-spacing: 0.16em; color: rgba(236,228,211,0.55); }
+      .card-price {
+        font-family: "Playfair Display", serif; font-style: italic;
+        font-size: 24px; color: #d8b06a; font-variant-numeric: tabular-nums;
+      }
+
+      /* ================= SCENE 5 — TRUST =============================== */
+      #s5-bg { position: absolute; inset: 0; overflow: hidden; }
+      #s5-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      #s5-scrim {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(ellipse 70% 70% at 64% 50%, rgba(19,17,15,0.32), rgba(10,9,8,0.9) 100%),
+          linear-gradient(90deg, rgba(10,9,8,0.92) 18%, rgba(10,9,8,0.42) 70%);
+      }
+      #s5-wrap {
+        position: absolute; top: 0; bottom: 0; left: 80px; width: 920px;
+        display: flex; flex-direction: column; justify-content: center; gap: 40px;
+      }
+      #s5-eyebrow { font-size: 22px; letter-spacing: 0.44em; }
+      #s5-title {
+        font-family: "Playfair Display", serif; font-weight: 400;
+        font-size: 84px; line-height: 1.04; color: #ece4d3;
+      }
+      #s5-title em { font-style: italic; color: #d8b06a; }
+      #s5-ledger { display: flex; flex-direction: column; gap: 26px; margin-top: 6px; }
+      .trust-row { position: relative; display: flex; align-items: center; gap: 22px; }
+      .trust-rule { width: 56px; height: 2px; }
+      .trust-label { font-family: "Geist Mono", monospace; font-size: 26px; letter-spacing: 0.28em; text-transform: uppercase; color: #ece4d3; }
+
+      /* ================= SCENE 6 — ENDCARD ============================= */
+      #s6-wrap {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 30px;
+      }
+      #s6-seal { position: relative; width: 230px; height: 230px; }
+      #s6-seal svg { width: 100%; height: 100%; display: block; }
+      #s6-hand {
+        position: absolute; left: 50%; top: 50%; width: 2px; height: 92px;
+        background: linear-gradient(180deg, #d8b06a, rgba(216,176,106,0));
+        transform-origin: 50% 100%; transform: translate(-50%, -100%) rotate(0deg);
+      }
+      #s6-wordmark {
+        font-family: "Playfair Display", serif; font-weight: 500;
+        font-size: 76px; letter-spacing: 0.01em; color: #ece4d3; margin-top: 8px;
+      }
+      #s6-domain { font-size: 22px; letter-spacing: 0.46em; }
+      #s6-cta {
+        margin-top: 18px; background: #c9a24b; color: #13110f;
+        font-family: "Geist Mono", monospace; font-size: 20px; font-weight: 500;
+        letter-spacing: 0.26em; text-transform: uppercase; padding: 22px 46px;
+      }
+      #s6-footer {
+        position: absolute; bottom: 56px; left: 0; right: 0; text-align: center;
+        font-family: "Geist Mono", monospace; font-size: 16px; letter-spacing: 0.4em;
+        text-transform: uppercase; color: rgba(236,228,211,0.4);
+      }
+
+      /* ============ SCENE WEB — LIVE SITE REVEAL (glass 3D) =========== */
+      #web-wrap {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 34px;
+        perspective: 1700px;            /* z-axis depth for the glass panel */
+      }
+      #web-card {
+        position: relative;
+        width: 1500px; padding: 16px; border-radius: 12px;
+        transform-style: preserve-3d;
+        background: linear-gradient(135deg, rgba(40,34,28,0.62), rgba(20,18,15,0.5));
+        backdrop-filter: blur(16px) saturate(130%);
+        -webkit-backdrop-filter: blur(16px) saturate(130%);
+        border: 1px solid rgba(236,228,211,0.18);
+        box-shadow:
+          0 70px 170px rgba(0,0,0,0.66),
+          0 10px 34px rgba(0,0,0,0.5),
+          inset 0 1px 0 rgba(236,228,211,0.22),
+          inset 0 0 0 1px rgba(201,162,75,0.10);
+      }
+      .browser-bar {
+        height: 50px; display: flex; align-items: center; gap: 10px;
+        padding: 0 18px; margin-bottom: 12px;
+        background: rgba(36,30,25,0.55);
+        border: 1px solid rgba(201,162,75,0.16);
+        border-radius: 6px;
+      }
+      .browser-dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(236,228,211,0.22); }
+      .browser-url {
+        margin: 0 auto; font-family: "Geist Mono", monospace;
+        font-size: 15px; letter-spacing: 0.18em; color: rgba(236,228,211,0.78);
+        background: rgba(19,17,15,0.6); padding: 7px 28px; border-radius: 4px;
+      }
+      .web-screen {
+        position: relative; border-radius: 6px; overflow: hidden;
+        border: 1px solid rgba(201,162,75,0.22); background: #1c1814;
+      }
+      .web-screen video { display: block; width: 100%; height: auto; }
+      .web-glass-sheen {
+        position: absolute; inset: 0; border-radius: 12px;
+        background: linear-gradient(108deg,
+          rgba(236,228,211,0) 38%,
+          rgba(236,228,211,0.10) 47%,
+          rgba(236,228,211,0.20) 50%,
+          rgba(236,228,211,0.10) 53%,
+          rgba(236,228,211,0) 62%);
+        pointer-events: none; mix-blend-mode: screen; opacity: 0;
+      }
+      #web-caption {
+        font-family: "Geist Mono", monospace; text-transform: uppercase;
+        letter-spacing: 0.34em; font-size: 18px; color: #c9a24b;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="31.5"
+    >
+      <!-- ===================== SCENE 1 — COLD OPEN ==================== -->
+      <div id="scene1" class="scene">
+        <div class="bench-grid" id="s1-grid" data-layout-allow-overflow></div>
+        <div class="glow" id="s1-glow"></div>
+        <div class="vignette"></div>
+        <div id="s1-corner" class="mono">Est. 2022</div>
+        <div id="s1-corner-r" class="mono">Manila, PH</div>
+        <div id="s1-wrap">
+          <div id="s1-rulewrap">
+            <div id="s1-rule" class="rule"></div>
+            <div id="s1-tick-l" class="tick"></div>
+            <div id="s1-tick-r" class="tick"></div>
+          </div>
+          <div id="s1-eyebrow" class="mono">The Watch Alley</div>
+          <div id="s1-sub">a quiet room for considered time</div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 2 — LOGO BUILD =================== -->
+      <div id="scene2" class="scene">
+        <div class="bench-grid"></div>
+        <div class="glow"></div>
+        <div class="vignette"></div>
+        <div id="s2-stage">
+          <svg id="s2-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 365">
+            <g id="twa-the" fill="#c9a24b">
+              <path id="the-t" d="M 11.839844 3.554688 L 2.25 3.554688 L 2.25 0 L 25.269531 0 L 25.269531 3.554688 L 15.679688 3.554688 L 15.679688 35.09375 L 11.839844 35.09375 Z M 11.839844 3.554688 " />
+              <path id="the-h" d="M 62.890625 0 L 62.890625 35.09375 L 59.054688 35.09375 L 59.054688 18.15625 L 36.40625 18.15625 L 36.40625 35.09375 L 32.570312 35.09375 L 32.570312 0 L 36.40625 0 L 36.40625 14.597656 L 59.054688 14.597656 L 59.054688 0 Z M 62.890625 0 " />
+              <path id="the-e" d="M 95.878906 31.535156 L 95.878906 35.09375 L 73.464844 35.09375 L 73.464844 0 L 95.316406 0 L 95.316406 3.554688 L 77.117188 3.554688 L 77.117188 14.550781 L 94.335938 14.550781 L 94.335938 18.058594 L 77.117188 18.058594 L 77.117188 31.535156 Z M 95.878906 31.535156 " />
+            </g>
+            <g id="twa-watch-w" fill="#ece4d3">
+              <path id="watch-w" d="M 126.226562 47.417969 L 101.164062 104.085938 L 77.527344 54.339844 L 72.957031 54.339844 L 49.589844 103.695312 L 24.65625 47.417969 L 0.242188 47.417969 L 46.972656 147.042969 L 49.980469 147.042969 L 75.183594 93.378906 L 100.375 147.042969 L 103.378906 147.042969 L 149.992188 47.417969 Z M 126.226562 47.417969 " />
+            </g>
+            <g id="twa-watch-tch" fill="#ece4d3">
+              <path id="watch-t" d="M 229.496094 47.417969 L 229.496094 67.269531 L 251.292969 67.269531 L 251.292969 117.15625 C 259.230469 121.398438 269.308594 136.628906 271.992188 145.34375 L 274.140625 145.34375 L 274.140625 67.269531 L 295.816406 67.269531 L 295.816406 47.417969 Z M 229.496094 47.417969 " />
+              <path id="watch-c" d="M 357.179688 67.007812 C 363.839844 67.007812 369.320312 68.175781 374.152344 70.664062 L 374.152344 49.375 C 369.320312 47.027344 362.011719 45.980469 355.871094 45.980469 C 326.363281 45.980469 304.296875 67.660156 304.296875 96.644531 C 304.296875 125.625 326.363281 147.300781 355.738281 147.300781 C 361.882812 147.300781 369.320312 146.382812 374.152344 143.777344 L 374.152344 122.757812 C 369.320312 125.105469 363.839844 126.152344 357.179688 126.152344 C 339.941406 126.152344 327.152344 114.011719 327.152344 96.644531 C 327.152344 79.140625 339.941406 67.007812 357.179688 67.007812 " />
+              <path id="watch-h" d="M 463.453125 47.417969 L 463.453125 83.84375 L 419.445312 83.84375 L 419.445312 47.417969 L 396.601562 47.417969 L 396.601562 145.34375 L 419.445312 145.34375 L 419.445312 104.605469 L 463.453125 104.605469 L 463.453125 145.34375 L 486.296875 145.34375 L 486.296875 47.417969 Z M 463.453125 47.417969 " />
+            </g>
+            <g id="twa-compass" fill="#c9a24b">
+              <path id="compass-left-leg" d="M 191.316406 46.957031 C 184.949219 50.867188 176.585938 48.863281 172.675781 42.492188 C 168.765625 36.125 170.769531 27.761719 177.140625 23.851562 C 183.511719 19.941406 191.871094 21.945312 195.78125 28.316406 C 199.679688 34.683594 197.6875 43.046875 191.316406 46.957031 M 156.742188 177.445312 C 151.984375 177.457031 141.273438 176.902344 134.214844 172.058594 L 165.371094 70.074219 C 171.273438 68.796875 178.320312 72.902344 181.285156 74.882812 Z M 128.140625 296.972656 C 123.113281 299.347656 113.878906 305.222656 105.722656 318.625 C 105.761719 308.199219 104.003906 297.378906 98.742188 288.179688 L 130.957031 182.753906 C 135.433594 183.738281 149.511719 186.960938 153.839844 189.554688 Z M 208.542969 20.472656 C 200.304688 7.042969 182.722656 2.839844 169.296875 11.078125 C 155.867188 19.328125 151.664062 36.898438 159.902344 50.339844 C 160.957031 52.046875 162.164062 53.621094 163.492188 55.023438 L 91.992188 289.066406 C 92.261719 289.472656 92.53125 289.878906 92.777344 290.296875 C 108.332031 315.625 92.136719 357.800781 92.136719 357.800781 L 98.152344 359.941406 C 106.265625 308.691406 133.429688 301.523438 133.429688 301.523438 L 190.433594 63.261719 C 193.433594 62.597656 196.382812 61.429688 199.164062 59.71875 C 212.589844 51.484375 216.796875 33.910156 208.542969 20.472656 " />
+              <path id="compass-right-leg" d="M 244.535156 160.117188 C 236.46875 150.699219 233.835938 139.386719 236.691406 126.4375 C 241.289062 128.125 250.535156 132.625 255.578125 142.84375 C 259.328125 150.429688 260.066406 159.785156 257.8125 170.742188 C 255.058594 169.253906 249.402344 165.808594 244.535156 160.117188 M 254.925781 181.179688 C 253.472656 184.105469 253.152344 188.054688 253.992188 193.28125 C 250.167969 188.730469 245.371094 184.378906 239.566406 181.402344 C 241.191406 174.847656 241.460938 168.996094 240.832031 163.820312 C 247.019531 170.914062 254.078125 174.75 256.546875 175.957031 C 256.070312 177.664062 255.539062 179.410156 254.925781 181.179688 M 234.734375 179.152344 C 224.566406 174.039062 217.976562 167.101562 215.109375 158.542969 C 211.730469 148.398438 214.507812 138.527344 215.714844 135.550781 C 218.738281 137.371094 223.015625 140.417969 226.851562 144.847656 C 235.117188 154.375 237.773438 165.910156 234.734375 179.152344 M 205.101562 104.257812 L 219.648438 97.285156 L 230.921875 122.761719 L 231.746094 124.691406 C 230.320312 130.851562 230.097656 136.386719 230.6875 141.292969 L 230.652344 141.253906 C 225.328125 135.179688 219.363281 131.492188 216.15625 129.796875 Z M 190.148438 69.71875 L 204.621094 63.285156 L 217.542969 92.503906 L 203.023438 99.460938 Z M 178.75 52.21875 C 169.503906 49.132812 164.476562 39.113281 167.550781 29.851562 C 170.625 20.59375 180.65625 15.566406 189.917969 18.640625 C 199.164062 21.714844 204.203125 31.746094 201.117188 41.003906 C 198.042969 50.265625 188.011719 55.292969 178.75 52.21875 M 259.734375 183.257812 C 275.71875 137.0625 245.199219 123.746094 237.425781 121.164062 C 236.332031 120.808594 235.695312 120.648438 235.695312 120.648438 L 205.816406 53.066406 C 207.941406 50.484375 209.652344 47.472656 210.769531 44.09375 C 215.625 29.484375 207.722656 13.707031 193.101562 8.851562 C 178.492188 3.996094 162.71875 11.902344 157.859375 26.519531 C 153.003906 41.128906 160.910156 56.90625 175.53125 61.761719 C 177.535156 62.425781 179.5625 62.855469 181.566406 63.050781 L 211.519531 132.230469 C 209.824219 135.023438 197.734375 167.753906 234.355469 184.769531 C 252.488281 191.878906 261.035156 215.402344 261.035156 215.402344 L 265.734375 213.1875 C 265.734375 213.1875 255.636719 190.527344 259.734375 183.257812 " />
+            </g>
+            <g id="twa-lley" fill="#c9a24b">
+              <path id="lley-l1" d="M 318.738281 216.417969 L 318.738281 222.9375 L 286.738281 222.9375 L 286.738281 158.59375 L 293.773438 158.59375 L 293.773438 216.417969 Z M 318.738281 216.417969 " />
+              <path id="lley-l2" d="M 365.328125 216.417969 L 365.328125 222.9375 L 333.328125 222.9375 L 333.328125 158.59375 L 340.363281 158.59375 L 340.363281 216.417969 Z M 365.328125 216.417969 " />
+              <path id="lley-e" d="M 421.007812 216.417969 L 421.007812 222.9375 L 379.914062 222.9375 L 379.914062 158.59375 L 419.976562 158.59375 L 419.976562 165.113281 L 386.605469 165.113281 L 386.605469 185.273438 L 418.175781 185.273438 L 418.175781 191.707031 L 386.605469 191.707031 L 386.605469 216.417969 Z M 421.007812 216.417969 " />
+              <path id="lley-y" d="M 461.417969 203.804688 L 461.417969 222.9375 L 454.296875 222.9375 L 454.296875 203.804688 L 429.503906 158.59375 L 437.226562 158.59375 L 457.902344 196.683594 L 478.664062 158.59375 L 486.296875 158.59375 Z M 461.417969 203.804688 " />
+            </g>
+          </svg>
+          <div id="s2-hinge"></div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 3 — TAGLINE ====================== -->
+      <div id="scene3" class="scene">
+        <div class="glow" style="background: radial-gradient(ellipse 55% 60% at 30% 50%, rgba(201,162,75,0.13), rgba(201,162,75,0) 60%);"></div>
+        <div class="vignette"></div>
+        <div id="s3-wrap">
+          <div id="s3-eyebrow" class="mono">Curated for the Philippines</div>
+          <div id="s3-title">
+            <span class="l1">Curated timepieces,</span>
+            <span class="l2">destined for <em>your wrist.</em></span>
+          </div>
+          <div id="s3-rule" class="rule"></div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 4 — COLLECTION =================== -->
+      <div id="scene4" class="scene">
+        <div class="vignette"></div>
+        <div id="s4-ghost" class="serif" data-layout-allow-overflow>COLLECTION</div>
+        <div id="s4-head">
+          <span class="k mono">The Collection</span>
+          <span class="v mono">Available now · 04 pieces</span>
+        </div>
+        <div id="s4-row">
+          <div class="card" id="card-1">
+            <div class="card-img"><img src="assets/watches/grand-seiko.webp" alt="Grand Seiko SBGX261" /><span class="card-num">01</span></div>
+            <div class="card-brand">Grand Seiko</div>
+            <div class="card-name">SBGX261<br />Heritage Quartz</div>
+            <div class="card-meta"><span class="card-ref">Ref. 9F61</span><span class="card-price">PHP 68,500</span></div>
+          </div>
+          <div class="card" id="card-2">
+            <div class="card-img"><img src="assets/watches/tudor.webp" alt="Tudor Black Bay 58" /><span class="card-num">02</span></div>
+            <div class="card-brand">Tudor</div>
+            <div class="card-name">Black Bay 58<br />Gilt</div>
+            <div class="card-meta"><span class="card-ref">Ref. 79030N</span><span class="card-price">PHP 145,000</span></div>
+          </div>
+          <div class="card" id="card-3">
+            <div class="card-img"><img src="assets/watches/seiko-spb143.webp" alt="Seiko Prospex SPB143" /><span class="card-num">03</span></div>
+            <div class="card-brand">Seiko Prospex</div>
+            <div class="card-name">SPB143<br />62MAS Reissue</div>
+            <div class="card-meta"><span class="card-ref">Ref. SPB143</span><span class="card-price">PHP 42,000</span></div>
+          </div>
+          <div class="card" id="card-4">
+            <div class="card-img"><img src="assets/watches/seiko-5.webp" alt="Seiko 5 Sports SRPD55" /><span class="card-num">04</span></div>
+            <div class="card-brand">Seiko 5 Sports</div>
+            <div class="card-name">SRPD55<br />5KX Series</div>
+            <div class="card-meta"><span class="card-ref">Ref. SRPD55</span><span class="card-price">PHP 9,500</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 5 — TRUST ======================== -->
+      <div id="scene5" class="scene">
+        <div id="s5-bg" data-layout-allow-overflow><img src="assets/brand/atelier-bg.webp" alt="The Watch Alley atelier" /></div>
+        <div id="s5-scrim"></div>
+        <div id="s5-wrap">
+          <div id="s5-eyebrow" class="mono">Bought with confidence</div>
+          <div id="s5-title" class="serif">Every piece, <em>inspected</em><br />and honestly disclosed.</div>
+          <div id="s5-ledger">
+            <div class="trust-row" id="trust-1"><span class="trust-rule rule"></span><span class="trust-label">Inspected &amp; disclosed</span></div>
+            <div class="trust-row" id="trust-2"><span class="trust-rule rule"></span><span class="trust-label">Payment-first delivery</span></div>
+            <div class="trust-row" id="trust-3"><span class="trust-rule rule"></span><span class="trust-label">Replies in 4 hours</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE WEB — LIVE SITE REVEAL ========== -->
+      <div id="scene-web" class="scene">
+        <div class="glow" style="background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(201,162,75,0.12), rgba(201,162,75,0) 64%);"></div>
+        <div class="vignette"></div>
+        <div id="web-wrap">
+          <div id="web-card" data-layout-allow-overflow>
+            <div class="browser-bar">
+              <span class="browser-dot"></span>
+              <span class="browser-dot"></span>
+              <span class="browser-dot"></span>
+              <span class="browser-url">thewatchalley.com</span>
+            </div>
+            <div class="web-screen">
+              <video id="site-video" class="clip" data-start="20.5" data-duration="6.3" data-track-index="7"
+                     src="assets/video/site-reveal.mp4" muted playsinline></video>
+            </div>
+            <div class="web-glass-sheen"></div>
+          </div>
+          <div id="web-caption">Explore the full collection</div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 6 — ENDCARD ====================== -->
+      <div id="scene6" class="scene">
+        <div class="glow"></div>
+        <div class="vignette"></div>
+        <div id="s6-wrap">
+          <div id="s6-seal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <circle cx="256" cy="256" r="240" fill="#13110f" stroke="#c9a24b" stroke-width="6" />
+              <circle cx="256" cy="256" r="216" fill="none" stroke="#c9a24b" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.5" />
+              <g fill="#c9a24b" transform="translate(55.68, 52.84) scale(1.12)">
+                <path d="M 191.316406 46.957031 C 184.949219 50.867188 176.585938 48.863281 172.675781 42.492188 C 168.765625 36.125 170.769531 27.761719 177.140625 23.851562 C 183.511719 19.941406 191.871094 21.945312 195.78125 28.316406 C 199.679688 34.683594 197.6875 43.046875 191.316406 46.957031 M 156.742188 177.445312 C 151.984375 177.457031 141.273438 176.902344 134.214844 172.058594 L 165.371094 70.074219 C 171.273438 68.796875 178.320312 72.902344 181.285156 74.882812 Z M 128.140625 296.972656 C 123.113281 299.347656 113.878906 305.222656 105.722656 318.625 C 105.761719 308.199219 104.003906 297.378906 98.742188 288.179688 L 130.957031 182.753906 C 135.433594 183.738281 149.511719 186.960938 153.839844 189.554688 Z M 208.542969 20.472656 C 200.304688 7.042969 182.722656 2.839844 169.296875 11.078125 C 155.867188 19.328125 151.664062 36.898438 159.902344 50.339844 C 160.957031 52.046875 162.164062 53.621094 163.492188 55.023438 L 91.992188 289.066406 C 92.261719 289.472656 92.53125 289.878906 92.777344 290.296875 C 108.332031 315.625 92.136719 357.800781 92.136719 357.800781 L 98.152344 359.941406 C 106.265625 308.691406 133.429688 301.523438 133.429688 301.523438 L 190.433594 63.261719 C 193.433594 62.597656 196.382812 61.429688 199.164062 59.71875 C 212.589844 51.484375 216.796875 33.910156 208.542969 20.472656 " />
+                <path d="M 244.535156 160.117188 C 236.46875 150.699219 233.835938 139.386719 236.691406 126.4375 C 241.289062 128.125 250.535156 132.625 255.578125 142.84375 C 259.328125 150.429688 260.066406 159.785156 257.8125 170.742188 C 255.058594 169.253906 249.402344 165.808594 244.535156 160.117188 M 254.925781 181.179688 C 253.472656 184.105469 253.152344 188.054688 253.992188 193.28125 C 250.167969 188.730469 245.371094 184.378906 239.566406 181.402344 C 241.191406 174.847656 241.460938 168.996094 240.832031 163.820312 C 247.019531 170.914062 254.078125 174.75 256.546875 175.957031 C 256.070312 177.664062 255.539062 179.410156 254.925781 181.179688 M 234.734375 179.152344 C 224.566406 174.039062 217.976562 167.101562 215.109375 158.542969 C 211.730469 148.398438 214.507812 138.527344 215.714844 135.550781 C 218.738281 137.371094 223.015625 140.417969 226.851562 144.847656 C 235.117188 154.375 237.773438 165.910156 234.734375 179.152344 M 205.101562 104.257812 L 219.648438 97.285156 L 230.921875 122.761719 L 231.746094 124.691406 C 230.320312 130.851562 230.097656 136.386719 230.6875 141.292969 L 230.652344 141.253906 C 225.328125 135.179688 219.363281 131.492188 216.15625 129.796875 Z M 190.148438 69.71875 L 204.621094 63.285156 L 217.542969 92.503906 L 203.023438 99.460938 Z M 178.75 52.21875 C 169.503906 49.132812 164.476562 39.113281 167.550781 29.851562 C 170.625 20.59375 180.65625 15.566406 189.917969 18.640625 C 199.164062 21.714844 204.203125 31.746094 201.117188 41.003906 C 198.042969 50.265625 188.011719 55.292969 178.75 52.21875 M 259.734375 183.257812 C 275.71875 137.0625 245.199219 123.746094 237.425781 121.164062 C 236.332031 120.808594 235.695312 120.648438 235.695312 120.648438 L 205.816406 53.066406 C 207.941406 50.484375 209.652344 47.472656 210.769531 44.09375 C 215.625 29.484375 207.722656 13.707031 193.101562 8.851562 C 178.492188 3.996094 162.71875 11.902344 157.859375 26.519531 C 153.003906 41.128906 160.910156 56.90625 175.53125 61.761719 C 177.535156 62.425781 179.5625 62.855469 181.566406 63.050781 L 211.519531 132.230469 C 209.824219 135.023438 197.734375 167.753906 234.355469 184.769531 C 252.488281 191.878906 261.035156 215.402344 261.035156 215.402344 L 265.734375 213.1875 C 265.734375 213.1875 255.636719 190.527344 259.734375 183.257812 " />
+              </g>
+            </svg>
+            <div id="s6-hand"></div>
+          </div>
+          <div id="s6-wordmark" class="serif">The Watch Alley</div>
+          <div id="s6-domain" class="mono">thewatchalley.com</div>
+          <div id="s6-cta">Explore the Collection</div>
+        </div>
+        <div id="s6-footer">Manila · Est. 2022 · Curated Timepieces</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* =================== SCENE 1 — COLD OPEN (0 -> 3.0) ============= */
+      tl.fromTo("#s1-grid", { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.2);
+      tl.fromTo("#s1-glow", { opacity: 0.2, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.6, ease: "sine.out", transformOrigin: "50% 46%" }, 0.2);
+      tl.fromTo("#s1-corner", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.5);
+      tl.fromTo("#s1-corner-r", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.6);
+      tl.fromTo("#s1-rule", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "power3.inOut" }, 0.5);
+      tl.fromTo("#s1-tick-l", { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.4, ease: "power2.out" }, 1.35);
+      tl.fromTo("#s1-tick-r", { opacity: 0, scaleY: 0 }, { opacity: 1, scaleY: 1, duration: 0.4, ease: "power2.out" }, 1.45);
+      tl.fromTo("#s1-eyebrow", { opacity: 0, y: 16, letterSpacing: "0.7em" }, { opacity: 1, y: 0, letterSpacing: "0.5em", duration: 0.9, ease: "power2.out" }, 1.2);
+      tl.fromTo("#s1-sub", { opacity: 0, y: 14 }, { opacity: 0.6, y: 0, duration: 0.9, ease: "power2.out" }, 1.55);
+      // ambient: the bench grid drifts almost imperceptibly
+      tl.fromTo("#s1-grid", { scale: 1, transformOrigin: "50% 50%" }, { scale: 1.03, duration: 2.6, ease: "sine.inOut" }, 0.4);
+
+      /* Transition 1 -> 2 : focus pull (calm) @ 2.5 */
+      tl.to("#scene1", { filter: "blur(26px)", scale: 1.04, duration: 0.7, ease: "power1.in", transformOrigin: "50% 50%" }, 2.5);
+      tl.to("#scene1", { opacity: 0, duration: 0.4, ease: "power1.in" }, 2.8);
+      tl.set("#scene1", { visibility: "hidden" }, 3.25);
+      tl.fromTo("#scene2", { opacity: 0, filter: "blur(18px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "power1.out" }, 2.7);
+
+      /* =================== SCENE 2 — LOGO BUILD · CLOCKWORK 2H (2.9 -> 6.2)
+         The compass legs act as watch hands: the long left leg (minute hand)
+         sweeps two full CLOCKWISE revolutions, the short right leg (hour hand)
+         advances two hours. Wordmarks reveal with a left-to-right windshield
+         wipe as the hand passes. Ported from docs/brand/logo-animator.html. */
+      const HINGE = "184.3 35.4";
+      // wordmark groups start hidden behind a left-edge wipe
+      tl.set(["#twa-the", "#twa-watch-w", "#twa-watch-tch", "#twa-lley"], { clipPath: "inset(0 100% 0 0)", opacity: 1 }, 2.9);
+      // minute hand: two clockwise revolutions into place
+      tl.fromTo("#compass-left-leg",
+        { rotate: -720, opacity: 0, scale: 0.95, svgOrigin: HINGE },
+        { rotate: 0, opacity: 1, scale: 1, svgOrigin: HINGE, duration: 1.9, ease: "power3.inOut" }, 2.95);
+      // hour hand: two-hour clockwise advance
+      tl.fromTo("#compass-right-leg",
+        { rotate: -60, opacity: 0, scale: 0.95, svgOrigin: HINGE },
+        { rotate: 0, opacity: 1, scale: 1, svgOrigin: HINGE, duration: 1.9, ease: "power3.inOut" }, 2.95);
+      // windshield-wipe reveals, sequenced to the sweep
+      tl.fromTo("#twa-the", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" }, 3.7);
+      tl.fromTo("#twa-watch-w", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" }, 3.85);
+      tl.fromTo("#twa-watch-tch", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" }, 4.25);
+      tl.fromTo("#twa-lley", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.6, ease: "power2.out" }, 4.4);
+      // hinge lock glow as the hands settle
+      tl.fromTo("#s2-hinge", { opacity: 0, scale: 0.2 }, { opacity: 0.7, scale: 1.6, duration: 0.4, ease: "power2.out" }, 4.75);
+      tl.to("#s2-hinge", { opacity: 0, scale: 2.2, duration: 0.7, ease: "power2.in" }, 5.15);
+      // settle breathe
+      tl.fromTo("#s2-logo", { scale: 0.985, transformOrigin: "50% 50%" }, { scale: 1, duration: 1.3, ease: "sine.out" }, 4.95);
+
+      /* Transition 2 -> 3 : blur crossfade (calm) @ 6.2 */
+      tl.to("#scene2", { filter: "blur(24px)", scale: 1.04, duration: 0.7, ease: "power1.in" }, 6.2);
+      tl.to("#scene2", { opacity: 0, duration: 0.4, ease: "power1.in" }, 6.5);
+      tl.set("#scene2", { visibility: "hidden" }, 6.95);
+      tl.fromTo("#scene3", { opacity: 0, filter: "blur(20px)", scale: 0.97 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.7, ease: "power1.out" }, 6.4);
+
+      /* =================== SCENE 3 — TAGLINE (6.7 -> 9.2) =========== */
+      tl.fromTo("#s3-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 6.7);
+      tl.fromTo("#s3-title .l1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 6.9);
+      tl.fromTo("#s3-title .l2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 7.2);
+      tl.fromTo("#s3-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power3.inOut" }, 7.6);
+
+      /* Transition 3 -> 4 : blur crossfade @ 9.2 */
+      tl.to("#scene3", { filter: "blur(22px)", scale: 1.03, duration: 0.7, ease: "power1.in" }, 9.2);
+      tl.to("#scene3", { opacity: 0, duration: 0.4, ease: "power1.in" }, 9.5);
+      tl.set("#scene3", { visibility: "hidden" }, 9.95);
+      tl.fromTo("#scene4", { opacity: 0, filter: "blur(18px)", scale: 0.98 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.7, ease: "power1.out" }, 9.4);
+
+      /* =================== SCENE 4 — COLLECTION (9.7 -> 16.9) ======= */
+      tl.fromTo("#s4-ghost", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 1.6, ease: "power2.out" }, 9.7);
+      tl.fromTo("#s4-head .k", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 9.9);
+      tl.fromTo("#s4-head .v", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 10.05);
+      const cards = ["#card-1", "#card-2", "#card-3", "#card-4"];
+      cards.forEach((c, i) => {
+        const t = 10.2 + i * 0.18;
+        tl.fromTo(c, { opacity: 0, y: 64 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, t);
+        tl.fromTo(c + " img",
+          { filter: "grayscale(1) brightness(0.55)", scale: 1.08 },
+          { filter: "grayscale(0) brightness(1)", scale: 1, duration: 1.5, ease: "power2.out" }, t + 0.15);
+        tl.fromTo(c + " .card-brand", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, t + 0.35);
+        tl.fromTo(c + " .card-name", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, t + 0.45);
+        tl.fromTo(c + " .card-meta", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, t + 0.6);
+      });
+      tl.to("#s4-ghost", { x: 26, duration: 4.0, ease: "sine.inOut" }, 12.4);
+
+      /* Transition 4 -> 5 : blur crossfade @ 16.9 */
+      tl.to("#scene4", { filter: "blur(22px)", scale: 1.03, duration: 0.7, ease: "power1.in" }, 16.9);
+      tl.to("#scene4", { opacity: 0, duration: 0.4, ease: "power1.in" }, 17.2);
+      tl.set("#scene4", { visibility: "hidden" }, 17.65);
+      tl.fromTo("#scene5", { opacity: 0, filter: "blur(20px)", scale: 0.98 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.7, ease: "power1.out" }, 17.1);
+
+      /* =================== SCENE 5 — TRUST (17.4 -> 20.3) =========== */
+      tl.fromTo("#s5-bg img", { scale: 1.16, filter: "brightness(0.8)" }, { scale: 1.05, filter: "brightness(1)", duration: 3.6, ease: "sine.out" }, 17.2);
+      tl.fromTo("#s5-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out" }, 17.4);
+      tl.fromTo("#s5-title", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 17.6);
+      const trust = ["#trust-1", "#trust-2", "#trust-3"];
+      trust.forEach((r, i) => {
+        const t = 18.0 + i * 0.32;
+        tl.fromTo(r + " .trust-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, t);
+        tl.fromTo(r + " .trust-label", { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }, t + 0.18);
+      });
+
+      /* Transition 5 -> WEB : blur crossfade @ 20.25 */
+      tl.to("#scene5", { filter: "blur(20px)", scale: 1.03, duration: 0.6, ease: "power1.in" }, 20.25);
+      tl.to("#scene5", { opacity: 0, duration: 0.4, ease: "power1.in" }, 20.55);
+      tl.set("#scene5", { visibility: "hidden" }, 21.0);
+      tl.fromTo("#scene-web", { opacity: 0, filter: "blur(18px)", scale: 0.98 }, { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.7, ease: "power1.out" }, 20.5);
+
+      /* =================== SCENE WEB — LIVE SITE · GLASS 3D (20.5 -> 26.4)
+         The glass panel flies in from depth on the z-axis (zoom + rotateY),
+         a sheen sweeps across as it lands, then it holds with a slow push-in
+         and a gentle parallax drift. */
+      tl.fromTo("#web-card",
+        { opacity: 0, scale: 0.6, rotationY: -24, y: 70, transformPerspective: 1700, transformOrigin: "50% 50%" },
+        { opacity: 1, scale: 1, rotationY: -8, y: 0, duration: 1.2, ease: "power3.out" }, 20.5);
+      // glass sheen sweep
+      tl.fromTo(".web-glass-sheen", { xPercent: -85, opacity: 0 }, { xPercent: 85, opacity: 1, duration: 1.7, ease: "sine.inOut" }, 21.0);
+      tl.to(".web-glass-sheen", { opacity: 0, duration: 0.6, ease: "power1.in" }, 22.7);
+      // ambient: slow zoom into the live site + gentle 3D parallax settle
+      tl.to(".web-screen", { scale: 1.06, duration: 4.7, ease: "sine.inOut", transformOrigin: "50% 38%" }, 21.8);
+      tl.to("#web-card", { rotationY: -3, duration: 4.7, ease: "sine.inOut" }, 21.8);
+      tl.fromTo(".browser-bar", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 21.2);
+      tl.fromTo("#web-caption", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 21.6);
+
+      /* Transition WEB -> 6 : blur crossfade @ 26.4 */
+      tl.to("#scene-web", { filter: "blur(22px)", scale: 1.03, duration: 0.6, ease: "power1.in" }, 26.4);
+      tl.to("#scene-web", { opacity: 0, duration: 0.4, ease: "power1.in" }, 26.7);
+      tl.set("#scene-web", { visibility: "hidden" }, 27.15);
+      tl.fromTo("#scene6", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 26.85);
+
+      /* =================== SCENE 6 — ENDCARD (27.4 -> 31.5) ========= */
+      tl.fromTo("#s6-seal", { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.9, ease: "power3.out" }, 27.4);
+      tl.fromTo("#s6-hand", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 27.6);
+      tl.fromTo("#s6-hand", { rotate: 0 }, { rotate: 360, duration: 2.6, ease: "power1.inOut", transformOrigin: "50% 100%" }, 27.6);
+      tl.fromTo("#s6-wordmark", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, 27.9);
+      tl.fromTo("#s6-domain", { opacity: 0, letterSpacing: "0.7em" }, { opacity: 1, letterSpacing: "0.46em", duration: 0.8, ease: "power2.out" }, 28.2);
+      tl.fromTo("#s6-cta", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, ease: "back.out(1.3)" }, 28.5);
+      tl.fromTo("#s6-footer", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.out" }, 28.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

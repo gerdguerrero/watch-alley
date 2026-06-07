@@ -78,9 +78,17 @@ interface WatchGalleryProps {
   badge?: string;
   soldAt?: string;
   isSold?: boolean;
+  isReserved?: boolean;
 }
 
-export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGalleryProps) {
+export function WatchGallery({
+  images,
+  alt,
+  badge,
+  soldAt,
+  isSold,
+  isReserved,
+}: WatchGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (images.length === 0) return null;
@@ -135,10 +143,19 @@ export function WatchGallery({ images, alt, badge, soldAt, isSold }: WatchGaller
         <MagnifiedImage images={thumbs} selectedIndex={selectedIndex} alt={alt} />
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-        {badge && !isSold && (
-          <span className="absolute left-4 top-4 z-20 border border-amber-500/40 bg-black/40 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-amber-400 backdrop-blur-sm">
-            {badge}
-          </span>
+        {!isSold && (isReserved || badge) && (
+          <div className="absolute left-4 top-4 z-20 flex max-w-[calc(100%-2rem)] flex-wrap gap-2">
+            {isReserved && (
+              <span className="border border-amber-400/70 bg-amber-400/90 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-950 shadow-[0_0_24px_rgba(251,191,36,0.16)]">
+                Reserved
+              </span>
+            )}
+            {badge && (
+              <span className="border border-amber-500/40 bg-black/40 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-amber-400 backdrop-blur-sm">
+                {badge}
+              </span>
+            )}
+          </div>
         )}
         {isSold && soldAt && (
           <span className="absolute left-4 top-4 z-20 border border-white/20 bg-black/50 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-zinc-300 backdrop-blur-sm">

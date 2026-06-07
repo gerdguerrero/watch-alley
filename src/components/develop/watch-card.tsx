@@ -44,6 +44,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
   };
 
   const isSold = variant === "sold" || watch.status === "sold";
+  const isReserved = watch.status === "reserved" && !isSold;
   const categoryLabel =
     formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
 
@@ -100,10 +101,19 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
             transition={{ duration: 0.5 }}
           />
 
-          {watch.badge && !isSold && (
-            <span className="absolute top-5 left-5 px-3 py-1.5 border border-amber-300/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-300">
-              {watch.badge}
-            </span>
+          {!isSold && (
+            <div className="absolute top-5 left-5 flex max-w-[calc(100%-2.5rem)] flex-wrap gap-2">
+              {isReserved && (
+                <span className="px-3 py-1.5 border border-amber-300/70 bg-amber-300/90 text-[9px] tracking-[0.25em] uppercase text-black shadow-[0_0_24px_rgba(251,191,36,0.16)]">
+                  Reserved
+                </span>
+              )}
+              {watch.badge && (
+                <span className="px-3 py-1.5 border border-amber-300/40 bg-black/40 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-amber-300">
+                  {watch.badge}
+                </span>
+              )}
+            </div>
           )}
           {isSold && (
             <span className="absolute top-5 left-5 px-3 py-1.5 border border-white/20 bg-black/50 backdrop-blur-sm text-[9px] tracking-[0.25em] uppercase text-cream-60">

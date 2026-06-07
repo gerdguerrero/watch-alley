@@ -32,7 +32,7 @@ export default async function AvailablePage({
   // "limited-edition" is a badge filter, not a category
   const isBadge = category === "limited-edition";
   const all = await fetchWatches({
-    status: "available",
+    status: "live",
     category: isBadge ? undefined : category,
     badge: isBadge ? "limited-edition" : undefined,
   });

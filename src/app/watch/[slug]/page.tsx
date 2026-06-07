@@ -71,7 +71,7 @@ function buildProductJsonLd(watch: Watch) {
     watch.status === "available"
       ? "https://schema.org/InStock"
       : watch.status === "reserved"
-        ? "https://schema.org/Reserved"
+        ? "https://schema.org/LimitedAvailability"
         : "https://schema.org/SoldOut";
   return {
     "@context": "https://schema.org",
@@ -200,6 +200,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             badge={watch.badge}
             soldAt={watch.soldAt ? formatSoldMonth(watch.soldAt) : undefined}
             isSold={isSold}
+            isReserved={isReserved}
           />
 
           {/* Col 2 — Details: title + story */}
@@ -308,12 +309,23 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               </div>
 
               <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em]">
-                <span className={isSold ? "text-zinc-500" : "text-emerald-400"}>
+                <span
+                  className={
+                    isSold ? "text-zinc-500" : isReserved ? "text-amber-400" : "text-emerald-400"
+                  }
+                >
                   {isSold ? "● Sold" : isReserved ? "● Reserved" : "● Available"}
                 </span>
               </div>
 
               {!isSold && <InquiryButtons watch={watch} title={`${watch.brand} ${displayName}`} />}
+
+              {isReserved && (
+                <p className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-3 font-sans text-[12px] leading-5 text-amber-100/85">
+                  This piece is currently on reserve. You can still message us to be next in line if
+                  the reservation is released.
+                </p>
+              )}
 
               {detailItems.length > 0 && (
                 <dl className="flex flex-col divide-y divide-zinc-800/60 border-t border-zinc-800/60 pt-1">

@@ -15,6 +15,7 @@ interface WatchTileProps {
  */
 export function WatchTile({ watch }: WatchTileProps) {
   const isSold = watch.status === "sold";
+  const isReserved = watch.status === "reserved" && !isSold;
   const priceLabel = formatPhp(watch.price);
   const categoryLabel =
     formatCategory(watch.category) || watch.edition || watch.conditionLabel || watch.brand;
@@ -41,10 +42,19 @@ export function WatchTile({ watch }: WatchTileProps) {
           a text-shadow (below) carries legibility over bright watch photos. */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-      {watch.badge && !isSold && (
-        <span className="absolute top-1 left-1 max-w-[70%] border border-amber-300/40 bg-black/50 px-1 py-px text-[5px] uppercase leading-tight tracking-[0.1em] text-amber-300 backdrop-blur-sm">
-          {watch.badge}
-        </span>
+      {!isSold && (
+        <div className="absolute left-1 top-1 right-1 flex flex-wrap gap-1">
+          {isReserved && (
+            <span className="border border-amber-300/70 bg-amber-300/90 px-1 py-px text-[5px] uppercase leading-tight tracking-[0.1em] text-black">
+              Reserved
+            </span>
+          )}
+          {watch.badge && (
+            <span className="max-w-[70%] border border-amber-300/40 bg-black/50 px-1 py-px text-[5px] uppercase leading-tight tracking-[0.1em] text-amber-300 backdrop-blur-sm">
+              {watch.badge}
+            </span>
+          )}
+        </div>
       )}
       {isSold && (
         <span className="absolute top-1 left-1 border border-white/20 bg-black/60 px-1 py-px text-[5px] uppercase leading-tight tracking-[0.1em] text-cream-60 backdrop-blur-sm">

@@ -39,6 +39,7 @@ function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: strin
       ? `${fullTitle} (Ref. ${ref})`
       : fullTitle;
 
+  const isReserved = watch.status === "reserved";
   const lines = [
     "Hi Watch Alley! I saw this listing on your website and I'm interested:",
     "",
@@ -46,9 +47,15 @@ function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: strin
     `- Price: PHP ${watch.price.toLocaleString("en-PH")}`,
   ];
 
+  if (isReserved) lines.push("- Status: Currently reserved");
   if (listingUrl) lines.push(`- Listing: ${listingUrl}`);
 
-  lines.push("", "Is this still available? Thank you!");
+  lines.push(
+    "",
+    isReserved
+      ? "If the reservation is released, could you let me know? Thank you!"
+      : "Is this still available? Thank you!"
+  );
 
   return toAscii(lines.join("\n"));
 }

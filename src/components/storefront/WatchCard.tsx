@@ -17,6 +17,7 @@ interface WatchCardProps {
 export function WatchCard({ watch }: WatchCardProps) {
   const meta = formatWatchMeta([watch.movement, watch.caseSize, watch.edition || watch.set]);
   const brandNew = badgeIsBrandNew(watch.badge);
+  const isReserved = watch.status === "reserved";
 
   return (
     <Link
@@ -34,16 +35,25 @@ export function WatchCard({ watch }: WatchCardProps) {
             className="object-cover"
           />
         )}
-        {watch.badge && (
-          <span
-            className={`absolute left-3 top-3 border px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] ${
-              brandNew
-                ? "border-[color:var(--color-gold)] bg-background/70 text-[color:var(--color-gold)]"
-                : "border-[color:var(--color-gold-20)] bg-background/70 text-[color:var(--color-cream)]"
-            }`}
-          >
-            {watch.badge}
-          </span>
+        {(isReserved || watch.badge) && (
+          <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-wrap gap-2">
+            {isReserved && (
+              <span className="border border-[color:var(--color-gold)] bg-[color:var(--color-gold)] px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-background">
+                Reserved
+              </span>
+            )}
+            {watch.badge && (
+              <span
+                className={`border px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] ${
+                  brandNew
+                    ? "border-[color:var(--color-gold)] bg-background/70 text-[color:var(--color-gold)]"
+                    : "border-[color:var(--color-gold-20)] bg-background/70 text-[color:var(--color-cream)]"
+                }`}
+              >
+                {watch.badge}
+              </span>
+            )}
+          </div>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-5">

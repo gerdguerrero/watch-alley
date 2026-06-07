@@ -21,7 +21,7 @@ const SELECT_COLUMNS = `
 `;
 
 interface FetchOptions {
-  status?: WatchStatus | "all";
+  status?: WatchStatus | "all" | "live";
   category?: string;
   badge?: string;
   limit?: number;
@@ -52,7 +52,11 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
         .eq("published", true)
         .order("display_order", { ascending: true, nullsFirst: false });
 
-      if (status !== "all") query = query.eq("status", status);
+      if (status === "live") {
+        query = query.in("status", ["available", "reserved"]);
+      } else if (status !== "all") {
+        query = query.eq("status", status);
+      }
       if (category) query = query.eq("category", category);
       // `badges` is jsonb, not a Postgres text[] column. Supabase's
       // `.contains("badges", [badge])` serializes arrays as `{badge}`, which
@@ -81,10 +85,10 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
 
 /**
  * Featured watch for the hero card. Prefers the row flagged `featured = true`;
- * falls back to the first available piece.
+ * falls back to the first live piece (available or reserved).
  */
 export async function fetchFeaturedWatch(): Promise<Watch | null> {
-  const watches = await fetchWatches({ status: "available" });
+  const watches = await fetchWatches({ status: "live" });
   if (watches.length === 0) return null;
   return watches.find((w) => w.featured) ?? watches[0];
 }

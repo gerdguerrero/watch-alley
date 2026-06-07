@@ -56,6 +56,7 @@ const els = {
   cancelBtn: document.getElementById('cancel-btn'),
   deleteBtn: document.getElementById('delete-btn'),
   markSoldBtn: document.getElementById('mark-sold-btn'),
+  reserveToggleBtn: document.getElementById('reserve-toggle-btn'),
   publishWatchBtn: document.getElementById('publish-watch-btn'),
   viewListingBtn: document.getElementById('view-listing-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
@@ -632,6 +633,10 @@ const publishedField = field('published');
 if (publishedField) {
   publishedField.addEventListener('change', () => syncListingActionButtons());
 }
+const statusField = field('status');
+if (statusField) {
+  statusField.addEventListener('change', () => syncListingActionButtons());
+}
 
 if (els.socialGeneratePreviewBtn) {
   els.socialGeneratePreviewBtn.addEventListener('click', () => {
@@ -714,12 +719,34 @@ els.markSoldBtn.addEventListener('click', async () => {
   revalidateStorefront(slug);
 });
 
+if (els.reserveToggleBtn) {
+  els.reserveToggleBtn.addEventListener('click', async () => {
+    if (!activeId) return;
+    const targetStatus = els.reserveToggleBtn.dataset.targetStatus || 'reserved';
+    if (targetStatus !== 'available' && targetStatus !== 'reserved') return;
+    setField('status', targetStatus);
+    setField('soldAt', '');
+    setField('soldPrice', '');
+    syncListingActionButtons();
+    const result = await saveCurrentForm();
+    if (result) {
+      setStatus(
+        targetStatus === 'reserved'
+          ? 'Reserved. The piece stays on Available with a reserve tag.'
+          : 'Unreserved. The piece is fully available again.',
+        'success'
+      );
+    }
+  });
+}
+
 function hideForm() {
   els.watchForm.hidden = true;
   els.detailEmpty.hidden = false;
   if (els.tabpanelInventory) els.tabpanelInventory.dataset.mobileView = 'list';
   els.deleteBtn.hidden = true;
   els.markSoldBtn.hidden = true;
+  if (els.reserveToggleBtn) els.reserveToggleBtn.hidden = true;
   if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
   if (els.viewListingBtn) els.viewListingBtn.hidden = true;
   clearWatchValidation();
@@ -780,6 +807,7 @@ function loadIntoForm(watch) {
   const isExisting = !!watch;
   els.deleteBtn.hidden = !isExisting;
   els.markSoldBtn.hidden = !isExisting || watch.status === 'sold';
+  if (els.reserveToggleBtn) els.reserveToggleBtn.hidden = !isExisting || watch.status === 'sold';
   clearWatchValidation();
   syncListingActionButtons(watch);
   renderSocialPreviewFromForm({ announce: false });
@@ -1553,6 +1581,7 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
   const slug = getField('slug').trim() || watch?.slug || '';
   const listingUrl = isExisting ? listingUrlForSlug(slug) : '';
   const isPublished = getCheckbox('published');
+  const currentStatus = getField('status') || watch?.status || 'available';
   const previewBtn = document.getElementById('preview-as-buyer-btn');
 
   for (const btn of [previewBtn, els.viewListingBtn]) {
@@ -1571,6 +1600,16 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
   }
   if (els.saveWatchBtn) {
     els.saveWatchBtn.textContent = isPublished ? 'Save' : 'Save Draft';
+  }
+  if (els.markSoldBtn) {
+    els.markSoldBtn.hidden = !isExisting || currentStatus === 'sold';
+  }
+  if (els.reserveToggleBtn) {
+    const isSold = currentStatus === 'sold';
+    els.reserveToggleBtn.hidden = !isExisting || isSold;
+    els.reserveToggleBtn.textContent = currentStatus === 'reserved' ? 'Unreserve' : 'Reserve';
+    els.reserveToggleBtn.dataset.targetStatus =
+      currentStatus === 'reserved' ? 'available' : 'reserved';
   }
 }
 
