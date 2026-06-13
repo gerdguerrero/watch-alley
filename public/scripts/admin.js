@@ -870,7 +870,7 @@ async function publishCurrentListing() {
     return;
   }
 
-  const listingName = getField('name').trim() || getField('slug').trim() || 'this listing';
+  const listingName = getField('name').trim() || currentWatchSlug() || 'this listing';
   const confirmed = window.confirm(
     `Publish "${listingName}" now?\n\nIt will become visible on the public website as soon as Supabase saves the listing.`
   );
@@ -887,7 +887,7 @@ function readSocialPreviewListingFromForm() {
   const images = (getField('images') || '').split('\n').map((s) => s.trim()).filter(Boolean);
   const primaryImage = getField('primaryImage').trim() || images[0] || '';
   return {
-    slug: getField('slug').trim(),
+    slug: currentWatchSlug(),
     status: getField('status') || 'available',
     brand: getField('brand').trim(),
     model: deriveModelValue(),
@@ -906,6 +906,15 @@ function deriveModelValue() {
   const displayName = getField('name').trim();
   if (displayName) return displayName;
   return [getField('brand').trim(), getField('reference').trim()].filter(Boolean).join(' ');
+}
+
+function currentWatchSlug() {
+  const activeFormId = getField('id') || activeId || '';
+  const savedSlug =
+    activeWatchSnapshot?.id && activeWatchSnapshot.id === activeFormId
+      ? activeWatchSnapshot.slug
+      : '';
+  return savedSlug || slugify(getField('name'));
 }
 
 function buildPublicWatchUrl(slug) {
@@ -1151,7 +1160,7 @@ function renderSocialPreviewSummary() {
   }
 
   // --- Destination link ---------------------------------------------------
-  const slug = (getField('slug') || '').trim();
+  const slug = currentWatchSlug();
   if (els.socialPreviewSummaryLink) {
     if (slug) {
       const url = buildPublicWatchUrl(slug);
@@ -1374,12 +1383,7 @@ function collectFormPayload() {
   }
 
   const displayName = getField('name').trim();
-  const slug = displayName
-    .toLowerCase()
-    .replace(/[\s_]+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+  const slug = currentWatchSlug();
 
   const payload = {
     id: getField('id') || null,
@@ -1578,7 +1582,7 @@ function listingUrlForSlug(slug) {
 
 function syncListingActionButtons(watch = activeWatchSnapshot) {
   const isExisting = !!(watch?.id || activeId);
-  const slug = getField('slug').trim() || watch?.slug || '';
+  const slug = currentWatchSlug() || watch?.slug || '';
   const listingUrl = isExisting ? listingUrlForSlug(slug) : '';
   const isPublished = getCheckbox('published');
   const currentStatus = getField('status') || watch?.status || 'available';
@@ -1932,8 +1936,7 @@ function sanitizeFilename(name) {
 }
 
 function buildWatchImageFolder() {
-  const explicitSlug = (getField('slug') || activeWatchSnapshot?.slug || '').trim();
-  return slugify(explicitSlug || getField('name'));
+  return currentWatchSlug();
 }
 
 function buildStoragePath(file, folder) {
