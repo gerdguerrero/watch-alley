@@ -26,10 +26,12 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    // Allow next/image to optimize watch photos served from Supabase Storage.
-    // Hostname is derived from the env var so it stays correct if we move
-    // projects; the `*.supabase.co` wildcard covers any Supabase-hosted bucket
-    // we might add later (private buckets via signed URLs still work).
+    // Vercel's image optimizer can hard-fail with 402 when the project exceeds
+    // the free optimization quota. We already compress uploads before storage,
+    // so serve image sources directly instead of spending optimizer quota.
+    unoptimized: true,
+    // Keep the remote allow-list in place for safety if optimization is
+    // re-enabled later.
     remotePatterns: [
       ...(supabaseHost
         ? [{ protocol: "https" as const, hostname: supabaseHost }]
