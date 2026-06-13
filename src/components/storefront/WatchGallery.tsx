@@ -22,6 +22,7 @@ function MagnifiedImage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
+  const selectedSrc = images[selectedIndex] ?? images[0];
 
   const handleMove = useCallback((e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -30,6 +31,8 @@ function MagnifiedImage({
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setOrigin({ x, y });
   }, []);
+
+  if (!selectedSrc) return null;
 
   return (
     <div
@@ -41,29 +44,22 @@ function MagnifiedImage({
       onMouseLeave={() => setHover(false)}
       className="relative h-full w-full overflow-hidden"
     >
-      {images.map((src, index) => {
-        const selected = index === selectedIndex;
-        return (
-          <Image
-            key={src}
-            src={src}
-            alt={selected ? alt : ""}
-            fill
-            sizes="(max-width: 360px) calc(100vw - 40px), (max-width: 768px) 320px, (max-width: 1024px) 420px, 460px"
-            preload={index === 0}
-            loading={index === 0 ? undefined : "eager"}
-            draggable={false}
-            className={`absolute left-0 top-0 h-full w-full object-cover object-center transition-opacity duration-150 ease-out ${
-              selected ? "opacity-100" : "opacity-0"
-            }`}
-            style={{
-              transform: hover ? "scale(3)" : "scale(1)",
-              transformOrigin: `${origin.x}% ${origin.y}%`,
-              willChange: selected ? "transform" : "auto",
-            }}
-          />
-        );
-      })}
+      <Image
+        key={selectedSrc}
+        src={selectedSrc}
+        alt={alt}
+        fill
+        sizes="(max-width: 360px) calc(100vw - 40px), (max-width: 768px) 320px, (max-width: 1024px) 420px, 460px"
+        preload={selectedIndex === 0}
+        loading={selectedIndex === 0 ? undefined : "lazy"}
+        draggable={false}
+        className="absolute left-0 top-0 h-full w-full object-cover object-center transition-transform duration-150 ease-out"
+        style={{
+          transform: hover ? "scale(3)" : "scale(1)",
+          transformOrigin: `${origin.x}% ${origin.y}%`,
+          willChange: hover ? "transform" : "auto",
+        }}
+      />
     </div>
   );
 }

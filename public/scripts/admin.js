@@ -1877,6 +1877,11 @@ function setInviteStatus(message, tone) {
 // ---------------- Image uploader (Supabase Storage: bucket "watches") ----------------
 
 const STORAGE_BUCKET = 'watches';
+const IMAGE_UPLOAD_SOURCE_MAX_BYTES = 30 * 1024 * 1024;
+const IMAGE_UPLOAD_TARGET_BYTES = 900 * 1024;
+const IMAGE_UPLOAD_MAX_EDGE = 2200;
+const IMAGE_UPLOAD_MIME = 'image/webp';
+const IMAGE_UPLOAD_EXT = 'webp';
 let imageList = [];
 
 function setImageList(list) {
@@ -1934,32 +1939,137 @@ function buildStoragePath(file) {
   return `${folder}/${stamp}-${rand}-${sanitizeFilename(file.name)}`;
 }
 
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 MB';
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
+function replaceFilenameExtension(name, ext) {
+  const cleanExt = String(ext || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg';
+  const base = String(name || 'photo').replace(/\.[^.]+$/, '') || 'photo';
+  return `${base}.${cleanExt}`;
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Could not compress image.'));
+    }, type, quality);
+  });
+}
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read image file.'));
+    };
+    image.src = url;
+  });
+}
+
+async function decodeUploadImage(file) {
+  if ('createImageBitmap' in window) {
+    try {
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch {
+      // Safari and older browsers can be picky with some JPEGs. Fall back to
+      // an HTMLImageElement before we give up on the upload.
+    }
+  }
+  return loadImageElement(file);
+}
+
+async function prepareImageForUpload(file) {
+  if (file.size > IMAGE_UPLOAD_SOURCE_MAX_BYTES) {
+    throw new Error(`Source file is ${formatFileSize(file.size)}. Please choose an image under ${formatFileSize(IMAGE_UPLOAD_SOURCE_MAX_BYTES)}.`);
+  }
+
+  const image = await decodeUploadImage(file);
+  const width = image.width;
+  const height = image.height;
+  if (!width || !height) throw new Error('Image has no readable dimensions.');
+
+  const scale = Math.min(1, IMAGE_UPLOAD_MAX_EDGE / Math.max(width, height));
+  const outputWidth = Math.max(1, Math.round(width * scale));
+  const outputHeight = Math.max(1, Math.round(height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+
+  const context = canvas.getContext('2d', { alpha: false });
+  if (!context) throw new Error('Browser could not prepare the image canvas.');
+  context.drawImage(image, 0, 0, outputWidth, outputHeight);
+  if (typeof image.close === 'function') image.close();
+
+  let quality = 0.82;
+  let blob = await canvasToBlob(canvas, IMAGE_UPLOAD_MIME, quality);
+  while (blob.size > IMAGE_UPLOAD_TARGET_BYTES && quality > 0.62) {
+    quality -= 0.08;
+    blob = await canvasToBlob(canvas, IMAGE_UPLOAD_MIME, quality);
+  }
+
+  const compressed = new File([blob], replaceFilenameExtension(file.name, IMAGE_UPLOAD_EXT), {
+    type: blob.type || IMAGE_UPLOAD_MIME,
+    lastModified: Date.now(),
+  });
+
+  return {
+    file: compressed,
+    originalName: file.name,
+    originalBytes: file.size,
+    compressedBytes: compressed.size,
+    width: outputWidth,
+    height: outputHeight,
+  };
+}
+
+function uploadErrorMessage(file, error) {
+  const message = error && error.message ? error.message : String(error || 'Unknown upload error');
+  const statusCode = error && (error.statusCode || error.status);
+  const code = error && error.error;
+  const detail = [statusCode ? `status ${statusCode}` : '', code || ''].filter(Boolean).join(', ');
+  return `${file.name}: ${message}${detail ? ` (${detail})` : ''}`;
+}
+
 async function uploadFiles(fileList) {
   if (!supabase) return;
   const files = Array.from(fileList || []).filter((f) => f && f.type && f.type.startsWith('image/'));
   if (!files.length) return;
 
-  setUploadStatus(`Uploading ${files.length} photo${files.length === 1 ? '' : 's'}…`);
+  setUploadStatus(`Preparing ${files.length} photo${files.length === 1 ? '' : 's'} for web upload...`);
 
   let succeeded = 0;
   let failed = 0;
+  let savedBytes = 0;
+  const errors = [];
 
   for (const file of files) {
-    const path = buildStoragePath(file);
     try {
-      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, {
-        cacheControl: '3600',
+      const prepared = await prepareImageForUpload(file);
+      const path = buildStoragePath(prepared.file);
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, prepared.file, {
+        cacheControl: '31536000',
         upsert: false,
-        contentType: file.type,
+        contentType: prepared.file.type,
       });
       if (error) throw error;
       const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
       const publicUrl = pub && pub.publicUrl;
       if (!publicUrl) throw new Error('No public URL returned');
       imageList[imageList.length] = publicUrl;
+      savedBytes += Math.max(0, prepared.originalBytes - prepared.compressedBytes);
       succeeded += 1;
     } catch (error) {
       console.error('Upload failed for', file.name, error);
+      errors.push(uploadErrorMessage(file, error));
       failed += 1;
     }
   }
@@ -1968,11 +2078,11 @@ async function uploadFiles(fileList) {
   renderImageThumbs();
 
   if (failed === 0) {
-    setUploadStatus(`Uploaded ${succeeded} photo${succeeded === 1 ? '' : 's'}.`, 'success');
+    setUploadStatus(`Uploaded ${succeeded} photo${succeeded === 1 ? '' : 's'} (${formatFileSize(savedBytes)} saved before storage).`, 'success');
   } else if (succeeded === 0) {
-    setUploadStatus(`Upload failed for all ${failed} photo${failed === 1 ? '' : 's'}. Check the file size (≤10 MB) and format (JPEG, PNG, WebP, AVIF).`, 'error');
+    setUploadStatus(`Upload failed for all ${failed} photo${failed === 1 ? '' : 's'}. ${errors.slice(0, 2).join(' ')}`, 'error');
   } else {
-    setUploadStatus(`Uploaded ${succeeded}, failed ${failed}. Check the failed files and try again.`, 'error');
+    setUploadStatus(`Uploaded ${succeeded}, failed ${failed}. ${errors.slice(0, 2).join(' ')}`, 'error');
   }
 }
 
@@ -2874,11 +2984,15 @@ if (els.journalFieldBody) {
 async function uploadJournalImage(file) {
   if (!supabase) throw new Error('Not signed in.');
   if (!file) throw new Error('No file selected.');
-  if (file.size > 10 * 1024 * 1024) throw new Error('Image too large (max 10 MB).');
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const safeBase = (file.name || 'image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9-]+/g, '-').slice(0, 60) || 'image';
+  const prepared = await prepareImageForUpload(file);
+  const ext = (prepared.file.name.split('.').pop() || 'jpg').toLowerCase();
+  const safeBase = (prepared.file.name || 'image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9-]+/g, '-').slice(0, 60) || 'image';
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`;
-  const { error } = await supabase.storage.from('journal-images').upload(filename, file, { contentType: file.type, upsert: false });
+  const { error } = await supabase.storage.from('journal-images').upload(filename, prepared.file, {
+    cacheControl: '31536000',
+    contentType: prepared.file.type,
+    upsert: false,
+  });
   if (error) throw error;
   const { data } = supabase.storage.from('journal-images').getPublicUrl(filename);
   return data?.publicUrl || '';

@@ -1,0 +1,560 @@
+{
+  "createdAt": "2026-06-13T02:41:49.622Z",
+  "bucket": "watches",
+  "totalFiles": 69,
+  "totalMb": 79.56,
+  "objects": [
+    {
+      "name": "unsorted/1780652160995-xxkoyu-img-1576.jpeg",
+      "size": 3855689,
+      "mb": 3.68,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T09:36:02.634Z",
+      "updatedAt": "2026-06-05T09:36:02.634Z"
+    },
+    {
+      "name": "unsorted/1779695648461-2dxe0c-img-2778.jpeg",
+      "size": 3096833,
+      "mb": 2.95,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:54:31.502Z",
+      "updatedAt": "2026-05-25T07:54:31.502Z"
+    },
+    {
+      "name": "unsorted/1780652164088-547ybu-img-1574.jpeg",
+      "size": 2765483,
+      "mb": 2.64,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T09:36:05.281Z",
+      "updatedAt": "2026-06-05T09:36:05.281Z"
+    },
+    {
+      "name": "unsorted/1780652162835-ddxu7m-img-1575.jpeg",
+      "size": 2742880,
+      "mb": 2.62,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T09:36:03.946Z",
+      "updatedAt": "2026-06-05T09:36:03.946Z"
+    },
+    {
+      "name": "unsorted/1780935406911-y9y0x8-img-6397.jpeg",
+      "size": 2655486,
+      "mb": 2.53,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-08T16:16:49.509Z",
+      "updatedAt": "2026-06-08T16:16:49.509Z"
+    },
+    {
+      "name": "unsorted/1781288271969-bqw9vd-img-8435.jpeg",
+      "size": 2529468,
+      "mb": 2.41,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T18:17:53.309Z",
+      "updatedAt": "2026-06-12T18:17:53.309Z"
+    },
+    {
+      "name": "unsorted/1780652158770-ybe14q-img-1577.jpeg",
+      "size": 2487731,
+      "mb": 2.37,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T09:36:00.786Z",
+      "updatedAt": "2026-06-05T09:36:00.786Z"
+    },
+    {
+      "name": "unsorted/1780995375536-l39owk-img-8168.jpeg",
+      "size": 1996609,
+      "mb": 1.9,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T08:56:24.649Z",
+      "updatedAt": "2026-06-09T08:56:24.649Z"
+    },
+    {
+      "name": "unsorted/1780677358853-88nh0w-img-4690.jpeg",
+      "size": 1951762,
+      "mb": 1.86,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T16:35:59.981Z",
+      "updatedAt": "2026-06-05T16:35:59.981Z"
+    },
+    {
+      "name": "unsorted/1779695615127-m57ni8-img-2793.jpeg",
+      "size": 1884494,
+      "mb": 1.8,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:53:41.616Z",
+      "updatedAt": "2026-05-25T07:53:41.616Z"
+    },
+    {
+      "name": "unsorted/1780677360153-ig6b8q-img-4689.jpeg",
+      "size": 1883110,
+      "mb": 1.8,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T16:36:01.277Z",
+      "updatedAt": "2026-06-05T16:36:01.277Z"
+    },
+    {
+      "name": "unsorted/1779695621700-zsj5jz-img-2794.jpeg",
+      "size": 1761060,
+      "mb": 1.68,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:53:45.578Z",
+      "updatedAt": "2026-05-25T07:53:45.578Z"
+    },
+    {
+      "name": "unsorted/1780991144990-mkmrx8-img-7557.jpeg",
+      "size": 1696440,
+      "mb": 1.62,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:45.719Z",
+      "updatedAt": "2026-06-09T07:45:45.719Z"
+    },
+    {
+      "name": "unsorted/1779695632229-7zwa2g-img-2798.jpeg",
+      "size": 1678646,
+      "mb": 1.6,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:53:58.810Z",
+      "updatedAt": "2026-05-25T07:53:58.810Z"
+    },
+    {
+      "name": "unsorted/1779695638970-il8g2e-img-2800.jpeg",
+      "size": 1674211,
+      "mb": 1.6,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:54:08.359Z",
+      "updatedAt": "2026-05-25T07:54:08.359Z"
+    },
+    {
+      "name": "unsorted/1779695625648-cvi0vz-img-2797.jpeg",
+      "size": 1658853,
+      "mb": 1.58,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:53:51.928Z",
+      "updatedAt": "2026-05-25T07:53:51.928Z"
+    },
+    {
+      "name": "unsorted/1780991144170-5rwxam-img-7558.jpeg",
+      "size": 1604080,
+      "mb": 1.53,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:44.805Z",
+      "updatedAt": "2026-06-09T07:45:44.805Z"
+    },
+    {
+      "name": "unsorted/1780991147754-ju18r1-img-7554.jpeg",
+      "size": 1461112,
+      "mb": 1.39,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:48.280Z",
+      "updatedAt": "2026-06-09T07:45:48.280Z"
+    },
+    {
+      "name": "lalatbu/1777957738973-non0ge-hf-20260504-124727-e9a9de54-4cf2-4b95-bdd2-f7bbe95bed7a.png",
+      "size": 1440067,
+      "mb": 1.37,
+      "contentType": "image/png",
+      "createdAt": "2026-05-05T05:09:00.294Z",
+      "updatedAt": "2026-05-05T05:09:00.294Z"
+    },
+    {
+      "name": "unsorted/1780991145811-t033nu-img-7553.jpeg",
+      "size": 1390972,
+      "mb": 1.33,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:46.735Z",
+      "updatedAt": "2026-06-09T07:45:46.735Z"
+    },
+    {
+      "name": "unsorted/1780648726291-wiibx8-img-1665.jpeg",
+      "size": 1332137,
+      "mb": 1.27,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T08:38:47.710Z",
+      "updatedAt": "2026-06-05T08:38:47.710Z"
+    },
+    {
+      "name": "seiko-jdm-brightz-ananta-saec011/1777523172127-66uf1b-664239847-1443114351163312-7780254106189579966-n.png",
+      "size": 1328604,
+      "mb": 1.27,
+      "contentType": "image/png",
+      "createdAt": "2026-04-30T04:26:11.753Z",
+      "updatedAt": "2026-04-30T04:26:11.753Z"
+    },
+    {
+      "name": "unsorted/1780719294376-vu30br-img-6771.jpeg",
+      "size": 1198132,
+      "mb": 1.14,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:55.040Z",
+      "updatedAt": "2026-06-06T04:14:55.040Z"
+    },
+    {
+      "name": "unsorted/1780719290789-fyab1w-img-6793.jpeg",
+      "size": 1151734,
+      "mb": 1.1,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:51.394Z",
+      "updatedAt": "2026-06-06T04:14:51.394Z"
+    },
+    {
+      "name": "unsorted/1780719295806-tkscpg-img-6755.jpeg",
+      "size": 1146486,
+      "mb": 1.09,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:57.210Z",
+      "updatedAt": "2026-06-06T04:14:57.210Z"
+    },
+    {
+      "name": "unsorted/1780719292119-xtzv7s-img-6806.jpeg",
+      "size": 1126995,
+      "mb": 1.07,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:53.600Z",
+      "updatedAt": "2026-06-06T04:14:53.600Z"
+    },
+    {
+      "name": "unsorted/1780732699032-q0vz2f-img-2316.jpeg",
+      "size": 1097164,
+      "mb": 1.05,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T07:58:19.810Z",
+      "updatedAt": "2026-06-06T07:58:19.810Z"
+    },
+    {
+      "name": "unsorted/1780991142123-gtjfoe-img-7527.jpeg",
+      "size": 1071909,
+      "mb": 1.02,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:43.386Z",
+      "updatedAt": "2026-06-09T07:45:43.386Z"
+    },
+    {
+      "name": "unsorted/1780719293759-0b7ia1-img-6763.jpeg",
+      "size": 1055871,
+      "mb": 1.01,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:54.245Z",
+      "updatedAt": "2026-06-06T04:14:54.245Z"
+    },
+    {
+      "name": "unsorted/1781251847981-et85ly-img-8339.jpeg",
+      "size": 1038113,
+      "mb": 0.99,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:10:48.632Z",
+      "updatedAt": "2026-06-12T08:10:48.632Z"
+    },
+    {
+      "name": "unsorted/1781252137751-x2wd14-img-8339.jpeg",
+      "size": 1038113,
+      "mb": 0.99,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:15:39.068Z",
+      "updatedAt": "2026-06-12T08:15:39.068Z"
+    },
+    {
+      "name": "unsorted/1780719291507-dre8m8-img-6798.jpeg",
+      "size": 1019940,
+      "mb": 0.97,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:52.000Z",
+      "updatedAt": "2026-06-06T04:14:52.000Z"
+    },
+    {
+      "name": "unsorted/1780934845616-8jd5w6-img-7286.jpeg",
+      "size": 1015146,
+      "mb": 0.97,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-08T16:07:26.268Z",
+      "updatedAt": "2026-06-08T16:07:26.268Z"
+    },
+    {
+      "name": "unsorted/1780713248053-0171ae-img-2091.jpeg",
+      "size": 1009549,
+      "mb": 0.96,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T02:34:09.764Z",
+      "updatedAt": "2026-06-06T02:34:09.764Z"
+    },
+    {
+      "name": "unsorted/1780732696858-a5d4nx-img-4004.jpeg",
+      "size": 1006696,
+      "mb": 0.96,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T07:58:18.675Z",
+      "updatedAt": "2026-06-06T07:58:18.675Z"
+    },
+    {
+      "name": "unsorted/1780640169554-618hjd-img-6888.jpeg",
+      "size": 978244,
+      "mb": 0.93,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T06:16:10.695Z",
+      "updatedAt": "2026-06-05T06:16:10.695Z"
+    },
+    {
+      "name": "unsorted/1780991140796-02r2zi-img-7545.jpeg",
+      "size": 961880,
+      "mb": 0.92,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:41.985Z",
+      "updatedAt": "2026-06-09T07:45:41.985Z"
+    },
+    {
+      "name": "unsorted/1780648727823-kz4nj5-img-1674.jpeg",
+      "size": 961724,
+      "mb": 0.92,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T08:38:48.444Z",
+      "updatedAt": "2026-06-05T08:38:48.444Z"
+    },
+    {
+      "name": "unsorted/1780648896484-5cvkta-img-1674.jpeg",
+      "size": 961724,
+      "mb": 0.92,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T08:41:37.920Z",
+      "updatedAt": "2026-06-05T08:41:37.920Z"
+    },
+    {
+      "name": "unsorted/1781251849932-n2bwus-img-8347.jpeg",
+      "size": 946177,
+      "mb": 0.9,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:10:50.414Z",
+      "updatedAt": "2026-06-12T08:10:50.414Z"
+    },
+    {
+      "name": "unsorted/1781252140377-89iykm-img-8347.jpeg",
+      "size": 946177,
+      "mb": 0.9,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:15:40.884Z",
+      "updatedAt": "2026-06-12T08:15:40.884Z"
+    },
+    {
+      "name": "seiko-prospex-alpinist-whiskered-pitta-spb491j1/1777522931135-s4h9h8-guerrero-joseph-miguel-upd-toga-0027-1.jpeg",
+      "size": 945935,
+      "mb": 0.9,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-04-30T04:22:10.807Z",
+      "updatedAt": "2026-04-30T04:22:10.807Z"
+    },
+    {
+      "name": "unsorted/1780713249866-nx5bdf-img-2432.jpeg",
+      "size": 943940,
+      "mb": 0.9,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T02:34:10.513Z",
+      "updatedAt": "2026-06-06T02:34:10.513Z"
+    },
+    {
+      "name": "unsorted/1781251848705-slhink-img-8348.jpeg",
+      "size": 925640,
+      "mb": 0.88,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:10:49.247Z",
+      "updatedAt": "2026-06-12T08:10:49.247Z"
+    },
+    {
+      "name": "unsorted/1781252139148-b2vtld-img-8348.jpeg",
+      "size": 925640,
+      "mb": 0.88,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:15:39.717Z",
+      "updatedAt": "2026-06-12T08:15:39.717Z"
+    },
+    {
+      "name": "unsorted/1780657382236-bdbew9-img-6060.jpeg",
+      "size": 918678,
+      "mb": 0.88,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T11:03:03.780Z",
+      "updatedAt": "2026-06-05T11:03:03.780Z"
+    },
+    {
+      "name": "unsorted/1780991139381-ha14uo-img-7540.jpeg",
+      "size": 914083,
+      "mb": 0.87,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:40.638Z",
+      "updatedAt": "2026-06-09T07:45:40.638Z"
+    },
+    {
+      "name": "unsorted/1780714638834-trmcgu-img-5813.jpeg",
+      "size": 911968,
+      "mb": 0.87,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T02:57:19.550Z",
+      "updatedAt": "2026-06-06T02:57:19.550Z"
+    },
+    {
+      "name": "unsorted/1779695549762-195vwf-img-2786.jpeg",
+      "size": 907803,
+      "mb": 0.87,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:52:36.901Z",
+      "updatedAt": "2026-05-25T07:52:36.901Z"
+    },
+    {
+      "name": "unsorted/1779727064292-h69aq1-img-5461.jpeg",
+      "size": 890650,
+      "mb": 0.85,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T16:37:50.758Z",
+      "updatedAt": "2026-05-25T16:37:50.758Z"
+    },
+    {
+      "name": "unsorted/1780719295145-ehc9sg-img-6790.jpeg",
+      "size": 882835,
+      "mb": 0.84,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:55.669Z",
+      "updatedAt": "2026-06-06T04:14:55.669Z"
+    },
+    {
+      "name": "unsorted/1779695560555-f2mvst-img-2789.jpeg",
+      "size": 863594,
+      "mb": 0.82,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:52:45.861Z",
+      "updatedAt": "2026-05-25T07:52:45.861Z"
+    },
+    {
+      "name": "unsorted/1780719289400-fa8z1m-img-6818.jpeg",
+      "size": 822471,
+      "mb": 0.78,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-06T04:14:50.679Z",
+      "updatedAt": "2026-06-06T04:14:50.679Z"
+    },
+    {
+      "name": "unsorted/1779695565995-numlt9-img-2805.jpeg",
+      "size": 816417,
+      "mb": 0.78,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:52:51.714Z",
+      "updatedAt": "2026-05-25T07:52:51.714Z"
+    },
+    {
+      "name": "unsorted/1780677873868-c0zf6m-img-9134.jpeg",
+      "size": 802410,
+      "mb": 0.77,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T16:44:35.882Z",
+      "updatedAt": "2026-06-05T16:44:35.882Z"
+    },
+    {
+      "name": "unsorted/1780934846349-73b1ea-img-7276.jpeg",
+      "size": 790788,
+      "mb": 0.75,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-08T16:07:26.901Z",
+      "updatedAt": "2026-06-08T16:07:26.901Z"
+    },
+    {
+      "name": "unsorted/1779695557035-4hkvws-img-2791.jpeg",
+      "size": 768318,
+      "mb": 0.73,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T07:52:40.198Z",
+      "updatedAt": "2026-05-25T07:52:40.198Z"
+    },
+    {
+      "name": "unsorted/1780640015260-zgxucy-img-7450.jpeg",
+      "size": 763751,
+      "mb": 0.73,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-05T06:13:37.118Z",
+      "updatedAt": "2026-06-05T06:13:37.118Z"
+    },
+    {
+      "name": "unsorted/1780991143556-ryu6vf-img-7565.jpeg",
+      "size": 758698,
+      "mb": 0.72,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T07:45:44.079Z",
+      "updatedAt": "2026-06-09T07:45:44.079Z"
+    },
+    {
+      "name": "unsorted/1781251849318-av7ecl-img-8352.jpeg",
+      "size": 740045,
+      "mb": 0.71,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:10:49.815Z",
+      "updatedAt": "2026-06-12T08:10:49.815Z"
+    },
+    {
+      "name": "unsorted/1781252139768-7qfgof-img-8352.jpeg",
+      "size": 740045,
+      "mb": 0.71,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-12T08:15:40.268Z",
+      "updatedAt": "2026-06-12T08:15:40.268Z"
+    },
+    {
+      "name": "unsorted/1781083728130-8igsgw-img-6695.jpeg",
+      "size": 711280,
+      "mb": 0.68,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-10T09:28:50.030Z",
+      "updatedAt": "2026-06-10T09:28:50.030Z"
+    },
+    {
+      "name": "seiko-presage-araigaki-sarx125-salmon-pink/1777524316961-vh9osv-685647738-1847416919266582-4779061438977510171-n.jpg",
+      "size": 432506,
+      "mb": 0.41,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-04-30T04:45:16.338Z",
+      "updatedAt": "2026-04-30T04:45:16.338Z"
+    },
+    {
+      "name": "seiko-5-sports-srpe81k1-snowflakes/1777364960776-xig48g-up-diliman-1.jpg",
+      "size": 289626,
+      "mb": 0.28,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-04-28T08:29:21.854Z",
+      "updatedAt": "2026-04-28T08:29:21.854Z"
+    },
+    {
+      "name": "unsorted/1781027236269-7wlrkv-80be66549a568b3f396a2b3020d144cd.jpeg",
+      "size": 207554,
+      "mb": 0.2,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-06-09T17:47:17.199Z",
+      "updatedAt": "2026-06-09T17:47:17.199Z"
+    },
+    {
+      "name": "yawa-ka/1777959109273-gyh7r5-657128389-2098436814061396-8238929768574979752-n.jpg",
+      "size": 44646,
+      "mb": 0.04,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-05T05:31:50.687Z",
+      "updatedAt": "2026-05-05T05:31:50.687Z"
+    },
+    {
+      "name": "yawakalalat/1777959223788-1pjpxw-657128389-2098436814061396-8238929768574979752-n.jpg",
+      "size": 44646,
+      "mb": 0.04,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-05T05:33:45.089Z",
+      "updatedAt": "2026-05-05T05:33:45.089Z"
+    },
+    {
+      "name": "unsorted/1779698239638-auquo0-29175503.jpeg",
+      "size": 27412,
+      "mb": 0.03,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T08:37:21.075Z",
+      "updatedAt": "2026-05-25T08:37:21.075Z"
+    },
+    {
+      "name": "unsorted/1779707177704-u7rrzz-29175503.jpeg",
+      "size": 27412,
+      "mb": 0.03,
+      "contentType": "image/jpeg",
+      "createdAt": "2026-05-25T11:06:18.732Z",
+      "updatedAt": "2026-05-25T11:06:18.732Z"
+    }
+  ]
+}
