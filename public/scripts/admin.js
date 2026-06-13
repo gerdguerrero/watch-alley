@@ -1931,9 +1931,12 @@ function sanitizeFilename(name) {
   return `${cleanStem}.${cleanExt}`;
 }
 
-function buildStoragePath(file) {
-  const slugRaw = (getField('slug') || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '');
-  const folder = slugRaw || 'unsorted';
+function buildWatchImageFolder() {
+  const explicitSlug = (getField('slug') || activeWatchSnapshot?.slug || '').trim();
+  return slugify(explicitSlug || getField('name'));
+}
+
+function buildStoragePath(file, folder) {
   const rand = Math.random().toString(36).slice(2, 8);
   const stamp = Date.now();
   return `${folder}/${stamp}-${rand}-${sanitizeFilename(file.name)}`;
@@ -2044,6 +2047,14 @@ async function uploadFiles(fileList) {
   const files = Array.from(fileList || []).filter((f) => f && f.type && f.type.startsWith('image/'));
   if (!files.length) return;
 
+  const folder = buildWatchImageFolder();
+  if (!folder) {
+    setUploadStatus('Enter the Display Name before uploading photos so they can be stored under the correct watch folder.', 'error');
+    const nameField = field('name');
+    if (nameField) nameField.focus();
+    return;
+  }
+
   setUploadStatus(`Preparing ${files.length} photo${files.length === 1 ? '' : 's'} for web upload...`);
 
   let succeeded = 0;
@@ -2054,7 +2065,7 @@ async function uploadFiles(fileList) {
   for (const file of files) {
     try {
       const prepared = await prepareImageForUpload(file);
-      const path = buildStoragePath(prepared.file);
+      const path = buildStoragePath(prepared.file, folder);
       const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, prepared.file, {
         cacheControl: '31536000',
         upsert: false,
