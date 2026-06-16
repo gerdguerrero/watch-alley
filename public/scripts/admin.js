@@ -1886,6 +1886,12 @@ const IMAGE_UPLOAD_TARGET_BYTES = 900 * 1024;
 const IMAGE_UPLOAD_MAX_EDGE = 2200;
 const IMAGE_UPLOAD_MIME = 'image/webp';
 const IMAGE_UPLOAD_EXT = 'webp';
+// Grid/gallery thumbnail emitted next to each upload as `<name>.thumb.webp`.
+// Kept in sync with thumbnailUrl() in src/lib/inventory/image.ts and the
+// backfill in scripts/generate-watch-thumbnails.mjs.
+const THUMB_SUFFIX = '.thumb.webp';
+const THUMB_MAX_EDGE = 900;
+const THUMB_QUALITY = 0.72;
 let imageList = [];
 
 function setImageList(list) {
@@ -2027,8 +2033,24 @@ async function prepareImageForUpload(file) {
     lastModified: Date.now(),
   });
 
+  // Small WebP thumbnail for the catalog grids / gallery filmstrip, drawn from
+  // the already-scaled canvas so we don't decode the source twice.
+  const thumbScale = Math.min(1, THUMB_MAX_EDGE / Math.max(outputWidth, outputHeight));
+  const thumbWidth = Math.max(1, Math.round(outputWidth * thumbScale));
+  const thumbHeight = Math.max(1, Math.round(outputHeight * thumbScale));
+  const thumbCanvas = document.createElement('canvas');
+  thumbCanvas.width = thumbWidth;
+  thumbCanvas.height = thumbHeight;
+  const thumbContext = thumbCanvas.getContext('2d', { alpha: false });
+  let thumbBlob = null;
+  if (thumbContext) {
+    thumbContext.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
+    thumbBlob = await canvasToBlob(thumbCanvas, IMAGE_UPLOAD_MIME, THUMB_QUALITY);
+  }
+
   return {
     file: compressed,
+    thumbBlob,
     originalName: file.name,
     originalBytes: file.size,
     compressedBytes: compressed.size,
@@ -2075,6 +2097,23 @@ async function uploadFiles(fileList) {
         contentType: prepared.file.type,
       });
       if (error) throw error;
+
+      // Upload the matching thumbnail at `<name>.thumb.webp`. The storefront
+      // derives this path from the full image URL, so a failure here would only
+      // mean the grid falls back to a missing thumb — log but don't fail the
+      // image, which already uploaded successfully.
+      if (prepared.thumbBlob) {
+        const thumbPath = path.replace(/\.[^./]+$/, THUMB_SUFFIX);
+        const { error: thumbError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(thumbPath, prepared.thumbBlob, {
+            cacheControl: '31536000',
+            upsert: true,
+            contentType: IMAGE_UPLOAD_MIME,
+          });
+        if (thumbError) console.warn('Thumbnail upload failed for', path, thumbError);
+      }
+
       const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
       const publicUrl = pub && pub.publicUrl;
       if (!publicUrl) throw new Error('No public URL returned');

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { formatCategory, formatPhp } from "@/lib/inventory/format";
+import { thumbnailUrl } from "@/lib/inventory/image";
 import type { Watch } from "@/lib/inventory/types";
 
 interface WatchTileProps {
@@ -28,7 +29,7 @@ export function WatchTile({ watch }: WatchTileProps) {
     >
       {watch.primaryImage ? (
         <Image
-          src={watch.primaryImage}
+          src={thumbnailUrl(watch.primaryImage)}
           alt={`${watch.brand} ${watch.name}`}
           fill
           className={isSold ? "object-cover [filter:grayscale(0.6)]" : "object-cover"}

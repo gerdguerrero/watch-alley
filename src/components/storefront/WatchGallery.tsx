@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
+import { thumbnailUrl } from "@/lib/inventory/image";
 
 /* ------------------------------------------------------------------ */
 /*  Cursor‑tracking full‑image zoom                                   */
@@ -117,7 +118,7 @@ export function WatchGallery({
                   <span className="absolute inset-0 z-10 ring-2 ring-inset ring-amber-400/70" />
                 )}
                 <Image
-                  src={src}
+                  src={thumbnailUrl(src)}
                   alt=""
                   fill
                   sizes="72px"

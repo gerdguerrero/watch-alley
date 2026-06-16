@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { formatCategory, formatPhp } from "@/lib/inventory/format";
+import { thumbnailUrl } from "@/lib/inventory/image";
 import type { Watch } from "@/lib/inventory/types";
 
 interface WatchCardProps {
@@ -82,7 +83,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
           >
             {watch.primaryImage ? (
               <Image
-                src={watch.primaryImage}
+                src={thumbnailUrl(watch.primaryImage)}
                 alt={`${watch.brand} ${watch.name}`}
                 fill
                 className="object-cover"
