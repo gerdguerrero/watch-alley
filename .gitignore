@@ -58,3 +58,6 @@ client_feedback_*.mov
 skills/
 skills-lock.json
 .vercel/
+
+# Storage organize/cleanup run manifests (generated artifacts)
+.storage-cleanup/

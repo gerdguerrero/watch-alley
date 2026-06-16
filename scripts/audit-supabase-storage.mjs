@@ -140,10 +140,10 @@ async function main() {
   loadEnvFile(ENV_PATH);
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
 
   if (!url || !serviceRoleKey) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
+    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or service-role/secret key.");
   }
 
   const client = createClient(url, serviceRoleKey, {
@@ -184,6 +184,10 @@ async function main() {
     }));
 
   const orphanObjects = allObjects.filter((object) => !referenced.has(`${object.bucket}/${object.name}`));
+  const objectKeys = new Set(allObjects.map((object) => `${object.bucket}/${object.name}`));
+  const missingReferencedFiles = Array.from(referenced)
+    .filter((key) => !objectKeys.has(key))
+    .sort();
   const orphanSummaries = [];
   for (const bucket of buckets ?? []) {
     const objects = orphanObjects.filter((object) => object.bucket === bucket.name);
@@ -211,6 +215,8 @@ async function main() {
     summaries,
     warnings,
     referencedFiles: referenced.size,
+    missingReferencedFiles: missingReferencedFiles.length,
+    missingReferencedSample: missingReferencedFiles.slice(0, 25),
     orphanSummaries,
     largest,
     largestOrphans,
