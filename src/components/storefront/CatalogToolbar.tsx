@@ -35,11 +35,11 @@ interface CatalogToolbarProps {
 }
 
 const pillBase =
-  "px-4 py-2 rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors";
+  "rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors px-2.5 py-1.5 sm:px-3 sm:py-1.5 md:px-4 md:py-2";
 const selectClass =
-  "appearance-none rounded-full border border-zinc-700 bg-transparent px-4 py-2 pr-9 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-300 transition-colors hover:border-amber-500/50 hover:text-amber-400 focus:border-amber-500 focus:outline-none";
+  "appearance-none rounded-full border border-zinc-700 bg-transparent px-3 py-1.5 pr-8 sm:px-3 sm:py-1.5 sm:pr-8 md:px-4 md:py-2 md:pr-9 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-300 transition-colors hover:border-amber-500/50 hover:text-amber-400 focus:border-amber-500 focus:outline-none";
 const searchInputClass =
-  "w-full rounded-full border border-zinc-700 bg-black/20 px-4 py-3 pl-10 pr-10 font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-amber-500/40 focus:border-amber-500 focus:outline-none md:min-w-[320px]";
+  "w-full rounded-full border border-zinc-700 bg-black/20 px-4 py-2.5 pl-10 pr-10 font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-amber-500/40 focus:border-amber-500 focus:outline-none sm:min-w-[240px] lg:min-w-[280px]";
 
 /**
  * Sort + filter controls for the watch catalog. A tiny Client Component island
@@ -110,34 +110,33 @@ export function CatalogToolbar({
 
   return (
     <div className="mx-auto mb-8 flex max-w-[1680px] flex-col gap-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        {/* Category pills (available only) */}
-        {categories ? (
-          <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
-            {categories.map((cat) => {
-              const isActive = category === cat.value || (!category && cat.value === "");
-              return (
-                <button
-                  key={cat.value}
-                  type="button"
-                  onClick={() => update("category", cat.value)}
-                  className={
-                    isActive
-                      ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
-                      : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
-                  }
-                >
-                  {cat.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <span aria-hidden className="hidden lg:block" />
-        )}
+      {/* Row 1: Category pills */}
+      {categories ? (
+        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 sm:justify-start">
+          {categories.map((cat) => {
+            const isActive = category === cat.value || (!category && cat.value === "");
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => update("category", cat.value)}
+                className={
+                  isActive
+                    ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
+                    : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
+                }
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
-        {/* Brand filter + sort */}
-        <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-end">
+      {/* Row 2: Brand + sort + search — all inline on desktop */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-end lg:gap-4">
+        {/* Brand + sort pills group */}
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 sm:justify-start">
           {brands.length > 1 ? (
             <div className="relative">
               <select
@@ -173,43 +172,42 @@ export function CatalogToolbar({
             <Chevron />
           </div>
         </div>
-      </div>
 
-      {search ? (
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div className="relative w-full md:max-w-xl">
-            <label htmlFor={searchId} className="sr-only">
-              Search available watches
-            </label>
-            <SearchIcon />
-            <input
-              id={searchId}
-              type="search"
-              inputMode="search"
-              autoComplete="off"
-              placeholder="Search brand, model, reference..."
-              value={search.value}
-              onInput={(e) => updateSearch(e.currentTarget.value)}
-              className={searchInputClass}
-            />
-            {search.value ? (
-              <button
-                type="button"
-                onClick={() => updateSearch("")}
-                aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-zinc-500 transition-colors hover:bg-white/10 hover:text-amber-400"
-              >
-                <span aria-hidden>×</span>
-              </button>
-            ) : null}
+        {/* Search input + count */}
+        {search ? (
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <div className="relative flex-1 sm:w-auto sm:min-w-[200px] lg:min-w-[260px]">
+              <label htmlFor={searchId} className="sr-only">
+                Search available watches
+              </label>
+              <SearchIcon />
+              <input
+                id={searchId}
+                type="search"
+                inputMode="search"
+                autoComplete="off"
+                placeholder="Search..."
+                value={search.value}
+                onInput={(e) => updateSearch(e.currentTarget.value)}
+                className={searchInputClass}
+              />
+              {search.value ? (
+                <button
+                  type="button"
+                  onClick={() => updateSearch("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-zinc-500 transition-colors hover:bg-white/10 hover:text-amber-400"
+                >
+                  <span aria-hidden>×</span>
+                </button>
+              ) : null}
+            </div>
+            <p className="shrink-0 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 sm:text-right">
+              {search.isSearching ? "Searching..." : `${search.resultCount} / ${search.totalCount}`}
+            </p>
           </div>
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600 md:text-right">
-            {search.isSearching
-              ? "Searching..."
-              : `${search.resultCount} / ${search.totalCount} pieces`}
-          </p>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 }
