@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useId } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { SortKey } from "@/lib/inventory/sort";
 
 interface Option {
@@ -10,21 +10,13 @@ interface Option {
 }
 
 interface CatalogToolbarProps {
-  /** Distinct brands present in the current result set. */
   brands: string[];
-  /** Sort choices for this surface (differ between /available and /sold). */
   sortOptions: ReadonlyArray<{ value: SortKey; label: string }>;
-  /** Category pills, shown only on /available. */
   categories?: ReadonlyArray<Option>;
-  /** Controlled brand value for client-side catalog surfaces. */
   selectedBrand?: string;
-  /** Controlled sort value for client-side catalog surfaces. */
   selectedSort?: string;
-  /** Optional client-side brand setter. URL is still updated without a server round trip. */
   onBrandChange?: (value: string) => void;
-  /** Optional client-side sort setter. URL is still updated without a server round trip. */
   onSortChange?: (value: string) => void;
-  /** Optional snappy client-side search box. */
   search?: {
     value: string;
     onChange: (value: string) => void;
@@ -36,16 +28,150 @@ interface CatalogToolbarProps {
 
 const pillBase =
   "rounded-full font-mono text-[10px] uppercase tracking-[0.2em] transition-colors px-2.5 py-1.5 sm:px-3 sm:py-1.5 md:px-4 md:py-2";
-const selectClass =
-  "appearance-none rounded-full border border-zinc-700 bg-transparent px-3 py-1.5 pr-8 sm:px-3 sm:py-1.5 sm:pr-8 md:px-4 md:py-2 md:pr-9 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-300 transition-colors hover:border-amber-500/50 hover:text-amber-400 focus:border-amber-500 focus:outline-none";
 const searchInputClass =
   "w-full rounded-full border border-zinc-700 bg-black/20 px-4 py-2.5 pl-10 pr-10 font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-amber-500/40 focus:border-amber-500 focus:outline-none sm:min-w-[240px] lg:min-w-[280px]";
 
-/**
- * Sort + filter controls for the watch catalog. A tiny Client Component island
- * — the pages stay Server Components; this only owns the URL-param writes.
- * Each control preserves the others' params so combinations stack.
- */
+/* ------------------------------------------------------------------ */
+/*  PillDropdown — custom select matching site design language         */
+/* ------------------------------------------------------------------ */
+
+const dropdownTriggerClass = `${pillBase} inline-flex items-center gap-1.5 border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400 focus:border-amber-500 focus:outline-none`;
+const dropdownTriggerActiveClass = `${pillBase} inline-flex items-center gap-1.5 border border-amber-500/50 bg-amber-500/10 text-amber-300`;
+
+const menuClass =
+  "absolute left-1/2 -translate-x-1/2 top-full mt-2 z-30 min-w-[160px] overflow-hidden rounded-2xl border border-amber-400/10 bg-[#0d0b0a]/95 py-2 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl";
+const menuItemClass =
+  "block w-full px-4 py-2 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:bg-amber-400/10 hover:text-amber-300";
+const menuItemActiveClass = "text-amber-300 bg-amber-400/5";
+
+function Caret({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 10 6"
+      className={`h-2.5 w-2.5 shrink-0 text-zinc-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <title>Expand</title>
+      <path d="m1 1 4 4 4-4" />
+    </svg>
+  );
+}
+
+function Check() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 12 12"
+      className="h-2.5 w-2.5 shrink-0 text-amber-400"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <title>Selected</title>
+      <path d="m1.5 6 3 3 6-6" />
+    </svg>
+  );
+}
+
+function PillDropdown({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: ReadonlyArray<Option>;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const selectedLabel = options.find((o) => o.value === value)?.label ?? label;
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        triggerRef.current?.contains(e.target as Node) ||
+        menuRef.current?.contains(e.target as Node)
+      ) {
+        return;
+      }
+      setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open]);
+
+  const isActive = value !== "";
+
+  return (
+    <div className="relative">
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={isActive ? dropdownTriggerActiveClass : dropdownTriggerClass}
+      >
+        <span>{selectedLabel}</span>
+        <Caret open={open} />
+      </button>
+
+      {open && (
+        <div ref={menuRef} role="listbox" className={menuClass}>
+          {options.map((opt) => {
+            const selected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+                className={`${menuItemClass} ${selected ? menuItemActiveClass : ""}`}
+              >
+                <span className="flex items-center gap-2">
+                  {selected && <Check />}
+                  {opt.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  CatalogToolbar                                                     */
+/* ------------------------------------------------------------------ */
+
 export function CatalogToolbar({
   brands,
   sortOptions,
@@ -108,10 +234,13 @@ export function CatalogToolbar({
     [buildUrl, search]
   );
 
+  const brandOptions: Option[] = [
+    { value: "", label: "All Brands" },
+    ...brands.map((b) => ({ value: b, label: b })),
+  ];
+
   return (
     <div className="mx-auto mb-8 flex max-w-[1680px] flex-col gap-4">
-      {/* Desktop: single row — cats | brand sort search count */}
-      {/* Mobile: cats wrap on own row, controls + search below */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:flex-nowrap lg:justify-start lg:gap-4">
         {/* Category pills */}
         {categories ? (
@@ -136,45 +265,25 @@ export function CatalogToolbar({
           </div>
         ) : null}
 
-        {/* Brand + sort pills */}
+        {/* Brand + sort custom dropdowns */}
         <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
           {brands.length > 1 ? (
-            <div className="relative">
-              <select
-                aria-label="Filter by brand"
-                value={brand}
-                onChange={(e) => update("brand", e.target.value)}
-                className={selectClass}
-              >
-                <option value="">All Brands</option>
-                {brands.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-              <Chevron />
-            </div>
+            <PillDropdown
+              label="All Brands"
+              value={brand}
+              options={brandOptions}
+              onChange={(v) => update("brand", v)}
+            />
           ) : null}
-
-          <div className="relative">
-            <select
-              aria-label="Sort"
-              value={sort}
-              onChange={(e) => update("sort", e.target.value)}
-              className={selectClass}
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <Chevron />
-          </div>
+          <PillDropdown
+            label="Sort"
+            value={sort}
+            options={sortOptions}
+            onChange={(v) => update("sort", v)}
+          />
         </div>
 
-        {/* Search input + count — pushes to the right on lg */}
+        {/* Search input + count */}
         {search ? (
           <div className="flex w-full items-center gap-2 sm:w-auto lg:ml-auto">
             <div className="relative flex-1 sm:w-auto sm:min-w-[200px] lg:min-w-[260px]">
@@ -213,6 +322,10 @@ export function CatalogToolbar({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Icons                                                              */
+/* ------------------------------------------------------------------ */
+
 function SearchIcon() {
   return (
     <svg
@@ -226,22 +339,6 @@ function SearchIcon() {
       <title>Search</title>
       <circle cx="8.5" cy="8.5" r="5.5" />
       <path d="m13 13 4 4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Chevron() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 12 12"
-      className="pointer-events-none absolute right-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 text-zinc-500"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
-      <title>Open menu</title>
-      <path d="M2.5 4.5 6 8l3.5-3.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
