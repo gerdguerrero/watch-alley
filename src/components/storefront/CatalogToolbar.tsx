@@ -110,33 +110,34 @@ export function CatalogToolbar({
 
   return (
     <div className="mx-auto mb-8 flex max-w-[1680px] flex-col gap-4">
-      {/* Row 1: Category pills */}
-      {categories ? (
-        <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 sm:justify-start">
-          {categories.map((cat) => {
-            const isActive = category === cat.value || (!category && cat.value === "");
-            return (
-              <button
-                key={cat.value}
-                type="button"
-                onClick={() => update("category", cat.value)}
-                className={
-                  isActive
-                    ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
-                    : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
-                }
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
+      {/* Desktop: single row — cats | brand sort search count */}
+      {/* Mobile: cats wrap on own row, controls + search below */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:flex-nowrap lg:justify-start lg:gap-4">
+        {/* Category pills */}
+        {categories ? (
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+            {categories.map((cat) => {
+              const isActive = category === cat.value || (!category && cat.value === "");
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => update("category", cat.value)}
+                  className={
+                    isActive
+                      ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
+                      : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
+                  }
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
 
-      {/* Row 2: Brand + sort + search — all inline on desktop */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-end lg:gap-4">
-        {/* Brand + sort pills group */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 sm:justify-start">
+        {/* Brand + sort pills */}
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
           {brands.length > 1 ? (
             <div className="relative">
               <select
@@ -173,9 +174,9 @@ export function CatalogToolbar({
           </div>
         </div>
 
-        {/* Search input + count */}
+        {/* Search input + count — pushes to the right on lg */}
         {search ? (
-          <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="flex w-full items-center gap-2 sm:w-auto lg:ml-auto">
             <div className="relative flex-1 sm:w-auto sm:min-w-[200px] lg:min-w-[260px]">
               <label htmlFor={searchId} className="sr-only">
                 Search available watches
