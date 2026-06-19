@@ -38,6 +38,7 @@ Variables** for both Preview and Production):
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+WATCH_LIST_IP_HASH_SALT= # optional, used to hash consent/request IP metadata
 ```
 
 For local development, copy [.env.example](./.env.example) to `.env.local`
@@ -53,6 +54,13 @@ Native App Router:
 - `/journal` — journal index
 - `/journal/[slug]` — journal post (ISR)
 - `/watch/[slug]` — watch detail (ISR, per-watch OG + JSON-LD)
+- `/watch-list` — The Watch List signup and sourcing request page
+
+API route handlers:
+
+- `POST /api/watch-list/signup` — newsletter/list signup with preferences
+- `POST /api/watch-list/alert` — sold-watch/similar-piece alert
+- `POST /api/watch-list/sourcing` — structured sourcing request
 
 Legacy bridge routes served as static HTML under [public/](./public):
 
@@ -69,6 +77,7 @@ The bridge stays in place until each surface is rebuilt natively.
 - [Roadmap](./docs/WATCH_ALLEY_ROADMAP.md)
 - [Supabase setup](./docs/SUPABASE_SETUP.md)
 - [Inventory schema](./docs/inventory-schema.md)
+- [The Watch List handover](./docs/watch-list/README.md)
 
 ## One-off scripts
 

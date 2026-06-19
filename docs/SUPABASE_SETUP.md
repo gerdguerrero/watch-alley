@@ -34,6 +34,7 @@ Migrations applied to production:
 | 20260524143247    | 0018-watch-alley-category-upsert       | Updated admin_upsert_watch to persist category + badges JSONB. (Applied directly, no repo file.) |
 | 20260524144801    | 0019-watch-alley-badges               | Added badges JSONB column, migrated limited-edition category to badges, updated public.watches view. |
 | 20260525120000    | 0020-watch-alley-admin-upsert-full     | Restored auto-ID generation (twa-NNN) lost in 0018. Full admin_upsert_watch with category, badges, auto-ID. |
+| 20260619212408    | watch_alley_watch_list_pipeline        | The Watch List subscriber, preference, sold-watch alert, and sourcing-request tables plus service-role-only submit RPCs. |
 
 13 watches seeded from the legacy JSON snapshot now carried at `next/public/data/watches.json` (10 available + 3 sold archive).
 
@@ -48,6 +49,7 @@ Migrations applied to production:
 | 0005-watch-alley-storage.sql                          | watches storage bucket + admin write policies. |
 | 0020-watch-alley-admin-upsert-full.sql                | Full admin_upsert_watch: category + badges + auto-ID. |
 | 0023-watch-alley-draft-listings-without-photos.sql    | Allows draft inventory rows to save without photos while published listings still require at least one photo. |
+| supabase/migrations/20260619212408_watch_alley_watch_list_pipeline.sql | The Watch List collector pipeline schema + submit RPCs. |
 
 These are kept as the canonical migration history. If you wipe/recreate the
 project, run them in numeric order.
@@ -81,6 +83,19 @@ project, run them in numeric order.
   when you intentionally want to refresh the legacy bridge fallback.
 - Admin writes: only via RPC names below.
 
+## The Watch List deployment notes
+
+- Apply `supabase/migrations/20260619212408_watch_alley_watch_list_pipeline.sql`
+  before deploying the `/watch-list` UI and API routes.
+- The Next route handlers use `SUPABASE_SERVICE_ROLE_KEY` server-side to call
+  service-role-only RPCs. Do not expose that key as a `NEXT_PUBLIC_*` variable.
+- Optional `WATCH_LIST_IP_HASH_SALT` can be set in Vercel to stabilize consent
+  IP hashes without storing raw IP addresses. If unset, the server falls back
+  to existing private runtime secrets.
+- Vercel Web Analytics is already mounted in `src/app/layout.tsx`; signup,
+  alert, and sourcing form components emit custom events after successful
+  writes.
+
 ## RPC reference
 
 | RPC                                | callable as     | what it does |
@@ -93,6 +108,9 @@ project, run them in numeric order.
 | `admin_list_inquiries(status, limit, offset)`  | authed + admin | Paginated, status-filtered inquiry list. |
 | `admin_update_inquiry_status(id,status,note)`  | authed + admin | Move inquiry through workflow. Also stamps responded_at / closed_at. |
 | `admin_inquiry_metrics()`          | authed + admin  | Totals + per-watch top 20 over 90 days. The "one metric" hinge. |
+| `submit_watch_list_signup(payload)` | service_role | Insert/update a Watch List subscriber and preferences. Called by `/api/watch-list/signup`. |
+| `submit_watch_list_alert(payload)` | service_role | Store a sold-watch/similar-piece alert with watch context. Called by `/api/watch-list/alert`. |
+| `submit_sourcing_request(payload)` | service_role | Store a structured sourcing request. Called by `/api/watch-list/sourcing`. |
 
 All admin_* RPCs check `watch_alley.is_admin()` internally and raise
 `42501 Not authorized` if the caller's email is not on the allowlist.

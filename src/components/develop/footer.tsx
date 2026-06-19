@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { WatchListSignupForm } from "@/components/watch-list/WatchListSignupForm";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { BrandLogo } from "./brand-logo";
 
@@ -9,6 +10,7 @@ const FOOTER_LINK_GROUPS = [
     links: [
       { label: "Available", href: "/available" },
       { label: "Sold Archive", href: "/sold" },
+      { label: "Watch List", href: "/watch-list" },
     ],
   },
   {
@@ -55,7 +57,7 @@ export function Footer() {
         className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundOne})` }}
       />
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.5fr_1fr_1fr] md:items-start md:gap-12">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.35fr_0.8fr_0.8fr_1.15fr] lg:items-start lg:gap-10">
         {/* Brand column */}
         <div className="max-w-sm">
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
@@ -86,7 +88,7 @@ export function Footer() {
 
         {/* On mobile the two link groups sit side by side; md:contents lets
             them flow into the outer grid's 2nd/3rd columns on desktop. */}
-        <div className="grid grid-cols-2 gap-6 md:contents">
+        <div className="grid grid-cols-2 gap-6 lg:contents">
           {FOOTER_LINK_GROUPS.map((group) => (
             <nav key={group.title} aria-label={group.title}>
               <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
@@ -106,6 +108,16 @@ export function Footer() {
               </ul>
             </nav>
           ))}
+        </div>
+
+        <div>
+          <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
+            The Watch List
+          </p>
+          <p className="mb-4 text-sm leading-relaxed text-cream-60">
+            First access to curated drops, rare finds, collector notes, and sourcing opportunities.
+          </p>
+          <WatchListSignupForm source="footer" compact />
         </div>
       </div>
 
