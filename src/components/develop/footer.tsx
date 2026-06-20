@@ -61,7 +61,7 @@ export function Footer() {
         {/* Brand column */}
         <div className="max-w-md">
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
-            <BrandLogo variant="inline" className="h-14 w-28" sizes="112px" />
+            <BrandLogo variant="primary" className="h-24 w-32" sizes="128px" />
           </Link>
           <p className="mt-6 max-w-sm text-sm leading-7 text-cream-60">
             A Manila-based curator of pre-owned and brand-new timepieces — daylight-photographed,

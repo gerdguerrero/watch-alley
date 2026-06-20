@@ -71,7 +71,7 @@ export function MainNav({ active }: MainNavProps) {
         className="wa-logo-wrap order-1 flex min-w-0 items-center justify-center gap-3 md:order-none"
       >
         <Image
-          src="/brand/logo-dp-flat-cropped.png"
+          src="/brand/logo-dp-flat.png"
           alt=""
           width={50}
           height={50}

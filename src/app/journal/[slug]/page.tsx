@@ -91,7 +91,7 @@ function buildArticleJsonLd(post: JournalPost) {
       name: "The Watch Alley",
       logo: {
         "@type": "ImageObject",
-        url: "https://watchalley.ph/brand/logo-dp-flat-cropped.png",
+        url: "https://watchalley.ph/brand/logo-dp-flat.png",
       },
     },
     mainEntityOfPage: `https://watchalley.ph/journal/${post.slug}`,

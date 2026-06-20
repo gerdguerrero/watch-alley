@@ -294,7 +294,7 @@ The Watch Alley can feel more dynamic without becoming flashy. Motion should fee
 
 Use now:
 
-- `PNG/Copy of DP FLAT.png`: current client-approved site logo source, exported as a cropped web-serving derivative at `public/brand/logo-dp-flat-cropped.png`.
+- `PNG/Copy of DP FLAT.png`: current client-approved site logo source, exported for web use at `public/brand/logo-dp-flat.png` and mirrored into app icons.
 - `PNG/Logo on Black.png`: reference for dark-surface lockup.
 - `PNG/Logo on White.png`: reference for paper or light-surface lockup.
 - `BACKGROUNDS/background 3.png`: strongest atelier/workbench background.

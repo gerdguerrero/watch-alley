@@ -8,28 +8,29 @@
  * where the design is photographic.
  */
 export const BRAND_ASSETS = {
-  // --- SVG marks (preferred for UI chrome — infinite resolution) -----------
-  /** Compass mark only, transparent background. Use inside chips, buttons, tight slots. */
-  twaIcon: "/brand/twa-logo-icon.svg",
-  /** Compass mark inside the walnut + gold-bezel circle. The favicon / "monogram". */
-  twaBadge: "/brand/twa-logo-badge.svg",
-  /** Full wordmark + compass, gold on transparent. The primary brand lockup. */
-  twaPrimary: "/brand/twa-logo-primary.svg",
-  /** Wordmark + compass in solid gold. Use on dark surfaces. */
-  twaGold: "/brand/twa-logo-gold.svg",
-  /** Wordmark + compass in white. Use on photo / dark cinematic surfaces. */
-  twaWhite: "/brand/twa-logo-white.svg",
-  /** Black-and-white wordmark — single colour, broadest reproduction range. */
-  monochrome: "/brand/logo-bw.svg",
-  /** Inline (horizontal short) lockup, useful in footers / cramped headers. */
-  inline: "/brand/logo-inline.svg",
-  /** Full horizontal lockup with serif wordmark. */
-  horizontal: "/brand/logo-horizontal.svg",
+  // --- Approved Drive exports (canonical UI chrome) ------------------------
+  /** Square display-picture lockup from drive-assets/PNG/Copy of DP FLAT.png. */
+  twaIcon: "/brand/logo-dp-flat.png",
+  /** Square display-picture lockup, used anywhere a badge/app icon is needed. */
+  twaBadge: "/brand/logo-dp-flat.png",
+  /** Primary transparent lockup for dark UI surfaces. */
+  twaPrimary: "/brand/logo-on-black.png",
+  /** Wordmark + compass in solid gold. */
+  twaGold: "/brand/logo-gold.png",
+  /** Wordmark + compass in white. */
+  twaWhite: "/brand/logo-white.png",
+  /** Broad reproduction fallback. */
+  monochrome: "/brand/logo-on-white.png",
+  /** Compact lockup for nav/footer slots. */
+  inline: "/brand/logo-on-black.png",
+  /** Full lockup for wider chrome slots. */
+  horizontal: "/brand/logo-on-black.png",
 
   // --- Raster variants (kept for parity / legacy callers) ------------------
   logoGold: "/brand/logo-gold.png",
   logoWhite: "/brand/logo-white.png",
-  logoDpFlat: "/brand/logo-dp-flat-cropped.png",
+  logoDp: "/brand/logo-dp.png",
+  logoDpFlat: "/brand/logo-dp-flat.png",
   logoOnBlack: "/brand/logo-on-black.png",
   logoOnWhite: "/brand/logo-on-white.png",
 
@@ -38,8 +39,9 @@ export const BRAND_ASSETS = {
   backgroundTwo: "/brand/background-2.webp",
   backgroundThree: "/brand/background-3.webp",
   coverPhoto: "/brand/cover-photo.png",
-  socialMockup: "/brand/social-mockup.webp",
-  socialDpFlat: "/brand/social-dp-flat.webp",
+  socialMockup: "/brand/social-mockup.png",
+  socialDp: "/brand/social-dp.png",
+  socialDpFlat: "/brand/social-dp-flat.png",
 } as const;
 
 /**

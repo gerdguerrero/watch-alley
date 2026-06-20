@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
-import { HorologicalLogo } from "./horological-logo";
+import { BrandLogo } from "./brand-logo";
 
 type PageTitleVariant = "hero" | "catalog" | "editorial";
 
@@ -109,11 +109,12 @@ export function PageTitle({
 
       {showHorologicalLogo ? (
         <div className="wa-page-rise relative z-0 mb-8 flex justify-center md:mb-12">
-          <HorologicalLogo
-            mode="mount-sweep"
-            width="min(320px, 75vw)"
-            height="auto"
-            className="aspect-[490/365]"
+          <BrandLogo
+            variant="horizontal"
+            alt="The Watch Alley"
+            className="h-[clamp(104px,22vw,180px)] w-[clamp(138px,30vw,240px)]"
+            sizes="(min-width: 768px) 240px, 70vw"
+            priority
           />
         </div>
       ) : (

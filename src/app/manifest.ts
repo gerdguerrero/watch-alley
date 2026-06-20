@@ -20,9 +20,9 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: BRAND_COLORS.walnut,
     icons: [
       {
-        src: "/brand/twa-logo-badge.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/icon.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "any",
       },
       {

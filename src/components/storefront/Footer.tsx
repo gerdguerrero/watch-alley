@@ -22,7 +22,7 @@ export function Footer() {
           aria-label="The Watch Alley — home"
         >
           <Image
-            src="/brand/logo-dp-flat-cropped.png"
+            src="/brand/logo-dp-flat.png"
             alt=""
             width={40}
             height={40}
