@@ -170,6 +170,36 @@ const els = {
   changePasswordNew: document.getElementById('change-password-new'),
   changePasswordConfirm: document.getElementById('change-password-confirm'),
   changePasswordStatus: document.getElementById('change-password-status'),
+  // Newsletter tab
+  tabpanelNewsletter: document.getElementById('tabpanel-newsletter'),
+  newsletterCount: document.getElementById('newsletter-count'),
+  newsletterNewBtn: document.getElementById('newsletter-new-btn'),
+  newsletterFilter: document.getElementById('newsletter-filter'),
+  newsletterList: document.getElementById('newsletter-list'),
+  newsletterDetailEmpty: document.getElementById('newsletter-detail-empty'),
+  newsletterForm: document.getElementById('newsletter-form'),
+  newsletterFieldId: document.getElementById('newsletter-field-id'),
+  newsletterFieldSlug: document.getElementById('newsletter-field-slug'),
+  newsletterFieldStatus: document.getElementById('newsletter-field-status'),
+  newsletterFieldScheduledAtWrapper: document.getElementById('newsletter-field-scheduled-at-wrapper'),
+  newsletterFieldScheduledAt: document.getElementById('newsletter-field-scheduled-at'),
+  newsletterFieldSubject: document.getElementById('newsletter-field-subject'),
+  newsletterFieldPreheader: document.getElementById('newsletter-field-preheader'),
+  newsletterFieldPublicTitle: document.getElementById('newsletter-field-public-title'),
+  newsletterFieldBodyHtml: document.getElementById('newsletter-field-body-html'),
+  newsletterFieldBodyText: document.getElementById('newsletter-field-body-text'),
+  newsletterFieldArchiveVisible: document.getElementById('newsletter-field-archive-visible'),
+  newsletterPreview: document.getElementById('newsletter-preview'),
+  newsletterTestRecipient: document.getElementById('newsletter-test-recipient'),
+  newsletterSendTestBtn: document.getElementById('newsletter-send-test-btn'),
+  newsletterTestStatus: document.getElementById('newsletter-test-status'),
+  newsletterSaveBtn: document.getElementById('newsletter-save-btn'),
+  newsletterApproveBtn: document.getElementById('newsletter-approve-btn'),
+  newsletterScheduleBtn: document.getElementById('newsletter-schedule-btn'),
+  newsletterSendNowBtn: document.getElementById('newsletter-send-now-btn'),
+  newsletterDeleteBtn: document.getElementById('newsletter-delete-btn'),
+  newsletterCancelBtn: document.getElementById('newsletter-cancel-btn'),
+  newsletterBackBtn: document.getElementById('newsletter-back-btn'),
 };
 
 // Track state.
@@ -1712,11 +1742,13 @@ function activateTab(name, { focus = false } = {}) {
   if (els.tabpanelInbox) els.tabpanelInbox.hidden = name !== 'inbox';
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
   if (els.tabpanelJournal) els.tabpanelJournal.hidden = name !== 'journal';
+  if (els.tabpanelNewsletter) els.tabpanelNewsletter.hidden = name !== 'newsletter';
   if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
   if (els.tabpanelAccount) els.tabpanelAccount.hidden = name !== 'account';
   if (name === 'admins') loadAdminsList();
   if (name === 'inbox') loadInbox();
   if (name === 'journal') loadJournalPosts();
+  if (name === 'newsletter') loadNewsletterTab();
   if (name === 'dashboard') loadDashboard();
 }
 
@@ -3223,3 +3255,411 @@ if (els.journalPreviewBtn) {
     if (url) window.open(url, '_blank');
   });
 }
+
+// ---------------- Newsletters tab ----------------
+
+let currentNewsletters = [];
+let selectedNewsletter = null;
+
+async function loadNewsletterTab() {
+  if (!supabase) return;
+  setStatus('Loading dispatches...', 'pending');
+  try {
+    const { data, error } = await supabase.rpc('admin_list_newsletter_issues');
+    if (error) throw error;
+    
+    currentNewsletters = data || [];
+    renderNewsletterList();
+    clearNewsletterForm();
+    setStatus('Dispatches loaded.');
+  } catch (err) {
+    console.error('loadNewsletterTab failed:', err);
+    setStatus('Failed to load newsletters.', 'error');
+  }
+}
+
+function renderNewsletterList() {
+  const list = els.newsletterList;
+  if (!list) return;
+  list.innerHTML = '';
+  
+  const filterVal = els.newsletterFilter.value.trim().toLowerCase();
+  const filtered = currentNewsletters.filter(n => 
+    !filterVal || 
+    (n.public_title && n.public_title.toLowerCase().includes(filterVal)) ||
+    (n.subject && n.subject.toLowerCase().includes(filterVal)) ||
+    (n.slug && n.slug.toLowerCase().includes(filterVal))
+  );
+
+  els.newsletterCount.textContent = `${filtered.length} dispatch${filtered.length === 1 ? '' : 'es'}`;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<li class="admin-sidebar-empty">No dispatches found.</li>';
+    return;
+  }
+
+  filtered.forEach(n => {
+    const li = document.createElement('li');
+    li.className = 'admin-watch-item';
+    if (selectedNewsletter && selectedNewsletter.id === n.id) {
+      li.classList.add('is-active');
+    }
+    
+    const formattedDate = n.sent_at 
+      ? new Date(n.sent_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
+      : n.scheduled_at 
+        ? `Sched: ${new Date(n.scheduled_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}`
+        : 'Draft';
+
+    li.innerHTML = `
+      <div class="admin-watch-item-body">
+        <div class="admin-watch-item-title">${escapeHtml(n.public_title || 'Untitled Dispatch')}</div>
+        <div class="admin-watch-item-meta">${escapeHtml(n.status.replaceAll('_', ' '))} · ${formattedDate}</div>
+      </div>
+    `;
+    
+    li.addEventListener('click', () => selectNewsletter(n));
+    list.appendChild(li);
+  });
+}
+
+function clearNewsletterForm() {
+  selectedNewsletter = null;
+  if (els.newsletterForm) els.newsletterForm.hidden = true;
+  if (els.newsletterDetailEmpty) els.newsletterDetailEmpty.hidden = false;
+  if (els.tabpanelNewsletter) els.tabpanelNewsletter.dataset.mobileView = 'list';
+  
+  if (els.newsletterList) {
+    const activeItems = els.newsletterList.querySelectorAll('.admin-watch-item.is-active');
+    activeItems.forEach(item => item.classList.remove('is-active'));
+  }
+}
+
+function selectNewsletter(n) {
+  selectedNewsletter = n;
+  if (els.newsletterDetailEmpty) els.newsletterDetailEmpty.hidden = true;
+  if (els.newsletterForm) els.newsletterForm.hidden = false;
+  if (els.tabpanelNewsletter) els.tabpanelNewsletter.dataset.mobileView = 'detail';
+  
+  renderNewsletterList(); // updates active item highlight
+
+  // Populate form
+  els.newsletterFieldId.value = n.id || '';
+  els.newsletterFieldSlug.value = n.slug || '';
+  els.newsletterFieldStatus.value = n.status || 'draft';
+  els.newsletterFieldSubject.value = n.subject || '';
+  els.newsletterFieldPreheader.value = n.preheader || '';
+  els.newsletterFieldPublicTitle.value = n.public_title || '';
+  els.newsletterFieldBodyHtml.value = n.body_html || '';
+  els.newsletterFieldBodyText.value = n.body_text || '';
+  els.newsletterFieldArchiveVisible.checked = !!n.archive_visible;
+
+  // Scheduled date
+  if (n.status === 'scheduled') {
+    els.newsletterFieldScheduledAtWrapper.hidden = false;
+    if (n.scheduled_at) {
+      // Format to datetime-local local string: YYYY-MM-DDTHH:MM
+      const date = new Date(n.scheduled_at);
+      const tzOffset = date.getTimezoneOffset() * 60000; // in ms
+      const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);
+      els.newsletterFieldScheduledAt.value = localISOTime;
+    } else {
+      els.newsletterFieldScheduledAt.value = '';
+    }
+  } else {
+    els.newsletterFieldScheduledAtWrapper.hidden = true;
+    els.newsletterFieldScheduledAt.value = '';
+  }
+
+  // Update preview
+  updateNewsletterPreview();
+
+  // Button visibilities based on status
+  const s = n.status;
+  
+  // Can delete if draft / needs_review / rejected / failed
+  const deletable = ['draft', 'needs_review', 'rejected', 'failed'].includes(s);
+  els.newsletterDeleteBtn.hidden = !deletable;
+
+  // Can approve if draft / needs_review / rejected
+  const approvable = ['draft', 'needs_review', 'rejected'].includes(s);
+  els.newsletterApproveBtn.hidden = !approvable;
+
+  // Can schedule if draft / needs_review / approved / rejected
+  const schedulable = ['draft', 'needs_review', 'approved', 'rejected', 'scheduled'].includes(s);
+  els.newsletterScheduleBtn.hidden = !schedulable;
+
+  // Can broadcast now if approved or scheduled
+  const sendable = ['approved', 'scheduled'].includes(s);
+  els.newsletterSendNowBtn.hidden = !sendable;
+
+  // Save changes allowed for all non-sending/sent/archived statuses
+  const editable = !['sending', 'sent', 'archived'].includes(s);
+  els.newsletterSaveBtn.hidden = !editable;
+  
+  // Disable fields if not editable
+  els.newsletterFieldSubject.disabled = !editable;
+  els.newsletterFieldPreheader.disabled = !editable;
+  els.newsletterFieldPublicTitle.disabled = !editable;
+  els.newsletterFieldBodyHtml.disabled = !editable;
+  els.newsletterFieldBodyText.disabled = !editable;
+  
+  // Clear test email status
+  els.newsletterTestStatus.textContent = '';
+}
+
+function updateNewsletterPreview() {
+  const html = els.newsletterFieldBodyHtml.value;
+  els.newsletterPreview.innerHTML = html || '<p class="admin-meta">No content written yet.</p>';
+}
+
+if (els.newsletterFieldBodyHtml) {
+  els.newsletterFieldBodyHtml.addEventListener('input', updateNewsletterPreview);
+}
+
+if (els.newsletterNewBtn) {
+  els.newsletterNewBtn.addEventListener('click', async () => {
+    const title = prompt('Enter a title prefix for this newsletter issue (optional):');
+    setStatus('Generating AI dispatch draft...', 'pending');
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not signed in.');
+
+      const res = await fetch('/api/newsletter/generate-draft', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title })
+      });
+      
+      const body = await res.json();
+      if (!res.ok || !body.ok) throw new Error(body.message || 'Generation failed.');
+
+      setStatus('AI Draft generated successfully!');
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Failed to generate draft:', err);
+      setStatus(`Draft generation failed: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterForm) {
+  els.newsletterForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selectedNewsletter) return;
+
+    setStatus('Saving dispatch changes...', 'pending');
+    try {
+      // Fetch items array if editing an existing issue to preserve them
+      const { data: currentIssue, error: getErr } = await supabase.rpc('admin_get_newsletter_issue', { issue_id: selectedNewsletter.id });
+      if (getErr) throw getErr;
+
+      const payload = {
+        id: els.newsletterFieldId.value,
+        slug: els.newsletterFieldSlug.value,
+        status: els.newsletterFieldStatus.value,
+        subject: els.newsletterFieldSubject.value.trim(),
+        preheader: els.newsletterFieldPreheader.value.trim(),
+        publicTitle: els.newsletterFieldPublicTitle.value.trim(),
+        bodyHtml: els.newsletterFieldBodyHtml.value.trim(),
+        bodyText: els.newsletterFieldBodyText.value.trim(),
+        archiveVisible: els.newsletterFieldArchiveVisible.checked,
+        items: currentIssue?.items || []
+      };
+
+      const { data, error } = await supabase.rpc('admin_upsert_newsletter_issue', { payload });
+      if (error) throw error;
+
+      setStatus('Dispatch saved successfully.');
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Failed to save newsletter:', err);
+      setStatus(`Failed to save: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterSendTestBtn) {
+  els.newsletterSendTestBtn.addEventListener('click', async () => {
+    if (!selectedNewsletter) return;
+    const recipient = els.newsletterTestRecipient.value.trim();
+    if (!recipient) {
+      alert('Please enter a recipient email address.');
+      return;
+    }
+
+    els.newsletterTestStatus.textContent = 'Sending test email...';
+    els.newsletterTestStatus.style.color = '#fde047';
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not signed in.');
+
+      const res = await fetch('/api/newsletter/send-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          issueId: selectedNewsletter.id,
+          recipient
+        })
+      });
+
+      const body = await res.json();
+      if (!res.ok || !body.ok) throw new Error(body.message || 'Test send failed.');
+
+      els.newsletterTestStatus.textContent = `Test email sent to ${recipient}!`;
+      els.newsletterTestStatus.style.color = '#10b981';
+    } catch (err) {
+      console.error('Test email failed:', err);
+      els.newsletterTestStatus.textContent = `Test failed: ${err.message}`;
+      els.newsletterTestStatus.style.color = '#ef4444';
+    }
+  });
+}
+
+if (els.newsletterApproveBtn) {
+  els.newsletterApproveBtn.addEventListener('click', async () => {
+    if (!selectedNewsletter) return;
+    
+    const confirmed = confirm('Approve this dispatch? Once approved, it can be scheduled or broadcast to subscribers.');
+    if (!confirmed) return;
+
+    setStatus('Approving dispatch...', 'pending');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not signed in.');
+
+      const res = await fetch('/api/newsletter/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ issueId: selectedNewsletter.id })
+      });
+
+      const body = await res.json();
+      if (!res.ok || !body.ok) throw new Error(body.message || 'Approval failed.');
+
+      setStatus('Dispatch approved.');
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Failed to approve dispatch:', err);
+      setStatus(`Approval failed: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterScheduleBtn) {
+  els.newsletterScheduleBtn.addEventListener('click', async () => {
+    if (!selectedNewsletter) return;
+
+    let promptDate = prompt('Enter schedule date (Format: YYYY-MM-DD HH:MM in Manila time, e.g. 2026-06-25 10:00):');
+    if (!promptDate) return;
+
+    const dateObj = new Date(promptDate.replace(' ', 'T') + '+08:00');
+    if (isNaN(dateObj.getTime())) {
+      alert('Invalid date format. Please try again.');
+      return;
+    }
+    const isoString = dateObj.toISOString();
+
+    setStatus('Scheduling dispatch...', 'pending');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not signed in.');
+
+      const res = await fetch('/api/newsletter/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          issueId: selectedNewsletter.id,
+          scheduledAt: isoString
+        })
+      });
+
+      const body = await res.json();
+      if (!res.ok || !body.ok) throw new Error(body.message || 'Scheduling failed.');
+
+      setStatus(`Dispatch scheduled for ${promptDate} (Manila time).`);
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Failed to schedule dispatch:', err);
+      setStatus(`Scheduling failed: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterSendNowBtn) {
+  els.newsletterSendNowBtn.addEventListener('click', async () => {
+    if (!selectedNewsletter) return;
+
+    const confirmed = confirm('⚠️ WARNING: Broadcast this dispatch to ALL active newsletter subscribers now? This action CANNOT be undone.');
+    if (!confirmed) return;
+
+    setStatus('Broadcasting dispatch to subscribers...', 'pending');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not signed in.');
+
+      const res = await fetch('/api/newsletter/send-approved', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ issueId: selectedNewsletter.id })
+      });
+
+      const body = await res.json();
+      if (!res.ok || !body.ok) throw new Error(body.message || 'Broadcast failed.');
+
+      setStatus(`Broadcast completed successfully to ${body.recipientCount || 0} subscribers.`);
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Broadcast failed:', err);
+      setStatus(`Broadcast failed: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterDeleteBtn) {
+  els.newsletterDeleteBtn.addEventListener('click', async () => {
+    if (!selectedNewsletter) return;
+
+    const confirmed = confirm(`Delete the dispatch "${selectedNewsletter.public_title || 'Untitled'}"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setStatus('Deleting dispatch...', 'pending');
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_newsletter_issue', { issue_id: selectedNewsletter.id });
+      if (error) throw error;
+
+      setStatus('Dispatch deleted.');
+      await loadNewsletterTab();
+    } catch (err) {
+      console.error('Failed to delete dispatch:', err);
+      setStatus(`Delete failed: ${err.message}`, 'error');
+    }
+  });
+}
+
+if (els.newsletterCancelBtn) els.newsletterCancelBtn.addEventListener('click', clearNewsletterForm);
+if (els.newsletterBackBtn) els.newsletterBackBtn.addEventListener('click', clearNewsletterForm);
+if (els.newsletterFilter) els.newsletterFilter.addEventListener('input', renderNewsletterList);
+

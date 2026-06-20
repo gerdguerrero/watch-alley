@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { assertAdmin } from "@/lib/newsletter/admin";
 import { jsonError, jsonOk, readJsonObject } from "@/lib/newsletter/api";
+import { sendTestEmail } from "@/lib/newsletter/send";
 
 export const runtime = "nodejs";
 
@@ -36,5 +37,34 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return jsonError("Email provider sending is not enabled in this approval branch.", 501);
+  try {
+    const result = await sendTestEmail(issueId, recipient);
+    await admin.supabase.rpc("admin_log_newsletter_send", {
+      payload: {
+        issueId,
+        provider: "resend",
+        status: "test_sent",
+        recipientCount: 1,
+        metadata: { recipient, mode: "test", result },
+      },
+    });
+    return jsonOk({
+      sent: true,
+      configured: true,
+      message: `Test email sent to ${recipient}.`,
+    });
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    await admin.supabase.rpc("admin_log_newsletter_send", {
+      payload: {
+        issueId,
+        provider: "resend",
+        status: "failed",
+        recipientCount: 1,
+        errorMessage: errMsg,
+        metadata: { recipient, mode: "test" },
+      },
+    });
+    return jsonError(`Test sending failed: ${errMsg}`, 500);
+  }
 }

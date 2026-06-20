@@ -1,4 +1,5 @@
 import { jsonError, jsonOk, requireCronSecret } from "@/lib/newsletter/api";
+import { sendNewsletterBroadcast } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
 
   if (error) return jsonError(error.message, 500);
 
-  const due = Array.isArray(data) ? data : [];
+  const due = Array.isArray(data) ? (data as { id: string }[]) : [];
   if (!providerConfigured) {
     return jsonOk({
       sent: 0,
@@ -28,10 +29,25 @@ export async function GET(request: Request) {
     });
   }
 
+  let sentCount = 0;
+  const errors: string[] = [];
+
+  for (const issue of due) {
+    try {
+      await sendNewsletterBroadcast(issue.id);
+      sentCount++;
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : String(err));
+    }
+  }
+
   return jsonOk({
-    sent: 0,
+    sent: sentCount,
     due: due.length,
     configured: true,
-    message: "Provider detected, but automated sending is disabled in this approval branch.",
+    message:
+      errors.length > 0
+        ? `Completed with errors. Sent ${sentCount} of ${due.length} issues. Errors: ${errors.join(", ")}`
+        : `Successfully sent ${sentCount} scheduled issues.`,
   });
 }

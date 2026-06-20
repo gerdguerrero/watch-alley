@@ -94,6 +94,7 @@
       <button type="button" id="admin-tab-inbox" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inbox" tabindex="-1" data-tab="inbox">Inbox</button>
       <button type="button" id="admin-tab-inventory" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inventory" tabindex="-1" data-tab="inventory">Inventory</button>
       <button type="button" id="admin-tab-journal" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-journal" tabindex="-1" data-tab="journal">Journal</button>
+      <button type="button" id="admin-tab-newsletter" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-newsletter" tabindex="-1" data-tab="newsletter">Newsletter</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
       <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
@@ -651,6 +652,103 @@
             <button type="button" class="btn-secondary" id="journal-preview-btn" hidden>View on website ↗</button>
             <button type="button" class="btn-danger" id="journal-delete-btn" hidden>Delete</button>
             <button type="button" class="btn-ghost" id="journal-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-newsletter" role="tabpanel" aria-labelledby="admin-tab-newsletter" hidden>
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+          <div>
+            <div class="admin-eyebrow">Newsletter</div>
+            <div class="admin-count" id="newsletter-count">—</div>
+          </div>
+          <button type="button" id="newsletter-new-btn" class="btn-primary admin-new-btn">+ New Draft</button>
+        </div>
+        <input type="search" id="newsletter-filter" placeholder="Filter by title or slug…" />
+        <ul class="admin-watch-list" id="newsletter-list" aria-live="polite"></ul>
+      </aside>
+
+      <section class="admin-detail" id="newsletter-detail">
+        <div class="admin-mobile-detail-bar">
+          <button type="button" id="newsletter-back-btn" class="admin-back-btn">← Newsletter</button>
+        </div>
+        <div class="admin-detail-empty" id="newsletter-detail-empty">
+          <p>Select a dispatch on the left to view, edit, or send it, or click <strong>+ New Draft</strong> to generate one using AI.</p>
+          <p class="admin-meta">Drafts are created automatically using current available watches, recent sold items, and journal dispatches.</p>
+        </div>
+
+        <form id="newsletter-form" class="admin-form" hidden novalidate>
+          <input type="hidden" id="newsletter-field-id" />
+          <input type="hidden" id="newsletter-field-slug" />
+
+          <div class="admin-form-grid">
+            <label>Status
+              <select id="newsletter-field-status" disabled>
+                <option value="draft">Draft</option>
+                <option value="needs_review">Needs Review</option>
+                <option value="approved">Approved</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="sending">Sending</option>
+                <option value="sent">Sent</option>
+                <option value="archived">Archived</option>
+                <option value="rejected">Rejected</option>
+                <option value="failed">Failed</option>
+              </select>
+            </label>
+            <label id="newsletter-field-scheduled-at-wrapper" hidden>Scheduled send date
+              <input type="datetime-local" id="newsletter-field-scheduled-at" />
+            </label>
+            <label class="admin-col-2">Subject Line *
+              <input type="text" id="newsletter-field-subject" required maxlength="180" placeholder="e.g. Curated drops from The Watch Alley" />
+            </label>
+            <label class="admin-col-2">Preheader *
+              <input type="text" id="newsletter-field-preheader" required maxlength="240" placeholder="e.g. First access to rare finds and Manila collector notes." />
+            </label>
+            <label class="admin-col-2">Public Title *
+              <input type="text" id="newsletter-field-public-title" required maxlength="240" placeholder="e.g. The Alley Dispatch - June 2026" />
+            </label>
+            
+            <div class="admin-col-2">
+              <div class="admin-eyebrow" style="margin-bottom: 6px;">Email content *</div>
+              <p class="admin-meta">This is the fully compiled HTML content that will be sent to subscribers. Make direct edits if needed.</p>
+              
+              <div class="journal-editor-grid">
+                <textarea id="newsletter-field-body-html" rows="18" placeholder="HTML content" required></textarea>
+                <div class="journal-preview" id="newsletter-preview" aria-label="Email preview" style="background: #080706; padding: 20px; border: 1px solid rgba(253, 224, 71, 0.15); overflow-y: auto; color: #fff;"></div>
+              </div>
+            </div>
+            
+            <label class="admin-col-2">Text-only version (fallback)
+              <textarea id="newsletter-field-body-text" rows="6" placeholder="Text fallback content"></textarea>
+            </label>
+
+            <fieldset class="admin-col-2 admin-fieldset">
+              <legend>Archive settings</legend>
+              <label class="admin-inline-check">
+                <input type="checkbox" id="newsletter-field-archive-visible" />
+                Visible in the public web archive (/watch-list/archive)
+              </label>
+            </fieldset>
+            
+            <div class="admin-col-2" id="newsletter-test-box" style="border: 1px solid rgba(253, 224, 71, 0.15); padding: 15px; border-radius: 8px; margin-top: 10px;">
+              <div class="admin-eyebrow">Send test email</div>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="email" id="newsletter-test-recipient" placeholder="test@example.com" style="flex: 1; min-height: 40px; padding: 5px 10px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #333;" />
+                <button type="button" id="newsletter-send-test-btn" class="btn-secondary" style="min-height: 40px;">Send Test</button>
+              </div>
+              <p id="newsletter-test-status" class="admin-hint" style="margin-top: 8px;" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="newsletter-save-btn">Save Changes</button>
+            <button type="button" class="btn-secondary" id="newsletter-approve-btn">Approve</button>
+            <button type="button" class="btn-secondary" id="newsletter-schedule-btn">Schedule...</button>
+            <button type="button" class="btn-secondary" id="newsletter-send-now-btn" style="background: #b45309; border-color: #d97706;">Broadcast Now</button>
+            <button type="button" class="btn-danger" id="newsletter-delete-btn" hidden>Delete</button>
+            <button type="button" class="btn-ghost" id="newsletter-cancel-btn">Cancel</button>
           </div>
         </form>
       </section>

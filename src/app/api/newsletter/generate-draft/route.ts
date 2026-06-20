@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { fetchWatches } from "@/lib/inventory/queries";
 import { fetchJournalPosts } from "@/lib/journal/queries";
 import { assertAdmin } from "@/lib/newsletter/admin";
+import { generateNewsletterDraftAI } from "@/lib/newsletter/ai";
 import { jsonError, jsonOk, readJsonObject } from "@/lib/newsletter/api";
 
 export const runtime = "nodejs";
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await readJsonObject(request)) ?? {};
   const issueMonth = monthLabel();
-  const title = String(body.title || `The Watch List - ${issueMonth}`);
+  const title = String(body.title || `Newsletter - ${issueMonth}`);
   const slug = slugify(String(body.slug || title));
 
   const [available, sold, posts] = await Promise.all([
@@ -51,6 +52,223 @@ export async function POST(request: NextRequest) {
   const soldHighlight = sold[0];
   const journal = posts[0];
 
+  // Try AI draft generation first if API key is configured
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const aiDraft = await generateNewsletterDraftAI({
+        available: available.map((w) => ({
+          id: w.id,
+          brand: w.brand,
+          name: w.name,
+          reference: w.reference,
+          price: w.price,
+          conditionLabel: w.conditionLabel,
+          description: w.description || "",
+          provenance: w.provenance || "",
+        })),
+        sold: sold.map((w) => ({
+          id: w.id,
+          brand: w.brand,
+          name: w.name,
+          reference: w.reference,
+          price: w.price,
+          conditionLabel: w.conditionLabel,
+          description: w.description || "",
+          provenance: w.provenance || "",
+        })),
+        posts: posts.map((p) => ({
+          slug: p.slug,
+          title: p.title,
+          summary: p.summary || "",
+          content: p.bodyMarkdown || "",
+        })),
+      });
+
+      interface DraftItem {
+        itemType: string;
+        itemId?: string;
+        title: string;
+        summary?: string;
+        url?: string;
+        imageUrl?: string;
+        position: number;
+      }
+      const items: DraftItem[] = [];
+
+      // Map featured available watches
+      for (let i = 0; i < featured.length; i++) {
+        const watch = featured[i];
+        const aiWatch = aiDraft.watches.find((w) => w.id === watch.id) || {
+          headline: `${watch.brand} ${watch.name}`,
+          copy: watch.description || `${watch.brand} ${watch.reference || watch.model}`.trim(),
+        };
+        items.push({
+          itemType: "available_watch",
+          itemId: watch.id,
+          title: aiWatch.headline,
+          summary: aiWatch.copy,
+          url: `/watch/${watch.slug}`,
+          imageUrl: watch.primaryImage || "",
+          position: i,
+        });
+      }
+
+      // Map sold watch highlight
+      if (soldHighlight) {
+        const aiSold = aiDraft.soldHighlight || {
+          headline: `${soldHighlight.brand} ${soldHighlight.name}`,
+          copy: "Sold archive highlight for similar-watch sourcing demand.",
+        };
+        items.push({
+          itemType: "sold_watch",
+          itemId: soldHighlight.id,
+          title: aiSold.headline,
+          summary: aiSold.copy,
+          url: `/watch/${soldHighlight.slug}`,
+          imageUrl: soldHighlight.primaryImage || "",
+          position: 10,
+        });
+      }
+
+      // Map journal post
+      if (journal) {
+        items.push({
+          itemType: "journal_post",
+          itemId: journal.slug,
+          title: journal.title,
+          summary: journal.summary,
+          url: `/journal/${journal.slug}`,
+          imageUrl: journal.heroImage || "",
+          position: 20,
+        });
+      }
+
+      // Sourcing CTA
+      items.push({
+        itemType: "sourcing_cta",
+        title: "Looking for a specific reference?",
+        summary: "Send the Private Collecting Desk a sourcing brief.",
+        url: "/watch-list#sourcing",
+        imageUrl: "",
+        position: 30,
+      });
+
+      const introHtml = aiDraft.introHtml;
+      const collectorNoteHtml = aiDraft.collectorNote
+        ? `<h2>${escapeHtml(aiDraft.collectorNote.title)}</h2>${aiDraft.collectorNote.bodyHtml}`
+        : "";
+
+      const bodyHtml = `
+        ${introHtml}
+        <h2>In rotation</h2>
+        ${featured
+          .map((watch) => {
+            const item = items.find(
+              (it) => it.itemId === watch.id && it.itemType === "available_watch"
+            );
+            return `
+              <div style="margin-bottom: 24px;">
+                <h3>${escapeHtml(item?.title || `${watch.brand} ${watch.name}`)}</h3>
+                <p>${escapeHtml(item?.summary || "")}</p>
+                <p><a href="/watch/${escapeHtml(watch.slug)}">View watch details</a></p>
+              </div>
+            `;
+          })
+          .join("")}
+        
+        ${
+          soldHighlight
+            ? `
+          <h2>Sold archive</h2>
+          <div style="margin-bottom: 24px;">
+            <h3>${escapeHtml(
+              items.find((it) => it.itemType === "sold_watch")?.title ||
+                `${soldHighlight.brand} ${soldHighlight.name}`
+            )}</h3>
+            <p>${escapeHtml(items.find((it) => it.itemType === "sold_watch")?.summary || "")}</p>
+            <p><a href="/watch-list#sourcing">Find me something similar</a></p>
+          </div>
+        `
+            : ""
+        }
+
+        ${collectorNoteHtml}
+        
+        <p style="margin-top: 32px;"><a href="https://www.thewatchalley.com/watch-list#sourcing">Send a sourcing request</a></p>
+      `;
+
+      const bodyText = [
+        aiDraft.preheader,
+        ...featured.map((watch) => {
+          const item = items.find(
+            (it) => it.itemId === watch.id && it.itemType === "available_watch"
+          );
+          return `${item?.title}: https://www.thewatchalley.com/watch/${watch.slug}\n${item?.summary}`;
+        }),
+        soldHighlight
+          ? `Sold Highlight: ${soldHighlight.brand} ${soldHighlight.name}\n${
+              items.find((it) => it.itemType === "sold_watch")?.summary
+            }`
+          : "",
+        aiDraft.collectorNote
+          ? `${aiDraft.collectorNote.title}\n${aiDraft.collectorNote.bodyHtml.replace(
+              /<[^>]*>/g,
+              ""
+            )}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
+      const payload = {
+        slug,
+        internalTitle: title,
+        publicTitle: aiDraft.issueTitle,
+        subject: aiDraft.subject,
+        preheader: aiDraft.preheader,
+        introHtml:
+          "<p>An AI-generated draft prepared from current inventory, sold archive, and collector notes.</p>",
+        bodyHtml,
+        bodyText,
+        status: "needs_review",
+        sourceType: "ai_generated",
+        archiveVisible: false,
+        metadata: {
+          generatedBy: "api/newsletter/generate-draft",
+          adminEmail: admin.email,
+          availableCount: available.length,
+          soldCount: sold.length,
+          journalCount: posts.length,
+          modelUsed: "gemini-2.5-flash",
+        },
+        items,
+      };
+
+      const { data, error } = await admin.supabase.rpc("admin_upsert_newsletter_issue", {
+        payload,
+      });
+      if (error) return jsonError(error.message, 500);
+
+      const issue = data as { issue?: { id?: string } } | null;
+      await admin.supabase.rpc("admin_log_ai_generation_run", {
+        payload: {
+          issueId: issue?.issue?.id,
+          runType: "full_issue",
+          model: "gemini-2.5-flash",
+          promptVersion: "watch-list-ai-v1",
+          inputPayload: { requestedTitle: body.title ?? null },
+          outputPayload: { slug, itemCount: items.length },
+          status: "completed",
+        },
+      });
+
+      return jsonOk({ issue: data });
+    } catch (aiError) {
+      console.error("Gemini AI draft generation failed, falling back to system scaffold:", aiError);
+    }
+  }
+
+  // Fallback system scaffold
   const items = [
     ...featured.map((watch, index) => ({
       itemType: "available_watch",
