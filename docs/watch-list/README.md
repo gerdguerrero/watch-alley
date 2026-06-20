@@ -21,10 +21,13 @@ The Watch List is the newsletter-led collector pipeline for The Watch Alley. It 
 - Server-side API routes for signup, alerts, and sourcing requests.
 - Supabase migration for subscribers, preferences, watch alerts, and sourcing requests.
 - Consent capture, duplicate-email handling, source/UTM metadata, basic spam protection, and successful-submit analytics events.
+- Newsletter operations migration from the automation addendum: issues, issue items, AI generation runs, send logs, evergreen content, public archive views, admin RPCs, and cron due-issue helper.
+- Public archive routes at `/watch-list/archive` and `/watch-list/archive/[slug]`.
+- Protected newsletter operation route scaffolds for draft generation, section generation, approval, scheduling, test-send logging, send logging, and cron checks.
 
-## Not Included Yet
+## Approval-Gated Or Not Included Yet
 
-The automation addendum is intentionally documented for team discussion, not shipped as live automation in this PR.
+The automation addendum is now partially implemented as a safe foundation. Live AI drafting and live email sending remain disabled until the team approves provider credentials, admin UX, and operating rules.
 
 Future phases should be approved before implementation:
 
@@ -34,7 +37,7 @@ Future phases should be approved before implementation:
 - AI draft generation.
 - Human approval workflow.
 - Scheduled sending via cron.
-- Public issue archive.
+- Enabling scheduled sending via cron.
 
 The operating rule for future automation is:
 

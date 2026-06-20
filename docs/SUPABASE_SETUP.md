@@ -35,6 +35,7 @@ Migrations applied to production:
 | 20260524144801    | 0019-watch-alley-badges               | Added badges JSONB column, migrated limited-edition category to badges, updated public.watches view. |
 | 20260525120000    | 0020-watch-alley-admin-upsert-full     | Restored auto-ID generation (twa-NNN) lost in 0018. Full admin_upsert_watch with category, badges, auto-ID. |
 | 20260619212408    | watch_alley_watch_list_pipeline        | The Watch List subscriber, preference, sold-watch alert, and sourcing-request tables plus service-role-only submit RPCs. |
+| 20260619214657    | watch_alley_newsletter_operations      | Newsletter issue, issue item, AI generation run, send log, evergreen library tables plus admin/cron RPC foundation. |
 
 13 watches seeded from the legacy JSON snapshot now carried at `next/public/data/watches.json` (10 available + 3 sold archive).
 
@@ -50,6 +51,7 @@ Migrations applied to production:
 | 0020-watch-alley-admin-upsert-full.sql                | Full admin_upsert_watch: category + badges + auto-ID. |
 | 0023-watch-alley-draft-listings-without-photos.sql    | Allows draft inventory rows to save without photos while published listings still require at least one photo. |
 | supabase/migrations/20260619212408_watch_alley_watch_list_pipeline.sql | The Watch List collector pipeline schema + submit RPCs. |
+| supabase/migrations/20260619214657_watch_alley_newsletter_operations.sql | Newsletter operations schema + admin/cron RPCs from the automation addendum. |
 
 These are kept as the canonical migration history. If you wipe/recreate the
 project, run them in numeric order.
@@ -95,6 +97,13 @@ project, run them in numeric order.
 - Vercel Web Analytics is already mounted in `src/app/layout.tsx`; signup,
   alert, and sourcing form components emit custom events after successful
   writes.
+- Newsletter automation addendum foundations live in
+  `supabase/migrations/20260619214657_watch_alley_newsletter_operations.sql`.
+  The schema supports issues, issue items, AI generation runs, send logs,
+  evergreen content, public archive views, admin status transitions, and a
+  service-role due-issue scanner.
+- Scheduled draft/send routes require `NEWSLETTER_CRON_SECRET`. Email sending
+  remains disabled until provider credentials and approval UX are finalized.
 
 ## RPC reference
 
@@ -111,6 +120,14 @@ project, run them in numeric order.
 | `submit_watch_list_signup(payload)` | service_role | Insert/update a Watch List subscriber and preferences. Called by `/api/watch-list/signup`. |
 | `submit_watch_list_alert(payload)` | service_role | Store a sold-watch/similar-piece alert with watch context. Called by `/api/watch-list/alert`. |
 | `submit_sourcing_request(payload)` | service_role | Store a structured sourcing request. Called by `/api/watch-list/sourcing`. |
+| `admin_list_newsletter_issues(status, limit)` | authed + admin | List newsletter issues for the future admin editor. |
+| `admin_get_newsletter_issue(id)` | authed + admin | Return one issue with items, AI generation runs, and send logs. |
+| `admin_upsert_newsletter_issue(payload)` | authed + admin | Create/update draft or needs-review issues and replace item links. |
+| `admin_update_newsletter_issue_status(id,status,scheduled_at,archive)` | authed + admin | Approve, schedule, reject, archive, or fail an issue. |
+| `admin_delete_newsletter_issue(id)` | authed + admin | Delete draft/review issues only. |
+| `admin_log_ai_generation_run(payload)` | authed + admin | Record AI/system draft generation attempts. |
+| `admin_log_newsletter_send(payload)` | authed + admin | Record test/send attempts and failures. |
+| `service_list_due_newsletter_issues(limit)` | service_role | Cron helper for approved scheduled issues due to send. |
 
 All admin_* RPCs check `watch_alley.is_admin()` internally and raise
 `42501 Not authorized` if the caller's email is not on the allowlist.
