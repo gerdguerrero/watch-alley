@@ -38,6 +38,7 @@ Variables** for both Preview and Production):
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+WATCH_LIST_IP_HASH_SALT= # optional, used to hash consent/request IP metadata
 ```
 
 For local development, copy [.env.example](./.env.example) to `.env.local`
@@ -53,6 +54,23 @@ Native App Router:
 - `/journal` — journal index
 - `/journal/[slug]` — journal post (ISR)
 - `/watch/[slug]` — watch detail (ISR, per-watch OG + JSON-LD)
+- `/watch-list` — The Watch List signup and sourcing request page
+- `/watch-list/archive` — public archive for sent/approved Watch List issues
+- `/watch-list/archive/[slug]` — public issue detail
+
+API route handlers:
+
+- `POST /api/watch-list/signup` — newsletter/list signup with preferences
+- `POST /api/watch-list/alert` — sold-watch/similar-piece alert
+- `POST /api/watch-list/sourcing` — structured sourcing request
+- `POST /api/newsletter/generate-draft` — admin-only draft scaffold from inventory/journal content
+- `POST /api/newsletter/generate-section` — admin-only AI-section placeholder/logging route
+- `POST /api/newsletter/approve` — admin-only issue approval
+- `POST /api/newsletter/schedule` — admin-only schedule transition
+- `POST /api/newsletter/send-test` — admin-only test-send placeholder/logging route
+- `POST /api/newsletter/send-approved` — admin-only send placeholder/logging route
+- `GET /api/cron/newsletter-draft` — protected cron placeholder for future automated draft generation
+- `GET /api/cron/newsletter-send` — protected cron due-issue scanner; sending disabled until provider approval
 
 Legacy bridge routes served as static HTML under [public/](./public):
 
@@ -69,6 +87,7 @@ The bridge stays in place until each surface is rebuilt natively.
 - [Roadmap](./docs/WATCH_ALLEY_ROADMAP.md)
 - [Supabase setup](./docs/SUPABASE_SETUP.md)
 - [Inventory schema](./docs/inventory-schema.md)
+- [The Watch List handover](./docs/watch-list/README.md)
 
 ## One-off scripts
 

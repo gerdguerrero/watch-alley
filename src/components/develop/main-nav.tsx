@@ -34,6 +34,7 @@ export function MainNav() {
   const overlayLinks: MobileNavLink[] = [
     { label: "Available", href: "/available" },
     { label: "Sold", href: "/sold" },
+    { label: "Watch List", href: "/watch-list" },
     { label: "Journal", href: "/journal" },
   ];
 
@@ -80,6 +81,9 @@ export function MainNav() {
           </Link>
           <Link href="/sold" className={linkClass(pathname === "/sold")}>
             Sold
+          </Link>
+          <Link href="/watch-list" className={linkClass(pathname === "/watch-list")}>
+            Watch List
           </Link>
           <Link href="/journal" className={linkClass(pathname.startsWith("/journal"))}>
             Journal

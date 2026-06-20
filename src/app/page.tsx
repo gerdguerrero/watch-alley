@@ -4,6 +4,7 @@ import { EntrancePreloader } from "@/components/develop/entrance-preloader";
 import { Hero } from "@/components/develop/hero";
 import { JournalSection } from "@/components/develop/journal-section";
 import { SmoothScrollProvider } from "@/components/develop/smooth-scroll-provider";
+import { WatchListSection } from "@/components/watch-list/WatchListSection";
 import { fetchFeaturedWatch, fetchWatches } from "@/lib/inventory/queries";
 import { pickCollectionTeasers } from "@/lib/inventory/teasers";
 import { fetchJournalPosts } from "@/lib/journal/queries";
@@ -31,6 +32,7 @@ export default async function Page() {
         <Hero featured={featured} />
         <CollectionSection teasers={teasers} totalCount={available.length} />
         <JournalSection posts={posts} />
+        <WatchListSection source="homepage" />
         <ContactSection />
       </main>
     </SmoothScrollProvider>

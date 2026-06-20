@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
+import { WatchAlertForm } from "@/components/watch-list/WatchAlertForm";
 import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
@@ -319,6 +320,16 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
               </div>
 
               {!isSold && <InquiryButtons watch={watch} title={`${watch.brand} ${displayName}`} />}
+
+              {isSold && (
+                <WatchAlertForm
+                  watchId={watch.id}
+                  watchSlug={watch.slug}
+                  watchTitle={`${watch.brand} ${displayName}`}
+                  brand={watch.brand}
+                  reference={watch.reference}
+                />
+              )}
 
               {isReserved && (
                 <p className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-3 font-sans text-[12px] leading-5 text-amber-100/85">
