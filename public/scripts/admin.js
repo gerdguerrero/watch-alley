@@ -3463,6 +3463,7 @@ if (els.newsletterForm) {
         id: els.newsletterFieldId.value,
         slug: els.newsletterFieldSlug.value,
         status: els.newsletterFieldStatus.value,
+        internalTitle: currentIssue?.issue?.internal_title || els.newsletterFieldPublicTitle.value.trim() || 'Newsletter',
         subject: els.newsletterFieldSubject.value.trim(),
         preheader: els.newsletterFieldPreheader.value.trim(),
         publicTitle: els.newsletterFieldPublicTitle.value.trim(),

@@ -115,16 +115,14 @@ export async function sendTestEmail(issueId: string, recipient: string) {
   const supabase = createSupabaseAdminClient();
 
   // 1. Fetch issue
-  const { data: issue, error: issueError } = await supabase
-    .schema("watch_alley")
-    .from("newsletter_issues")
-    .select("*")
-    .eq("id", issueId)
-    .single();
+  const { data, error: issueError } = await supabase.rpc("admin_get_newsletter_issue", {
+    issue_id: issueId,
+  });
 
-  if (issueError || !issue) {
+  if (issueError || !data || !data.issue) {
     throw new Error(issueError?.message || "Newsletter issue not found.");
   }
+  const issue = data.issue;
 
   const html = wrapHtmlEmail(issue.subject, issue.preheader || "", issue.body_html || "");
   const from = getFromEmail();
@@ -150,16 +148,14 @@ export async function sendNewsletterBroadcast(issueId: string) {
   const supabase = createSupabaseAdminClient();
 
   // 1. Fetch issue
-  const { data: issue, error: issueError } = await supabase
-    .schema("watch_alley")
-    .from("newsletter_issues")
-    .select("*")
-    .eq("id", issueId)
-    .single();
+  const { data, error: issueError } = await supabase.rpc("admin_get_newsletter_issue", {
+    issue_id: issueId,
+  });
 
-  if (issueError || !issue) {
+  if (issueError || !data || !data.issue) {
     throw new Error(issueError?.message || "Newsletter issue not found.");
   }
+  const issue = data.issue;
 
   // Double check status
   if (issue.status !== "approved" && issue.status !== "scheduled" && issue.status !== "sending") {
@@ -167,18 +163,13 @@ export async function sendNewsletterBroadcast(issueId: string) {
   }
 
   // 2. Update issue status to sending
-  await supabase
-    .schema("watch_alley")
-    .from("newsletter_issues")
-    .update({ status: "sending" })
-    .eq("id", issueId);
+  await supabase.rpc("service_update_newsletter_status", {
+    issue_id: issueId,
+    new_status: "sending",
+  });
 
   // 3. Fetch active subscribers
-  const { data: subscribers, error: subsError } = await supabase
-    .schema("watch_alley")
-    .from("watch_list_subscribers")
-    .select("email")
-    .eq("status", "active");
+  const { data: subscribers, error: subsError } = await supabase.rpc("service_list_active_subscribers");
 
   if (subsError) {
     throw new Error(`Failed to fetch subscribers: ${subsError.message}`);
@@ -187,11 +178,10 @@ export async function sendNewsletterBroadcast(issueId: string) {
   const recipientCount = subscribers?.length || 0;
   if (recipientCount === 0) {
     // Revert status to approved
-    await supabase
-      .schema("watch_alley")
-      .from("newsletter_issues")
-      .update({ status: "approved" })
-      .eq("id", issueId);
+    await supabase.rpc("service_update_newsletter_status", {
+      issue_id: issueId,
+      new_status: "approved",
+    });
     return { sent: 0, message: "No active subscribers found." };
   }
 
@@ -229,27 +219,21 @@ export async function sendNewsletterBroadcast(issueId: string) {
 
   if (errors.length > 0) {
     // Set status to failed
-    await supabase
-      .schema("watch_alley")
-      .from("newsletter_issues")
-      .update({
-        status: "failed",
-        metadata: { ...((issue.metadata as Record<string, unknown>) || {}), errors },
-      })
-      .eq("id", issueId);
+    await supabase.rpc("service_update_newsletter_status", {
+      issue_id: issueId,
+      new_status: "failed",
+      new_metadata: { errors },
+    });
     throw new Error(`Broadcast partially failed. Sent: ${sentCount}. Errors: ${errors.join(", ")}`);
   }
 
   // 5. Update issue status to sent/archived
-  await supabase
-    .schema("watch_alley")
-    .from("newsletter_issues")
-    .update({
-      status: "sent",
-      sent_at: new Date().toISOString(),
-      archive_visible: true, // Make it visible in archive by default upon broadcast
-    })
-    .eq("id", issueId);
+  await supabase.rpc("service_update_newsletter_status", {
+    issue_id: issueId,
+    new_status: "sent",
+    new_sent_at: new Date().toISOString(),
+    new_archive_visible: true,
+  });
 
   return { sent: sentCount, message: "Broadcast completed successfully." };
 }
