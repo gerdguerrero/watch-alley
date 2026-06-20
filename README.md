@@ -32,13 +32,21 @@ root. No special root-directory override is needed. The repo's
 [vercel.json](./vercel.json) pins clean URLs and the framework preset.
 
 Required environment variables (set in Vercel **Settings → Environment
-Variables** for both Preview and Production):
+Variables** for Production):
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-WATCH_LIST_IP_HASH_SALT= # optional, used to hash consent/request IP metadata
+REVALIDATION_TOKEN=        # ISR on-demand cache purge (admin mutations)
+ADMIN_ACCESS_TOKEN=         # admin panel proxy gate
+WISE_API_TOKEN=             # live PHP→USD FX rate
+CRON_SECRET=                # Vercel cron job auth
+NEWSLETTER_CRON_SECRET=     # newsletter endpoints (fallback)
+RESEND_API_KEY=             # email delivery provider
+NEWSLETTER_FROM_EMAIL=      # sender address for newsletters
+GEMINI_API_KEY=             # AI newsletter draft generation
+WATCH_LIST_IP_HASH_SALT=    # optional, hashes consent/request IP metadata
 ```
 
 For local development, copy [.env.example](./.env.example) to `.env.local`
