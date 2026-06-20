@@ -169,7 +169,9 @@ export async function sendNewsletterBroadcast(issueId: string) {
   });
 
   // 3. Fetch active subscribers
-  const { data: subscribers, error: subsError } = await supabase.rpc("service_list_active_subscribers");
+  const { data: subscribers, error: subsError } = await supabase.rpc(
+    "service_list_active_subscribers"
+  );
 
   if (subsError) {
     throw new Error(`Failed to fetch subscribers: ${subsError.message}`);
@@ -187,7 +189,7 @@ export async function sendNewsletterBroadcast(issueId: string) {
 
   const html = wrapHtmlEmail(issue.subject, issue.preheader || "", issue.body_html || "");
   const from = getFromEmail();
-  const emails = subscribers.map((s) => s.email);
+  const emails = (subscribers as { email: string }[]).map((s) => s.email);
 
   // 4. Send via Resend (broadcast batch)
   // For Resend, if we want to send to many, we can use the batch send API or send to them as Bcc.
