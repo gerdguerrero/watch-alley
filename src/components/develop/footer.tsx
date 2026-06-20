@@ -51,19 +51,19 @@ const SOCIAL_LINKS = [
  */
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-10 md:px-12 md:py-12 lg:px-20">
+    <footer className="relative overflow-hidden border-t border-amber-400/10 bg-[#080706] px-6 py-14 md:px-12 md:py-16 lg:px-20">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-luminosity"
         style={{ backgroundImage: `url(${BRAND_ASSETS.backgroundOne})` }}
       />
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.35fr_0.8fr_0.8fr_1.15fr] lg:items-start lg:gap-10">
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(16rem,1.1fr)_minmax(18rem,0.8fr)_minmax(21rem,1fr)] lg:items-start lg:gap-16">
         {/* Brand column */}
-        <div className="max-w-sm">
+        <div className="max-w-md">
           <Link href="/" aria-label="The Watch Alley home" className="inline-flex">
-            <BrandLogo className="h-16 w-16" sizes="64px" />
+            <BrandLogo variant="inline" className="h-14 w-28" sizes="112px" />
           </Link>
-          <p className="mt-4 text-sm leading-relaxed text-cream-60">
+          <p className="mt-6 max-w-sm text-sm leading-7 text-cream-60">
             A Manila-based curator of pre-owned and brand-new timepieces — daylight-photographed,
             disclosed in writing, and handled with care.
           </p>
@@ -86,15 +86,13 @@ export function Footer() {
           </div>
         </div>
 
-        {/* On mobile the two link groups sit side by side; md:contents lets
-            them flow into the outer grid's 2nd/3rd columns on desktop. */}
-        <div className="grid grid-cols-2 gap-6 lg:contents">
+        <div className="grid grid-cols-2 gap-x-10 gap-y-8 sm:max-w-md lg:max-w-none">
           {FOOTER_LINK_GROUPS.map((group) => (
             <nav key={group.title} aria-label={group.title}>
-              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
+              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-300/70">
                 {group.title}
               </p>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {group.links.map((link) => (
                   <li key={link.label}>
                     <Link
@@ -110,18 +108,18 @@ export function Footer() {
           ))}
         </div>
 
-        <div>
-          <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/70">
+        <div className="w-full max-w-md lg:ml-auto">
+          <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-300/70">
             The Watch List
           </p>
-          <p className="mb-4 text-sm leading-relaxed text-cream-60">
+          <p className="mb-5 max-w-sm text-sm leading-7 text-cream-60">
             First access to curated drops, rare finds, collector notes, and sourcing opportunities.
           </p>
           <WatchListSignupForm source="footer" compact />
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 flex max-w-6xl flex-col gap-4 border-t border-amber-400/10 pt-6 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative z-10 mx-auto mt-12 flex max-w-7xl flex-col gap-4 border-t border-amber-400/10 pt-7 text-[11px] text-cream-60 sm:flex-row sm:items-center sm:justify-between">
         <p>&copy; {new Date().getFullYear()} The Watch Alley. All rights reserved.</p>
         <a
           href="https://www.vibecoders.ph"

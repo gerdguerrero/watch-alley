@@ -112,6 +112,8 @@ export function WatchListSignupForm({
 
   const inputClass =
     "min-h-12 w-full rounded-xl border border-amber-300/15 bg-black/35 px-4 py-3 text-sm text-cream outline-none transition-colors placeholder:text-cream-60/70 focus:border-amber-300/60";
+  const compactInputClass =
+    "min-h-12 w-full rounded-lg border border-amber-300/15 bg-black/35 px-4 py-3 text-sm text-cream outline-none transition-colors placeholder:text-cream-60/70 focus:border-amber-300/60";
   const labelClass = "font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300/80";
 
   return (
@@ -123,34 +125,49 @@ export function WatchListSignupForm({
         </label>
       </div>
 
-      <div className={compact ? "grid gap-3 sm:grid-cols-[1fr_auto]" : "grid gap-3 md:grid-cols-2"}>
-        {!compact && (
+      {compact ? (
+        <div className="grid gap-2">
+          <span id={`${source}-watch-list-email-label`} className={labelClass}>
+            Email
+          </span>
+          <div className="grid gap-2 min-[380px]:grid-cols-[minmax(0,1fr)_6.25rem]">
+            <input
+              aria-labelledby={`${source}-watch-list-email-label`}
+              className={compactInputClass}
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="collector@email.com"
+            />
+            <button
+              type="submit"
+              disabled={state === "pending"}
+              className="inline-flex min-h-12 items-center justify-center rounded-lg bg-amber-300 px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60"
+            >
+              {state === "pending" ? "Joining" : "Join"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2">
           <label className="flex flex-col gap-2">
             <span className={labelClass}>Name</span>
             <input className={inputClass} name="firstName" autoComplete="given-name" />
           </label>
-        )}
-        <label className="flex flex-col gap-2">
-          <span className={labelClass}>Email</span>
-          <input
-            className={inputClass}
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="collector@email.com"
-          />
-        </label>
-        {compact && (
-          <button
-            type="submit"
-            disabled={state === "pending"}
-            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-amber-300 px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60"
-          >
-            {state === "pending" ? "Joining" : "Join"}
-          </button>
-        )}
-      </div>
+          <label className="flex flex-col gap-2">
+            <span className={labelClass}>Email</span>
+            <input
+              className={inputClass}
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="collector@email.com"
+            />
+          </label>
+        </div>
+      )}
 
       {showPreferences && (
         <div className="grid gap-5 border-y border-amber-300/10 py-5">
@@ -223,12 +240,16 @@ export function WatchListSignupForm({
         </div>
       )}
 
-      <label className="flex items-start gap-3 text-left text-[12px] leading-5 text-cream-60">
+      <label
+        className={`flex items-start gap-3 text-left text-cream-60 ${
+          compact ? "text-[11px] leading-5" : "text-[12px] leading-5"
+        }`}
+      >
         <input
           type="checkbox"
           name="consentAccepted"
           required
-          className="mt-1 h-4 w-4 shrink-0 rounded border-amber-300/30 bg-black accent-amber-300"
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-amber-300/30 bg-black accent-amber-300"
         />
         <span>{WATCH_LIST_CONSENT_TEXT}</span>
       </label>
