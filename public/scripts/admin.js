@@ -3300,7 +3300,6 @@ function renderNewsletterList() {
 
   filtered.forEach(n => {
     const li = document.createElement('li');
-    li.className = 'admin-watch-item';
     if (selectedNewsletter && selectedNewsletter.id === n.id) {
       li.classList.add('is-active');
     }
@@ -3312,13 +3311,19 @@ function renderNewsletterList() {
         : 'Draft';
 
     li.innerHTML = `
-      <div class="admin-watch-item-body">
-        <div class="admin-watch-item-title">${escapeHtml(n.public_title || 'Untitled Dispatch')}</div>
-        <div class="admin-watch-item-meta">${escapeHtml(n.status.replaceAll('_', ' '))} · ${formattedDate}</div>
-      </div>
+      <button type="button" data-newsletter-id="${escapeAttr(n.id)}">
+        <div class="admin-row-name">${escapeHtml(n.public_title || 'Untitled Dispatch')}</div>
+        <div class="admin-row-meta">
+          <span>${escapeHtml(n.status.replaceAll('_', ' '))}</span>
+          <span>${escapeHtml(formattedDate)}</span>
+        </div>
+      </button>
     `;
     
-    li.addEventListener('click', () => selectNewsletter(n));
+    const btn = li.querySelector('button');
+    if (btn) {
+      btn.addEventListener('click', () => selectNewsletter(n));
+    }
     list.appendChild(li);
   });
 }
