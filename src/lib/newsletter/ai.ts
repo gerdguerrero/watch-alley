@@ -1,5 +1,36 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
+import { z } from "zod";
+import { sanitizeNewsletterHtml } from "@/lib/newsletter/html";
+
+const aiDraftResponseSchema = z.object({
+  subject: z.string().trim().min(1).max(80),
+  preheader: z.string().trim().min(1).max(140),
+  issueTitle: z.string().trim().min(1).max(160),
+  introHtml: z.string().trim().max(4000),
+  watches: z
+    .array(
+      z.object({
+        id: z.string().trim().min(1),
+        headline: z.string().trim().min(1).max(180),
+        copy: z.string().trim().min(1).max(800),
+      })
+    )
+    .max(8),
+  soldHighlight: z
+    .object({
+      id: z.string().trim().min(1),
+      headline: z.string().trim().min(1).max(180),
+      copy: z.string().trim().min(1).max(800),
+    })
+    .optional(),
+  collectorNote: z
+    .object({
+      title: z.string().trim().min(1).max(180),
+      bodyHtml: z.string().trim().max(6000),
+    })
+    .optional(),
+});
 
 interface WatchData {
   id: string;
@@ -37,6 +68,19 @@ interface AiDraftResponse {
   collectorNote?: {
     title: string;
     bodyHtml: string;
+  };
+}
+
+function sanitizeAiDraft(draft: AiDraftResponse): AiDraftResponse {
+  return {
+    ...draft,
+    introHtml: sanitizeNewsletterHtml(draft.introHtml),
+    collectorNote: draft.collectorNote
+      ? {
+          ...draft.collectorNote,
+          bodyHtml: sanitizeNewsletterHtml(draft.collectorNote.bodyHtml),
+        }
+      : undefined,
   };
 }
 
@@ -149,9 +193,9 @@ ${JSON.stringify(
   }
 
   try {
-    return JSON.parse(response.text) as AiDraftResponse;
+    return sanitizeAiDraft(aiDraftResponseSchema.parse(JSON.parse(response.text)));
   } catch {
     console.error("Failed to parse Gemini JSON output:", response.text);
-    throw new Error("Gemini returned invalid JSON output.");
+    throw new Error("Gemini returned invalid newsletter JSON output.");
   }
 }

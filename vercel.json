@@ -1,5 +1,11 @@
 {
   "framework": "nextjs",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/cron/newsletter-send",
+      "schedule": "0 * * * *"
+    }
+  ]
 }

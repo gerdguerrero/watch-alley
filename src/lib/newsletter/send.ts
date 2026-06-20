@@ -1,6 +1,9 @@
 import "server-only";
+import { createHmac } from "node:crypto";
 import { Resend } from "resend";
+import { escapeHtml, sanitizeNewsletterHtml } from "@/lib/newsletter/html";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createUnsubscribeToken } from "@/lib/watch-list/unsubscribe";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "dummy-key");
 
@@ -8,13 +11,51 @@ function getFromEmail() {
   return process.env.NEWSLETTER_FROM_EMAIL || "The Watch Alley <newsletter@thewatchalley.com>";
 }
 
-function wrapHtmlEmail(subject: string, preheader: string, bodyHtml: string) {
+function getSiteUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://www.thewatchalley.com").replace(/\/+$/, "");
+}
+
+function recipientHash(email: string) {
+  const secret =
+    process.env.WATCH_LIST_DELIVERY_HASH_SECRET ||
+    process.env.WATCH_LIST_UNSUBSCRIBE_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    "watch-list";
+  return createHmac("sha256", secret).update(email.trim().toLowerCase()).digest("hex");
+}
+
+function absoluteUrl(path: string) {
+  if (/^https:\/\//i.test(path)) return path;
+  return `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function absolutizeLinks(html: string) {
+  return html.replace(/\shref="\/([^"]*)"/g, (_match, path: string) => {
+    return ` href="${absoluteUrl(`/${path}`)}"`;
+  });
+}
+
+function wrapHtmlEmail({
+  subject,
+  preheader,
+  bodyHtml,
+  unsubscribeUrl,
+}: {
+  subject: string;
+  preheader: string;
+  bodyHtml: string;
+  unsubscribeUrl: string;
+}) {
+  const safeSubject = escapeHtml(subject);
+  const safePreheader = escapeHtml(preheader);
+  const safeBodyHtml = absolutizeLinks(sanitizeNewsletterHtml(bodyHtml));
+
   return `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${subject}</title>
+    <title>${safeSubject}</title>
     <style>
       body {
         background-color: #080706;
@@ -89,26 +130,85 @@ function wrapHtmlEmail(subject: string, preheader: string, bodyHtml: string) {
     </style>
   </head>
   <body>
-    <span class="preheader">${preheader}</span>
+    <span class="preheader">${safePreheader}</span>
     <div class="container">
       <div class="header">
         <a href="https://www.thewatchalley.com" class="logo">THE WATCH ALLEY</a>
       </div>
       <div class="content">
-        ${bodyHtml}
+        ${safeBodyHtml}
       </div>
       <div class="footer">
         <p>© 2026 The Watch Alley PH. All rights reserved.</p>
         <p>Manila, Philippines</p>
         <p>
           You received this email because you are on The Watch List. <br>
-          <a href="https://www.thewatchalley.com/watch-list/unsubscribe">Unsubscribe</a> · 
-          <a href="https://www.thewatchalley.com/watch-list/archive">View online archive</a>
+          <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> · 
+          <a href="${absoluteUrl("/watch-list/archive")}">View online archive</a>
         </p>
       </div>
     </div>
   </body>
 </html>`;
+}
+
+function buildUnsubscribeUrl(email: string) {
+  return absoluteUrl(`/api/watch-list/unsubscribe?token=${createUnsubscribeToken(email)}`);
+}
+
+async function deliveryAlreadySent(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  {
+    issueId,
+    hash,
+  }: {
+    issueId: string;
+    hash: string;
+  }
+) {
+  const { data, error } = await supabase
+    .schema("watch_alley")
+    .from("newsletter_delivery_events")
+    .select("id")
+    .eq("issue_id", issueId)
+    .eq("recipient_hash", hash)
+    .eq("status", "sent")
+    .maybeSingle();
+
+  if (error) throw new Error(`Failed to check delivery log: ${error.message}`);
+  return Boolean(data);
+}
+
+async function logDeliveryEvent(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  payload: {
+    issueId: string;
+    hash: string;
+    status: "sending" | "sent" | "failed" | "skipped";
+    providerMessageId?: string;
+    errorMessage?: string;
+    metadata?: Record<string, unknown>;
+  }
+) {
+  const { error } = await supabase
+    .schema("watch_alley")
+    .from("newsletter_delivery_events")
+    .insert({
+      issue_id: payload.issueId,
+      recipient_hash: payload.hash,
+      provider: "resend",
+      provider_message_id: payload.providerMessageId,
+      status: payload.status,
+      error_message: payload.errorMessage,
+      metadata: payload.metadata || {},
+    });
+
+  if (error && payload.status !== "sent") {
+    console.error("Failed to write newsletter delivery event:", error.message);
+  }
+  if (error && payload.status === "sent") {
+    throw new Error(`Failed to confirm delivery log: ${error.message}`);
+  }
 }
 
 export async function sendTestEmail(issueId: string, recipient: string) {
@@ -124,7 +224,12 @@ export async function sendTestEmail(issueId: string, recipient: string) {
   }
   const issue = data.issue;
 
-  const html = wrapHtmlEmail(issue.subject, issue.preheader || "", issue.body_html || "");
+  const html = wrapHtmlEmail({
+    subject: issue.subject,
+    preheader: issue.preheader || "",
+    bodyHtml: issue.body_html || "",
+    unsubscribeUrl: absoluteUrl("/watch-list/unsubscribe"),
+  });
   const from = getFromEmail();
 
   // 2. Send via Resend
@@ -187,35 +292,63 @@ export async function sendNewsletterBroadcast(issueId: string) {
     return { sent: 0, message: "No active subscribers found." };
   }
 
-  const html = wrapHtmlEmail(issue.subject, issue.preheader || "", issue.body_html || "");
   const from = getFromEmail();
   const emails = (subscribers as { email: string }[]).map((s) => s.email);
 
-  // 4. Send via Resend (broadcast batch)
-  // For Resend, if we want to send to many, we can use the batch send API or send to them as Bcc.
-  // Resend single email allows sending to multiple recipients in a single call. Let's send in batches of 100 as Bcc, or use batch api.
-  // To avoid exposing recipients to each other, we MUST send individual emails or use Bcc.
-  const batchSize = 100;
   const errors: string[] = [];
   let sentCount = 0;
 
-  for (let i = 0; i < emails.length; i += batchSize) {
-    const chunk = emails.slice(i, i + batchSize);
+  for (const email of emails) {
+    const hash = recipientHash(email);
+    if (await deliveryAlreadySent(supabase, { issueId, hash })) {
+      await logDeliveryEvent(supabase, {
+        issueId,
+        hash,
+        status: "skipped",
+        metadata: { reason: "already-sent" },
+      });
+      continue;
+    }
 
-    // We send to the generic address, with subscribers as Bcc.
-    const { error: batchError } = await resend.emails.send({
+    await logDeliveryEvent(supabase, { issueId, hash, status: "sending" });
+
+    const unsubscribeUrl = buildUnsubscribeUrl(email);
+    const html = wrapHtmlEmail({
+      subject: issue.subject,
+      preheader: issue.preheader || "",
+      bodyHtml: issue.body_html || "",
+      unsubscribeUrl,
+    });
+
+    const { data: sendData, error: sendError } = await resend.emails.send({
       from,
-      to: "newsletter@thewatchalley.com", // placeholder to satisfy required To field
-      bcc: chunk,
+      to: email,
       subject: issue.subject,
       html,
       text: issue.body_text || "",
+      headers: {
+        "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     });
 
-    if (batchError) {
-      errors.push(batchError.message);
+    if (sendError) {
+      await logDeliveryEvent(supabase, {
+        issueId,
+        hash,
+        status: "failed",
+        errorMessage: sendError.message,
+      });
+      errors.push(sendError.message);
     } else {
-      sentCount += chunk.length;
+      await logDeliveryEvent(supabase, {
+        issueId,
+        hash,
+        status: "sent",
+        providerMessageId:
+          sendData && "id" in sendData && typeof sendData.id === "string" ? sendData.id : undefined,
+      });
+      sentCount += 1;
     }
   }
 

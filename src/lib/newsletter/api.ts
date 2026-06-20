@@ -21,9 +21,9 @@ export async function readJsonObject(request: Request) {
 }
 
 export function requireCronSecret(request: Request) {
-  const expected = process.env.NEWSLETTER_CRON_SECRET;
+  const expected = process.env.NEWSLETTER_CRON_SECRET || process.env.CRON_SECRET;
   if (!expected) {
-    throw new Error("NEWSLETTER_CRON_SECRET is not configured.");
+    throw new Error("NEWSLETTER_CRON_SECRET or CRON_SECRET is not configured.");
   }
 
   const auth = request.headers.get("authorization");

@@ -1,8 +1,8 @@
 # The Watch List
 
 **Feature name:** The Watch List by The Watch Alley  
-**Current branch scope:** Collector signup, preference capture, sold-watch alerts, and sourcing requests.  
-**Status:** Approval / discussion branch before production merge.
+**Current branch scope:** Collector signup, preference capture, sold-watch alerts, sourcing requests, and hardened newsletter operations.  
+**Status:** Production hardening in progress; sends still require admin approval and provider configuration.
 
 The Watch List is the newsletter-led collector pipeline for The Watch Alley. It is positioned as first access to curated drops, rare finds, collector notes, and sourcing opportunities from Manila.
 
@@ -23,21 +23,23 @@ The Watch List is the newsletter-led collector pipeline for The Watch Alley. It 
 - Consent capture, duplicate-email handling, source/UTM metadata, basic spam protection, and successful-submit analytics events.
 - Newsletter operations migration from the automation addendum: issues, issue items, AI generation runs, send logs, evergreen content, public archive views, admin RPCs, and cron due-issue helper.
 - Public archive routes at `/watch-list/archive` and `/watch-list/archive/[slug]`.
-- Protected newsletter operation route scaffolds for draft generation, section generation, approval, scheduling, test-send logging, send logging, and cron checks.
+- Protected newsletter operation routes for draft generation, section generation, approval, scheduling, test sends, approved sends, send logging, and cron checks.
+- Resend email sending with per-recipient unsubscribe links and private delivery-event logging.
+- Public unsubscribe route at `/watch-list/unsubscribe`.
+- Gemini-backed draft generation when `GEMINI_API_KEY` is configured, with schema validation and server-side HTML sanitization.
+- Vercel Cron configuration for scheduled approved sends.
 
 ## Approval-Gated Or Not Included Yet
 
-The automation addendum is now partially implemented as a safe foundation. Live AI drafting and live email sending remain disabled until the team approves provider credentials, admin UX, and operating rules.
+The automation addendum is now partially implemented as a human-in-the-loop newsletter system. Live email sending is available only when provider credentials are configured, an issue is admin-approved, and the send route is explicitly called or scheduled.
 
 Future phases should be approved before implementation:
 
 - Admin newsletter issue editor.
-- Email provider integration.
-- Test email flow.
-- AI draft generation.
-- Human approval workflow.
-- Scheduled sending via cron.
-- Enabling scheduled sending via cron.
+- Resend Audience/Broadcast sync for provider-managed topics and unsubscribe preferences.
+- GPT Image hero image generation and Supabase Storage persistence.
+- Full admin preview/editor UI for email layout, issue content, and generated image approval.
+- Webhook processing for bounces, complaints, and provider unsubscribe events.
 
 The operating rule for future automation is:
 

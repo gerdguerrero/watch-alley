@@ -102,8 +102,17 @@ project, run them in numeric order.
   The schema supports issues, issue items, AI generation runs, send logs,
   evergreen content, public archive views, admin status transitions, and a
   service-role due-issue scanner.
-- Scheduled draft/send routes require `NEWSLETTER_CRON_SECRET`. Email sending
-  remains disabled until provider credentials and approval UX are finalized.
+- Scheduled send routes require `NEWSLETTER_CRON_SECRET` or Vercel's
+  `CRON_SECRET`. Email sending uses Resend when `RESEND_API_KEY` and
+  `NEWSLETTER_FROM_EMAIL` are configured. Each production send is per-recipient
+  so the message can include a signed unsubscribe link and delivery-event audit
+  record.
+- `GEMINI_API_KEY` enables AI-assisted issue drafting. AI output is validated
+  and sanitized before storage/rendering, but a human must still approve the
+  issue before scheduling or sending.
+- `OPENAI_API_KEY` is reserved for future GPT Image newsletter hero generation;
+  image prompt and URL fields already exist in the newsletter schema, but no
+  production image-generation workflow is enabled yet.
 
 ## RPC reference
 

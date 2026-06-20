@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { sanitizeNewsletterHtml } from "@/lib/newsletter/html";
 import { fetchNewsletterIssueBySlug } from "@/lib/newsletter/queries";
 
 export const revalidate = 60;
@@ -67,8 +68,8 @@ export default async function WatchListIssuePage({
         {issue.introHtml && (
           <div
             className="mt-10 text-[16px] leading-8 text-cream-80"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is admin-authored and only public after admin archive approval.
-            dangerouslySetInnerHTML={{ __html: issue.introHtml }}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is sanitized server-side before rendering.
+            dangerouslySetInnerHTML={{ __html: sanitizeNewsletterHtml(issue.introHtml) }}
           />
         )}
 
@@ -99,8 +100,8 @@ export default async function WatchListIssuePage({
         {issue.bodyHtml && (
           <div
             className="article-body mt-12 text-cream-80"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is admin-authored and only public after admin archive approval.
-            dangerouslySetInnerHTML={{ __html: issue.bodyHtml }}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is sanitized server-side before rendering.
+            dangerouslySetInnerHTML={{ __html: sanitizeNewsletterHtml(issue.bodyHtml) }}
           />
         )}
 
