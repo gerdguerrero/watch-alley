@@ -13,6 +13,8 @@ export const BRAND_ASSETS = {
   twaIcon: "/brand/logo-dp-flat.png",
   /** Square display-picture lockup, used anywhere a badge/app icon is needed. */
   twaBadge: "/brand/logo-dp-flat.png",
+  /** Circular favicon/app badge derived from the approved transparent lockup. */
+  twaBadgeCircle: "/brand/logo-dp-flat-circle.png",
   /** Primary transparent lockup for dark UI surfaces. */
   twaPrimary: "/brand/logo-on-black.png",
   /** Wordmark + compass in solid gold. */
@@ -31,6 +33,7 @@ export const BRAND_ASSETS = {
   logoWhite: "/brand/logo-white.png",
   logoDp: "/brand/logo-dp.png",
   logoDpFlat: "/brand/logo-dp-flat.png",
+  logoDpFlatCircle: "/brand/logo-dp-flat-circle.png",
   logoOnBlack: "/brand/logo-on-black.png",
   logoOnWhite: "/brand/logo-on-white.png",
 
