@@ -89,7 +89,7 @@ export function WatchListModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="watchlist-modal-title"
-            className="relative w-full max-w-md bg-[#0d0c0a] border border-amber-300/15 rounded-2xl p-6 md:p-8 shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col gap-5 z-10"
+            className="relative w-full max-w-lg bg-[#0d0c0a] border border-amber-300/15 rounded-2xl p-6 md:p-8 shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col gap-5 z-10"
           >
             {/* Ambient gold glow background */}
             <div className="absolute -top-32 -left-32 w-64 h-64 bg-amber-300/5 rounded-full blur-[100px] pointer-events-none" />
@@ -134,6 +134,7 @@ export function WatchListModal() {
                 source="watchlist-popup-modal"
                 showPreferences={false}
                 compact={false}
+                stacked={true}
                 onSuccess={handleSuccess}
               />
             </div>

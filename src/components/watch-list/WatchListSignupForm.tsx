@@ -15,6 +15,7 @@ interface WatchListSignupFormProps {
   compact?: boolean;
   showPreferences?: boolean;
   className?: string;
+  stacked?: boolean;
   onSuccess?: () => void;
 }
 
@@ -49,6 +50,7 @@ export function WatchListSignupForm({
   compact = false,
   showPreferences = false,
   className = "",
+  stacked = false,
   onSuccess,
 }: WatchListSignupFormProps) {
   const formStartedAt = useMemo(() => Date.now(), []);
@@ -168,7 +170,7 @@ export function WatchListSignupForm({
           </button>
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className={`grid gap-3 ${stacked ? "grid-cols-1" : "md:grid-cols-3"}`}>
           <label className="flex flex-col gap-2">
             <span className={labelClass}>Name</span>
             <input className={inputClass} name="firstName" autoComplete="given-name" />
@@ -285,7 +287,9 @@ export function WatchListSignupForm({
         <button
           type="submit"
           disabled={state === "pending"}
-          className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-amber-300 px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60 sm:w-fit"
+          className={`inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-amber-300 px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60 ${
+            stacked ? "" : "sm:w-fit"
+          }`}
         >
           {state === "pending" ? "Joining The Watch List" : "Join The Watch List"}
         </button>
