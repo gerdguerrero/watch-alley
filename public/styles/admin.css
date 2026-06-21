@@ -1111,18 +1111,72 @@ code {
   padding: 1px 5px;
   border-radius: 3px;
 }
+.analytics-actions {
+  margin-top: 0;
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.analytics-range-control,
+.analytics-date-control {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.analytics-range-control select,
+.analytics-date-control input {
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--gold-20);
+  background: var(--panel-strong);
+  color: var(--ink);
+  padding: 0 12px;
+  font: inherit;
+  letter-spacing: 0.06em;
+}
+.analytics-date-control[hidden] {
+  display: none;
+}
 .analytics-open-link {
   text-decoration: none;
   align-self: flex-start;
 }
 .analytics-status-value,
-.analytics-domain-value {
+.analytics-domain-value,
+.analytics-path-value {
   font-size: clamp(34px, 4vw, 48px);
 }
-.analytics-path-value {
-  font-family: 'Geist Mono', monospace;
-  font-size: clamp(26px, 3vw, 38px);
-  letter-spacing: -0.04em;
+.analytics-chart-card {
+  gap: 18px;
+}
+.analytics-bars {
+  display: grid;
+  grid-template-columns: repeat(30, minmax(4px, 1fr));
+  align-items: end;
+  gap: 6px;
+  min-height: 180px;
+  padding: 16px 0 4px;
+  border-bottom: 1px solid var(--gold-20);
+}
+.analytics-bar {
+  position: relative;
+  min-height: 160px;
+  border-radius: 999px 999px 0 0;
+  background: oklch(0.91 0.018 78 / 0.04);
+  overflow: hidden;
+}
+.analytics-bar-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 4px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, var(--gold), oklch(0.62 0.10 72));
 }
 .analytics-note-card .admin-hint {
   margin: 0;
@@ -1131,6 +1185,13 @@ code {
 .analytics-steps strong {
   color: var(--gold);
   font-weight: 600;
+}
+@media (max-width: 720px) {
+  .analytics-bars {
+    gap: 3px;
+    min-height: 130px;
+  }
+  .analytics-bar { min-height: 120px; }
 }
 
 .admin-dashboard-rows {

@@ -185,61 +185,77 @@
         <div class="admin-dashboard-header">
           <div>
             <div class="admin-eyebrow">Vercel Web Analytics</div>
-            <h2 class="admin-dashboard-title">Traffic, paths, and visitors.</h2>
-            <p class="admin-meta">Admin visits are now tracked under the <strong>/admin</strong> path after deployment.</p>
+            <h2 class="admin-dashboard-title">TheWatchAlley.com traffic.</h2>
+            <p class="admin-meta" id="analytics-range-meta">Loading selected range from Vercel…</p>
           </div>
-          <a class="admin-new-btn analytics-open-link" href="https://vercel.com/joseph-guerreros-projects/watch-alley/analytics" target="_blank" rel="noopener noreferrer">Open Vercel</a>
+          <div class="admin-form-actions analytics-actions">
+            <label class="analytics-range-control">
+              <span>Date range</span>
+              <select id="analytics-range-select">
+                <option value="last7" selected>Last 7 Days</option>
+                <option value="last14">Last 14 Days</option>
+                <option value="last30">Last 30 Days</option>
+                <option value="last90">Last 90 Days</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <label class="analytics-date-control" hidden>
+              <span>From</span>
+              <input type="date" id="analytics-from-date">
+            </label>
+            <label class="analytics-date-control" hidden>
+              <span>To</span>
+              <input type="date" id="analytics-to-date">
+            </label>
+            <button type="button" id="analytics-refresh-btn" class="btn-ghost">Refresh</button>
+            <a class="admin-new-btn analytics-open-link" href="https://vercel.com/joseph-guerreros-projects/watch-alley/analytics" target="_blank" rel="noopener noreferrer">Open Vercel</a>
+          </div>
         </div>
 
-        <div class="admin-dashboard-grid" aria-label="Vercel Analytics status">
+        <div class="admin-dashboard-grid" aria-label="Vercel Analytics summary">
           <article class="kpi-tile">
-            <div class="kpi-label">Web Analytics</div>
-            <div class="kpi-value analytics-status-value">On</div>
-            <div class="kpi-foot">Enabled for this Vercel project</div>
+            <div class="kpi-label" data-analytics="primaryLabel">Pageviews · selected range</div>
+            <div class="kpi-value analytics-status-value" data-analytics="totalPageviews">—</div>
+            <div class="kpi-foot" data-analytics="averageDaily">Loading Vercel data…</div>
           </article>
 
           <article class="kpi-tile">
-            <div class="kpi-label">Tracked admin route</div>
-            <div class="kpi-value analytics-path-value">/admin</div>
-            <div class="kpi-foot">Look for this path in the Vercel dashboard</div>
+            <div class="kpi-label">Pageviews · previous period</div>
+            <div class="kpi-value analytics-path-value" data-analytics="previousPageviews">—</div>
+            <div class="kpi-foot" data-analytics="rangeTrend">Compared with selected range</div>
           </article>
 
           <article class="kpi-tile">
-            <div class="kpi-label">Production domain</div>
-            <div class="kpi-value analytics-domain-value">www</div>
-            <div class="kpi-foot">www.thewatchalley.com/admin</div>
+            <div class="kpi-label">Pageviews · Today</div>
+            <div class="kpi-value analytics-domain-value" data-analytics="todayPageviews">—</div>
+            <div class="kpi-foot" data-analytics="eventCount">Custom events: —</div>
           </article>
         </div>
+
+        <article class="admin-card admin-dashboard-row analytics-chart-card">
+          <div class="admin-dashboard-header">
+            <div>
+              <div class="admin-eyebrow">Daily pageviews</div>
+              <p class="admin-meta" data-analytics="chartSubtitle">Selected range · Production project: <strong>thewatchalley.com</strong></p>
+            </div>
+          </div>
+          <div class="analytics-bars" id="analytics-bars" aria-label="Daily pageviews chart"></div>
+          <p class="admin-hint" id="analytics-status" aria-live="polite">Loading Vercel Analytics…</p>
+        </article>
 
         <div class="admin-dashboard-rows">
           <article class="admin-card admin-dashboard-row analytics-note-card">
-            <div class="admin-eyebrow">How to read it</div>
-            <ol class="dashboard-list dashboard-activity analytics-steps">
-              <li>
-                <span class="dashboard-activity-kind">1</span>
-                <span class="dashboard-activity-label">Open the Vercel Analytics dashboard.</span>
-                <span class="dashboard-activity-when">External</span>
-              </li>
-              <li>
-                <span class="dashboard-activity-kind">2</span>
-                <span class="dashboard-activity-label">Filter or scan Pages for <strong>/admin</strong>.</span>
-                <span class="dashboard-activity-when">Path</span>
-              </li>
-              <li>
-                <span class="dashboard-activity-kind">3</span>
-                <span class="dashboard-activity-label">Vercel can take a few minutes to ingest fresh page views after a new deployment.</span>
-                <span class="dashboard-activity-when">Lag</span>
-              </li>
-            </ol>
+            <div class="admin-eyebrow">Top traffic days</div>
+            <ol class="dashboard-list dashboard-activity analytics-steps" id="analytics-top-days"></ol>
           </article>
 
           <article class="admin-card admin-dashboard-row analytics-note-card">
-            <div class="admin-eyebrow">Why this opens Vercel</div>
+            <div class="admin-eyebrow">Data source</div>
             <p class="admin-hint">
-              Vercel's dashboard is authenticated and is not designed to be embedded inside this static admin page. This tab confirms what is tracked and gives admins a direct link to the live analytics view.
+              These numbers are pulled server-side from Vercel's Web Analytics usage endpoint for the Watch Alley production project. The admin page itself is no longer injected with the Vercel tracking script.
             </p>
             <p class="admin-hint">
-              The admin page itself also loads <code>/_vercel/insights/script.js</code>, so opening this tab counts as an admin page view.
+              Vercel's full dashboard still has richer breakdowns, but this tab now shows the site's real analytics directly inside admin.
             </p>
           </article>
         </div>
@@ -885,9 +901,6 @@
 </footer>
 
 <script src="../scripts/vendor/supabase.min.js"></script>
-<!-- Vercel Web Analytics for the static /admin page. The Next.js root layout
-     already covers App Router pages, but files under /public bypass that layout. -->
-<script defer src="/_vercel/insights/script.js"></script>
 <script type="module" src="../scripts/admin.js"></script>
 
 </body>
