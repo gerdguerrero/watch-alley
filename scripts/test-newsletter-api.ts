@@ -13,7 +13,7 @@ async function run() {
 
   console.log("Signing in with admin temp credentials...");
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: "admin_temp@watchalley.ph",
+    email: "admin_temp@thewatchalley.com",
     password: "SuperSecurePassword123!Temporary",
   });
 

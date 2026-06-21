@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://watchalley.ph/sitemap.xml
+Sitemap: https://thewatchalley.com/sitemap.xml

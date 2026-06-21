@@ -42,10 +42,10 @@ export function InquiryBand() {
               Message on Messenger ↗
             </a>
             <a
-              href="mailto:hello@watchalley.ph"
+              href="mailto:hello@thewatchalley.com"
               className="inline-flex min-h-11 items-center border-b border-ink-paper-soft/35 font-sans text-sm italic text-ink-paper-soft transition-colors hover:border-ink-paper"
             >
-              hello@watchalley.ph
+              hello@thewatchalley.com
             </a>
           </div>
         </div>

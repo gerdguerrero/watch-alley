@@ -29,14 +29,14 @@
 //   SUPABASE_SERVICE_ROLE_KEY     injected automatically by Supabase
 //   INQUIRY_NOTIFY_SECRET         shared secret with the database webhook
 //   RESEND_API_KEY                Resend API key
-//   OWNER_EMAIL                   destination address (e.g. hello@watchalley.ph)
+//   OWNER_EMAIL                   destination address (e.g. hello@thewatchalley.com)
 //   FROM_EMAIL                    sender, must be a Resend-verified domain
-//                                   (e.g. The Watch Alley <inquiries@watchalley.ph>)
+//                                   (e.g. The Watch Alley <inquiries@thewatchalley.com>)
 //
 // Optional env (any can be left unset):
 //   VIBER_WEBHOOK_URL             generic Viber/Telegram bot webhook URL
 //   SLACK_WEBHOOK_URL             Slack incoming webhook for #inquiries channel
-//   SITE_ORIGIN                   override for share links (default: https://watchalley.ph)
+//   SITE_ORIGIN                   override for share links (default: https://thewatchalley.com)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
@@ -45,10 +45,10 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const INQUIRY_NOTIFY_SECRET = Deno.env.get('INQUIRY_NOTIFY_SECRET') || '';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || '';
 const OWNER_EMAIL = Deno.env.get('OWNER_EMAIL') || '';
-const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'The Watch Alley <inquiries@watchalley.ph>';
+const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'The Watch Alley <inquiries@thewatchalley.com>';
 const VIBER_WEBHOOK_URL = Deno.env.get('VIBER_WEBHOOK_URL') || '';
 const SLACK_WEBHOOK_URL = Deno.env.get('SLACK_WEBHOOK_URL') || '';
-const SITE_ORIGIN = Deno.env.get('SITE_ORIGIN') || 'https://watchalley.ph';
+const SITE_ORIGIN = Deno.env.get('SITE_ORIGIN') || 'https://thewatchalley.com';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

@@ -91,10 +91,10 @@ function buildArticleJsonLd(post: JournalPost) {
       name: "The Watch Alley",
       logo: {
         "@type": "ImageObject",
-        url: "https://watchalley.ph/brand/logo-dp-flat.png",
+        url: "https://thewatchalley.com/brand/logo-dp-flat.png",
       },
     },
-    mainEntityOfPage: `https://watchalley.ph/journal/${post.slug}`,
+    mainEntityOfPage: `https://thewatchalley.com/journal/${post.slug}`,
     keywords: post.tags.join(", "),
   };
 }

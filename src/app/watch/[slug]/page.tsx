@@ -87,7 +87,7 @@ function buildProductJsonLd(watch: Watch) {
       price: watch.price,
       priceCurrency: watch.currency || "PHP",
       availability,
-      url: `https://watchalley.ph/watch/${watch.slug}`,
+      url: `https://thewatchalley.com/watch/${watch.slug}`,
     },
   };
 }

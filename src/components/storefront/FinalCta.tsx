@@ -34,12 +34,12 @@ export function FinalCta() {
           <span aria-hidden="true">↗</span>
         </a>
         <a
-          href="mailto:hello@watchalley.ph"
+          href="mailto:hello@thewatchalley.com"
           className="font-sans text-[15px] italic text-[color:var(--color-cream-80)] transition-colors hover:text-[color:var(--color-gold)]"
         >
           or write to{" "}
           <span className="underline decoration-[color:var(--color-gold-30)] underline-offset-[5px]">
-            hello@watchalley.ph
+            hello@thewatchalley.com
           </span>
         </a>
       </div>

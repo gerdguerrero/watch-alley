@@ -61,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s · The Watch Alley",
     },
     description: SITE_DESCRIPTION,
-    metadataBase: new URL("https://watchalley.ph"),
+    metadataBase: new URL("https://thewatchalley.com"),
     applicationName: "The Watch Alley",
     // Icons are managed by the file-based metadata API:
     //   src/app/icon.png          → modern browsers
@@ -74,7 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       title: SITE_TITLE,
       description: "A Manila-based curator of pre-owned and brand-new timepieces.",
-      url: "https://watchalley.ph",
+      url: "https://thewatchalley.com",
       siteName: "The Watch Alley",
       locale: "en_PH",
       images: [
