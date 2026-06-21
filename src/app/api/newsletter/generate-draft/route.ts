@@ -176,18 +176,22 @@ export async function POST(request: NextRequest) {
             );
             return `
               <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-                ${watch.primaryImage ? `
+                ${
+                  watch.primaryImage
+                    ? `
                 <div style="margin-bottom: 20px; text-align: center;">
                   <a href="/watch/${watch.slug}" style="text-decoration: none;">
                     <img src="${watch.primaryImage}" alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
                   </a>
                 </div>
-                ` : ''}
+                `
+                    : ""
+                }
                 <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3;">
                   <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(item?.title || `${watch.brand} ${watch.name}`)}</a>
                 </h3>
                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.1em; color: #BD9A32; text-transform: uppercase; margin-bottom: 12px; font-weight: bold;">
-                  Ref: ${escapeHtml(watch.reference || 'N/A')} · ${escapeHtml(watch.conditionLabel || 'Excellent')} · ₱${watch.price ? watch.price.toLocaleString('en-PH') : 'Inquire'}
+                  Ref: ${escapeHtml(watch.reference || "N/A")} · ${escapeHtml(watch.conditionLabel || "Excellent")} · ₱${watch.price ? watch.price.toLocaleString("en-PH") : "Inquire"}
                 </div>
                 <p style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0;">
                   ${escapeHtml(item?.summary || "")}
@@ -205,18 +209,22 @@ export async function POST(request: NextRequest) {
             ? `
           <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">— From the Sold Archive —</div>
-            ${soldHighlight.primaryImage ? `
+            ${
+              soldHighlight.primaryImage
+                ? `
             <div style="margin-bottom: 20px; text-align: center;">
               <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
                 <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15); filter: grayscale(20%);" width="520" />
               </a>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
             <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3; text-align: center;">
               <a href="/watch/${soldHighlight.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(
-              items.find((it) => it.itemType === "sold_watch")?.title ||
-                `${soldHighlight.brand} ${soldHighlight.name}`
-            )}</a>
+                items.find((it) => it.itemType === "sold_watch")?.title ||
+                  `${soldHighlight.brand} ${soldHighlight.name}`
+              )}</a>
             </h3>
             <p style="font-family: 'Spectral', Georgia, serif; font-size: 14px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0; text-align: center;">
               ${escapeHtml(items.find((it) => it.itemType === "sold_watch")?.summary || "")}
@@ -367,18 +375,22 @@ export async function POST(request: NextRequest) {
       .map(
         (watch) => `
         <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-          ${watch.primaryImage ? `
+          ${
+            watch.primaryImage
+              ? `
           <div style="margin-bottom: 20px; text-align: center;">
             <a href="/watch/${watch.slug}" style="text-decoration: none;">
               <img src="${watch.primaryImage}" alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
             </a>
           </div>
-          ` : ''}
+          `
+              : ""
+          }
           <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3;">
             <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}</a>
           </h3>
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.1em; color: #BD9A32; text-transform: uppercase; margin-bottom: 12px; font-weight: bold;">
-            Ref: ${escapeHtml(watch.reference || 'N/A')} · ${escapeHtml(watch.conditionLabel || 'Excellent')} · ₱${watch.price ? watch.price.toLocaleString('en-PH') : 'Inquire'}
+            Ref: ${escapeHtml(watch.reference || "N/A")} · ${escapeHtml(watch.conditionLabel || "Excellent")} · ₱${watch.price ? watch.price.toLocaleString("en-PH") : "Inquire"}
           </div>
           <p style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0;">
             ${escapeHtml(watch.description || `${watch.brand} ${watch.reference || watch.model}`.trim())}
@@ -396,13 +408,17 @@ export async function POST(request: NextRequest) {
         ? `
       <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">— From the Sold Archive —</div>
-        ${soldHighlight.primaryImage ? `
+        ${
+          soldHighlight.primaryImage
+            ? `
         <div style="margin-bottom: 20px; text-align: center;">
           <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
             <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15); filter: grayscale(20%);" width="520" />
           </a>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
         <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3; text-align: center;">
           <a href="/watch/${soldHighlight.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}</a>
         </h3>
@@ -417,7 +433,9 @@ export async function POST(request: NextRequest) {
         : ""
     }
     
-    ${journal ? `
+    ${
+      journal
+        ? `
       <div style="margin-bottom: 40px; padding: 24px; border: 1px solid rgba(189, 154, 50, 0.2); background-color: rgba(189, 154, 50, 0.03);">
         <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 16px 0; color: #BD9A32; line-height: 1.3;">
           ${escapeHtml(journal.title)}
@@ -427,7 +445,9 @@ export async function POST(request: NextRequest) {
         </p>
         <p style="margin: 0;"><a href="/journal/${escapeHtml(journal.slug)}">Read the full dispatch on our Bench Blog</a></p>
       </div>
-    ` : ""}
+    `
+        : ""
+    }
     
     <p style="margin-top: 32px; text-align: center;"><a href="https://www.thewatchalley.com/watch-list#sourcing" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; color: #BD9A32; text-decoration: none; border-bottom: 1px solid #BD9A32;">Send a Sourcing Request</a></p>
   `;

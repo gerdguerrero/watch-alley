@@ -2,8 +2,9 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import type { ZodError, z } from "zod";
+import { sendWelcomeEmail } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { alertSchema, signupSchema, sourcingSchema } from "./schemas";
+import { alertSchema, signupSchema, sourcingSchema, type WatchListSignupInput } from "./schemas";
 
 type RpcName = "submit_watch_list_signup" | "submit_watch_list_alert" | "submit_sourcing_request";
 
@@ -98,7 +99,23 @@ async function handleWatchListPost<Schema extends z.ZodTypeAny>({
   }
 
   try {
-    const result = await submitToRpc(rpcName, parsed.data as Record<string, unknown>);
+    const result = (await submitToRpc(rpcName, parsed.data as Record<string, unknown>)) as
+      | { subscriberId: string; duplicate: boolean }
+      | undefined;
+
+    // Dispatch welcome email only for new, non-duplicate signups
+    if (kind === "signup" && result && !result.duplicate) {
+      const signupData = parsed.data as WatchListSignupInput;
+      if (signupData?.email) {
+        try {
+          await sendWelcomeEmail(signupData.email, signupData.firstName, signupData.country);
+        } catch (welcomeError) {
+          // Log the error but don't fail the signup request itself (fallback-safe)
+          console.error("Welcome email dispatch failed:", welcomeError);
+        }
+      }
+    }
+
     return NextResponse.json({ ok: true, kind, result });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Unable to save this request.", 500);

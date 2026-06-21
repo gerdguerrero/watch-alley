@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 import { WatchListSignupForm } from "./WatchListSignupForm";
 
 export function WatchListModal() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    localStorage.setItem("twa-watchlist-dismissed", "true");
+  }, []);
 
   useEffect(() => {
     // Prevent rendering or triggering on the server-side
@@ -52,12 +57,7 @@ export function WatchListModal() {
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
-
-  const handleClose = () => {
-    setIsOpen(false);
-    localStorage.setItem("twa-watchlist-dismissed", "true");
-  };
+  }, [handleClose]);
 
   const handleSuccess = () => {
     localStorage.setItem("twa-watchlist-subscribed", "true");
@@ -110,6 +110,7 @@ export function WatchListModal() {
                 stroke="currentColor"
                 className="h-5 w-5"
               >
+                <title>Close</title>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

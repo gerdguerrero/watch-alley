@@ -392,3 +392,117 @@ export async function sendNewsletterBroadcast(issueId: string) {
 
   return { sent: sentCount, message: "Broadcast completed successfully." };
 }
+
+export async function sendWelcomeEmail(email: string, firstName?: string, country?: string) {
+  const isPH =
+    country?.toLowerCase().trim() === "philippines" || country?.toLowerCase().trim() === "ph";
+
+  const greetingName = firstName ? ` ${firstName}` : "";
+
+  const subject = "Welcome to The Watch List · The Watch Alley";
+  const preheader = "You're now on The Watch List. Welcome to curated timepiece drops from Manila.";
+
+  const unsubscribeUrl = buildUnsubscribeUrl(email);
+  let bodyHtml = "";
+  let bodyText = "";
+
+  if (isPH) {
+    bodyHtml = `
+      <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
+        <p style="margin-top: 0;">Hi${greetingName},</p>
+        <p>Mabuhay from Manila! Thank you for joining <strong>The Watch List</strong> by The Watch Alley.</p>
+        <p>We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops—before they go public on our storefront or social channels.</p>
+        <p><strong>What to expect next:</strong></p>
+        <ul style="padding-left: 20px; margin-bottom: 24px;">
+          <li style="margin-bottom: 8px;"><strong>Curated Watch Drops</strong>: We share daylight-photographed watches with fully transparent condition notes. No surprises, no hidden flaws.</li>
+          <li style="margin-bottom: 8px;"><strong>Collector Commentary</strong>: Notes on watch design, trends, mechanical history, and the watch culture of Manila.</li>
+          <li style="margin-bottom: 8px;"><strong>Sourcing Privileges</strong>: Access to our Private Sourcing Desk. If you have a specific reference in mind, we'll locate it for you.</li>
+        </ul>
+        <p>If you ever want to adjust your preferences or look for a specific piece, feel free to visit <a href="${absoluteUrl("/watch-list")}" style="color: #BD9A32; text-decoration: underline;">The Watch List Preferences</a>.</p>
+        <p style="margin-bottom: 0;">Wear them in good health,<br><strong>The Watch Alley Team</strong></p>
+      </div>
+    `;
+    bodyText = `Hi${greetingName},
+
+Mabuhay from Manila! Thank you for joining The Watch List by The Watch Alley.
+
+We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops—before they go public on our storefront or social channels.
+
+What to expect next:
+- Curated Watch Drops: We share daylight-photographed watches with fully transparent condition notes. No surprises, no hidden flaws.
+- Collector Commentary: Notes on watch design, trends, mechanical history, and the watch culture of Manila.
+- Sourcing Privileges: Access to our Private Sourcing Desk. If you have a specific reference in mind, we'll locate it for you.
+
+If you ever want to adjust your preferences or look for a specific piece, feel free to visit The Watch List Preferences at ${absoluteUrl("/watch-list")}.
+
+Wear them in good health,
+The Watch Alley Team
+
+---
+Unsubscribe: ${unsubscribeUrl}
+View Online Archive: ${absoluteUrl("/watch-list/archive")}`;
+  } else {
+    bodyHtml = `
+      <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
+        <p style="margin-top: 0;">Hi${greetingName},</p>
+        <p>Thank you for subscribing to <strong>The Watch List</strong> by The Watch Alley.</p>
+        <p>We are a Manila-based curator of fine brand-new and pre-owned timepieces. By joining, you'll receive direct, early access to our curated releases, collector notes, and exclusive sourcing updates.</p>
+        <p><strong>What to expect next:</strong></p>
+        <ul style="padding-left: 20px; margin-bottom: 24px;">
+          <li style="margin-bottom: 8px;"><strong>Curated Watch Drops</strong>: Meticulously inspected, daylight-photographed timepieces. We fully disclose conditions in writing so you can collect with confidence.</li>
+          <li style="margin-bottom: 8px;"><strong>Sourcing Services</strong>: Need a rare reference? Our team works across international channels to source specific timepieces for collectors worldwide.</li>
+          <li style="margin-bottom: 8px;"><strong>Collector Insights</strong>: Brief, thoughtful dispatches covering mechanical history, brand design, and vintage values.</li>
+        </ul>
+        <p>For preferences, inquiries, or custom sourcing, please check <a href="${absoluteUrl("/watch-list")}" style="color: #BD9A32; text-decoration: underline;">The Watch List</a> or reply directly to this email.</p>
+        <p style="margin-bottom: 0;">Wear them in good health,<br><strong>The Watch Alley Team</strong></p>
+      </div>
+    `;
+    bodyText = `Hi${greetingName},
+
+Thank you for subscribing to The Watch List by The Watch Alley.
+
+We are a Manila-based curator of fine brand-new and pre-owned timepieces. By joining, you'll receive direct, early access to our curated releases, collector notes, and exclusive sourcing updates.
+
+What to expect next:
+- Curated Watch Drops: Meticulously inspected, daylight-photographed timepieces. We fully disclose conditions in writing so you can collect with confidence.
+- Sourcing Services: Need a rare reference? Our team works across international channels to source specific timepieces for collectors worldwide.
+- Collector Insights: Brief, thoughtful dispatches covering mechanical history, brand design, and vintage values.
+
+For preferences, inquiries, or custom sourcing, please check The Watch List at ${absoluteUrl("/watch-list")} or reply directly to this email.
+
+Wear them in good health,
+The Watch Alley Team
+
+---
+Unsubscribe: ${unsubscribeUrl}
+View Online Archive: ${absoluteUrl("/watch-list/archive")}`;
+  }
+
+  const html = wrapHtmlEmail({
+    subject,
+    preheader,
+    bodyHtml,
+    unsubscribeUrl,
+  });
+
+  const from = getFromEmail();
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: email,
+    subject,
+    html,
+    text: bodyText,
+    headers: {
+      "List-Unsubscribe": `<${unsubscribeUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  });
+
+  if (error) {
+    console.error("Failed to send welcome email:", error);
+    throw error;
+  }
+
+  return data;
+}

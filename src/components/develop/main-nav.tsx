@@ -61,7 +61,11 @@ export function MainNav() {
         }`}
       >
         {/* Left: animated HorologicalLogo */}
-        <Link href="/" className="flex items-center group flex-shrink-0" aria-label="The Watch Alley home">
+        <Link
+          href="/"
+          className="flex items-center group flex-shrink-0"
+          aria-label="The Watch Alley home"
+        >
           <HorologicalLogo
             mode="hover-sweep"
             width={isScrolled ? 46 : 56}

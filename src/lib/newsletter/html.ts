@@ -55,15 +55,54 @@ function sanitizeStyle(styleStr: string): string {
   const declarations = styleStr.split(";");
   const cleanDeclarations: string[] = [];
   const safeProperties = new Set([
-    "margin", "margin-top", "margin-bottom", "margin-left", "margin-right",
-    "padding", "padding-top", "padding-bottom", "padding-left", "padding-right",
-    "color", "background-color", "background",
-    "border", "border-top", "border-bottom", "border-left", "border-right", "border-width", "border-style", "border-color", "border-radius", "border-collapse",
-    "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing",
-    "text-transform", "text-decoration", "text-align", "text-underline-offset", "text-decoration-color",
-    "width", "max-width", "min-width", "height", "max-height", "min-height",
-    "display", "vertical-align", "opacity", "filter", "overflow", "overflow-y",
-    "list-style", "list-style-type"
+    "margin",
+    "margin-top",
+    "margin-bottom",
+    "margin-left",
+    "margin-right",
+    "padding",
+    "padding-top",
+    "padding-bottom",
+    "padding-left",
+    "padding-right",
+    "color",
+    "background-color",
+    "background",
+    "border",
+    "border-top",
+    "border-bottom",
+    "border-left",
+    "border-right",
+    "border-width",
+    "border-style",
+    "border-color",
+    "border-radius",
+    "border-collapse",
+    "font-family",
+    "font-size",
+    "font-weight",
+    "font-style",
+    "line-height",
+    "letter-spacing",
+    "text-transform",
+    "text-decoration",
+    "text-align",
+    "text-underline-offset",
+    "text-decoration-color",
+    "width",
+    "max-width",
+    "min-width",
+    "height",
+    "max-height",
+    "min-height",
+    "display",
+    "vertical-align",
+    "opacity",
+    "filter",
+    "overflow",
+    "overflow-y",
+    "list-style",
+    "list-style-type",
   ]);
 
   for (const decl of declarations) {
@@ -71,9 +110,9 @@ function sanitizeStyle(styleStr: string): string {
     if (parts.length < 2) continue;
     const prop = parts[0].trim().toLowerCase();
     const val = parts.slice(1).join(":").trim();
-    
+
     if (!safeProperties.has(prop)) continue;
-    
+
     if (
       val.includes("javascript:") ||
       val.includes("expression") ||
@@ -83,13 +122,13 @@ function sanitizeStyle(styleStr: string): string {
     ) {
       continue;
     }
-    
+
     if (val.includes("(")) {
       if (!/^(?:rgb|rgba|oklch|hsl|hsla)\([^)]+\)$/i.test(val)) {
         continue;
       }
     }
-    
+
     cleanDeclarations.push(`${prop}: ${val}`);
   }
   return cleanDeclarations.join("; ");
@@ -119,7 +158,7 @@ function sanitizeTag(rawTag: string) {
     const srcMatch = rawTag.match(/\s(?:src)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
     const src = safeImgSrc(srcMatch?.[1] ?? srcMatch?.[2] ?? srcMatch?.[3] ?? "");
     if (!src) return "";
-    
+
     const altMatch = rawTag.match(/\s(?:alt)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
     const alt = altMatch?.[1] ?? altMatch?.[2] ?? altMatch?.[3] ?? "";
     const altAttr = alt ? ` alt="${escapeHtml(alt)}"` : "";

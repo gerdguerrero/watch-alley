@@ -249,5 +249,5 @@ export const COUNTRIES: Country[] = [
   { code: "EH", name: "Western Sahara" },
   { code: "YE", name: "Yemen" },
   { code: "ZM", name: "Zambia" },
-  { code: "ZW", name: "Zimbabwe" }
+  { code: "ZW", name: "Zimbabwe" },
 ];

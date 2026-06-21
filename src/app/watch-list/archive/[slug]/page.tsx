@@ -41,7 +41,7 @@ export default async function WatchListIssuePage({
   const data = await fetchNewsletterIssueBySlug(slug);
   if (!data) notFound();
 
-  const { issue, items } = data;
+  const { issue } = data;
 
   return (
     <main className="bg-[#080706] px-6 pb-24 pt-[clamp(100px,12vh,140px)] text-cream md:px-12 lg:px-20">
