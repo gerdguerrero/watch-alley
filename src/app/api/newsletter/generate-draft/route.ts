@@ -43,13 +43,13 @@ export async function POST(request: NextRequest) {
   const slug = slugify(String(body.slug || title));
 
   const [available, sold, posts] = await Promise.all([
-    fetchWatches({ status: "live", limit: 4 }),
-    fetchWatches({ status: "sold", limit: 2 }),
+    fetchWatches({ status: "live", limit: 20 }),
+    fetchWatches({ status: "sold", limit: 10 }),
     fetchJournalPosts(2),
   ]);
 
-  const featured = available.slice(0, 3);
-  const soldHighlight = sold[0];
+  let featured = available.slice(0, 3);
+  let soldHighlight = sold[0];
   const journal = posts[0];
 
   // Try AI draft generation first if API key is configured
@@ -60,9 +60,15 @@ export async function POST(request: NextRequest) {
           id: w.id,
           brand: w.brand,
           name: w.name,
+          model: w.model,
           reference: w.reference,
           price: w.price,
           conditionLabel: w.conditionLabel,
+          material: w.material,
+          movement: w.movement,
+          caseSize: w.caseSize,
+          category: w.category,
+          badges: w.badges,
           description: w.description || "",
           provenance: w.provenance || "",
         })),
@@ -70,9 +76,15 @@ export async function POST(request: NextRequest) {
           id: w.id,
           brand: w.brand,
           name: w.name,
+          model: w.model,
           reference: w.reference,
           price: w.price,
           conditionLabel: w.conditionLabel,
+          material: w.material,
+          movement: w.movement,
+          caseSize: w.caseSize,
+          category: w.category,
+          badges: w.badges,
           description: w.description || "",
           provenance: w.provenance || "",
         })),
@@ -83,6 +95,29 @@ export async function POST(request: NextRequest) {
           content: p.bodyMarkdown || "",
         })),
       });
+
+      // Resolve featured watches from AI draft selections
+      const aiSelectedFeatured: typeof available = [];
+      for (const aiWatch of aiDraft.watches) {
+        const found = available.find((w) => w.id === aiWatch.id);
+        if (found && !aiSelectedFeatured.some((f) => f.id === found.id)) {
+          aiSelectedFeatured.push(found);
+        }
+      }
+      if (aiSelectedFeatured.length > 0) {
+        featured = aiSelectedFeatured.slice(0, 3);
+      } else {
+        featured = available.slice(0, 3);
+      }
+
+      // Resolve sold watch highlight from AI draft selections
+      const aiSoldHighlight = aiDraft.soldHighlight;
+      if (aiSoldHighlight) {
+        const foundSold = sold.find((w) => w.id === aiSoldHighlight.id);
+        if (foundSold) {
+          soldHighlight = foundSold;
+        }
+      }
 
       interface DraftItem {
         itemType: string;

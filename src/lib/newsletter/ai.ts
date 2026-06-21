@@ -36,9 +36,15 @@ interface WatchData {
   id: string;
   brand: string;
   name: string;
+  model?: string;
   reference: string;
   price: number;
   conditionLabel: string;
+  material?: string;
+  movement?: string;
+  caseSize?: string;
+  category?: string | null;
+  badges?: string[];
   description?: string;
   provenance?: string;
 }
@@ -104,6 +110,17 @@ Tone:
 - Warm but premium, conversational, never hypey or spammy
 - Helpful for watch buyers in the Philippines
 
+Curating & Matching Inventory:
+- Look at the "Recent Journal Posts" (usually the first post represents the main weekly article). Identify its main themes, topics, design elements, brands, era, styles, materials (e.g., gold, steel), or movements discussed.
+- From the "Available Inventory" and "Sold Highlights", carefully select watches that relate conceptually or direct-thematically to those topics. For example:
+  * If the article discusses chronographs, select chronograph models.
+  * If the article talks about dress watches, elegant simplicity, or precious metals, highlight gold or dressier references.
+  * If the article is about a specific brand (e.g. Rolex, Cartier, Omega), prioritize matching references from that brand.
+  * If the article discusses Japanese watchmaking or vintage watches, highlight Grand Seiko, Seiko, or other matching vintage pieces.
+- Select up to 3 available watches for "watches". These should be the most matching and interesting items from the available inventory. Do not just select the first few.
+- Select exactly 1 sold watch for "soldHighlight" that fits the theme or acts as a great historical showcase of what clients look for.
+- Do not select watches at random. Discuss in the introHtml and collectorNote how these watches relate to the week's theme/article, making the newsletter feel like a cohesive, curated dispatch.
+
 Factual constraint:
 - Do not invent specs, condition, price, inclusions, or availability. Use only the provided data.
 - Do not claim a watch is rare unless source data explicitly says so.
@@ -115,7 +132,7 @@ Return a valid JSON object matching this schema:
   "subject": "A compelling email subject line under 80 characters",
   "preheader": "An engaging email preheader under 140 characters",
   "issueTitle": "Public title for the newsletter issue",
-  "introHtml": "HTML paragraph(s) introducing this week's dispatch. Set the mood, mention watch collecting themes, or share a brief collector observation. Keep formatting simple (p, strong, em only).",
+  "introHtml": "HTML paragraph(s) introducing this week's dispatch. Set the mood, link/reference the main journal post topic/theme, and explain how the curated watch selections relate to it. Keep formatting simple (p, strong, em only).",
   "watches": [
     {
       "id": "watch-id",
@@ -142,9 +159,15 @@ ${JSON.stringify(
     id: w.id,
     brand: w.brand,
     name: w.name,
+    model: w.model || "",
     reference: w.reference,
     pricePhp: w.price,
     condition: w.conditionLabel,
+    material: w.material || "",
+    movement: w.movement || "",
+    caseSize: w.caseSize || "",
+    category: w.category || "",
+    badges: w.badges || [],
     description: w.description || "",
     provenance: w.provenance || "",
   })),
@@ -158,8 +181,13 @@ ${JSON.stringify(
     id: w.id,
     brand: w.brand,
     name: w.name,
+    model: w.model || "",
     reference: w.reference,
     condition: w.conditionLabel,
+    material: w.material || "",
+    movement: w.movement || "",
+    caseSize: w.caseSize || "",
+    badges: w.badges || [],
     description: w.description || "",
   })),
   null,
