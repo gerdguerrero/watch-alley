@@ -1119,24 +1119,41 @@ code {
 }
 .analytics-range-control,
 .analytics-date-control {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  color: var(--muted);
+}
+.analytics-range-control > span,
+.analytics-date-control > span {
   font-family: 'Geist Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--cream-60);
 }
 .analytics-range-control select,
 .analytics-date-control input {
-  min-height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--gold-20);
-  background: var(--panel-strong);
-  color: var(--ink);
-  padding: 0 12px;
-  font: inherit;
-  letter-spacing: 0.06em;
+  width: 100%;
+  min-width: 0;
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: normal;
+  background: oklch(0.10 0.01 55 / 0.35);
+  border: 1px solid oklch(0.91 0.018 78 / 0.12);
+  color: var(--cream);
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.analytics-range-control select:focus,
+.analytics-date-control input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px oklch(0.76 0.12 75 / 0.15);
+  outline: none;
+}
+.analytics-range-control select:hover {
+  border-color: oklch(0.91 0.018 78 / 0.25);
 }
 .analytics-date-control[hidden] {
   display: none;
