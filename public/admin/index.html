@@ -278,13 +278,10 @@
           </article>
 
           <article class="admin-card admin-dashboard-row analytics-note-card">
-            <div class="admin-eyebrow">Data source</div>
-            <p class="admin-hint">
-              These numbers are pulled server-side from Vercel's Web Analytics usage endpoint for the Watch Alley production project. The admin page itself is no longer injected with the Vercel tracking script.
-            </p>
-            <p class="admin-hint">
-              Vercel's full dashboard still has richer breakdowns, but this tab now shows the site's real analytics directly inside admin.
-            </p>
+            <div class="admin-eyebrow">Visitors by country</div>
+            <p class="admin-meta">Where visitors are browsing from. Data sourced from Vercel's x-vercel-ip-country header.</p>
+            <div id="visitor-countries-status" class="admin-hint" aria-live="polite" style="margin:0">Loading country data…</div>
+            <ol class="vc-list" id="visitor-countries-list"></ol>
           </article>
         </div>
       </section>

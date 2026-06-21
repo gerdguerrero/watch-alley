@@ -2263,6 +2263,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
     analyticsInFlight = false;
     document.getElementById('analytics-refresh-btn').disabled = false;
     loadPopularWatches();
+    loadVisitorCountries();
   }
 }
 
@@ -2352,6 +2353,76 @@ document.querySelector('#pw-period-pills')?.addEventListener('click', function (
   btn.classList.add('is-active');
   loadPopularWatches();
 });
+
+// Visitor countries
+async function loadVisitorCountries() {
+  var list = document.getElementById('visitor-countries-list');
+  var status = document.getElementById('visitor-countries-status');
+  if (!list) return;
+  if (status) status.textContent = 'Loading\u2026';
+  list.innerHTML = '';
+  var card = list.closest('.admin-card');
+  if (card) card.classList.add('analytics-skeleton');
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) {
+      if (status) status.textContent = 'Sign in to see country data.';
+      if (card) card.classList.remove('analytics-skeleton');
+      return;
+    }
+
+    var resp = await fetch('/api/admin/visitor-countries', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+    if (card) card.classList.remove('analytics-skeleton');
+
+    if (!body.ok) {
+      if (status) status.textContent = body.error || body.message || 'Could not load country data.';
+      list.innerHTML = '';
+      return;
+    }
+
+    var countries = Array.isArray(body.countries) ? body.countries : [];
+    if (countries.length === 0) {
+      if (status) status.textContent = 'No country data yet. Will populate as visitors browse the site.';
+      list.innerHTML = '';
+      return;
+    }
+
+    if (status) status.hidden = true;
+
+    var html = '';
+    for (var i = 0; i < countries.length; i++) {
+      var c = countries[i];
+      html += '<li>' +
+        '<span class="vc-rank">' + (i + 1) + '</span>' +
+        '<span class="vc-flag">' + c.flag + '</span>' +
+        '<span class="vc-name">' + escapeHtml(c.label) + '</span>' +
+        '<span class="vc-bar-track"><span class="vc-bar-fill" style="width:' + c.pct + '%"></span></span>' +
+        '<span class="vc-count">' + formatInt(c.count) + '</span>' +
+        '<span class="vc-share">' + c.share + '%</span>' +
+        '</li>';
+    }
+    list.innerHTML = html;
+
+    if (typeof gsap !== 'undefined') {
+      try {
+        gsap.fromTo(list.querySelectorAll('li'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' });
+      } catch (_) {
+        list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+      }
+    } else {
+      list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+    }
+  } catch (err) {
+    if (card) card.classList.remove('analytics-skeleton');
+    if (status) status.textContent = err.message || 'Failed to load country data.';
+    list.innerHTML = '';
+  }
+}
 
 if (els.analyticsRangeSelect) {
   updateAnalyticsRangeControls();

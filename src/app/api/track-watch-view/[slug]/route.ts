@@ -3,8 +3,31 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
+// ISO-3166-1 alpha-2 → country name mapping (top 60 by population)
+const COUNTRY_NAMES: Record<string, string> = {
+  AF: "Afghanistan", AL: "Albania", DZ: "Algeria", AO: "Angola", AR: "Argentina",
+  AM: "Armenia", AU: "Australia", AT: "Austria", AZ: "Azerbaijan", BD: "Bangladesh",
+  BE: "Belgium", BO: "Bolivia", BR: "Brazil", BG: "Bulgaria", KH: "Cambodia",
+  CM: "Cameroon", CA: "Canada", CL: "Chile", CN: "China", CO: "Colombia",
+  CD: "DR Congo", CR: "Costa Rica", CI: "Côte d'Ivoire", HR: "Croatia", CU: "Cuba",
+  CZ: "Czechia", DK: "Denmark", DO: "Dominican Republic", EC: "Ecuador", EG: "Egypt",
+  SV: "El Salvador", ET: "Ethiopia", FI: "Finland", FR: "France", DE: "Germany",
+  GH: "Ghana", GR: "Greece", GT: "Guatemala", HN: "Honduras", HK: "Hong Kong",
+  HU: "Hungary", IN: "India", ID: "Indonesia", IR: "Iran", IQ: "Iraq", IE: "Ireland",
+  IL: "Israel", IT: "Italy", JP: "Japan", JO: "Jordan", KZ: "Kazakhstan", KE: "Kenya",
+  KW: "Kuwait", LB: "Lebanon", MY: "Malaysia", MX: "Mexico", MA: "Morocco",
+  MM: "Myanmar", NL: "Netherlands", NZ: "New Zealand", NG: "Nigeria", KP: "North Korea",
+  NO: "Norway", PK: "Pakistan", PE: "Peru", PH: "Philippines", PL: "Poland",
+  PT: "Portugal", QA: "Qatar", RO: "Romania", RU: "Russia", SA: "Saudi Arabia",
+  RS: "Serbia", SG: "Singapore", SK: "Slovakia", ZA: "South Africa", KR: "South Korea",
+  ES: "Spain", LK: "Sri Lanka", SE: "Sweden", CH: "Switzerland", SY: "Syria",
+  TW: "Taiwan", TH: "Thailand", TN: "Tunisia", TR: "Turkey", UA: "Ukraine",
+  AE: "United Arab Emirates", GB: "United Kingdom", US: "United States", UY: "Uruguay",
+  UZ: "Uzbekistan", VE: "Venezuela", VN: "Vietnam", ZW: "Zimbabwe",
+};
+
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
@@ -16,6 +39,7 @@ export async function POST(
     const supabase = createSupabaseAdminClient();
     const now = new Date().toISOString();
 
+    // ── Track watch view ─────────────────────────────────
     // Read existing row
     const { data: existing, error: selErr } = await supabase
       .from("watch_page_views")
@@ -29,7 +53,6 @@ export async function POST(
     }
 
     if (existing) {
-      // Lazy-reset windowed counters if window expired
       const windowStarted = new Date(existing.window_started_at || existing.last_viewed_at);
       const hoursSinceWindowStart = (Date.now() - windowStarted.getTime()) / 3_600_000;
 
@@ -39,9 +62,7 @@ export async function POST(
 
       if (hoursSinceWindowStart >= 24) {
         views24h = 1;
-        if (hoursSinceWindowStart >= 168) {
-          views7d = 1;
-        }
+        if (hoursSinceWindowStart >= 168) views7d = 1;
         windowStart = now;
       } else if (hoursSinceWindowStart >= 168) {
         views7d = 1;
@@ -49,35 +70,46 @@ export async function POST(
         windowStart = now;
       }
 
-      const { error: updErr } = await supabase
-        .from("watch_page_views")
-        .update({
-          view_count: existing.view_count + 1,
-          views_24h: views24h,
-          views_7d: views7d,
-          window_started_at: windowStart,
-          last_viewed_at: now,
-        })
-        .eq("slug", slug);
-
-      if (updErr) {
-        console.error("watch_page_views update error:", updErr);
-        return NextResponse.json({ ok: true, cached: true });
-      }
-    } else {
-      // First view — all counters start at 1
-      const { error: insErr } = await supabase.from("watch_page_views").insert({
-        slug,
-        view_count: 1,
-        views_24h: 1,
-        views_7d: 1,
-        window_started_at: now,
-        first_viewed_at: now,
+      await supabase.from("watch_page_views").update({
+        view_count: existing.view_count + 1,
+        views_24h: views24h,
+        views_7d: views7d,
+        window_started_at: windowStart,
         last_viewed_at: now,
+      }).eq("slug", slug);
+    } else {
+      await supabase.from("watch_page_views").insert({
+        slug, view_count: 1, views_24h: 1, views_7d: 1,
+        window_started_at: now, first_viewed_at: now, last_viewed_at: now,
       });
-      if (insErr) {
-        console.error("watch_page_views insert error:", insErr);
-        return NextResponse.json({ ok: true, cached: true });
+    }
+
+    // ── Track visitor country ────────────────────────────
+    const countryCode = (request.headers.get("x-vercel-ip-country") || "").toUpperCase();
+    if (countryCode && countryCode.length === 2) {
+      try {
+        // Check if this country exists
+        const { data: existingCountry } = await supabase
+          .from("visitor_countries")
+          .select("visitor_count")
+          .eq("country", countryCode)
+          .maybeSingle();
+
+        if (existingCountry) {
+          await supabase.from("visitor_countries").update({
+            visitor_count: existingCountry.visitor_count + 1,
+            last_seen_at: now,
+          }).eq("country", countryCode);
+        } else {
+          await supabase.from("visitor_countries").insert({
+            country: countryCode,
+            visitor_count: 1,
+            first_seen_at: now,
+            last_seen_at: now,
+          });
+        }
+      } catch (countryErr) {
+        // Non-critical — country tracking failed silently
       }
     }
 

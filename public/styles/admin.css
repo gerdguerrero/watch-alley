@@ -1630,6 +1630,25 @@ code {
   font-weight: 600;
 }
 
+/* Visitor countries card */
+.vc-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.vc-list li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 4px;
+  border-top: 1px solid oklch(0.76 0.12 75 / 0.08);
+}
+.vc-list li:first-child { border-top: none; }
+.vc-rank { width: 18px; font-family: 'Geist Mono',monospace; font-size: 10px; color: var(--cream-60); text-align: right; flex-shrink: 0; }
+.vc-flag { font-size: 18px; line-height: 1; flex-shrink: 0; width: 26px; text-align: center; }
+.vc-name { width: clamp(100px,20vw,180px); font-family: 'Geist',system-ui,sans-serif; font-size: 13px; color: var(--cream); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vc-bar-track { flex: 1; height: 6px; min-width: 30px; background: oklch(0.76 0.12 75/0.08); border-radius: 999px; overflow: hidden; }
+.vc-bar-fill { display: block; height: 100%; background: linear-gradient(90deg,oklch(0.76 0.12 75/0.50),oklch(0.76 0.12 75)); border-radius: 999px; transition: width 0.4s ease; }
+.vc-count { width: 52px; font-family: 'Geist Mono',monospace; font-size: 12px; color: var(--cream-60); text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.vc-share { width: 36px; font-family: 'Geist Mono',monospace; font-size: 10px; color: var(--cream-60); text-align: right; flex-shrink: 0; opacity: 0.6; }
+
 /* Mobile: row for the 2 sidecards */
 .admin-dashboard-rows {
   display: grid;
