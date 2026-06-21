@@ -89,9 +89,9 @@ export async function generateNewsletterDraftAI(payload: {
   sold: WatchData[];
   posts: PostData[];
 }): Promise<AiDraftResponse> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not configured in the environment.");
+    throw new Error("GEMINI_API_KEY or GOOGLE_API_KEY is not configured in the environment.");
   }
 
   const ai = new GoogleGenAI({ apiKey });

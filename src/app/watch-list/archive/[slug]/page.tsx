@@ -65,41 +65,9 @@ export default async function WatchListIssuePage({
           )}
         </header>
 
-        {issue.introHtml && (
-          <div
-            className="mt-10 text-[16px] leading-8 text-cream-80"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is sanitized server-side before rendering.
-            dangerouslySetInnerHTML={{ __html: sanitizeNewsletterHtml(issue.introHtml) }}
-          />
-        )}
-
-        {items.length > 0 && (
-          <div className="mt-10 grid gap-4">
-            {items.map((item) => (
-              <section key={item.id} className="border border-amber-300/15 bg-black/25 p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300/70">
-                  {item.itemType.replaceAll("_", " ")}
-                </p>
-                <h2 className="mt-3 font-serif text-2xl leading-tight">{item.title}</h2>
-                {item.summary && (
-                  <p className="mt-2 text-sm leading-6 text-cream-60">{item.summary}</p>
-                )}
-                {item.url && (
-                  <Link
-                    href={item.url}
-                    className="mt-4 inline-flex border-b border-amber-300/30 pb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200"
-                  >
-                    Open
-                  </Link>
-                )}
-              </section>
-            ))}
-          </div>
-        )}
-
         {issue.bodyHtml && (
           <div
-            className="article-body mt-12 text-cream-80"
+            className="article-body mt-10 text-cream-80"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: Newsletter issue HTML is sanitized server-side before rendering.
             dangerouslySetInnerHTML={{ __html: sanitizeNewsletterHtml(issue.bodyHtml) }}
           />

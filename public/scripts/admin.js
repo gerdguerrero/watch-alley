@@ -3461,11 +3461,18 @@ if (els.newsletterNewBtn) {
     }
   });
 }
-
 if (els.newsletterForm) {
   els.newsletterForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!selectedNewsletter) return;
+
+    const currentStatus = els.newsletterFieldStatus.value;
+    if (['approved', 'scheduled'].includes(currentStatus)) {
+      const ok = confirm('Saving changes to this approved/scheduled dispatch will reset its status to "Needs Review" (requiring re-approval before sending). Proceed?');
+      if (!ok) return;
+    }
+
+    const resolvedStatus = ['approved', 'scheduled'].includes(currentStatus) ? 'needs_review' : currentStatus;
 
     setStatus('Saving dispatch changes...', 'pending');
     try {
@@ -3476,7 +3483,7 @@ if (els.newsletterForm) {
       const payload = {
         id: els.newsletterFieldId.value,
         slug: els.newsletterFieldSlug.value,
-        status: els.newsletterFieldStatus.value,
+        status: resolvedStatus,
         internalTitle: currentIssue?.issue?.internal_title || els.newsletterFieldPublicTitle.value.trim() || 'Newsletter',
         subject: els.newsletterFieldSubject.value.trim(),
         preheader: els.newsletterFieldPreheader.value.trim(),

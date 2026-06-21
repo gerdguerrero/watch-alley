@@ -29,10 +29,14 @@ function absoluteUrl(path: string) {
   return `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function absolutizeLinks(html: string) {
-  return html.replace(/\shref="\/([^"]*)"/g, (_match, path: string) => {
-    return ` href="${absoluteUrl(`/${path}`)}"`;
-  });
+function absolutizeUrls(html: string) {
+  return html
+    .replace(/\shref="\/([^"]*)"/g, (_match, path: string) => {
+      return ` href="${absoluteUrl(`/${path}`)}"`;
+    })
+    .replace(/\ssrc="\/([^"]*)"/g, (_match, path: string) => {
+      return ` src="${absoluteUrl(`/${path}`)}"`;
+    });
 }
 
 function wrapHtmlEmail({
@@ -48,7 +52,7 @@ function wrapHtmlEmail({
 }) {
   const safeSubject = escapeHtml(subject);
   const safePreheader = escapeHtml(preheader);
-  const safeBodyHtml = absolutizeLinks(sanitizeNewsletterHtml(bodyHtml));
+  const safeBodyHtml = absolutizeUrls(sanitizeNewsletterHtml(bodyHtml));
 
   return `<!DOCTYPE html>
 <html>
@@ -56,37 +60,37 @@ function wrapHtmlEmail({
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${safeSubject}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,300..900;1,300..900&family=Spectral:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <style>
       body {
-        background-color: #080706;
-        color: #f5f4f0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: #13110f;
+        color: #F1ECE0;
+        font-family: 'Spectral', Georgia, serif;
         margin: 0;
         padding: 0;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
       }
       .container {
         max-width: 600px;
         margin: 0 auto;
-        padding: 24px 16px;
+        padding: 40px 24px;
+        background-color: #13110f;
       }
       .header {
         text-align: center;
-        border-bottom: 1px solid rgba(253, 224, 71, 0.15);
-        padding-bottom: 20px;
-        margin-bottom: 24px;
+        border-bottom: 1px solid rgba(189, 154, 50, 0.15);
+        padding-bottom: 30px;
+        margin-bottom: 40px;
       }
-      .logo {
-        font-family: Georgia, serif;
-        font-size: 22px;
-        letter-spacing: 0.15em;
+      .logo-link {
+        display: inline-block;
         text-decoration: none;
-        color: #f5f4f0;
-        font-weight: bold;
       }
       .preheader {
         display: none;
         font-size: 1px;
-        color: #080706;
+        color: #13110f;
         line-height: 1px;
         max-height: 0px;
         max-width: 0px;
@@ -94,38 +98,57 @@ function wrapHtmlEmail({
         overflow: hidden;
       }
       .content {
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1.8;
         color: #d1d1cd;
       }
       .content a {
-        color: #f59e0b;
+        color: #BD9A32;
         text-decoration: none;
-        border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+        border-bottom: 1px solid rgba(189, 154, 50, 0.3);
+      }
+      .content a:hover {
+        border-bottom-color: rgba(189, 154, 50, 0.8);
       }
       .content h2 {
-        font-family: Georgia, serif;
-        color: #f5f4f0;
+        font-family: 'Petrona', Georgia, serif;
+        color: #F1ECE0;
+        font-size: 22px;
+        font-weight: normal;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(189, 154, 50, 0.15);
+        padding-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .content h3 {
+        font-family: 'Petrona', Georgia, serif;
+        color: #F1ECE0;
         font-size: 18px;
-        margin-top: 32px;
-        border-bottom: 1px solid rgba(253, 224, 71, 0.15);
-        padding-bottom: 8px;
+        font-weight: normal;
+        margin-top: 24px;
+        margin-bottom: 12px;
       }
       .content ul {
         padding-left: 20px;
+        margin-bottom: 24px;
       }
       .footer {
-        margin-top: 48px;
-        border-top: 1px solid rgba(253, 224, 71, 0.15);
-        padding-top: 24px;
+        margin-top: 60px;
+        border-top: 1px solid rgba(189, 154, 50, 0.15);
+        padding-top: 30px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 11px;
-        color: rgba(245, 244, 240, 0.5);
+        letter-spacing: 0.05em;
+        color: rgba(241, 236, 224, 0.5);
         text-align: center;
-        line-height: 1.6;
+        line-height: 1.8;
       }
       .footer a {
-        color: #f59e0b;
+        color: #BD9A32;
         text-decoration: none;
+        margin: 0 6px;
       }
     </style>
   </head>
@@ -133,18 +156,22 @@ function wrapHtmlEmail({
     <span class="preheader">${safePreheader}</span>
     <div class="container">
       <div class="header">
-        <a href="https://www.thewatchalley.com" class="logo">THE WATCH ALLEY</a>
+        <a href="https://www.thewatchalley.com" class="logo-link">
+          <img src="${absoluteUrl("/brand/logo-gold.png")}" alt="The Watch Alley" style="height: 48px; width: auto; display: block; margin: 0 auto; border: 0;" />
+        </a>
       </div>
       <div class="content">
         ${safeBodyHtml}
       </div>
       <div class="footer">
-        <p>© 2026 The Watch Alley PH. All rights reserved.</p>
-        <p>Manila, Philippines</p>
-        <p>
-          You received this email because you are on The Watch List. <br>
+        <p style="margin: 0 0 10px 0;">© 2026 The Watch Alley PH. All rights reserved.</p>
+        <p style="margin: 0 0 15px 0;">Manila, Philippines</p>
+        <p style="margin: 0;">
+          You received this email because you are on The Watch List.
+        </p>
+        <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;">
           <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> · 
-          <a href="${absoluteUrl("/watch-list/archive")}">View online archive</a>
+          <a href="${absoluteUrl("/watch-list/archive")}">View Online Archive</a>
         </p>
       </div>
     </div>
