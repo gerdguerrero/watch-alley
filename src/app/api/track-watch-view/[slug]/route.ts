@@ -15,45 +15,46 @@ export async function POST(
   try {
     const supabase = createSupabaseAdminClient();
 
-    // Upsert: increment view_count, update last_viewed_at
-    const { error } = await supabase.rpc("upsert_watch_page_view", {
-      p_slug: slug,
-    });
+    // Check if row exists, then upsert
+    const { data: existing, error: selErr } = await supabase
+      .from("watch_page_views")
+      .select("slug, view_count")
+      .eq("slug", slug)
+      .maybeSingle();
 
-    // If RPC doesn't exist yet, fall back to manual upsert
-    if (error && error.message?.includes("function") && error.message?.includes("not found")) {
-      // Check if row exists
-      const { data: existing } = await supabase
-        .from("watch_page_views")
-        .select("slug, view_count")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (existing) {
-        await supabase
-          .from("watch_page_views")
-          .update({
-            view_count: existing.view_count + 1,
-            last_viewed_at: new Date().toISOString(),
-          })
-          .eq("slug", slug);
-      } else {
-        await supabase.from("watch_page_views").insert({
-          slug,
-          view_count: 1,
-          first_viewed_at: new Date().toISOString(),
-          last_viewed_at: new Date().toISOString(),
-        });
-      }
-    } else if (error) {
-      console.error("watch_page_views upsert error:", error);
-      // Table might not exist yet — silently fail (graceful degradation)
+    if (selErr) {
+      // Table doesn't exist yet (or other persistent error)
+      console.error("watch_page_views select error:", selErr);
       return NextResponse.json({ ok: true, cached: true });
+    }
+
+    if (existing) {
+      const { error: updErr } = await supabase
+        .from("watch_page_views")
+        .update({
+          view_count: existing.view_count + 1,
+          last_viewed_at: new Date().toISOString(),
+        })
+        .eq("slug", slug);
+      if (updErr) {
+        console.error("watch_page_views update error:", updErr);
+        return NextResponse.json({ ok: true, cached: true });
+      }
+    } else {
+      const { error: insErr } = await supabase.from("watch_page_views").insert({
+        slug,
+        view_count: 1,
+        first_viewed_at: new Date().toISOString(),
+        last_viewed_at: new Date().toISOString(),
+      });
+      if (insErr) {
+        console.error("watch_page_views insert error:", insErr);
+        return NextResponse.json({ ok: true, cached: true });
+      }
     }
 
     return NextResponse.json({ ok: true });
   } catch {
-    // Graceful degradation if table doesn't exist
     return NextResponse.json({ ok: true, cached: true });
   }
 }
