@@ -2105,6 +2105,15 @@ async function loadVercelAnalytics({ force = false } = {}) {
   analyticsInFlight = true;
   if (document.getElementById('analytics-status')) document.getElementById('analytics-status').textContent = 'Loading Vercel Analytics…';
 
+  // Show shimmer skeletons while loading
+  document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
+    el.classList.add('analytics-skeleton');
+  });
+  document.querySelectorAll('.am-value, .am-badge').forEach(function (el) {
+    el.dataset.animateTo = el.textContent !== '—' ? el.textContent : '';
+    el.textContent = '';
+  });
+
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
@@ -2131,30 +2140,60 @@ async function loadVercelAnalytics({ force = false } = {}) {
     var delta = previous > 0 ? Math.round(((selected - previous) / previous) * 100) : null;
     var rangeLabel = analyticsRangeLabels[body.range?.key] || 'Selected range';
 
-    // Update KPI tiles
-    setAnalyticsText('primaryLabel', 'Pageviews · ' + rangeLabel);
-    setAnalyticsText('totalPageviews', formatInt(selected));
-    setAnalyticsText('averageDaily', formatInt(summary.averageDailyPageviews) + ' average daily pageviews');
-    setAnalyticsText('previousPageviews', formatInt(previous));
-    setAnalyticsText(
-      'rangeTrend',
-      delta === null ? 'No previous-period baseline' : (delta >= 0 ? '+' : '') + delta + '% vs previous period'
+    // Hide skeletons
+    document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
+      el.classList.remove('analytics-skeleton');
+    });
+
+    // Animate KPI values with GSAP
+    function animateNumber(el, target, suffix) {
+      if (!el) return;
+      var parts = String(target).split(',');
+      var raw = parseFloat(parts.join('')) || 0;
+      suffix = suffix || '';
+      el.textContent = '0' + suffix;
+      gsap.fromTo(el, { textContent: 0 }, {
+        textContent: raw,
+        duration: 1.2,
+        ease: 'power2.out',
+        snap: { textContent: 1 },
+        onUpdate: function () {
+          var val = Math.round(this.targets()[0].textContent);
+          el.textContent = formatInt(val) + suffix;
+        },
+      });
+    }
+
+    function setBadge(el, text, className) {
+      if (!el) return;
+      el.textContent = text;
+      el.className = className;
+      gsap.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)' });
+    }
+
+    animateNumber(document.querySelector('[data-analytics="totalPageviews"]'), selected);
+    animateNumber(
+      document.querySelector('[data-analytics="averageDaily"]'),
+      summary.averageDailyPageviews,
+      ' average daily pageviews'
     );
-    // Trend badge
+    animateNumber(document.querySelector('[data-analytics="previousPageviews"]'), previous);
+    animateNumber(document.querySelector('[data-analytics="todayPageviews"]'), summary.todayPageviews);
+    setAnalyticsText('primaryLabel', 'Pageviews · ' + rangeLabel);
+
+    var trendText = delta === null ? 'No previous-period baseline' : (delta >= 0 ? '+' : '') + delta + '% vs previous period';
+    setAnalyticsText('rangeTrend', trendText);
+
     var badge = document.querySelector('[data-analytics="rangeBadge"]');
     if (badge) {
       if (delta === null) {
-        badge.textContent = '';
-        badge.className = 'am-badge';
+        setBadge(badge, '', 'am-badge');
       } else if (delta >= 0) {
-        badge.textContent = '\u25B2 +' + delta + '%';
-        badge.className = 'am-badge am-badge-up';
+        setBadge(badge, '\u25B2 +' + delta + '%', 'am-badge am-badge-up');
       } else {
-        badge.textContent = '\u25BC ' + delta + '%';
-        badge.className = 'am-badge am-badge-down';
+        setBadge(badge, '\u25BC ' + delta + '%', 'am-badge am-badge-down');
       }
     }
-    setAnalyticsText('todayPageviews', formatInt(summary.todayPageviews));
     setAnalyticsText('eventCount', 'Custom events: ' + formatInt(summary.totalEvents));
 
     if (document.getElementById('analytics-range-meta') && body.range) {
@@ -2168,6 +2207,14 @@ async function loadVercelAnalytics({ force = false } = {}) {
     // Render SVG chart (with previous series overlay if available)
     var prevSeries = Array.isArray(body.previousSeries) ? body.previousSeries : null;
     renderAnalyticsChart(series, prevSeries);
+
+    // Animate chart line drawing
+    requestAnimationFrame(function () {
+      var chartEl = document.getElementById('analytics-chart');
+      if (chartEl) {
+        chartEl.classList.add('analytics-chart-animated');
+      }
+    });
 
     // Render top days
     renderTopAnalyticsDays(series);
@@ -2207,12 +2254,17 @@ async function loadPopularWatches() {
   var status = document.getElementById('popular-watches-status');
   if (!list) return;
   if (status) status.textContent = 'Loading…';
+  list.innerHTML = '';
+  // Add shimmer on the popular watches card
+  var pwCard = list.closest('.admin-card');
+  if (pwCard) pwCard.classList.add('analytics-skeleton');
 
   try {
     var { data: { session } } = await supabase.auth.getSession();
     var token = session?.access_token;
     if (!token) {
       if (status) status.textContent = 'Sign in to see popular watches.';
+      if (pwCard) pwCard.classList.remove('analytics-skeleton');
       return;
     }
 
@@ -2220,6 +2272,8 @@ async function loadPopularWatches() {
       headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
+
+    if (pwCard) pwCard.classList.remove('analytics-skeleton');
 
     if (!body.ok) {
       if (status) status.textContent = body.migrationHint || body.message || 'Could not load watch views.';
@@ -2244,7 +2298,7 @@ async function loadPopularWatches() {
       var pct = Math.round((w.view_count / maxViews) * 100);
       var label = w.brand ? w.brand + ' ' + (w.name || w.model || '') : w.slug;
       var priceStr = w.price ? 'PHP ' + formatInt(w.price) : '';
-      html += '<li>' +
+      html += '<li data-index="' + i + '">' +
         '<span class="pw-rank">' + (i + 1) + '</span>' +
         '<div class="pw-info">' +
           '<span class="pw-name">' + escapeHtml(label) + '</span>' +
@@ -2257,7 +2311,15 @@ async function loadPopularWatches() {
         '</li>';
     }
     list.innerHTML = html;
+
+    // GSAP staggered entrance
+    gsap.fromTo(
+      list.querySelectorAll('li'),
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
+    );
   } catch (err) {
+    if (pwCard) pwCard.classList.remove('analytics-skeleton');
     if (status) status.textContent = err.message || 'Failed to load popular watches.';
     list.innerHTML = '';
   }

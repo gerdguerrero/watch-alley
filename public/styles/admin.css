@@ -1195,6 +1195,94 @@ code {
 .analytics-path-value {
   font-size: clamp(34px, 4vw, 48px);
 }
+
+/* ── Loading skeletons ──────────────────────────────────── */
+@keyframes analytics-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.analytics-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.analytics-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.76 0.12 75 / 0.04) 40%,
+    oklch(0.76 0.12 75 / 0.10) 50%,
+    oklch(0.76 0.12 75 / 0.04) 60%,
+    transparent 100%
+  );
+  background-size: 800px 100%;
+  animation: analytics-shimmer 1.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.analytics-skeleton .am-value,
+.analytics-skeleton .am-foot,
+.analytics-skeleton .am-badge,
+.analytics-skeleton .analytics-bar-fill,
+.analytics-skeleton [data-analytics] {
+  color: transparent !important;
+  background: oklch(0.91 0.018 78 / 0.06);
+  border-radius: 4px;
+}
+.analytics-skeleton .am-value {
+  display: inline-block;
+  min-width: 80px;
+  height: 32px;
+}
+.analytics-skeleton .am-foot {
+  display: inline-block;
+  min-width: 120px;
+  height: 14px;
+  margin-top: 4px;
+}
+.analytics-skeleton .am-badge {
+  display: inline-block;
+  min-width: 60px;
+  height: 20px;
+}
+.analytics-skeleton [data-analytics="primaryLabel"] {
+  display: inline-block;
+  min-width: 160px;
+  height: 12px;
+}
+.analytics-skeleton .analytics-chart svg {
+  opacity: 0.15;
+}
+.analytics-skeleton .popular-watches-list li {
+  opacity: 0.2;
+}
+
+/* ── Animation transitions ──────────────────────────────── */
+.am-value,
+.am-badge,
+.am-foot {
+  transition: opacity 0.3s ease;
+}
+.analytics-tally {
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-chart svg path:last-of-type {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+.analytics-chart.analytics-chart-animated svg path:last-of-type {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.popular-watches-list li {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 .analytics-chart-card {
   gap: 18px;
 }
