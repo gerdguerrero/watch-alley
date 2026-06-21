@@ -191,6 +191,7 @@ export async function GET(request: NextRequest) {
       averageDailyPageviews: Math.round(totalPageviews / series.length),
     },
     series,
+    previousSeries,
     updatedAt: now.toISOString(),
   });
 }
