@@ -1918,11 +1918,16 @@ const STORAGE_BUCKET = 'watches';
 const IMAGE_UPLOAD_SOURCE_MAX_BYTES = 30 * 1024 * 1024;
 const IMAGE_UPLOAD_TARGET_BYTES = 900 * 1024;
 const IMAGE_UPLOAD_MAX_EDGE = 2200;
-const IMAGE_UPLOAD_MIME = 'image/webp';
-const IMAGE_UPLOAD_EXT = 'webp';
+const IMAGE_UPLOAD_FORMATS = [
+  { mime: 'image/webp', ext: 'webp', label: 'WebP' },
+  { mime: 'image/jpeg', ext: 'jpg', label: 'JPEG' },
+];
+const IMAGE_UPLOAD_MIME = IMAGE_UPLOAD_FORMATS[0].mime;
 // Grid/gallery thumbnail emitted next to each upload as `<name>.thumb.webp`.
 // Kept in sync with thumbnailUrl() in src/lib/inventory/image.ts and the
 // backfill in scripts/generate-watch-thumbnails.mjs.
+// Browsers that cannot encode canvas as WebP still upload the thumbnail at
+// this path for URL compatibility, with the actual JPEG MIME type.
 const THUMB_SUFFIX = '.thumb.webp';
 const THUMB_MAX_EDGE = 900;
 const THUMB_QUALITY = 0.72;
@@ -2005,12 +2010,27 @@ function canvasToBlob(canvas, type, quality) {
   });
 }
 
-async function canvasToExactBlob(canvas, type, quality, label) {
-  const blob = await canvasToBlob(canvas, type, quality);
-  if (blob.type !== type) {
-    throw new Error(`${label} could not be encoded as WebP in this browser.`);
+async function encodeCanvasAs(canvas, format, quality, label) {
+  const blob = await canvasToBlob(canvas, format.mime, quality);
+  if (blob.type && blob.type !== format.mime) {
+    throw new Error(`${label} could not be encoded as ${format.label} in this browser.`);
   }
-  return blob;
+  return {
+    blob: blob.type ? blob : new Blob([blob], { type: format.mime }),
+    format,
+  };
+}
+
+async function encodeCanvasWithFallback(canvas, quality, label) {
+  let lastError = null;
+  for (const format of IMAGE_UPLOAD_FORMATS) {
+    try {
+      return await encodeCanvasAs(canvas, format, quality, label);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new Error(lastError?.message || `${label} could not be encoded in this browser.`);
 }
 
 function loadImageElement(file) {
@@ -2064,19 +2084,19 @@ async function prepareImageForUpload(file) {
   if (typeof image.close === 'function') image.close();
 
   let quality = 0.82;
-  let blob = await canvasToExactBlob(canvas, IMAGE_UPLOAD_MIME, quality, 'Photo');
-  while (blob.size > IMAGE_UPLOAD_TARGET_BYTES && quality > 0.62) {
+  let encoded = await encodeCanvasWithFallback(canvas, quality, 'Photo');
+  while (encoded.blob.size > IMAGE_UPLOAD_TARGET_BYTES && quality > 0.62) {
     quality -= 0.08;
-    blob = await canvasToExactBlob(canvas, IMAGE_UPLOAD_MIME, quality, 'Photo');
+    encoded = await encodeCanvasAs(canvas, encoded.format, quality, 'Photo');
   }
 
-  const compressed = new File([blob], replaceFilenameExtension(file.name, IMAGE_UPLOAD_EXT), {
-    type: blob.type || IMAGE_UPLOAD_MIME,
+  const compressed = new File([encoded.blob], replaceFilenameExtension(file.name, encoded.format.ext), {
+    type: encoded.blob.type || encoded.format.mime,
     lastModified: Date.now(),
   });
 
-  // Small WebP thumbnail for the catalog grids / gallery filmstrip, drawn from
-  // the already-scaled canvas so we don't decode the source twice.
+  // Small thumbnail for the catalog grids / gallery filmstrip, drawn from the
+  // already-scaled canvas so we don't decode the source twice.
   const thumbScale = Math.min(1, THUMB_MAX_EDGE / Math.max(outputWidth, outputHeight));
   const thumbWidth = Math.max(1, Math.round(outputWidth * thumbScale));
   const thumbHeight = Math.max(1, Math.round(outputHeight * thumbScale));
@@ -2087,7 +2107,8 @@ async function prepareImageForUpload(file) {
   let thumbBlob = null;
   if (thumbContext) {
     thumbContext.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
-    thumbBlob = await canvasToExactBlob(thumbCanvas, IMAGE_UPLOAD_MIME, THUMB_QUALITY, 'Thumbnail');
+    const thumbEncoded = await encodeCanvasWithFallback(thumbCanvas, THUMB_QUALITY, 'Thumbnail');
+    thumbBlob = thumbEncoded.blob;
   }
   if (!thumbBlob) throw new Error('Browser could not prepare the thumbnail canvas.');
 
@@ -2137,7 +2158,7 @@ async function uploadFiles(fileList) {
       const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, prepared.file, {
         cacheControl: '31536000',
         upsert: false,
-        contentType: IMAGE_UPLOAD_MIME,
+        contentType: prepared.file.type || IMAGE_UPLOAD_MIME,
       });
       if (error) throw error;
 
@@ -2150,7 +2171,7 @@ async function uploadFiles(fileList) {
         .upload(thumbPath, prepared.thumbBlob, {
           cacheControl: '31536000',
           upsert: false,
-          contentType: IMAGE_UPLOAD_MIME,
+          contentType: prepared.thumbBlob.type || IMAGE_UPLOAD_MIME,
         });
       if (thumbError) {
         await supabase.storage.from(STORAGE_BUCKET).remove([path]).catch(() => {});
