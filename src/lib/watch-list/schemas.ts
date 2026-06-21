@@ -53,6 +53,7 @@ export const signupSchema = z
   .object({
     email: emailSchema,
     firstName: optionalText(120),
+    country: optionalText(100),
     preferences: preferencesSchema,
   })
   .merge(consentSchema)

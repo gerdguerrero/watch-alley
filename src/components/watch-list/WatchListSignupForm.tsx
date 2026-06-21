@@ -8,12 +8,14 @@ import {
   WATCH_LIST_CONSENT_TEXT,
   WATCH_LIST_CONSENT_VERSION,
 } from "@/lib/watch-list/constants";
+import { CountrySelect } from "./CountrySelect";
 
 interface WatchListSignupFormProps {
   source: string;
   compact?: boolean;
   showPreferences?: boolean;
   className?: string;
+  onSuccess?: () => void;
 }
 
 type SubmitState = "idle" | "pending" | "success" | "error";
@@ -47,6 +49,7 @@ export function WatchListSignupForm({
   compact = false,
   showPreferences = false,
   className = "",
+  onSuccess,
 }: WatchListSignupFormProps) {
   const formStartedAt = useMemo(() => Date.now(), []);
   const [state, setState] = useState<SubmitState>("idle");
@@ -73,6 +76,7 @@ export function WatchListSignupForm({
     const payload = {
       email: getText(formData, "email"),
       firstName: getText(formData, "firstName"),
+      country: getText(formData, "country"),
       preferences,
       consentAccepted: formData.get("consentAccepted") === "on",
       consentText: WATCH_LIST_CONSENT_TEXT,
@@ -104,6 +108,7 @@ export function WatchListSignupForm({
       setState("success");
       setMessage("You're on The Watch List. We'll send the right pieces, not the loudest ones.");
       form.reset();
+      onSuccess?.();
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "Please try again.");
@@ -126,31 +131,44 @@ export function WatchListSignupForm({
       </div>
 
       {compact ? (
-        <div className="grid gap-2">
-          <span id={`${source}-watch-list-email-label`} className={labelClass}>
-            Email
-          </span>
-          <div className="grid gap-2 min-[380px]:grid-cols-[minmax(0,1fr)_6.25rem]">
-            <input
-              aria-labelledby={`${source}-watch-list-email-label`}
-              className={compactInputClass}
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder="collector@email.com"
-            />
-            <button
-              type="submit"
-              disabled={state === "pending"}
-              className="inline-flex min-h-12 items-center justify-center rounded-lg bg-amber-300 px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60"
-            >
-              {state === "pending" ? "Joining" : "Join"}
-            </button>
+        <div className="grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span id={`${source}-watch-list-email-label`} className={labelClass}>
+                Email
+              </span>
+              <input
+                aria-labelledby={`${source}-watch-list-email-label`}
+                className={compactInputClass}
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="collector@email.com"
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <span id={`${source}-watch-list-country-label`} className={labelClass}>
+                Country
+              </span>
+              <CountrySelect
+                id={`${source}-watch-list-country`}
+                name="country"
+                required
+                className={compactInputClass}
+              />
+            </div>
           </div>
+          <button
+            type="submit"
+            disabled={state === "pending"}
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-amber-300 px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#090806] transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60"
+          >
+            {state === "pending" ? "Joining" : "Join"}
+          </button>
         </div>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           <label className="flex flex-col gap-2">
             <span className={labelClass}>Name</span>
             <input className={inputClass} name="firstName" autoComplete="given-name" />
@@ -166,6 +184,15 @@ export function WatchListSignupForm({
               placeholder="collector@email.com"
             />
           </label>
+          <div className="flex flex-col gap-2">
+            <span className={labelClass}>Country</span>
+            <CountrySelect
+              id={`${source}-watch-list-country`}
+              name="country"
+              required
+              className={inputClass}
+            />
+          </div>
         </div>
       )}
 

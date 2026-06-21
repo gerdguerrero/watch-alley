@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/develop/footer";
 import { MainNav } from "@/components/develop/main-nav";
+import { WatchListModal } from "@/components/watch-list/WatchListModal";
 import { BRAND_COLORS } from "@/lib/brand/assets";
 import { fetchFeaturedWatch } from "@/lib/inventory/queries";
 import { FALLBACK_SITE_OG_IMAGE, resolveMetadataImageUrl } from "@/lib/metadata/images";
@@ -114,6 +115,7 @@ export default function RootLayout({
         <MainNav />
         <div className="flex-1">{children}</div>
         <Footer />
+        <WatchListModal />
         <Analytics />
       </body>
     </html>
