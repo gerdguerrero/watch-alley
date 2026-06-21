@@ -166,14 +166,10 @@ async function deliveryAlreadySent(
     hash: string;
   }
 ) {
-  const { data, error } = await supabase
-    .schema("watch_alley")
-    .from("newsletter_delivery_events")
-    .select("id")
-    .eq("issue_id", issueId)
-    .eq("recipient_hash", hash)
-    .eq("status", "sent")
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("service_check_delivery_sent", {
+    p_issue_id: issueId,
+    p_recipient_hash: hash,
+  });
 
   if (error) throw new Error(`Failed to check delivery log: ${error.message}`);
   return Boolean(data);
@@ -190,18 +186,15 @@ async function logDeliveryEvent(
     metadata?: Record<string, unknown>;
   }
 ) {
-  const { error } = await supabase
-    .schema("watch_alley")
-    .from("newsletter_delivery_events")
-    .insert({
-      issue_id: payload.issueId,
-      recipient_hash: payload.hash,
-      provider: "resend",
-      provider_message_id: payload.providerMessageId,
-      status: payload.status,
-      error_message: payload.errorMessage,
-      metadata: payload.metadata || {},
-    });
+  const { error } = await supabase.rpc("service_log_delivery_event", {
+    p_issue_id: payload.issueId,
+    p_recipient_hash: payload.hash,
+    p_provider: "resend",
+    p_provider_message_id: payload.providerMessageId ?? null,
+    p_status: payload.status,
+    p_error_message: payload.errorMessage ?? null,
+    p_metadata: payload.metadata || {},
+  });
 
   if (error && payload.status !== "sent") {
     console.error("Failed to write newsletter delivery event:", error.message);
