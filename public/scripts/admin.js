@@ -4064,7 +4064,21 @@ function selectNewsletter(n) {
 
 function updateNewsletterPreview() {
   const html = els.newsletterFieldBodyHtml.value;
-  els.newsletterPreview.innerHTML = html || '<p class="admin-meta">No content written yet.</p>';
+  if (!html) {
+    els.newsletterPreview.innerHTML = '<p class="journal-preview-empty">No content written yet.</p>';
+    return;
+  }
+
+  els.newsletterPreview.innerHTML = `
+    <div class="newsletter-email-preview-shell">
+      <div class="newsletter-email-preview-header">
+        <img src="/brand/logo-gold.png" width="170" height="126" alt="The Watch Alley" />
+      </div>
+      <div class="newsletter-email-preview-body">
+        ${html}
+      </div>
+    </div>
+  `;
 }
 
 if (els.newsletterFieldBodyHtml) {
