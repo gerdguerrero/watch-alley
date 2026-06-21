@@ -46,7 +46,7 @@ export function SoldRow({ watch }: SoldRowProps) {
         aria-hidden="true"
         className="pointer-events-none absolute left-0 top-1/2 h-[60%] w-px -translate-y-1/2 origin-top scale-y-0 bg-[color:var(--color-gold)] transition-transform duration-700 ease-out group-hover:scale-y-100 group-focus-visible:scale-y-100"
       />
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden opacity-85 [filter:grayscale(0.65)]">
+      <div className="relative h-14 w-14 shrink-0 overflow-hidden">
         {watch.primaryImage && (
           <Image
             src={watch.primaryImage}

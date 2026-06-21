@@ -32,7 +32,7 @@ export function WatchTile({ watch }: WatchTileProps) {
           src={thumbnailUrl(watch.primaryImage)}
           alt={`${watch.brand} ${watch.name}`}
           fill
-          className={isSold ? "object-cover [filter:grayscale(0.6)]" : "object-cover"}
+          className="object-cover"
           sizes="33vw"
         />
       ) : (

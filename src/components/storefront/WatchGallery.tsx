@@ -133,9 +133,7 @@ export function WatchGallery({
       {/* Main image with cursor-tracking zoom. Capped by viewport height so the
           PDP stays above the fold on laptops. */}
       <div
-        className={`relative mx-auto aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 sm:mx-0 sm:min-w-0 sm:flex-1 ${
-          isSold ? "[filter:grayscale(0.5)] opacity-95" : ""
-        }`}
+        className="relative mx-auto aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 sm:mx-0 sm:min-w-0 sm:flex-1"
       >
         <MagnifiedImage images={thumbs} selectedIndex={selectedIndex} alt={alt} />
 

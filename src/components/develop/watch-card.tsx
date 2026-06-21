@@ -12,7 +12,7 @@ interface WatchCardProps {
   watch: Watch;
   /** Stagger index used for the in-view entrance delay. */
   index?: number;
-  /** Force grayscale + "Sold" treatment regardless of status. */
+  /** Force the "Sold" label treatment regardless of status. */
   variant?: "default" | "sold";
 }
 
@@ -74,9 +74,7 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
       >
         <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5" }}>
           <motion.div
-            className={
-              isSold ? "relative h-full w-full [filter:grayscale(0.6)]" : "relative h-full w-full"
-            }
+            className="relative h-full w-full"
             style={{ x: imageX, y: imageY }}
             animate={{ scale: isHovered ? 1.1 : 1.05 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
