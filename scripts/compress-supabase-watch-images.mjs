@@ -1,8 +1,7 @@
-import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 const ENV_PATH = path.join(process.cwd(), ".env.local");
 const DEFAULT_MAX_EDGE = 1800;
@@ -40,7 +39,7 @@ Options:
   --apply          Upload compressed files back to the same Storage paths.
   --limit N        Process at most N referenced objects.
   --max-edge N     Resize longest edge to N pixels. Default ${DEFAULT_MAX_EDGE}.
-  --quality N      JPEG quality passed to sips. Default ${DEFAULT_QUALITY}.
+  --quality N      WebP quality passed to sharp. Default ${DEFAULT_QUALITY}.
   --min-kb N       Skip objects smaller than N KB. Default ${DEFAULT_MIN_BYTES / 1024}.
   --largest-first  Inspect refs first and process biggest objects first.
   --skip-updated-after ISO
@@ -68,25 +67,6 @@ async function loadEnvFile(filePath) {
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
   }
-}
-
-function run(command, args) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk;
-    });
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code === 0) resolve({ stdout, stderr });
-      else reject(new Error(`${command} ${args.join(" ")} failed (${code}): ${stderr || stdout}`));
-    });
-  });
 }
 
 function bytesToMb(bytes) {
@@ -215,28 +195,7 @@ async function attachMetadata(client, refs) {
   return refs;
 }
 
-async function writeBlobToFile(blob, outputPath) {
-  const buffer = Buffer.from(await blob.arrayBuffer());
-  await fs.writeFile(outputPath, buffer);
-}
-
-async function compressWithSips(inputPath, outputPath, { maxEdge, quality }) {
-  await run("/usr/bin/sips", [
-    "-s",
-    "format",
-    "jpeg",
-    "-s",
-    "formatOptions",
-    String(quality),
-    "--resampleHeightWidthMax",
-    String(maxEdge),
-    inputPath,
-    "--out",
-    outputPath,
-  ]);
-}
-
-async function processObject(client, ref, options, tempDir) {
+async function processObject(client, ref, options) {
   const metadata = ref.metadata ?? (await getObjectMetadata(client, ref.bucket, ref.path));
   if (!metadata) return { status: "missing", ref };
   if (options.skipUpdatedAfter && metadata.updatedAt && metadata.updatedAt >= options.skipUpdatedAfter) {
@@ -252,13 +211,13 @@ async function processObject(client, ref, options, tempDir) {
   const { data: blob, error: downloadError } = await client.storage.from(ref.bucket).download(ref.path);
   if (downloadError) throw new Error(`${ref.bucket}/${ref.path}: ${downloadError.message}`);
 
-  const safeName = ref.path.replace(/[^a-z0-9._-]+/gi, "_");
-  const inputPath = path.join(tempDir, `${safeName}.source`);
-  const outputPath = path.join(tempDir, `${safeName}.jpg`);
-  await writeBlobToFile(blob, inputPath);
-  await compressWithSips(inputPath, outputPath, options);
+  const input = Buffer.from(await blob.arrayBuffer());
+  const output = await sharp(input)
+    .rotate()
+    .resize(options.maxEdge, options.maxEdge, { fit: "inside", withoutEnlargement: true })
+    .webp({ quality: options.quality })
+    .toBuffer();
 
-  const output = await fs.readFile(outputPath);
   if (output.length >= metadata.size) {
     return {
       status: "skipped-not-smaller",
@@ -272,7 +231,7 @@ async function processObject(client, ref, options, tempDir) {
   if (options.apply) {
     const { error: uploadError } = await client.storage.from(ref.bucket).upload(ref.path, output, {
       cacheControl: "31536000",
-      contentType: "image/jpeg",
+      contentType: "image/webp",
       upsert: true,
     });
     if (uploadError) throw new Error(`${ref.bucket}/${ref.path}: ${uploadError.message}`);
@@ -310,7 +269,6 @@ async function main() {
       .sort((a, b) => b.metadata.size - a.metadata.size);
   }
   refs = refs.slice(0, options.limit);
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "watch-alley-storage-"));
 
   const summary = {
     mode: options.apply ? "apply" : "dry-run",
@@ -325,45 +283,41 @@ async function main() {
     results: [],
   };
 
-  try {
-    for (const ref of refs) {
-      summary.processed += 1;
-      try {
-        const result = await processObject(client, ref, options, tempDir);
-        if (result.beforeBytes) summary.beforeMb += bytesToMb(result.beforeBytes);
-        if (result.afterBytes) summary.afterMb += bytesToMb(result.afterBytes);
-        if (result.savedBytes) summary.savedMb += bytesToMb(result.savedBytes);
-        if (result.status === "compressed" || result.status === "would-compress") summary.compressed += 1;
-        else summary.skipped += 1;
-        const compactResult = {
-          status: result.status,
-          bucket: ref.bucket,
-          path: ref.path,
-          beforeMb: result.beforeBytes ? bytesToMb(result.beforeBytes) : undefined,
-          afterMb: result.afterBytes ? bytesToMb(result.afterBytes) : undefined,
-          savedMb: result.savedBytes ? bytesToMb(result.savedBytes) : undefined,
-          watches: ref.watches.slice(0, 3),
-        };
-        summary.recentResults.push(compactResult);
-        if (summary.recentResults.length > 25) summary.recentResults.shift();
-        console.log(
-          `${summary.processed}/${refs.length} ${result.status} ${ref.bucket}/${ref.path}` +
-            (result.savedBytes ? ` saved ${bytesToMb(result.savedBytes)} MB` : "")
-        );
-      } catch (error) {
-        summary.failed += 1;
-        summary.recentResults.push({
-          status: "failed",
-          bucket: ref.bucket,
-          path: ref.path,
-          error: error.message || String(error),
-        });
-        if (summary.recentResults.length > 25) summary.recentResults.shift();
-        console.error(`${summary.processed}/${refs.length} failed ${ref.bucket}/${ref.path}: ${error.message || error}`);
-      }
+  for (const ref of refs) {
+    summary.processed += 1;
+    try {
+      const result = await processObject(client, ref, options);
+      if (result.beforeBytes) summary.beforeMb += bytesToMb(result.beforeBytes);
+      if (result.afterBytes) summary.afterMb += bytesToMb(result.afterBytes);
+      if (result.savedBytes) summary.savedMb += bytesToMb(result.savedBytes);
+      if (result.status === "compressed" || result.status === "would-compress") summary.compressed += 1;
+      else summary.skipped += 1;
+      const compactResult = {
+        status: result.status,
+        bucket: ref.bucket,
+        path: ref.path,
+        beforeMb: result.beforeBytes ? bytesToMb(result.beforeBytes) : undefined,
+        afterMb: result.afterBytes ? bytesToMb(result.afterBytes) : undefined,
+        savedMb: result.savedBytes ? bytesToMb(result.savedBytes) : undefined,
+        watches: ref.watches.slice(0, 3),
+      };
+      summary.recentResults.push(compactResult);
+      if (summary.recentResults.length > 25) summary.recentResults.shift();
+      console.log(
+        `${summary.processed}/${refs.length} ${result.status} ${ref.bucket}/${ref.path}` +
+          (result.savedBytes ? ` saved ${bytesToMb(result.savedBytes)} MB` : "")
+      );
+    } catch (error) {
+      summary.failed += 1;
+      summary.recentResults.push({
+        status: "failed",
+        bucket: ref.bucket,
+        path: ref.path,
+        error: error.message || String(error),
+      });
+      if (summary.recentResults.length > 25) summary.recentResults.shift();
+      console.error(`${summary.processed}/${refs.length} failed ${ref.bucket}/${ref.path}: ${error.message || error}`);
     }
-  } finally {
-    await fs.rm(tempDir, { recursive: true, force: true });
   }
 
   summary.beforeMb = Math.round(summary.beforeMb * 100) / 100;

@@ -2003,6 +2003,14 @@ function canvasToBlob(canvas, type, quality) {
   });
 }
 
+async function canvasToExactBlob(canvas, type, quality, label) {
+  const blob = await canvasToBlob(canvas, type, quality);
+  if (blob.type !== type) {
+    throw new Error(`${label} could not be encoded as WebP in this browser.`);
+  }
+  return blob;
+}
+
 function loadImageElement(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -2054,10 +2062,10 @@ async function prepareImageForUpload(file) {
   if (typeof image.close === 'function') image.close();
 
   let quality = 0.82;
-  let blob = await canvasToBlob(canvas, IMAGE_UPLOAD_MIME, quality);
+  let blob = await canvasToExactBlob(canvas, IMAGE_UPLOAD_MIME, quality, 'Photo');
   while (blob.size > IMAGE_UPLOAD_TARGET_BYTES && quality > 0.62) {
     quality -= 0.08;
-    blob = await canvasToBlob(canvas, IMAGE_UPLOAD_MIME, quality);
+    blob = await canvasToExactBlob(canvas, IMAGE_UPLOAD_MIME, quality, 'Photo');
   }
 
   const compressed = new File([blob], replaceFilenameExtension(file.name, IMAGE_UPLOAD_EXT), {
@@ -2077,8 +2085,9 @@ async function prepareImageForUpload(file) {
   let thumbBlob = null;
   if (thumbContext) {
     thumbContext.drawImage(canvas, 0, 0, thumbWidth, thumbHeight);
-    thumbBlob = await canvasToBlob(thumbCanvas, IMAGE_UPLOAD_MIME, THUMB_QUALITY);
+    thumbBlob = await canvasToExactBlob(thumbCanvas, IMAGE_UPLOAD_MIME, THUMB_QUALITY, 'Thumbnail');
   }
+  if (!thumbBlob) throw new Error('Browser could not prepare the thumbnail canvas.');
 
   return {
     file: compressed,
@@ -2126,24 +2135,24 @@ async function uploadFiles(fileList) {
       const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, prepared.file, {
         cacheControl: '31536000',
         upsert: false,
-        contentType: prepared.file.type,
+        contentType: IMAGE_UPLOAD_MIME,
       });
       if (error) throw error;
 
-      // Upload the matching thumbnail at `<name>.thumb.webp`. The storefront
-      // derives this path from the full image URL, so a failure here would only
-      // mean the grid falls back to a missing thumb — log but don't fail the
-      // image, which already uploaded successfully.
-      if (prepared.thumbBlob) {
-        const thumbPath = path.replace(/\.[^./]+$/, THUMB_SUFFIX);
-        const { error: thumbError } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .upload(thumbPath, prepared.thumbBlob, {
-            cacheControl: '31536000',
-            upsert: true,
-            contentType: IMAGE_UPLOAD_MIME,
-          });
-        if (thumbError) console.warn('Thumbnail upload failed for', path, thumbError);
+      // The storefront derives this sibling path from the full image URL. Treat
+      // it as part of the upload contract so catalog grids never point at a
+      // missing thumbnail after the admin reports success.
+      const thumbPath = path.replace(/\.[^./]+$/, THUMB_SUFFIX);
+      const { error: thumbError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(thumbPath, prepared.thumbBlob, {
+          cacheControl: '31536000',
+          upsert: false,
+          contentType: IMAGE_UPLOAD_MIME,
+        });
+      if (thumbError) {
+        await supabase.storage.from(STORAGE_BUCKET).remove([path]).catch(() => {});
+        throw new Error(`Thumbnail upload failed: ${thumbError.message || thumbError}`);
       }
 
       const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
@@ -3668,4 +3677,3 @@ if (els.newsletterDeleteBtn) {
 if (els.newsletterCancelBtn) els.newsletterCancelBtn.addEventListener('click', clearNewsletterForm);
 if (els.newsletterBackBtn) els.newsletterBackBtn.addEventListener('click', clearNewsletterForm);
 if (els.newsletterFilter) els.newsletterFilter.addEventListener('input', renderNewsletterList);
-

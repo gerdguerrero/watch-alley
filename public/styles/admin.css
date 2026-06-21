@@ -247,16 +247,18 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 #tabpanel-inventory[hidden] { display: none; }
 
-/* Journal tab uses the same master-detail shape as Inventory: post list on
-   the left, editor on the right. */
-#tabpanel-journal {
+/* Journal and Newsletter tabs use the same master-detail shape as Inventory:
+   list on the left, editor on the right. */
+#tabpanel-journal,
+#tabpanel-newsletter {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 24px;
   align-items: start;
   min-width: 0;
 }
-#tabpanel-journal[hidden] { display: none; }
+#tabpanel-journal[hidden],
+#tabpanel-newsletter[hidden] { display: none; }
 
 /* Journal editor: split textarea + live preview. Toolbar above. */
 .journal-toolbar {
@@ -493,6 +495,23 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border-color: var(--gold);
   box-shadow: 0 0 0 4px oklch(0.76 0.12 75 / 0.15);
   outline: none;
+}
+#newsletter-send-test-btn {
+  border: 1px solid oklch(0.91 0.018 78 / 0.18);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cream);
+  padding: 0 14px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#newsletter-send-test-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
 }
 .admin-inventory-state-filter {
   display: grid;
@@ -1842,14 +1861,17 @@ code {
   }
 
   #tabpanel-inventory,
-  #tabpanel-journal {
+  #tabpanel-journal,
+  #tabpanel-newsletter {
     grid-template-columns: 1fr;
     gap: 12px;
   }
   #tabpanel-inventory[data-mobile-view="detail"] .admin-sidebar,
   #tabpanel-journal[data-mobile-view="detail"] .admin-sidebar,
+  #tabpanel-newsletter[data-mobile-view="detail"] .admin-sidebar,
   #tabpanel-inventory:not([data-mobile-view="detail"]) #admin-detail,
-  #tabpanel-journal:not([data-mobile-view="detail"]) #journal-detail {
+  #tabpanel-journal:not([data-mobile-view="detail"]) #journal-detail,
+  #tabpanel-newsletter:not([data-mobile-view="detail"]) #newsletter-detail {
     display: none;
   }
 
@@ -1920,16 +1942,18 @@ code {
     grid-template-columns: 1fr;
     padding: 12px;
   }
+  .admin-inline-check {
+    min-height: 44px;
+    padding-block: 8px;
+  }
 
   .admin-workspace .admin-form-actions {
-    position: sticky;
-    bottom: 0;
-    z-index: 18;
-    margin: 18px -14px -18px;
-    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    position: static;
+    margin: 18px 0 0;
+    padding: 10px 0 0;
     border-top: 1px solid oklch(0.91 0.018 78 / 0.12);
-    background: oklch(0.13 0.012 55 / 0.96);
-    backdrop-filter: blur(14px);
+    background: transparent;
+    backdrop-filter: none;
   }
   .admin-workspace .admin-form-actions > button {
     flex: 1 1 150px;
@@ -2030,7 +2054,13 @@ code {
     font-size: 16px;
   }
   .trust-nav nav { width: 100%; justify-content: space-between; }
-  .trust-nav a { font-size: 10px; letter-spacing: 0.18em; }
+  .trust-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+  }
 
   .admin-shell { padding-inline: 10px; }
   .admin-status { top: 94px; }
@@ -2081,6 +2111,13 @@ code {
   #admins-list button[data-remove-email] {
     justify-self: stretch;
     min-height: 44px;
+  }
+  #newsletter-test-box > div {
+    flex-wrap: wrap;
+  }
+  #newsletter-test-recipient,
+  #newsletter-send-test-btn {
+    min-width: 0;
   }
 
   .admin-modal {
