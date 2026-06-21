@@ -135,6 +135,21 @@ export async function POST(
       }
     }
 
+    // ── Track unique visitor ID ─────────────────────────
+    let uid = "";
+    try {
+      const body = await request.json().catch(() => ({}));
+      uid = (body?.uid || "").trim();
+    } catch { /* ok */ }
+    if (uid && /^[0-9a-f-]{32,40}$/i.test(uid)) {
+      try {
+        await supabase.from("visitor_ids").upsert(
+          { uid, first_seen_at: now, last_seen_at: now },
+          { onConflict: "uid", ignoreDuplicates: false }
+        );
+      } catch { /* non-critical */ }
+    }
+
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: true, cached: true });

@@ -2188,23 +2188,9 @@ async function loadVercelAnalytics({ force = false } = {}) {
       summary.averageDailyPageviews,
       ' average daily pageviews'
     );
-    animateNumber(document.querySelector('[data-analytics="previousPageviews"]'), previous);
     animateNumber(document.querySelector('[data-analytics="todayPageviews"]'), summary.todayPageviews);
     setAnalyticsText('primaryLabel', 'Pageviews · ' + rangeLabel);
-
-    var trendText = delta === null ? 'No previous-period baseline' : (delta >= 0 ? '+' : '') + delta + '% vs previous period';
-    setAnalyticsText('rangeTrend', trendText);
-
-    var badge = document.querySelector('[data-analytics="rangeBadge"]');
-    if (badge) {
-      if (delta === null) {
-        setBadge(badge, '', 'am-badge');
-      } else if (delta >= 0) {
-        setBadge(badge, '\u25B2 +' + delta + '%', 'am-badge am-badge-up');
-      } else {
-        setBadge(badge, '\u25BC ' + delta + '%', 'am-badge am-badge-down');
-      }
-    }
+    setAnalyticsText('rangeTrend', '');
     setAnalyticsText('eventCount', 'Custom events: ' + formatInt(summary.totalEvents));
 
     if (document.getElementById('analytics-range-meta') && body.range) {
@@ -2262,6 +2248,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
   } finally {
     analyticsInFlight = false;
     document.getElementById('analytics-refresh-btn').disabled = false;
+    loadUniqueVisitors();
     loadPopularWatches();
     loadVisitorCountries();
   }
@@ -2343,6 +2330,45 @@ async function loadPopularWatches() {
     if (status) status.textContent = err.message || 'Failed to load popular watches.';
     list.innerHTML = '';
   }
+}
+
+// Unique visitors KPI
+async function loadUniqueVisitors() {
+  var el = document.querySelector('[data-analytics="uniqueVisitors"]');
+  var foot = document.querySelector('[data-analytics="visitorsFoot"]');
+  if (!el) return;
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) { el.textContent = '—'; return; }
+
+    var resp = await fetch('/api/admin/unique-visitors?period=7d', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+
+    if (body.ok && body.count > 0) {
+      if (foot) foot.textContent = 'Browsers who visited any watch page';
+      if (typeof gsap !== 'undefined') {
+        el.textContent = '0';
+        try {
+          gsap.fromTo(el, { textContent: 0 }, {
+            textContent: body.count,
+            duration: 1.2,
+            ease: 'power2.out',
+            snap: { textContent: 1 },
+            onUpdate: function () { el.textContent = formatInt(Math.round(this.targets()[0].textContent)); },
+          });
+          return;
+        } catch (_) {}
+      }
+      el.textContent = formatInt(body.count);
+    } else {
+      el.textContent = '0';
+      if (foot && body && !body.ok) foot.textContent = 'Run migration: visitor_ids table';
+    }
+  } catch { el.textContent = '—'; }
 }
 
 // Period pill switching
