@@ -818,6 +818,9 @@
 </footer>
 
 <script src="../scripts/vendor/supabase.min.js"></script>
+<!-- Vercel Web Analytics for the static /admin page. The Next.js root layout
+     already covers App Router pages, but files under /public bypass that layout. -->
+<script defer src="/_vercel/insights/script.js"></script>
 <script type="module" src="../scripts/admin.js"></script>
 
 </body>
