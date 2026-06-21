@@ -1380,6 +1380,79 @@ code {
   }
 }
 
+/* Popular watches */
+.popular-watches-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.popular-watches-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-top: 1px solid oklch(0.76 0.12 75 / 0.08);
+}
+.popular-watches-list li:first-child {
+  border-top: none;
+}
+.pw-rank {
+  width: 20px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--cream-60);
+  text-align: right;
+  flex-shrink: 0;
+}
+.pw-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pw-name {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pw-meta {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--cream-60);
+}
+.pw-bar-track {
+  width: 80px;
+  height: 6px;
+  flex-shrink: 0;
+  background: oklch(0.76 0.12 75 / 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pw-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, oklch(0.76 0.12 75 / 0.50), oklch(0.76 0.12 75));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.pw-value {
+  width: 56px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: var(--cream-60);
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Mobile: row for the 2 sidecards */
 .admin-dashboard-rows {
   display: grid;

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
+import { WatchViewTracker } from "@/components/storefront/WatchViewTracker";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { WatchAlertForm } from "@/components/watch-list/WatchAlertForm";
 import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
@@ -366,6 +367,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <UsdPriceMount />
+      <WatchViewTracker slug={slug} />
     </main>
   );
 }

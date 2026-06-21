@@ -2183,6 +2183,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
       }
     });
 
+    // Status update
     var statusEl = document.getElementById('analytics-status');
     if (statusEl) {
       var refreshed = body.updatedAt ? new Date(body.updatedAt).toLocaleString() : 'just now';
@@ -2197,6 +2198,68 @@ async function loadVercelAnalytics({ force = false } = {}) {
   } finally {
     analyticsInFlight = false;
     document.getElementById('analytics-refresh-btn').disabled = false;
+    loadPopularWatches();
+  }
+}
+
+async function loadPopularWatches() {
+  var list = document.getElementById('popular-watches-list');
+  var status = document.getElementById('popular-watches-status');
+  if (!list) return;
+  if (status) status.textContent = 'Loading…';
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) {
+      if (status) status.textContent = 'Sign in to see popular watches.';
+      return;
+    }
+
+    var resp = await fetch('/api/admin/popular-watches', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+
+    if (!body.ok) {
+      if (status) status.textContent = body.migrationHint || body.message || 'Could not load watch views.';
+      list.innerHTML = '';
+      return;
+    }
+
+    var watches = Array.isArray(body.watches) ? body.watches : [];
+
+    if (watches.length === 0) {
+      if (status) status.textContent = 'No watch view data yet. Views are tracked as customers browse.';
+      list.innerHTML = '';
+      return;
+    }
+
+    if (status) status.hidden = true;
+
+    var maxViews = Math.max(1, watches[0].view_count);
+    var html = '';
+    for (var i = 0; i < watches.length; i++) {
+      var w = watches[i];
+      var pct = Math.round((w.view_count / maxViews) * 100);
+      var label = w.brand ? w.brand + ' ' + (w.name || w.model || '') : w.slug;
+      var priceStr = w.price ? 'PHP ' + formatInt(w.price) : '';
+      html += '<li>' +
+        '<span class="pw-rank">' + (i + 1) + '</span>' +
+        '<div class="pw-info">' +
+          '<span class="pw-name">' + escapeHtml(label) + '</span>' +
+          '<span class="pw-meta">' + formatInt(w.view_count) + ' views' +
+            (priceStr ? '  ·  ' + priceStr : '') +
+          '</span>' +
+        '</div>' +
+        '<span class="pw-bar-track"><span class="pw-bar-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="pw-value">' + formatInt(w.view_count) + '</span>' +
+        '</li>';
+    }
+    list.innerHTML = html;
+  } catch (err) {
+    if (status) status.textContent = err.message || 'Failed to load popular watches.';
+    list.innerHTML = '';
   }
 }
 
