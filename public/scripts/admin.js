@@ -2145,30 +2145,41 @@ async function loadVercelAnalytics({ force = false } = {}) {
       el.classList.remove('analytics-skeleton');
     });
 
-    // Animate KPI values with GSAP
+    // Animate KPI values with GSAP (with static fallback)
     function animateNumber(el, target, suffix) {
       if (!el) return;
       var parts = String(target).split(',');
       var raw = parseFloat(parts.join('')) || 0;
       suffix = suffix || '';
-      el.textContent = '0' + suffix;
-      gsap.fromTo(el, { textContent: 0 }, {
-        textContent: raw,
-        duration: 1.2,
-        ease: 'power2.out',
-        snap: { textContent: 1 },
-        onUpdate: function () {
-          var val = Math.round(this.targets()[0].textContent);
-          el.textContent = formatInt(val) + suffix;
-        },
-      });
+      if (typeof gsap !== 'undefined') {
+        el.textContent = '0' + suffix;
+        try {
+          gsap.fromTo(el, { textContent: 0 }, {
+            textContent: raw,
+            duration: 1.2,
+            ease: 'power2.out',
+            snap: { textContent: 1 },
+            onUpdate: function () {
+              var val = Math.round(this.targets()[0].textContent);
+              el.textContent = formatInt(val) + suffix;
+            },
+          });
+          return;
+        } catch (_) {}
+      }
+      // Fallback: set value immediately
+      el.textContent = formatInt(raw) + suffix;
     }
 
     function setBadge(el, text, className) {
       if (!el) return;
       el.textContent = text;
       el.className = className;
-      gsap.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)' });
+      if (typeof gsap !== 'undefined') {
+        try {
+          gsap.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)' });
+        } catch (_) {}
+      }
     }
 
     animateNumber(document.querySelector('[data-analytics="totalPageviews"]'), selected);
@@ -2213,6 +2224,12 @@ async function loadVercelAnalytics({ force = false } = {}) {
       var chartEl = document.getElementById('analytics-chart');
       if (chartEl) {
         chartEl.classList.add('analytics-chart-animated');
+        // If GSAP is available, add a smoother entrance
+        if (typeof gsap !== 'undefined') {
+          try {
+            gsap.fromTo(chartEl, { opacity: 0.4 }, { opacity: 1, duration: 0.6 });
+          } catch (_) {}
+        }
       }
     });
 
@@ -2312,12 +2329,20 @@ async function loadPopularWatches() {
     }
     list.innerHTML = html;
 
-    // GSAP staggered entrance
-    gsap.fromTo(
-      list.querySelectorAll('li'),
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
-    );
+    // Staggered list entrance (GSAP with fallback)
+    if (typeof gsap !== 'undefined') {
+      try {
+        gsap.fromTo(
+          list.querySelectorAll('li'),
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
+        );
+      } catch (_) {
+        list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+      }
+    } else {
+      list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+    }
   } catch (err) {
     if (pwCard) pwCard.classList.remove('analytics-skeleton');
     if (status) status.textContent = err.message || 'Failed to load popular watches.';
