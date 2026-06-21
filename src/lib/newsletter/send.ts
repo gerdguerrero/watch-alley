@@ -99,6 +99,17 @@ function wrapHtmlEmail({
         opacity: 0;
       }
 
+      /* Only WebKit clients (like Apple Mail and iOS Mail) will parse and apply this media query.
+         Gmail, Outlook, and Yahoo strip or ignore it, so they fall back to the static logo. */
+      @media screen and (-webkit-min-device-pixel-ratio: 0) {
+        .animated-logo {
+          display: block !important;
+        }
+        .static-logo {
+          display: none !important;
+        }
+      }
+
       body {
         background-color: #13110f;
         color: #F1ECE0;
@@ -194,8 +205,11 @@ function wrapHtmlEmail({
     <div class="container">
       <div class="header">
         <a href="https://www.thewatchalley.com" class="logo-link" style="display: block; text-decoration: none; text-align: center; margin: 0 auto; max-width: 140px;">
-          <!--[if !mso]><!-->
-          <div class="animated-logo" style="width: 140px; height: 104px; margin: 0 auto;">
+          <!-- Static Fallback Logo (Shown by default in restrictive clients like Gmail, Outlook, Yahoo) -->
+          <img class="static-logo" src="${absoluteUrl("/brand/logo-gold.png")}" alt="The Watch Alley" style="height: 48px; width: auto; display: block; margin: 0 auto; border: 0;" />
+
+          <!-- Animated Logo (Hidden by default, displayed via WebKit media queries in Apple Mail) -->
+          <div class="animated-logo" style="display: none; width: 140px; height: 104px; margin: 0 auto; overflow: visible;">
             <svg class="overflow-visible" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 365" aria-hidden="true" style="width: 100%; height: 100%;">
               <g fill="none">
                 <!-- THE wordmark -->
@@ -228,10 +242,6 @@ function wrapHtmlEmail({
               </g>
             </svg>
           </div>
-          <!--<![endif]-->
-          <!--[if mso]>
-          <img src="${absoluteUrl("/brand/logo-gold.png")}" alt="The Watch Alley" style="height: 48px; width: auto; display: block; margin: 0 auto; border: 0;" />
-          <![endif]-->
         </a>
       </div>
       <div class="content">
