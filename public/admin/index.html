@@ -95,6 +95,7 @@
       <button type="button" id="admin-tab-inventory" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-inventory" tabindex="-1" data-tab="inventory">Inventory</button>
       <button type="button" id="admin-tab-journal" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-journal" tabindex="-1" data-tab="journal">Journal</button>
       <button type="button" id="admin-tab-newsletter" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-newsletter" tabindex="-1" data-tab="newsletter">Newsletter</button>
+      <button type="button" id="admin-tab-analytics" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-analytics" tabindex="-1" data-tab="analytics">Analytics</button>
       <button type="button" id="admin-tab-admins" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-admins" tabindex="-1" data-tab="admins">Admins</button>
       <button type="button" id="admin-tab-account" class="admin-tab" role="tab" aria-selected="false" aria-controls="tabpanel-account" tabindex="-1" data-tab="account">Account</button>
     </nav>
@@ -174,6 +175,72 @@
               <div><dt>Drafts</dt><dd data-kpi="journal.drafts">—</dd></div>
               <div><dt>Scheduled</dt><dd data-kpi="journal.scheduled">—</dd></div>
             </dl>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <div class="admin-tabpanel" id="tabpanel-analytics" role="tabpanel" aria-labelledby="admin-tab-analytics" hidden>
+      <section class="admin-card admin-dashboard admin-analytics-panel">
+        <div class="admin-dashboard-header">
+          <div>
+            <div class="admin-eyebrow">Vercel Web Analytics</div>
+            <h2 class="admin-dashboard-title">Traffic, paths, and visitors.</h2>
+            <p class="admin-meta">Admin visits are now tracked under the <strong>/admin</strong> path after deployment.</p>
+          </div>
+          <a class="admin-new-btn analytics-open-link" href="https://vercel.com/joseph-guerreros-projects/watch-alley/analytics" target="_blank" rel="noopener noreferrer">Open Vercel</a>
+        </div>
+
+        <div class="admin-dashboard-grid" aria-label="Vercel Analytics status">
+          <article class="kpi-tile">
+            <div class="kpi-label">Web Analytics</div>
+            <div class="kpi-value analytics-status-value">On</div>
+            <div class="kpi-foot">Enabled for this Vercel project</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Tracked admin route</div>
+            <div class="kpi-value analytics-path-value">/admin</div>
+            <div class="kpi-foot">Look for this path in the Vercel dashboard</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Production domain</div>
+            <div class="kpi-value analytics-domain-value">www</div>
+            <div class="kpi-foot">www.thewatchalley.com/admin</div>
+          </article>
+        </div>
+
+        <div class="admin-dashboard-rows">
+          <article class="admin-card admin-dashboard-row analytics-note-card">
+            <div class="admin-eyebrow">How to read it</div>
+            <ol class="dashboard-list dashboard-activity analytics-steps">
+              <li>
+                <span class="dashboard-activity-kind">1</span>
+                <span class="dashboard-activity-label">Open the Vercel Analytics dashboard.</span>
+                <span class="dashboard-activity-when">External</span>
+              </li>
+              <li>
+                <span class="dashboard-activity-kind">2</span>
+                <span class="dashboard-activity-label">Filter or scan Pages for <strong>/admin</strong>.</span>
+                <span class="dashboard-activity-when">Path</span>
+              </li>
+              <li>
+                <span class="dashboard-activity-kind">3</span>
+                <span class="dashboard-activity-label">Vercel can take a few minutes to ingest fresh page views after a new deployment.</span>
+                <span class="dashboard-activity-when">Lag</span>
+              </li>
+            </ol>
+          </article>
+
+          <article class="admin-card admin-dashboard-row analytics-note-card">
+            <div class="admin-eyebrow">Why this opens Vercel</div>
+            <p class="admin-hint">
+              Vercel's dashboard is authenticated and is not designed to be embedded inside this static admin page. This tab confirms what is tracked and gives admins a direct link to the live analytics view.
+            </p>
+            <p class="admin-hint">
+              The admin page itself also loads <code>/_vercel/insights/script.js</code>, so opening this tab counts as an admin page view.
+            </p>
           </article>
         </div>
       </section>

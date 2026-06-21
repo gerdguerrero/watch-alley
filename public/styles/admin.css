@@ -1100,6 +1100,39 @@ code {
   color: var(--cream-60);
 }
 
+.admin-analytics-panel .admin-meta {
+  margin-bottom: 0;
+}
+.admin-analytics-panel .admin-meta code,
+.admin-analytics-panel .admin-hint code {
+  font-family: 'Geist Mono', monospace;
+  color: var(--gold);
+  background: oklch(0.76 0.12 75 / 0.10);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.analytics-open-link {
+  text-decoration: none;
+  align-self: flex-start;
+}
+.analytics-status-value,
+.analytics-domain-value {
+  font-size: clamp(34px, 4vw, 48px);
+}
+.analytics-path-value {
+  font-family: 'Geist Mono', monospace;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.04em;
+}
+.analytics-note-card .admin-hint {
+  margin: 0;
+  max-width: 68ch;
+}
+.analytics-steps strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
 .admin-dashboard-rows {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

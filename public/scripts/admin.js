@@ -89,6 +89,7 @@ const els = {
   tabpanelJournal: document.getElementById('tabpanel-journal'),
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
+  tabpanelAnalytics: document.getElementById('tabpanel-analytics'),
   inventoryBackBtn: document.getElementById('inventory-back-btn'),
   // Dashboard tab
   dashboardMeta: document.getElementById('admin-dashboard-meta'),
@@ -1743,6 +1744,7 @@ function activateTab(name, { focus = false } = {}) {
   if (els.tabpanelInventory) els.tabpanelInventory.hidden = name !== 'inventory';
   if (els.tabpanelJournal) els.tabpanelJournal.hidden = name !== 'journal';
   if (els.tabpanelNewsletter) els.tabpanelNewsletter.hidden = name !== 'newsletter';
+  if (els.tabpanelAnalytics) els.tabpanelAnalytics.hidden = name !== 'analytics';
   if (els.tabpanelAdmins) els.tabpanelAdmins.hidden = name !== 'admins';
   if (els.tabpanelAccount) els.tabpanelAccount.hidden = name !== 'account';
   if (name === 'admins') loadAdminsList();
