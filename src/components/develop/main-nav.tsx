@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BrandLogo } from "./brand-logo";
+import { HorologicalLogo } from "./horological-logo";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
 export function MainNav() {
@@ -60,14 +60,13 @@ export function MainNav() {
           isScrolled ? "rounded-xl py-1.5 max-w-5xl" : "rounded-2xl py-2 md:py-2.5"
         }`}
       >
-        {/* Left: approved Drive-exported lockup. */}
-        <Link href="/" className="flex items-center group flex-shrink-0">
-          <BrandLogo
-            variant="inline"
-            alt="The Watch Alley"
-            className={`transition-all duration-500 ${isScrolled ? "h-8 w-[4.625rem]" : "h-10 w-20"}`}
-            sizes={isScrolled ? "74px" : "80px"}
-            priority
+        {/* Left: animated HorologicalLogo */}
+        <Link href="/" className="flex items-center group flex-shrink-0" aria-label="The Watch Alley home">
+          <HorologicalLogo
+            mode="hover-sweep"
+            width={isScrolled ? 46 : 56}
+            height={isScrolled ? 34 : 42}
+            className="transition-all duration-500"
           />
         </Link>
 
