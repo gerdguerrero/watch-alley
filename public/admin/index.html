@@ -212,24 +212,40 @@
           </div>
         </div>
 
-        <div class="admin-dashboard-grid" aria-label="Vercel Analytics summary">
-          <article class="kpi-tile">
-            <div class="kpi-label" data-analytics="primaryLabel">Pageviews · selected range</div>
-            <div class="kpi-value analytics-status-value" data-analytics="totalPageviews">—</div>
-            <div class="kpi-foot" data-analytics="averageDaily">Loading Vercel data…</div>
-          </article>
-
-          <article class="kpi-tile">
-            <div class="kpi-label">Pageviews · previous period</div>
-            <div class="kpi-value analytics-path-value" data-analytics="previousPageviews">—</div>
-            <div class="kpi-foot" data-analytics="rangeTrend">Compared with selected range</div>
-          </article>
-
-          <article class="kpi-tile">
-            <div class="kpi-label">Pageviews · Today</div>
-            <div class="kpi-value analytics-domain-value" data-analytics="todayPageviews">—</div>
-            <div class="kpi-foot" data-analytics="eventCount">Custom events: —</div>
-          </article>
+        <div class="analytics-metrics" id="analytics-metrics">
+          <div class="am-metric">
+            <div class="am-chart" data-sparkline="selected"></div>
+            <div class="am-body">
+              <div class="am-label" data-analytics="primaryLabel">Pageviews · selected range</div>
+              <div class="am-value-row">
+                <span class="am-value analytics-status-value" data-analytics="totalPageviews">—</span>
+                <span class="am-badge" data-analytics="rangeBadge"></span>
+              </div>
+              <div class="am-foot" data-analytics="averageDaily">Loading Vercel data…</div>
+            </div>
+          </div>
+          <div class="am-divider"></div>
+          <div class="am-metric">
+            <div class="am-chart" data-sparkline="previous"></div>
+            <div class="am-body">
+              <div class="am-label">Pageviews · previous period</div>
+              <div class="am-value-row">
+                <span class="am-value analytics-path-value" data-analytics="previousPageviews">—</span>
+              </div>
+              <div class="am-foot" data-analytics="rangeTrend">Compared with selected range</div>
+            </div>
+          </div>
+          <div class="am-divider"></div>
+          <div class="am-metric">
+            <div class="am-chart" data-sparkline="today"></div>
+            <div class="am-body">
+              <div class="am-label">Pageviews · Today</div>
+              <div class="am-value-row">
+                <span class="am-value analytics-domain-value" data-analytics="todayPageviews">—</span>
+              </div>
+              <div class="am-foot" data-analytics="eventCount">Custom events: —</div>
+            </div>
+          </div>
         </div>
 
         <article class="admin-card admin-dashboard-row analytics-chart-card">
@@ -239,14 +255,19 @@
               <p class="admin-meta" data-analytics="chartSubtitle">Selected range · Production project: <strong>thewatchalley.com</strong></p>
             </div>
           </div>
-          <div class="analytics-bars" id="analytics-bars" aria-label="Daily pageviews chart"></div>
+          <div class="analytics-chart-wrap">
+            <svg class="analytics-chart" id="analytics-chart" viewBox="0 0 900 260" preserveAspectRatio="xMidYMid meet" aria-label="Daily pageviews chart"></svg>
+            <div class="analytics-chart-tooltip" id="analytics-chart-tooltip" hidden></div>
+          </div>
           <p class="admin-hint" id="analytics-status" aria-live="polite">Loading Vercel Analytics…</p>
         </article>
 
         <div class="admin-dashboard-rows">
           <article class="admin-card admin-dashboard-row analytics-note-card">
-            <div class="admin-eyebrow">Top traffic days</div>
-            <ol class="dashboard-list dashboard-activity analytics-steps" id="analytics-top-days"></ol>
+            <div class="admin-eyebrow">Most viewed watches</div>
+            <p class="admin-hint" style="margin:0">Customers viewed these watch pages the most.</p>
+            <div id="popular-watches-status" class="admin-hint" aria-live="polite" style="margin:0">Loading popular watches…</div>
+            <ol class="popular-watches-list" id="popular-watches-list"></ol>
           </article>
 
           <article class="admin-card admin-dashboard-row analytics-note-card">
@@ -900,6 +921,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbY8K4d9g/7ilH+/7B15q/mk1J/7BxG0zJo+JIKCM/Ii7gS77HbgE7V+Asg2qE1mF5s6y6T1VmAjvC4dw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="../scripts/vendor/supabase.min.js"></script>
 <script type="module" src="../scripts/admin.js"></script>
 

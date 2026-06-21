@@ -1814,102 +1814,539 @@ function formatInt(value) {
 }
 
 function formatAnalyticsDate(value) {
-  const date = new Date(`${value}T00:00:00Z`);
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  }).format(date);
+  const date = new Date(value + 'T00:00:00Z');
+  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
+}
+
+function formatAnalyticsDateShort(value) {
+  const date = new Date(value + 'T00:00:00Z');
+  return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
 }
 
 function setAnalyticsText(key, value) {
-  const node = document.querySelector(`[data-analytics="${key}"]`);
+  const node = document.querySelector('[data-analytics="' + key + '"]');
   if (node) node.textContent = value;
 }
 
-function renderAnalyticsBars(series) {
-  if (!els.analyticsBars) return;
-  const max = Math.max(1, ...series.map((day) => Number(day.pageviews || 0)));
-  els.analyticsBars.innerHTML = series
-    .map((day) => {
-      const value = Number(day.pageviews || 0);
-      const height = Math.max(4, Math.round((value / max) * 100));
-      return `<div class="analytics-bar" title="${formatAnalyticsDate(day.date)} · ${formatInt(value)} pageviews">
-        <span class="analytics-bar-fill" style="height: ${height}%"></span>
-      </div>`;
-    })
-    .join('');
+// — SVG sparkline helper —
+
+function renderSparkline(container, data, color) {
+  if (!container || !data || data.length < 2) return;
+  const max = Math.max(1, ...data);
+  const w = 120, h = 36;
+  const px = w / (data.length - 1);
+  const points = data.map((v, i) => (i * px) + ',' + (h - (v / max) * (h - 4)));
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.style.display = 'block';
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M' + points.join(' L'));
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', color || 'oklch(0.76 0.12 75 / 0.60)');
+  path.setAttribute('stroke-width', '1.5');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(path);
+  // Tiny area fill below line
+  const areaD = 'M' + points[0] + ' L' + points.join(' L') + ' L' + points[points.length - 1].split(',')[0] + ',' + h + ' Z';
+  const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  area.setAttribute('d', areaD);
+  area.setAttribute('fill', 'oklch(0.76 0.12 75 / 0.08)');
+  svg.appendChild(area);
+  container.textContent = '';
+  container.appendChild(svg);
+}
+
+// — SVG area chart —
+
+function renderAnalyticsChart(series, previousSeries) {
+  var svg = document.getElementById('analytics-chart');
+  var tooltip = document.getElementById('analytics-chart-tooltip');
+  if (!svg || !series || series.length < 2) return;
+
+  var MARGIN = { top: 8, right: 12, bottom: 28, left: 48 };
+  var W = 900, H = 260;
+  var iw = W - MARGIN.left - MARGIN.right;
+  var ih = H - MARGIN.top - MARGIN.bottom;
+
+  var maxVal = Math.max(
+    1,
+    ...series.map(function (d) { return Number(d.pageviews || 0); }),
+    ...(previousSeries || []).map(function (d) { return Number(d.pageviews || 0); })
+  );
+  // Round up to a nice ceiling
+  var ceil = Math.pow(10, Math.floor(Math.log10(maxVal)));
+  var niceMax = Math.ceil(maxVal / ceil) * ceil || ceil;
+  if (niceMax <= maxVal) niceMax = maxVal * 1.1;
+
+  // Y axis ticks — compute positions
+  var yTicks = [];
+  for (var t = 0; t <= niceMax; t += niceMax / 4) {
+    yTicks.push(t);
+  }
+
+  var px = iw / (series.length - 1);
+
+  function xPos(i) { return MARGIN.left + i * px; }
+  function yPos(v) { return MARGIN.top + ih - (v / niceMax) * ih; }
+
+  // Build SVG content
+  var ns = 'http://www.w3.org/2000/svg';
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+  var defs = document.createElementNS(ns, 'defs');
+  var gradient = document.createElementNS(ns, 'linearGradient');
+  gradient.setAttribute('id', 'area-grad');
+  gradient.setAttribute('x1', '0'); gradient.setAttribute('y1', '0');
+  gradient.setAttribute('x2', '0'); gradient.setAttribute('y2', '1');
+
+  var stop1 = document.createElementNS(ns, 'stop');
+  stop1.setAttribute('offset', '0%');
+  stop1.setAttribute('stop-color', 'oklch(0.76 0.12 75 / 0.35)');
+  gradient.appendChild(stop1);
+  var stop2 = document.createElementNS(ns, 'stop');
+  stop2.setAttribute('offset', '100%');
+  stop2.setAttribute('stop-color', 'oklch(0.76 0.12 75 / 0.02)');
+  gradient.appendChild(stop2);
+  defs.appendChild(gradient);
+  svg.appendChild(defs);
+
+  var chartGroup = document.createElementNS(ns, 'g');
+
+  // Y axis gridlines + labels
+  for (var yi = 0; yi < yTicks.length; yi++) {
+    var tickVal = Math.round(yTicks[yi]);
+    var y = yPos(tickVal);
+    var gridline = document.createElementNS(ns, 'line');
+    gridline.setAttribute('x1', String(MARGIN.left));
+    gridline.setAttribute('y1', String(y));
+    gridline.setAttribute('x2', String(W - MARGIN.right));
+    gridline.setAttribute('y2', String(y));
+    gridline.setAttribute('stroke', 'oklch(0.91 0.018 78 / 0.07)');
+    gridline.setAttribute('stroke-width', '1');
+    chartGroup.appendChild(gridline);
+    var label = document.createElementNS(ns, 'text');
+    label.setAttribute('x', String(MARGIN.left - 8));
+    label.setAttribute('y', String(y + 3));
+    label.setAttribute('text-anchor', 'end');
+    label.setAttribute('fill', 'oklch(0.91 0.018 78 / 0.50)');
+    label.setAttribute('font-size', '10');
+    label.setAttribute('font-family', 'Geist Mono, monospace');
+    label.textContent = formatInt(tickVal);
+    chartGroup.appendChild(label);
+  }
+
+  // Previous period area (faint)
+  if (previousSeries && previousSeries.length === series.length) {
+    var prevPoints = [];
+    for (var pi = 0; pi < previousSeries.length; pi++) {
+      prevPoints.push(xPos(pi) + ',' + yPos(Number(previousSeries[pi].pageviews || 0)));
+    }
+    var prevPath = document.createElementNS(ns, 'path');
+    prevPath.setAttribute('d', 'M' + prevPoints.join(' L'));
+    prevPath.setAttribute('fill', 'none');
+    prevPath.setAttribute('stroke', 'oklch(0.76 0.12 75 / 0.20)');
+    prevPath.setAttribute('stroke-width', '1.5');
+    prevPath.setAttribute('stroke-dasharray', '4,3');
+    prevPath.setAttribute('stroke-linecap', 'round');
+    prevPath.setAttribute('stroke-linejoin', 'round');
+    chartGroup.appendChild(prevPath);
+
+    // Previous period label
+    var prevEnd = prevPoints[prevPoints.length - 1].split(',');
+    var prevLabel = document.createElementNS(ns, 'text');
+    prevLabel.setAttribute('x', String(Number(prevEnd[0]) + 6));
+    prevLabel.setAttribute('y', String(Number(prevEnd[1]) + 3));
+    prevLabel.setAttribute('fill', 'oklch(0.91 0.018 78 / 0.35)');
+    prevLabel.setAttribute('font-size', '9');
+    prevLabel.setAttribute('font-family', 'Geist Mono, monospace');
+    prevLabel.textContent = 'previous period';
+    chartGroup.appendChild(prevLabel);
+  }
+
+  // Area fill
+  var areaPoints = [];
+  for (var ai = 0; ai < series.length; ai++) {
+    areaPoints.push(xPos(ai) + ',' + yPos(Number(series[ai].pageviews || 0)));
+  }
+  var areaD = 'M' + areaPoints[0] + ' L' + areaPoints.join(' L') + ' L' + xPos(series.length - 1) + ',' + (MARGIN.top + ih) + ' Z';
+  var areaFill = document.createElementNS(ns, 'path');
+  areaFill.setAttribute('d', areaD);
+  areaFill.setAttribute('fill', 'url(#area-grad)');
+  chartGroup.appendChild(areaFill);
+
+  // Line on top
+  var linePath = document.createElementNS(ns, 'path');
+  linePath.setAttribute('d', 'M' + areaPoints.join(' L'));
+  linePath.setAttribute('fill', 'none');
+  linePath.setAttribute('stroke', 'oklch(0.76 0.12 75)');
+  linePath.setAttribute('stroke-width', '2');
+  linePath.setAttribute('stroke-linecap', 'round');
+  linePath.setAttribute('stroke-linejoin', 'round');
+  chartGroup.appendChild(linePath);
+
+  // Average reference line
+  var avg = series.reduce(function (s, d) { return s + Number(d.pageviews || 0); }, 0) / series.length;
+  var avgY = yPos(avg);
+  var avgLine = document.createElementNS(ns, 'line');
+  avgLine.setAttribute('x1', String(MARGIN.left));
+  avgLine.setAttribute('y1', String(avgY));
+  avgLine.setAttribute('x2', String(W - MARGIN.right));
+  avgLine.setAttribute('y2', String(avgY));
+  avgLine.setAttribute('stroke', 'oklch(0.76 0.12 75 / 0.30)');
+  avgLine.setAttribute('stroke-width', '1');
+  avgLine.setAttribute('stroke-dasharray', '2,4');
+  chartGroup.appendChild(avgLine);
+
+  var avgLabel = document.createElementNS(ns, 'text');
+  avgLabel.setAttribute('x', String(W - MARGIN.right + 4));
+  avgLabel.setAttribute('y', String(avgY + 3));
+  avgLabel.setAttribute('fill', 'oklch(0.91 0.018 78 / 0.40)');
+  avgLabel.setAttribute('font-size', '9');
+  avgLabel.setAttribute('font-family', 'Geist Mono, monospace');
+  avgLabel.textContent = 'avg ' + formatInt(Math.round(avg));
+  chartGroup.appendChild(avgLabel);
+
+  // X axis labels — show ~6 evenly spaced dates
+  var labelCount = Math.min(series.length, 6);
+  var step = Math.max(1, Math.floor((series.length - 1) / (labelCount - 1)));
+  for (var li = 0; li < series.length; li += step) {
+    var xl = xPos(li);
+    var dateLabel = document.createElementNS(ns, 'text');
+    dateLabel.setAttribute('x', String(xl));
+    dateLabel.setAttribute('y', String(MARGIN.top + ih + 18));
+    dateLabel.setAttribute('text-anchor', 'middle');
+    dateLabel.setAttribute('fill', 'oklch(0.91 0.018 78 / 0.45)');
+    dateLabel.setAttribute('font-size', '10');
+    dateLabel.setAttribute('font-family', 'Geist Mono, monospace');
+    dateLabel.textContent = formatAnalyticsDateShort(series[li].date);
+    chartGroup.appendChild(dateLabel);
+  }
+
+  // Data point dots + hover hit targets
+  for (var di = 0; di < series.length; di++) {
+    var cx = xPos(di), cy = yPos(Number(series[di].pageviews || 0));
+    var dot = document.createElementNS(ns, 'circle');
+    dot.setAttribute('cx', String(cx));
+    dot.setAttribute('cy', String(cy));
+    dot.setAttribute('r', '3');
+    dot.setAttribute('fill', 'oklch(0.76 0.12 75)');
+    dot.setAttribute('opacity', '0');
+    dot.setAttribute('data-index', String(di));
+    chartGroup.appendChild(dot);
+
+    // Wide invisible hit target for hover
+    var hit = document.createElementNS(ns, 'rect');
+    hit.setAttribute('x', String(cx - (px / 2)));
+    hit.setAttribute('y', String(MARGIN.top));
+    hit.setAttribute('width', String(px));
+    hit.setAttribute('height', String(ih));
+    hit.setAttribute('fill', 'transparent');
+    hit.setAttribute('data-index', String(di));
+    hit.style.cursor = 'crosshair';
+    chartGroup.appendChild(hit);
+  }
+
+  svg.appendChild(chartGroup);
+
+  // Hover tooltip
+  svg.addEventListener('mouseenter', function () { if (tooltip) tooltip.hidden = false; });
+  svg.addEventListener('mouseleave', function () { if (tooltip) tooltip.hidden = true; });
+  svg.addEventListener('mousemove', function (e) {
+    var rect = svg.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var ratio = mx / rect.width;
+    var idx = Math.round(ratio * (series.length - 1));
+    idx = Math.max(0, Math.min(series.length - 1, idx));
+    if (!tooltip) return;
+    var pt = series[idx];
+    var prevPt = previousSeries && previousSeries.length > idx ? previousSeries[idx] : null;
+    var pageviews = formatInt(Number(pt.pageviews || 0));
+    var dateStr = formatAnalyticsDateShort(pt.date);
+    var prevStr = prevPt ? ' ' + formatInt(Number(prevPt.pageviews || 0)) + ' prev' : '';
+    tooltip.textContent = dateStr + ' · ' + pageviews + ' pageviews' + prevStr;
+    tooltip.hidden = false;
+    // Position tooltip near the hover point, clamped to viewport
+    var tx = mx + 16;
+    var ty = e.clientY - rect.top - 20;
+    if (tx + 160 > rect.width) tx = mx - 180;
+    if (ty < 4) ty = 4;
+    tooltip.style.left = Math.round(tx) + 'px';
+    tooltip.style.top = Math.round(ty) + 'px';
+  });
 }
 
 function renderTopAnalyticsDays(series) {
-  if (!els.analyticsTopDays) return;
-  const topDays = [...series]
-    .sort((a, b) => Number(b.pageviews || 0) - Number(a.pageviews || 0))
+  if (!document.getElementById('analytics-top-days')) return;
+  var topDays = Array.from(series)
+    .sort(function (a, b) { return Number(b.pageviews || 0) - Number(a.pageviews || 0); })
     .slice(0, 5);
-  els.analyticsTopDays.innerHTML = topDays
-    .map((day, index) => `<li>
-      <span class="dashboard-activity-kind">${index + 1}</span>
-      <span class="dashboard-activity-label">${formatAnalyticsDate(day.date)}</span>
-      <span class="dashboard-activity-when">${formatInt(day.pageviews)} views</span>
-    </li>`)
-    .join('');
+  var max = topDays.length > 0 ? Math.max(1, Number(topDays[0].pageviews || 0)) : 1;
+  var html = '';
+  for (var i = 0; i < topDays.length; i++) {
+    var day = topDays[i];
+    var val = Number(day.pageviews || 0);
+    var pct = Math.round((val / max) * 100);
+    html += '<li>' +
+      '<span class="dd-rank">' + (i + 1) + '</span>' +
+      '<span class="dd-label">' + formatAnalyticsDateShort(day.date) + '</span>' +
+      '<span class="dd-bar-track"><span class="dd-bar-fill" style="width:' + pct + '%"></span></span>' +
+      '<span class="dd-value">' + formatInt(val) + '</span>' +
+      '</li>';
+  }
+  document.getElementById('analytics-top-days').innerHTML = html;
 }
 
 async function loadVercelAnalytics({ force = false } = {}) {
-  if (!els.tabpanelAnalytics || analyticsInFlight || (analyticsLoaded && !force)) return;
+  if (!document.getElementById('tabpanel-analytics') || analyticsInFlight || (analyticsLoaded && !force)) return;
   analyticsInFlight = true;
-  if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = true;
-  if (els.analyticsStatus) els.analyticsStatus.textContent = 'Loading Vercel Analytics…';
+  if (document.getElementById('analytics-status')) document.getElementById('analytics-status').textContent = 'Loading Vercel Analytics…';
+
+  // Show shimmer skeletons while loading
+  document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
+    el.classList.add('analytics-skeleton');
+  });
+  document.querySelectorAll('.am-value, .am-badge').forEach(function (el) {
+    el.dataset.animateTo = el.textContent !== '—' ? el.textContent : '';
+    el.textContent = '';
+  });
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     if (!token) throw new Error('No active admin session — sign in again.');
 
-    const response = await fetch(`/api/admin/vercel-analytics?${analyticsQueryString()}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    var qs = analyticsQueryString();
+    var resp = await fetch('/api/admin/vercel-analytics?' + qs, {
+      headers: { Authorization: 'Bearer ' + token },
     });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || !body.ok) {
-      throw new Error(body.message || `Analytics request failed (${response.status}).`);
+    var body = await resp.json().catch(function () { return {}; });
+    if (!resp.ok || !body.ok) {
+      throw new Error(body.message || 'Analytics request failed (' + resp.status + ').');
     }
 
-    const summary = body.summary || {};
-    const series = Array.isArray(body.series) ? body.series : [];
-    const previous = Number(summary.previousPageviews || 0);
-    const selected = Number(summary.selectedPageviews ?? summary.totalPageviews ?? 0);
-    const delta = previous > 0 ? Math.round(((selected - previous) / previous) * 100) : null;
-    const rangeLabel = analyticsRangeLabels[body.range?.key] || 'Selected range';
+    var summary = body.summary || {};
+    var series = Array.isArray(body.series) ? body.series : [];
+    // The API route now returns both series and previousSeries in the same shape
+    var previousFromDate = body.range && body.range.previousFrom ? body.range.previousFrom : null;
+    var previousToDate = body.range && body.range.previousTo ? body.range.previousTo : null;
+    // Client can build a previous series from the API's raw rows if we add that field.
+    // For now, previousPageviews is in summary so we use it for the KPI.
+    var previous = Number(summary.previousPageviews || 0);
+    var selected = Number(summary.selectedPageviews ?? summary.totalPageviews ?? 0);
+    var delta = previous > 0 ? Math.round(((selected - previous) / previous) * 100) : null;
+    var rangeLabel = analyticsRangeLabels[body.range?.key] || 'Selected range';
 
-    setAnalyticsText('primaryLabel', `Pageviews · ${rangeLabel}`);
-    setAnalyticsText('totalPageviews', formatInt(selected));
-    setAnalyticsText('averageDaily', `${formatInt(summary.averageDailyPageviews)} average daily pageviews`);
-    setAnalyticsText('previousPageviews', formatInt(previous));
-    setAnalyticsText(
-      'rangeTrend',
-      delta === null ? 'No previous-period baseline' : `${delta >= 0 ? '+' : ''}${delta}% vs previous period`
+    // Hide skeletons
+    document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
+      el.classList.remove('analytics-skeleton');
+    });
+
+    // Animate KPI values with GSAP (with static fallback)
+    function animateNumber(el, target, suffix) {
+      if (!el) return;
+      var parts = String(target).split(',');
+      var raw = parseFloat(parts.join('')) || 0;
+      suffix = suffix || '';
+      if (typeof gsap !== 'undefined') {
+        el.textContent = '0' + suffix;
+        try {
+          gsap.fromTo(el, { textContent: 0 }, {
+            textContent: raw,
+            duration: 1.2,
+            ease: 'power2.out',
+            snap: { textContent: 1 },
+            onUpdate: function () {
+              var val = Math.round(this.targets()[0].textContent);
+              el.textContent = formatInt(val) + suffix;
+            },
+          });
+          return;
+        } catch (_) {}
+      }
+      // Fallback: set value immediately
+      el.textContent = formatInt(raw) + suffix;
+    }
+
+    function setBadge(el, text, className) {
+      if (!el) return;
+      el.textContent = text;
+      el.className = className;
+      if (typeof gsap !== 'undefined') {
+        try {
+          gsap.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2)' });
+        } catch (_) {}
+      }
+    }
+
+    animateNumber(document.querySelector('[data-analytics="totalPageviews"]'), selected);
+    animateNumber(
+      document.querySelector('[data-analytics="averageDaily"]'),
+      summary.averageDailyPageviews,
+      ' average daily pageviews'
     );
-    setAnalyticsText('todayPageviews', formatInt(summary.todayPageviews));
-    setAnalyticsText('eventCount', `Custom events: ${formatInt(summary.totalEvents)}`);
+    animateNumber(document.querySelector('[data-analytics="previousPageviews"]'), previous);
+    animateNumber(document.querySelector('[data-analytics="todayPageviews"]'), summary.todayPageviews);
+    setAnalyticsText('primaryLabel', 'Pageviews · ' + rangeLabel);
 
-    if (els.analyticsRangeMeta && body.range) {
-      els.analyticsRangeMeta.textContent = `${formatAnalyticsDate(body.range.from)}–${formatAnalyticsDate(body.range.to)} · ${body.project?.domain || 'thewatchalley.com'}`;
+    var trendText = delta === null ? 'No previous-period baseline' : (delta >= 0 ? '+' : '') + delta + '% vs previous period';
+    setAnalyticsText('rangeTrend', trendText);
+
+    var badge = document.querySelector('[data-analytics="rangeBadge"]');
+    if (badge) {
+      if (delta === null) {
+        setBadge(badge, '', 'am-badge');
+      } else if (delta >= 0) {
+        setBadge(badge, '\u25B2 +' + delta + '%', 'am-badge am-badge-up');
+      } else {
+        setBadge(badge, '\u25BC ' + delta + '%', 'am-badge am-badge-down');
+      }
     }
-    setAnalyticsText('chartSubtitle', `${rangeLabel} · Production project: thewatchalley.com`);
-    renderAnalyticsBars(series);
+    setAnalyticsText('eventCount', 'Custom events: ' + formatInt(summary.totalEvents));
+
+    if (document.getElementById('analytics-range-meta') && body.range) {
+      document.getElementById('analytics-range-meta').textContent =
+        formatAnalyticsDate(body.range.from) + ' \u2013 ' + formatAnalyticsDate(body.range.to) + ' \u00B7 ' +
+        (body.project?.domain || 'thewatchalley.com');
+    }
+    var chartSubtitle = document.querySelector('[data-analytics="chartSubtitle"]');
+    if (chartSubtitle) chartSubtitle.textContent = rangeLabel + ' \u00B7 Production project: thewatchalley.com';
+
+    // Render SVG chart (with previous series overlay if available)
+    var prevSeries = Array.isArray(body.previousSeries) ? body.previousSeries : null;
+    renderAnalyticsChart(series, prevSeries);
+
+    // Animate chart line drawing
+    requestAnimationFrame(function () {
+      var chartEl = document.getElementById('analytics-chart');
+      if (chartEl) {
+        chartEl.classList.add('analytics-chart-animated');
+        // If GSAP is available, add a smoother entrance
+        if (typeof gsap !== 'undefined') {
+          try {
+            gsap.fromTo(chartEl, { opacity: 0.4 }, { opacity: 1, duration: 0.6 });
+          } catch (_) {}
+        }
+      }
+    });
+
+    // Render top days
     renderTopAnalyticsDays(series);
-    if (els.analyticsStatus) {
-      const refreshed = body.updatedAt ? new Date(body.updatedAt).toLocaleString() : 'just now';
-      els.analyticsStatus.textContent = `Updated ${refreshed}. Data can lag behind Vercel by a few minutes.`;
+
+    // Render sparklines
+    var sparkData = series.map(function (d) { return Number(d.pageviews || 0); });
+    var prevSpark = prevSeries ? prevSeries.map(function (d) { return Number(d.pageviews || 0); }) : null;
+    document.querySelectorAll('[data-sparkline]').forEach(function (el) {
+      if (el.dataset.sparkline === 'selected') renderSparkline(el, sparkData, 'oklch(0.76 0.12 75)');
+      else if (el.dataset.sparkline === 'previous' && prevSpark) renderSparkline(el, prevSpark, 'oklch(0.76 0.12 75/0.40)');
+      else if (el.dataset.sparkline === 'today') {
+        renderSparkline(el, [summary.todayPageviews, summary.todayPageviews], 'oklch(0.76 0.12 75/0.60)');
+      }
+    });
+
+    // Status update
+    var statusEl = document.getElementById('analytics-status');
+    if (statusEl) {
+      var refreshed = body.updatedAt ? new Date(body.updatedAt).toLocaleString() : 'just now';
+      statusEl.textContent = 'Updated ' + refreshed + '. Data can lag behind Vercel by a few minutes.';
     }
     analyticsLoaded = true;
   } catch (error) {
-    if (els.analyticsStatus) {
-      els.analyticsStatus.textContent = error instanceof Error ? error.message : 'Unable to load Vercel Analytics.';
+    var statusEl2 = document.getElementById('analytics-status');
+    if (statusEl2) {
+      statusEl2.textContent = error instanceof Error ? error.message : 'Unable to load Vercel Analytics.';
     }
   } finally {
     analyticsInFlight = false;
-    if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = false;
+    document.getElementById('analytics-refresh-btn').disabled = false;
+    loadPopularWatches();
+  }
+}
+
+async function loadPopularWatches() {
+  var list = document.getElementById('popular-watches-list');
+  var status = document.getElementById('popular-watches-status');
+  if (!list) return;
+  if (status) status.textContent = 'Loading…';
+  list.innerHTML = '';
+  // Add shimmer on the popular watches card
+  var pwCard = list.closest('.admin-card');
+  if (pwCard) pwCard.classList.add('analytics-skeleton');
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) {
+      if (status) status.textContent = 'Sign in to see popular watches.';
+      if (pwCard) pwCard.classList.remove('analytics-skeleton');
+      return;
+    }
+
+    var resp = await fetch('/api/admin/popular-watches', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+
+    if (pwCard) pwCard.classList.remove('analytics-skeleton');
+
+    if (!body.ok) {
+      if (status) status.textContent = body.migrationHint || body.message || 'Could not load watch views.';
+      list.innerHTML = '';
+      return;
+    }
+
+    var watches = Array.isArray(body.watches) ? body.watches : [];
+
+    if (watches.length === 0) {
+      if (status) status.textContent = 'No watch view data yet. Views are tracked as customers browse.';
+      list.innerHTML = '';
+      return;
+    }
+
+    if (status) status.hidden = true;
+
+    var maxViews = Math.max(1, watches[0].view_count);
+    var html = '';
+    for (var i = 0; i < watches.length; i++) {
+      var w = watches[i];
+      var pct = Math.round((w.view_count / maxViews) * 100);
+      var label = w.brand ? w.brand + ' ' + (w.name || w.model || '') : w.slug;
+      var priceStr = w.price ? 'PHP ' + formatInt(w.price) : '';
+      html += '<li data-index="' + i + '">' +
+        '<span class="pw-rank">' + (i + 1) + '</span>' +
+        '<div class="pw-info">' +
+          '<span class="pw-name">' + escapeHtml(label) + '</span>' +
+          '<span class="pw-meta">' + formatInt(w.view_count) + ' views' +
+            (priceStr ? '  ·  ' + priceStr : '') +
+          '</span>' +
+        '</div>' +
+        '<span class="pw-bar-track"><span class="pw-bar-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="pw-value">' + formatInt(w.view_count) + '</span>' +
+        '</li>';
+    }
+    list.innerHTML = html;
+
+    // Staggered list entrance (GSAP with fallback)
+    if (typeof gsap !== 'undefined') {
+      try {
+        gsap.fromTo(
+          list.querySelectorAll('li'),
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
+        );
+      } catch (_) {
+        list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+      }
+    } else {
+      list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+    }
+  } catch (err) {
+    if (pwCard) pwCard.classList.remove('analytics-skeleton');
+    if (status) status.textContent = err.message || 'Failed to load popular watches.';
+    list.innerHTML = '';
   }
 }
 
