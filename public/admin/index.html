@@ -265,7 +265,14 @@
         <div class="admin-dashboard-rows">
           <article class="admin-card admin-dashboard-row analytics-note-card">
             <div class="admin-eyebrow">Most viewed watches</div>
-            <p class="admin-hint" style="margin:0">Customers viewed these watch pages the most.</p>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+              <p class="admin-hint" style="margin:0">Customers viewed these watch pages the most.</p>
+              <span class="pw-period-pills" id="pw-period-pills">
+                <button type="button" class="pw-pill is-active" data-period="7d">7 days</button>
+                <button type="button" class="pw-pill" data-period="24h">24 hours</button>
+                <button type="button" class="pw-pill" data-period="all">All time</button>
+              </span>
+            </div>
             <div id="popular-watches-status" class="admin-hint" aria-live="polite" style="margin:0">Loading popular watches…</div>
             <ol class="popular-watches-list" id="popular-watches-list"></ol>
           </article>

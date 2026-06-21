@@ -1598,6 +1598,38 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* Period pills */
+.pw-period-pills {
+  display: inline-flex;
+  gap: 2px;
+  background: oklch(0.13 0.012 55);
+  border: 1px solid oklch(0.76 0.12 75 / 0.15);
+  border-radius: 0.375rem;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.pw-pill {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--cream-60);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.pw-pill:hover {
+  color: var(--cream);
+}
+.pw-pill.is-active {
+  background: oklch(0.76 0.12 75 / 0.15);
+  color: var(--gold);
+  font-weight: 600;
+}
+
 /* Mobile: row for the 2 sidecards */
 .admin-dashboard-rows {
   display: grid;

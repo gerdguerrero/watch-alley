@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -17,24 +17,26 @@ interface WatchEntry {
   price?: number;
 }
 
-interface WatchView {
-  slug: string;
-  view_count: number;
-  last_viewed_at: string;
-}
+const PERIOD_COLUMNS: Record<string, string> = {
+  all: "view_count",
+  "24h": "views_24h",
+  "7d": "views_7d",
+};
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const period = request.nextUrl.searchParams.get("period") || "7d";
+    const sortColumn = PERIOD_COLUMNS[period] || PERIOD_COLUMNS["7d"];
+
     const supabase = createSupabaseAdminClient();
 
     const { data: views, error } = await supabase
       .from("watch_page_views")
-      .select("slug, view_count, last_viewed_at")
-      .order("view_count", { ascending: false })
+      .select("slug, view_count, views_24h, views_7d, last_viewed_at")
+      .order(sortColumn, { ascending: false })
       .limit(10);
 
     if (error) {
-      // Table doesn't exist yet
       return NextResponse.json({
         ok: false,
         error: "watch_page_views table not found. Run the migration first.",
@@ -45,10 +47,10 @@ export async function GET() {
     }
 
     if (!views || views.length === 0) {
-      return NextResponse.json({ ok: true, watches: [] });
+      return NextResponse.json({ ok: true, watches: [], period });
     }
 
-    // Fetch watches metadata to enrich the results
+    // Fetch watches metadata
     let watchesMap: Record<string, WatchEntry> = {};
     try {
       const resp = await fetch(WATCHES_DATA_URL);
@@ -62,14 +64,15 @@ export async function GET() {
         }
       }
     } catch {
-      // Non-critical — we just won't have watch names
+      // Non-critical
     }
 
-    const result = (views as WatchView[]).map((v) => {
+    const result = (views as any[]).map((v) => {
       const meta = watchesMap[v.slug];
       return {
         slug: v.slug,
-        view_count: v.view_count,
+        view_count: v[sortColumn] || 0,
+        view_count_all: v.view_count || 0,
         last_viewed_at: v.last_viewed_at,
         brand: meta?.brand ?? null,
         name: meta?.name ?? null,
@@ -81,7 +84,7 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({ ok: true, watches: result });
+    return NextResponse.json({ ok: true, watches: result, period });
   } catch (err) {
     console.error("popular-watches error:", err);
     return NextResponse.json(

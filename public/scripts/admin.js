@@ -2269,12 +2269,13 @@ async function loadVercelAnalytics({ force = false } = {}) {
 async function loadPopularWatches() {
   var list = document.getElementById('popular-watches-list');
   var status = document.getElementById('popular-watches-status');
+  var periodEl = document.querySelector('.pw-pill.is-active');
   if (!list) return;
-  if (status) status.textContent = 'Loading…';
+  if (status) status.textContent = 'Loading\u2026';
   list.innerHTML = '';
-  // Add shimmer on the popular watches card
   var pwCard = list.closest('.admin-card');
   if (pwCard) pwCard.classList.add('analytics-skeleton');
+  var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
 
   try {
     var { data: { session } } = await supabase.auth.getSession();
@@ -2285,7 +2286,7 @@ async function loadPopularWatches() {
       return;
     }
 
-    var resp = await fetch('/api/admin/popular-watches', {
+    var resp = await fetch('/api/admin/popular-watches?period=' + period, {
       headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
@@ -2299,13 +2300,11 @@ async function loadPopularWatches() {
     }
 
     var watches = Array.isArray(body.watches) ? body.watches : [];
-
     if (watches.length === 0) {
       if (status) status.textContent = 'No watch view data yet. Views are tracked as customers browse.';
       list.innerHTML = '';
       return;
     }
-
     if (status) status.hidden = true;
 
     var maxViews = Math.max(1, watches[0].view_count);
@@ -2320,7 +2319,7 @@ async function loadPopularWatches() {
         '<div class="pw-info">' +
           '<span class="pw-name">' + escapeHtml(label) + '</span>' +
           '<span class="pw-meta">' + formatInt(w.view_count) + ' views' +
-            (priceStr ? '  ·  ' + priceStr : '') +
+            (priceStr ? '  \u00B7  ' + priceStr : '') +
           '</span>' +
         '</div>' +
         '<span class="pw-bar-track"><span class="pw-bar-fill" style="width:' + pct + '%"></span></span>' +
@@ -2329,14 +2328,9 @@ async function loadPopularWatches() {
     }
     list.innerHTML = html;
 
-    // Staggered list entrance (GSAP with fallback)
     if (typeof gsap !== 'undefined') {
       try {
-        gsap.fromTo(
-          list.querySelectorAll('li'),
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
-        );
+        gsap.fromTo(list.querySelectorAll('li'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' });
       } catch (_) {
         list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
       }
@@ -2349,6 +2343,15 @@ async function loadPopularWatches() {
     list.innerHTML = '';
   }
 }
+
+// Period pill switching
+document.querySelector('#pw-period-pills')?.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pw-pill');
+  if (!btn) return;
+  document.querySelectorAll('.pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  btn.classList.add('is-active');
+  loadPopularWatches();
+});
 
 if (els.analyticsRangeSelect) {
   updateAnalyticsRangeControls();
