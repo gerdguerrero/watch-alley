@@ -318,7 +318,7 @@ export async function POST(request: NextRequest) {
           availableCount: available.length,
           soldCount: sold.length,
           journalCount: posts.length,
-          modelUsed: "gemini-2.5-flash",
+          modelUsed: "gemini-3.5-flash",
         },
         items,
       };
@@ -333,7 +333,7 @@ export async function POST(request: NextRequest) {
         payload: {
           issueId: issue?.issue?.id,
           runType: "full_issue",
-          model: "gemini-2.5-flash",
+          model: "gemini-3.5-flash",
           promptVersion: "watch-list-ai-v1",
           inputPayload: { requestedTitle: body.title ?? null },
           outputPayload: { slug, itemCount: items.length },

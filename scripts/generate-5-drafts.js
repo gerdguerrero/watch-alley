@@ -142,7 +142,7 @@ ${JSON.stringify(posts, null, 2)}
 `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3.5-flash",
     contents: userPrompt,
     config: {
       systemInstruction,
@@ -399,7 +399,7 @@ async function main() {
           theme: theme.name,
           availableCount: available.length,
           soldCount: sold.length,
-          modelUsed: "gemini-2.5-flash",
+          modelUsed: "gemini-3.5-flash",
         },
         items
       };
@@ -420,7 +420,7 @@ async function main() {
         payload: {
           issueId,
           runType: "full_issue",
-          model: "gemini-2.5-flash",
+          model: "gemini-3.5-flash",
           promptVersion: "watch-list-ai-v1-script",
           inputPayload: { theme: theme.name },
           outputPayload: { slug, itemCount: items.length },
