@@ -2358,11 +2358,13 @@ document.querySelector('#pw-period-pills')?.addEventListener('click', function (
 async function loadVisitorCountries() {
   var list = document.getElementById('visitor-countries-list');
   var status = document.getElementById('visitor-countries-status');
+  var periodEl = document.querySelector('#vc-period-pills .pw-pill.is-active');
   if (!list) return;
   if (status) status.textContent = 'Loading\u2026';
   list.innerHTML = '';
   var card = list.closest('.admin-card');
   if (card) card.classList.add('analytics-skeleton');
+  var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
 
   try {
     var { data: { session } } = await supabase.auth.getSession();
@@ -2373,7 +2375,7 @@ async function loadVisitorCountries() {
       return;
     }
 
-    var resp = await fetch('/api/admin/visitor-countries', {
+    var resp = await fetch('/api/admin/visitor-countries?period=' + period, {
       headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
@@ -2423,6 +2425,15 @@ async function loadVisitorCountries() {
     list.innerHTML = '';
   }
 }
+
+// Visitor countries period pills
+document.querySelector('#vc-period-pills')?.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pw-pill');
+  if (!btn) return;
+  document.querySelectorAll('#vc-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  btn.classList.add('is-active');
+  loadVisitorCountries();
+});
 
 if (els.analyticsRangeSelect) {
   updateAnalyticsRangeControls();

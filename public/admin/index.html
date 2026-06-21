@@ -279,7 +279,14 @@
 
           <article class="admin-card admin-dashboard-row analytics-note-card">
             <div class="admin-eyebrow">Visitors by country</div>
-            <p class="admin-meta">Where visitors are browsing from. Data sourced from Vercel's x-vercel-ip-country header.</p>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+              <p class="admin-meta" style="margin:0">Where visitors browsing watch pages are from.</p>
+              <span class="pw-period-pills" id="vc-period-pills">
+                <button type="button" class="pw-pill" data-period="24h">24 hours</button>
+                <button type="button" class="pw-pill is-active" data-period="7d">7 days</button>
+                <button type="button" class="pw-pill" data-period="all">All time</button>
+              </span>
+            </div>
             <div id="visitor-countries-status" class="admin-hint" aria-live="polite" style="margin:0">Loading country data…</div>
             <ol class="vc-list" id="visitor-countries-list"></ol>
           </article>

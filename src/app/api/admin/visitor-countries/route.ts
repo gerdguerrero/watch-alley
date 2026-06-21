@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-// Alpha-2 → full country name (same mapping as the tracker)
 const COUNTRY_NAMES: Record<string, string> = {
   AF: "Afghanistan", AL: "Albania", DZ: "Algeria", AO: "Angola", AR: "Argentina",
   AM: "Armenia", AU: "Australia", AT: "Austria", AZ: "Azerbaijan", BD: "Bangladesh",
@@ -26,6 +25,12 @@ const COUNTRY_NAMES: Record<string, string> = {
   UZ: "Uzbekistan", VE: "Venezuela", VN: "Vietnam", ZW: "Zimbabwe",
 };
 
+const PERIOD_COLUMNS: Record<string, string> = {
+  all: "visitor_count",
+  "24h": "views_24h",
+  "7d": "views_7d",
+};
+
 function countryToFlag(code: string) {
   return code
     .toUpperCase()
@@ -34,14 +39,17 @@ function countryToFlag(code: string) {
     .join("");
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const period = request.nextUrl.searchParams.get("period") || "7d";
+    const sortColumn = PERIOD_COLUMNS[period] || PERIOD_COLUMNS["7d"];
+
     const supabase = createSupabaseAdminClient();
 
     const { data: rows, error } = await supabase
       .from("visitor_countries")
-      .select("country, visitor_count, last_seen_at")
-      .order("visitor_count", { ascending: false })
+      .select("country, visitor_count, views_24h, views_7d, last_seen_at")
+      .order(sortColumn, { ascending: false })
       .limit(15);
 
     if (error) {
@@ -53,23 +61,23 @@ export async function GET() {
     }
 
     if (!rows || rows.length === 0) {
-      return NextResponse.json({ ok: true, countries: [] });
+      return NextResponse.json({ ok: true, countries: [], period });
     }
 
-    const max = Math.max(1, rows[0].visitor_count);
-    const total = rows.reduce((s, r) => s + r.visitor_count, 0);
+    const max = Math.max(1, (rows[0] as any)[sortColumn] || 0);
+    const total = rows.reduce((s, r) => s + ((r as any)[sortColumn] || 0), 0);
 
-    const countries = rows.map((r) => ({
+    const countries = rows.map((r: any) => ({
       country: r.country,
       label: COUNTRY_NAMES[r.country] || r.country,
       flag: countryToFlag(r.country),
-      count: r.visitor_count,
-      pct: Math.round((r.visitor_count / max) * 100),
-      share: total > 0 ? Math.round((r.visitor_count / total) * 100) : 0,
+      count: r[sortColumn] || 0,
+      pct: Math.round(((r[sortColumn] || 0) / max) * 100),
+      share: total > 0 ? Math.round(((r[sortColumn] || 0) / total) * 100) : 0,
       last_seen_at: r.last_seen_at,
     }));
 
-    return NextResponse.json({ ok: true, countries, total });
+    return NextResponse.json({ ok: true, countries, total, period });
   } catch (err) {
     console.error("visitor-countries error:", err);
     return NextResponse.json(

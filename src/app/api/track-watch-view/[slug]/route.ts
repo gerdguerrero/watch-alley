@@ -88,22 +88,44 @@ export async function POST(
     const countryCode = (request.headers.get("x-vercel-ip-country") || "").toUpperCase();
     if (countryCode && countryCode.length === 2) {
       try {
-        // Check if this country exists
         const { data: existingCountry } = await supabase
           .from("visitor_countries")
-          .select("visitor_count")
+          .select("*")
           .eq("country", countryCode)
           .maybeSingle();
 
         if (existingCountry) {
+          const cwStarted = new Date(existingCountry.window_started_at || existingCountry.last_seen_at);
+          const cHours = (Date.now() - cwStarted.getTime()) / 3_600_000;
+
+          let c24h = existingCountry.views_24h + 1;
+          let c7d = existingCountry.views_7d + 1;
+          let cwStart = existingCountry.window_started_at;
+
+          if (cHours >= 24) {
+            c24h = 1;
+            if (cHours >= 168) c7d = 1;
+            cwStart = now;
+          } else if (cHours >= 168) {
+            c7d = 1;
+            c24h = 1;
+            cwStart = now;
+          }
+
           await supabase.from("visitor_countries").update({
             visitor_count: existingCountry.visitor_count + 1,
+            views_24h: c24h,
+            views_7d: c7d,
+            window_started_at: cwStart,
             last_seen_at: now,
           }).eq("country", countryCode);
         } else {
           await supabase.from("visitor_countries").insert({
             country: countryCode,
             visitor_count: 1,
+            views_24h: 1,
+            views_7d: 1,
+            window_started_at: now,
             first_seen_at: now,
             last_seen_at: now,
           });
