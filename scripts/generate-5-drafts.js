@@ -164,7 +164,7 @@ async function main() {
   // 1. Fetch available, sold watches and posts using publicClient
   const { data: rawWatches, error: wErr } = await publicClient
     .from("watches")
-    .select("id, slug, brand, model, reference, name, price, status, condition_label, description, provenance, primary_image")
+    .select("id, slug, brand, model, reference, name, price, status, condition_label, material, movement, case_size, category, badges, description, provenance, primary_image")
     .eq("published", true);
 
   if (wErr) {
@@ -183,17 +183,23 @@ async function main() {
     process.exit(1);
   }
 
-  const available = rawWatches.filter(w => ["available", "reserved"].includes(w.status)).slice(0, 4);
-  const sold = rawWatches.filter(w => w.status === "sold").slice(0, 2);
+  const available = rawWatches.filter(w => ["available", "reserved"].includes(w.status)).slice(0, 20);
+  const sold = rawWatches.filter(w => w.status === "sold").slice(0, 10);
 
   // Normalize mappings
   const availablePayload = available.map(w => ({
     id: w.id,
     brand: w.brand,
     name: w.name,
+    model: w.model || "",
     reference: w.reference || "",
     price: w.price,
     conditionLabel: w.condition_label || "Excellent",
+    material: w.material || "",
+    movement: w.movement || "",
+    caseSize: w.case_size || "",
+    category: w.category || "",
+    badges: w.badges || [],
     description: w.description || "",
     provenance: w.provenance || "",
   }));
@@ -202,8 +208,13 @@ async function main() {
     id: w.id,
     brand: w.brand,
     name: w.name,
+    model: w.model || "",
     reference: w.reference || "",
     conditionLabel: w.condition_label || "Excellent",
+    material: w.material || "",
+    movement: w.movement || "",
+    caseSize: w.case_size || "",
+    badges: w.badges || [],
     description: w.description || "",
   }));
 
@@ -226,9 +237,34 @@ async function main() {
       const title = `The Alley Dispatch - ${theme.name}`;
       const slug = slugify(`${title}-${Date.now()}`);
 
-      const featured = available.slice(0, 3);
-      const soldHighlight = sold[0];
+      let featured = available.slice(0, 3);
+      let soldHighlight = sold[0];
       const journal = rawPosts[0];
+
+      // Resolve featured watches from AI draft selections
+      const aiSelectedFeatured = [];
+      if (aiDraft.watches && Array.isArray(aiDraft.watches)) {
+        for (const aiWatch of aiDraft.watches) {
+          const found = available.find(w => w.id === aiWatch.id);
+          if (found && !aiSelectedFeatured.some(f => f.id === found.id)) {
+            aiSelectedFeatured.push(found);
+          }
+        }
+      }
+      if (aiSelectedFeatured.length > 0) {
+        featured = aiSelectedFeatured.slice(0, 3);
+      } else {
+        featured = available.slice(0, 3);
+      }
+
+      // Resolve sold watch highlight from AI draft selections
+      const aiSoldHighlight = aiDraft.soldHighlight;
+      if (aiSoldHighlight) {
+        const foundSold = sold.find(w => w.id === aiSoldHighlight.id);
+        if (foundSold) {
+          soldHighlight = foundSold;
+        }
+      }
 
       const items = [];
 
