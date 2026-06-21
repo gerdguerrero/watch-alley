@@ -90,6 +90,11 @@ const els = {
   tabpanelAdmins: document.getElementById('tabpanel-admins'),
   tabpanelAccount: document.getElementById('tabpanel-account'),
   tabpanelAnalytics: document.getElementById('tabpanel-analytics'),
+  analyticsRangeMeta: document.getElementById('analytics-range-meta'),
+  analyticsRefreshBtn: document.getElementById('analytics-refresh-btn'),
+  analyticsStatus: document.getElementById('analytics-status'),
+  analyticsBars: document.getElementById('analytics-bars'),
+  analyticsTopDays: document.getElementById('analytics-top-days'),
   inventoryBackBtn: document.getElementById('inventory-back-btn'),
   // Dashboard tab
   dashboardMeta: document.getElementById('admin-dashboard-meta'),
@@ -1752,6 +1757,117 @@ function activateTab(name, { focus = false } = {}) {
   if (name === 'journal') loadJournalPosts();
   if (name === 'newsletter') loadNewsletterTab();
   if (name === 'dashboard') loadDashboard();
+  if (name === 'analytics') loadVercelAnalytics();
+}
+
+// ---------------- Vercel Analytics tab ----------------
+
+let analyticsLoaded = false;
+let analyticsInFlight = false;
+
+function formatInt(value) {
+  return new Intl.NumberFormat('en-US').format(Number(value || 0));
+}
+
+function formatAnalyticsDate(value) {
+  const date = new Date(`${value}T00:00:00Z`);
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
+function setAnalyticsText(key, value) {
+  const node = document.querySelector(`[data-analytics="${key}"]`);
+  if (node) node.textContent = value;
+}
+
+function renderAnalyticsBars(series) {
+  if (!els.analyticsBars) return;
+  const max = Math.max(1, ...series.map((day) => Number(day.pageviews || 0)));
+  els.analyticsBars.innerHTML = series
+    .map((day) => {
+      const value = Number(day.pageviews || 0);
+      const height = Math.max(4, Math.round((value / max) * 100));
+      return `<div class="analytics-bar" title="${formatAnalyticsDate(day.date)} · ${formatInt(value)} pageviews">
+        <span class="analytics-bar-fill" style="height: ${height}%"></span>
+      </div>`;
+    })
+    .join('');
+}
+
+function renderTopAnalyticsDays(series) {
+  if (!els.analyticsTopDays) return;
+  const topDays = [...series]
+    .sort((a, b) => Number(b.pageviews || 0) - Number(a.pageviews || 0))
+    .slice(0, 5);
+  els.analyticsTopDays.innerHTML = topDays
+    .map((day, index) => `<li>
+      <span class="dashboard-activity-kind">${index + 1}</span>
+      <span class="dashboard-activity-label">${formatAnalyticsDate(day.date)}</span>
+      <span class="dashboard-activity-when">${formatInt(day.pageviews)} views</span>
+    </li>`)
+    .join('');
+}
+
+async function loadVercelAnalytics({ force = false } = {}) {
+  if (!els.tabpanelAnalytics || analyticsInFlight || (analyticsLoaded && !force)) return;
+  analyticsInFlight = true;
+  if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = true;
+  if (els.analyticsStatus) els.analyticsStatus.textContent = 'Loading Vercel Analytics…';
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error('No active admin session — sign in again.');
+
+    const response = await fetch('/api/admin/vercel-analytics', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) {
+      throw new Error(body.message || `Analytics request failed (${response.status}).`);
+    }
+
+    const summary = body.summary || {};
+    const series = Array.isArray(body.series) ? body.series : [];
+    const previous7 = Number(summary.previous7Pageviews || 0);
+    const last7 = Number(summary.last7Pageviews || 0);
+    const delta = previous7 > 0 ? Math.round(((last7 - previous7) / previous7) * 100) : null;
+
+    setAnalyticsText('totalPageviews', formatInt(summary.totalPageviews));
+    setAnalyticsText('averageDaily', `${formatInt(summary.averageDailyPageviews)} average daily pageviews`);
+    setAnalyticsText('last7Pageviews', formatInt(last7));
+    setAnalyticsText(
+      'last7Trend',
+      delta === null ? 'No previous 7-day baseline' : `${delta >= 0 ? '+' : ''}${delta}% vs previous 7 days`
+    );
+    setAnalyticsText('todayPageviews', formatInt(summary.todayPageviews));
+    setAnalyticsText('eventCount', `Custom events: ${formatInt(summary.totalEvents)}`);
+
+    if (els.analyticsRangeMeta && body.range) {
+      els.analyticsRangeMeta.textContent = `${formatAnalyticsDate(body.range.from)}–${formatAnalyticsDate(body.range.to)} · ${body.project?.domain || 'thewatchalley.com'}`;
+    }
+    renderAnalyticsBars(series);
+    renderTopAnalyticsDays(series);
+    if (els.analyticsStatus) {
+      const refreshed = body.updatedAt ? new Date(body.updatedAt).toLocaleString() : 'just now';
+      els.analyticsStatus.textContent = `Updated ${refreshed}. Data can lag behind Vercel by a few minutes.`;
+    }
+    analyticsLoaded = true;
+  } catch (error) {
+    if (els.analyticsStatus) {
+      els.analyticsStatus.textContent = error instanceof Error ? error.message : 'Unable to load Vercel Analytics.';
+    }
+  } finally {
+    analyticsInFlight = false;
+    if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = false;
+  }
+}
+
+if (els.analyticsRefreshBtn) {
+  els.analyticsRefreshBtn.addEventListener('click', () => loadVercelAnalytics({ force: true }));
 }
 
 // ---------------- Account tab: change password ----------------
