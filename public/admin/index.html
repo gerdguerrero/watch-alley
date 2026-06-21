@@ -186,9 +186,27 @@
           <div>
             <div class="admin-eyebrow">Vercel Web Analytics</div>
             <h2 class="admin-dashboard-title">TheWatchAlley.com traffic.</h2>
-            <p class="admin-meta" id="analytics-range-meta">Loading the latest 30 days from Vercel…</p>
+            <p class="admin-meta" id="analytics-range-meta">Loading selected range from Vercel…</p>
           </div>
           <div class="admin-form-actions analytics-actions">
+            <label class="analytics-range-control">
+              <span>Date range</span>
+              <select id="analytics-range-select">
+                <option value="last7" selected>Last 7 Days</option>
+                <option value="last14">Last 14 Days</option>
+                <option value="last30">Last 30 Days</option>
+                <option value="last90">Last 90 Days</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <label class="analytics-date-control" hidden>
+              <span>From</span>
+              <input type="date" id="analytics-from-date">
+            </label>
+            <label class="analytics-date-control" hidden>
+              <span>To</span>
+              <input type="date" id="analytics-to-date">
+            </label>
             <button type="button" id="analytics-refresh-btn" class="btn-ghost">Refresh</button>
             <a class="admin-new-btn analytics-open-link" href="https://vercel.com/joseph-guerreros-projects/watch-alley/analytics" target="_blank" rel="noopener noreferrer">Open Vercel</a>
           </div>
@@ -196,15 +214,15 @@
 
         <div class="admin-dashboard-grid" aria-label="Vercel Analytics summary">
           <article class="kpi-tile">
-            <div class="kpi-label">Pageviews · 30 days</div>
+            <div class="kpi-label" data-analytics="primaryLabel">Pageviews · selected range</div>
             <div class="kpi-value analytics-status-value" data-analytics="totalPageviews">—</div>
             <div class="kpi-foot" data-analytics="averageDaily">Loading Vercel data…</div>
           </article>
 
           <article class="kpi-tile">
-            <div class="kpi-label">Pageviews · Last 7 days</div>
-            <div class="kpi-value analytics-path-value" data-analytics="last7Pageviews">—</div>
-            <div class="kpi-foot" data-analytics="last7Trend">Compared with previous 7 days</div>
+            <div class="kpi-label">Pageviews · previous period</div>
+            <div class="kpi-value analytics-path-value" data-analytics="previousPageviews">—</div>
+            <div class="kpi-foot" data-analytics="rangeTrend">Compared with selected range</div>
           </article>
 
           <article class="kpi-tile">
@@ -218,7 +236,7 @@
           <div class="admin-dashboard-header">
             <div>
               <div class="admin-eyebrow">Daily pageviews</div>
-              <p class="admin-meta">Last 30 days · Production project: <strong>thewatchalley.com</strong></p>
+              <p class="admin-meta" data-analytics="chartSubtitle">Selected range · Production project: <strong>thewatchalley.com</strong></p>
             </div>
           </div>
           <div class="analytics-bars" id="analytics-bars" aria-label="Daily pageviews chart"></div>

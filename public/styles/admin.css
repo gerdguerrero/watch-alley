@@ -1114,6 +1114,32 @@ code {
 .analytics-actions {
   margin-top: 0;
   justify-content: flex-end;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.analytics-range-control,
+.analytics-date-control {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.analytics-range-control select,
+.analytics-date-control input {
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--gold-20);
+  background: var(--panel-strong);
+  color: var(--ink);
+  padding: 0 12px;
+  font: inherit;
+  letter-spacing: 0.06em;
+}
+.analytics-date-control[hidden] {
+  display: none;
 }
 .analytics-open-link {
   text-decoration: none;

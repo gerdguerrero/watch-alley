@@ -91,6 +91,9 @@ const els = {
   tabpanelAccount: document.getElementById('tabpanel-account'),
   tabpanelAnalytics: document.getElementById('tabpanel-analytics'),
   analyticsRangeMeta: document.getElementById('analytics-range-meta'),
+  analyticsRangeSelect: document.getElementById('analytics-range-select'),
+  analyticsFromDate: document.getElementById('analytics-from-date'),
+  analyticsToDate: document.getElementById('analytics-to-date'),
   analyticsRefreshBtn: document.getElementById('analytics-refresh-btn'),
   analyticsStatus: document.getElementById('analytics-status'),
   analyticsBars: document.getElementById('analytics-bars'),
@@ -1765,6 +1768,47 @@ function activateTab(name, { focus = false } = {}) {
 let analyticsLoaded = false;
 let analyticsInFlight = false;
 
+const analyticsRangeLabels = {
+  last7: 'Last 7 Days',
+  last14: 'Last 14 Days',
+  last30: 'Last 30 Days',
+  last90: 'Last 90 Days',
+  custom: 'Custom range',
+};
+
+function isoInputDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function ensureAnalyticsDateDefaults() {
+  if (!els.analyticsFromDate || !els.analyticsToDate) return;
+  const today = new Date();
+  const from = new Date(today);
+  from.setUTCDate(from.getUTCDate() - 7);
+  if (!els.analyticsFromDate.value) els.analyticsFromDate.value = isoInputDate(from);
+  if (!els.analyticsToDate.value) els.analyticsToDate.value = isoInputDate(today);
+}
+
+function updateAnalyticsRangeControls() {
+  const custom = els.analyticsRangeSelect?.value === 'custom';
+  document.querySelectorAll('.analytics-date-control').forEach((node) => {
+    node.hidden = !custom;
+  });
+  if (custom) ensureAnalyticsDateDefaults();
+}
+
+function analyticsQueryString() {
+  const params = new URLSearchParams();
+  const range = els.analyticsRangeSelect?.value || 'last7';
+  params.set('range', range);
+  if (range === 'custom') {
+    ensureAnalyticsDateDefaults();
+    if (els.analyticsFromDate?.value) params.set('from', els.analyticsFromDate.value);
+    if (els.analyticsToDate?.value) params.set('to', els.analyticsToDate.value);
+  }
+  return params.toString();
+}
+
 function formatInt(value) {
   return new Intl.NumberFormat('en-US').format(Number(value || 0));
 }
@@ -1822,7 +1866,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
     const token = session?.access_token;
     if (!token) throw new Error('No active admin session — sign in again.');
 
-    const response = await fetch('/api/admin/vercel-analytics', {
+    const response = await fetch(`/api/admin/vercel-analytics?${analyticsQueryString()}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await response.json().catch(() => ({}));
@@ -1832,16 +1876,18 @@ async function loadVercelAnalytics({ force = false } = {}) {
 
     const summary = body.summary || {};
     const series = Array.isArray(body.series) ? body.series : [];
-    const previous7 = Number(summary.previous7Pageviews || 0);
-    const last7 = Number(summary.last7Pageviews || 0);
-    const delta = previous7 > 0 ? Math.round(((last7 - previous7) / previous7) * 100) : null;
+    const previous = Number(summary.previousPageviews || 0);
+    const selected = Number(summary.selectedPageviews ?? summary.totalPageviews ?? 0);
+    const delta = previous > 0 ? Math.round(((selected - previous) / previous) * 100) : null;
+    const rangeLabel = analyticsRangeLabels[body.range?.key] || 'Selected range';
 
-    setAnalyticsText('totalPageviews', formatInt(summary.totalPageviews));
+    setAnalyticsText('primaryLabel', `Pageviews · ${rangeLabel}`);
+    setAnalyticsText('totalPageviews', formatInt(selected));
     setAnalyticsText('averageDaily', `${formatInt(summary.averageDailyPageviews)} average daily pageviews`);
-    setAnalyticsText('last7Pageviews', formatInt(last7));
+    setAnalyticsText('previousPageviews', formatInt(previous));
     setAnalyticsText(
-      'last7Trend',
-      delta === null ? 'No previous 7-day baseline' : `${delta >= 0 ? '+' : ''}${delta}% vs previous 7 days`
+      'rangeTrend',
+      delta === null ? 'No previous-period baseline' : `${delta >= 0 ? '+' : ''}${delta}% vs previous period`
     );
     setAnalyticsText('todayPageviews', formatInt(summary.todayPageviews));
     setAnalyticsText('eventCount', `Custom events: ${formatInt(summary.totalEvents)}`);
@@ -1849,6 +1895,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
     if (els.analyticsRangeMeta && body.range) {
       els.analyticsRangeMeta.textContent = `${formatAnalyticsDate(body.range.from)}–${formatAnalyticsDate(body.range.to)} · ${body.project?.domain || 'thewatchalley.com'}`;
     }
+    setAnalyticsText('chartSubtitle', `${rangeLabel} · Production project: thewatchalley.com`);
     renderAnalyticsBars(series);
     renderTopAnalyticsDays(series);
     if (els.analyticsStatus) {
@@ -1865,6 +1912,23 @@ async function loadVercelAnalytics({ force = false } = {}) {
     if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = false;
   }
 }
+
+if (els.analyticsRangeSelect) {
+  updateAnalyticsRangeControls();
+  els.analyticsRangeSelect.addEventListener('change', () => {
+    updateAnalyticsRangeControls();
+    analyticsLoaded = false;
+    loadVercelAnalytics({ force: true });
+  });
+}
+
+[els.analyticsFromDate, els.analyticsToDate].forEach((input) => {
+  input?.addEventListener('change', () => {
+    if (els.analyticsRangeSelect?.value !== 'custom') return;
+    analyticsLoaded = false;
+    loadVercelAnalytics({ force: true });
+  });
+});
 
 if (els.analyticsRefreshBtn) {
   els.analyticsRefreshBtn.addEventListener('click', () => loadVercelAnalytics({ force: true }));

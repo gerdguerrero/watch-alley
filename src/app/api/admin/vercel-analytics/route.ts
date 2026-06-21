@@ -40,6 +40,40 @@ function numberValue(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
+function parseDateParam(value: string | null) {
+  if (!value) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  return Number.isNaN(date.valueOf()) ? null : date;
+}
+
+function resolveRange(request: NextRequest) {
+  const now = new Date();
+  const today = startOfUtcDay(now);
+  const params = request.nextUrl.searchParams;
+  const range = params.get("range") || "last7";
+
+  if (range === "custom") {
+    const fromParam = parseDateParam(params.get("from"));
+    const toParam = parseDateParam(params.get("to"));
+    if (fromParam && toParam && fromParam <= toParam) {
+      const days = Math.max(1, Math.round((toParam.valueOf() - fromParam.valueOf()) / 86_400_000) + 1);
+      return { key: range, from: fromParam, to: toParam, days };
+    }
+  }
+
+  const daysByRange: Record<string, number> = {
+    last7: 7,
+    last14: 14,
+    last30: 30,
+    last90: 90,
+  };
+  const days = daysByRange[range] ?? daysByRange.last7;
+  return { key: range in daysByRange ? range : "last7", from: addDays(today, -days), to: today, days: days + 1 };
+}
+
 export async function GET(request: NextRequest) {
   try {
     await assertAdmin(request);
@@ -63,14 +97,15 @@ export async function GET(request: NextRequest) {
   }
 
   const now = new Date();
-  const today = startOfUtcDay(now);
-  const from = addDays(today, -29);
-  const to = addDays(today, 1);
+  const range = resolveRange(request);
+  const previousFrom = addDays(range.from, -range.days);
+  const queryTo = addDays(range.to, 1);
 
   const params = new URLSearchParams({
     teamId: VERCEL_TEAM_ID,
-    from: toVercelDateParam(from),
-    to: toVercelDateParam(to),
+    projectId: VERCEL_PROJECT_ID,
+    from: toVercelDateParam(previousFrom),
+    to: toVercelDateParam(queryTo),
   });
 
   const response = await fetch(`${VERCEL_ANALYTICS_URL}?${params.toString()}`, {
@@ -107,17 +142,20 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const series = Array.from({ length: 30 }, (_, index) => {
-    const date = isoDate(addDays(from, index));
-    const value = byDate.get(date) ?? { pageviews: 0, events: 0, total: 0 };
-    return { date, ...value };
-  });
+  function buildSeries(start: Date, length: number) {
+    return Array.from({ length }, (_, index) => {
+      const date = isoDate(addDays(start, index));
+      const value = byDate.get(date) ?? { pageviews: 0, events: 0, total: 0 };
+      return { date, ...value };
+    });
+  }
 
+  const series = buildSeries(range.from, range.days);
+  const previousSeries = buildSeries(previousFrom, range.days);
   const totalPageviews = series.reduce((sum, day) => sum + day.pageviews, 0);
+  const previousPageviews = previousSeries.reduce((sum, day) => sum + day.pageviews, 0);
   const totalEvents = series.reduce((sum, day) => sum + day.events, 0);
   const total = series.reduce((sum, day) => sum + day.total, 0);
-  const last7 = series.slice(-7).reduce((sum, day) => sum + day.pageviews, 0);
-  const previous7 = series.slice(-14, -7).reduce((sum, day) => sum + day.pageviews, 0);
   const todayRow = series.at(-1) ?? { pageviews: 0, events: 0, total: 0 };
 
   return NextResponse.json({
@@ -128,16 +166,19 @@ export async function GET(request: NextRequest) {
       domain: "thewatchalley.com",
     },
     range: {
-      from: isoDate(from),
-      to: isoDate(today),
+      key: range.key,
+      from: isoDate(range.from),
+      to: isoDate(range.to),
       days: series.length,
+      previousFrom: isoDate(previousFrom),
+      previousTo: isoDate(addDays(range.from, -1)),
     },
     summary: {
       totalPageviews,
       totalEvents,
       total,
-      last7Pageviews: last7,
-      previous7Pageviews: previous7,
+      selectedPageviews: totalPageviews,
+      previousPageviews,
       todayPageviews: todayRow.pageviews,
       averageDailyPageviews: Math.round(totalPageviews / series.length),
     },
