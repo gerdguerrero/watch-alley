@@ -159,7 +159,14 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
             {isSold ? (
               <span />
             ) : (
-              <span className="text-lg font-serif text-amber-300">{formatPhp(watch.price)}</span>
+              <span className="text-lg font-serif text-amber-300">
+                {formatPhp(watch.price)}
+                {/* Filled in by <UsdPriceMount /> after hydration. */}
+                <span
+                  className="mt-0.5 block font-mono text-[10px] font-normal not-italic tracking-[0.18em] text-cream-60"
+                  data-price-php={watch.price}
+                />
+              </span>
             )}
             <motion.span
               className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-cream"

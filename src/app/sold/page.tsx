@@ -3,6 +3,7 @@ import { PageTitle } from "@/components/develop/page-title";
 import { WatchCard } from "@/components/develop/watch-card";
 import { WatchTile } from "@/components/develop/watch-tile";
 import { CatalogToolbar } from "@/components/storefront/CatalogToolbar";
+import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
 import { collectBrands, SOLD_SORTS, type SortKey, sortWatches } from "@/lib/inventory/sort";
 
@@ -64,6 +65,7 @@ export default async function SoldPage({
           </>
         )}
       </section>
+      <UsdPriceMount />
     </main>
   );
 }
