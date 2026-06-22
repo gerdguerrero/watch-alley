@@ -17,6 +17,7 @@ type BrandLogoVariant =
   | "icon"
   | "badge"
   | "primary"
+  | "gold"
   | "white"
   | "horizontal"
   | "inline"
@@ -39,6 +40,7 @@ const LOGO_SRC: Record<BrandLogoVariant, string> = {
   icon: BRAND_ASSETS.twaIcon,
   badge: BRAND_ASSETS.twaBadge,
   primary: BRAND_ASSETS.twaPrimary,
+  gold: BRAND_ASSETS.twaGold,
   white: BRAND_ASSETS.twaWhite,
   horizontal: BRAND_ASSETS.horizontal,
   inline: BRAND_ASSETS.inline,

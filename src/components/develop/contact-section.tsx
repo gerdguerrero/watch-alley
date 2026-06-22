@@ -3,9 +3,10 @@
 import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { BrandLogo } from "./brand-logo";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 const WatchDisplay = dynamic(() => import("./watch-display").then((mod) => mod.WatchDisplay), {
   ssr: false,
@@ -19,9 +20,31 @@ const WatchDisplay = dynamic(() => import("./watch-display").then((mod) => mod.W
 const MESSENGER_URL = "https://m.me/thewatchalley";
 const MotionLink = motion.create(Link);
 
+function ContactWatchFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center p-8">
+      <BrandLogo variant="gold" className="h-32 w-32 opacity-75" sizes="128px" />
+    </div>
+  );
+}
+
 export function ContactSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const [webglAvailable, setWebglAvailable] = useState(false);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const isAvailable = !!(
+        window.WebGLRenderingContext &&
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+      );
+      setWebglAvailable(isAvailable);
+    } catch (_e) {
+      setWebglAvailable(false);
+    }
+  }, []);
 
   return (
     <section
@@ -73,7 +96,13 @@ export function ContactSection() {
                 />
                 <div className="absolute inset-8 rounded-full border border-amber-300/10" />
                 <div className="relative z-10 h-full w-full">
-                  <WatchDisplay />
+                  {webglAvailable ? (
+                    <ErrorBoundary fallback={<ContactWatchFallback />}>
+                      <WatchDisplay />
+                    </ErrorBoundary>
+                  ) : (
+                    <ContactWatchFallback />
+                  )}
                 </div>
               </div>
             </motion.div>

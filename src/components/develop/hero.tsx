@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 const WatchScene = dynamic(() => import("./watch-scene").then((mod) => mod.WatchScene), {
   ssr: false,
@@ -36,9 +37,20 @@ export function Hero({ featured = null }: HeroProps = {}) {
   const [enableWatchScene, setEnableWatchScene] = useState(false);
 
   useEffect(() => {
+    const webglAvailable = (() => {
+      try {
+        const canvas = document.createElement("canvas");
+        return !!(
+          window.WebGLRenderingContext &&
+          (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+        );
+      } catch (_e) {
+        return false;
+      }
+    })();
+
     const canUseWatchScene =
-      window.matchMedia("(min-width: 768px)").matches &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      webglAvailable && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setEnableWatchScene(canUseWatchScene);
 
     const ctx = gsap.context(() => {
@@ -97,7 +109,13 @@ export function Hero({ featured = null }: HeroProps = {}) {
         className="absolute inset-0 z-10 flex items-center justify-center"
       >
         <div className="mx-auto h-full max-h-[74vh] w-full max-w-4xl lg:translate-x-[16vw]">
-          {enableWatchScene ? <WatchScene /> : <HeroStaticVisual featured={featured} />}
+          {enableWatchScene ? (
+            <ErrorBoundary fallback={<HeroStaticVisual featured={featured} />}>
+              <WatchScene />
+            </ErrorBoundary>
+          ) : (
+            <HeroStaticVisual featured={featured} />
+          )}
         </div>
       </div>
 

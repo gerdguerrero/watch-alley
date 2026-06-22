@@ -118,7 +118,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             last_seen_at: now,
           });
         }
-      } catch (countryErr) {
+      } catch (_countryErr) {
         // Non-critical - country tracking failed silently
       }
     }

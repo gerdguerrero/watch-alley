@@ -7,7 +7,7 @@ const KNOWN_SOURCE_PARAMS = ["utm_source", "source", "ref", "referrer"];
 function getExplicitSource(searchParams: URLSearchParams) {
   for (const key of KNOWN_SOURCE_PARAMS) {
     const value = searchParams.get(key);
-    if (value && value.trim()) return value.trim();
+    if (value?.trim()) return value.trim();
   }
 
   if (searchParams.has("igshid") || searchParams.has("igsh")) return "instagram";

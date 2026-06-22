@@ -25,12 +25,10 @@ export function EntrancePreloader() {
 
     const force = new URLSearchParams(window.location.search).get("force-preload") === "true";
     const shouldSkipMotion =
-      !force &&
-      (window.matchMedia("(max-width: 767px)").matches ||
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      !force && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Mobile in-app browsers are often memory-constrained. Do not block the
-    // first customer view behind a full-screen animation there.
+    // Mobile in-app browsers are often memory-constrained. We still support preload
+    // but check for reduced motion preferences first.
     if (shouldSkipMotion) {
       hasPlayedInSession = true;
       return;
