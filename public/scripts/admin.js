@@ -2402,6 +2402,7 @@ async function loadPopularWatches() {
 async function loadUniqueVisitors() {
   var el = document.querySelector('[data-analytics="uniqueVisitors"]');
   var foot = document.querySelector('[data-analytics="visitorsFoot"]');
+  var chart = document.querySelector('[data-sparkline="visitors"]');
   if (!el) return;
 
   try {
@@ -2409,18 +2410,24 @@ async function loadUniqueVisitors() {
     var token = session?.access_token;
     if (!token) { el.textContent = '-'; return; }
 
-    var resp = await fetch('/api/admin/unique-visitors?period=7d', {
-      headers: { Authorization: 'Bearer ' + token },
+    var qs = analyticsQueryString();
+    var resp = await fetch('/api/admin/unique-visitors?' + qs, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     var body = await resp.json().catch(function () { return {}; });
 
-    if (body.ok && body.count > 0) {
+    if (body.ok) {
+      var count = Number(body.count || 0);
+      var visitorSeries = Array.isArray(body.series)
+        ? body.series.map(function (d) { return Number(d.visitors || 0); })
+        : [];
       if (foot) foot.textContent = 'Browsers who visited any watch page';
+      if (chart) renderSparkline(chart, visitorSeries, 'oklch(0.76 0.12 75)');
       if (typeof gsap !== 'undefined') {
         el.textContent = '0';
         try {
           gsap.fromTo(el, { textContent: 0 }, {
-            textContent: body.count,
+            textContent: count,
             duration: 1.2,
             ease: 'power2.out',
             snap: { textContent: 1 },
@@ -2429,12 +2436,16 @@ async function loadUniqueVisitors() {
           return;
         } catch (_) {}
       }
-      el.textContent = formatInt(body.count);
+      el.textContent = formatInt(count);
     } else {
       el.textContent = '0';
-      if (foot && body && !body.ok) foot.textContent = 'Run migration: visitor_ids table';
+      if (chart) chart.textContent = '';
+      if (foot) foot.textContent = body.error || body.message || 'Run migration: visitor_ids table';
     }
-  } catch { el.textContent = '-'; }
+  } catch {
+    el.textContent = '-';
+    if (chart) chart.textContent = '';
+  }
 }
 
 // Period pill switching
