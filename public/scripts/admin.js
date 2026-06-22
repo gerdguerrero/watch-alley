@@ -1719,16 +1719,18 @@ function getCountryFlagUrl(countryCode) {
   return 'https://flagcdn.com/w40/' + code + '.png';
 }
 function getFaviconUrl(hostname, iconType) {
-  if (iconType === 'instagram') return 'https://www.instagram.com/favicon.ico';
-  if (iconType === 'facebook') return 'https://www.facebook.com/favicon.ico';
-  if (iconType === 'google') return 'https://www.google.com/favicon.ico';
-  if (iconType === 'bing') return 'https://www.bing.com/favicon.ico';
-  if (iconType === 'duckduckgo') return 'https://duckduckgo.com/favicon.ico';
-  if (iconType === 'tiktok') return 'https://www.tiktok.com/favicon.ico';
-  if (iconType === 'youtube') return 'https://www.youtube.com/favicon.ico';
+  // Use DuckDuckGo's icon proxy for known platforms — avoids cross-origin
+  // blocks (Instagram returns cross-origin-resource-policy: same-origin).
+  if (iconType === 'instagram') return 'https://icons.duckduckgo.com/ip3/instagram.com.ico';
+  if (iconType === 'facebook')  return 'https://icons.duckduckgo.com/ip3/facebook.com.ico';
+  if (iconType === 'google')    return 'https://icons.duckduckgo.com/ip3/google.com.ico';
+  if (iconType === 'bing')      return 'https://icons.duckduckgo.com/ip3/bing.com.ico';
+  if (iconType === 'duckduckgo') return 'https://icons.duckduckgo.com/ip3/duckduckgo.com.ico';
+  if (iconType === 'tiktok')    return 'https://icons.duckduckgo.com/ip3/tiktok.com.ico';
+  if (iconType === 'youtube')   return 'https://icons.duckduckgo.com/ip3/youtube.com.ico';
   var host = String(hostname || '').trim().toLowerCase();
   if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(host)) return '';
-  return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=32';
+  return 'https://icons.duckduckgo.com/ip3/' + host + '.ico';
 }
 function formatPrice(value) {
   if (value == null) return '-';
