@@ -85,9 +85,7 @@ export function CountrySelect({
         <span className="flex-1 truncate text-cream text-sm">
           {selectedCountry.name}
           {showPhoneCode && (
-            <span className="ml-1.5 text-cream-60/50 text-xs">
-              {selectedCountry.phoneCode}
-            </span>
+            <span className="ml-1.5 text-cream-60/50 text-xs">{selectedCountry.phoneCode}</span>
           )}
         </span>
         <svg
@@ -107,7 +105,7 @@ export function CountrySelect({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 z-50 mt-2 w-full min-w-[280px] bg-[#0d0b09] border border-amber-300/15 rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.8)] backdrop-blur-xl max-h-80 flex flex-col">
+        <div className="absolute right-0 z-50 mt-2 w-full min-w-[240px] bg-[#0d0b09] border border-amber-300/15 rounded-2xl overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.8)] backdrop-blur-xl max-h-80 flex flex-col">
           {/* Search bar */}
           <div className="sticky top-0 bg-[#0d0b09] border-b border-amber-300/10 p-3 z-10">
             <div className="relative">
@@ -156,9 +154,7 @@ export function CountrySelect({
                     <span className="text-lg leading-none shrink-0">{countryFlag}</span>
                     <span className="flex-1 truncate">{country.name}</span>
                     {showPhoneCode && (
-                      <span className="text-xs text-cream-60/50 shrink-0">
-                        {country.phoneCode}
-                      </span>
+                      <span className="text-xs text-cream-60/50 shrink-0">{country.phoneCode}</span>
                     )}
                     {isSelected && (
                       <svg

@@ -567,24 +567,24 @@ export async function sendProfileCompletionEmail(
   const bodyHtml = `
     <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
       <p style="margin-top: 0;">Hi${greetingName},</p>
-      <p>We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste — brands you follow, your budget, and where you're based — we can surface pieces that actually match your eye instead of sending everything.</p>
+      <p>We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste (such as the brands you follow, your budget, and where you are based), we can surface pieces that actually match your eye instead of sending everything.</p>
       ${missingList}
       <p>Updating takes less than a minute:</p>
       <div style="text-align: center; margin: 30px 0;">
         <a href="${escapeHtml(preferencesUrl)}" style="display: inline-block; background-color: #BD9A32; color: #090806; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; text-decoration: none; padding: 14px 28px; border-radius: 12px;">Complete Your Profile</a>
       </div>
-      <p style="font-size: 13px; color: rgba(241, 236, 224, 0.5);">If you prefer to stay as a simple subscriber with no collector details, no action is needed — you will still receive our regular Watch List dispatches.</p>
+      <p style="font-size: 13px; color: rgba(241, 236, 224, 0.5);">If you prefer to stay as a simple subscriber with no collector details, no action is needed. You will still receive our regular Watch List dispatches.</p>
       <p style="margin-bottom: 0;">Wear them in good health,<br><strong>The Watch Alley Team</strong></p>
     </div>
   `;
 
   const bodyText = `Hi${greetingName},
 
-We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste — brands you follow, your budget, and where you're based — we can surface pieces that actually match your eye instead of sending everything.
+We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste (such as the brands you follow, your budget, and where you are based), we can surface pieces that actually match your eye instead of sending everything.
 
 Update your profile here: ${preferencesUrl}
 
-If you prefer to stay as a simple subscriber with no collector details, no action is needed — you will still receive our regular Watch List dispatches.
+If you prefer to stay as a simple subscriber with no collector details, no action is needed. You will still receive our regular Watch List dispatches.
 
 Wear them in good health,
 The Watch Alley Team

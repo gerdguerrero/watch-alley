@@ -19,15 +19,15 @@ export default function WatchListPage() {
         {/* Background texture */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 opacity-[0.11]"
+          className="absolute inset-0 opacity-[0.18]"
           style={{
-            backgroundImage: "url(/brand/background-3.webp)",
+            backgroundImage: "url(/brand/background-2.webp)",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,7,6,0.97),rgba(8,7,6,0.70)_50%,rgba(180,120,60,0.13)_85%,rgba(245,158,11,0.06))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,7,6,0.92),rgba(8,7,6,0.65)_50%,rgba(180,120,60,0.12)_85%,rgba(245,158,11,0.04))]" />
         {/* Ambient glow behind the form card */}
         <div
           aria-hidden="true"
@@ -51,14 +51,8 @@ export default function WatchListPage() {
               {[
                 ["Curated drops", "Available pieces before they get buried in the feed."],
                 ["Rare finds", "Alerts for references that do not sit around for long."],
-                [
-                  "Collector notes",
-                  "A tighter read on condition, provenance, and taste.",
-                ],
-                [
-                  "Sourcing",
-                  "A structured way to tell us what to hunt for next.",
-                ],
+                ["Collector notes", "A tighter read on condition, provenance, and taste."],
+                ["Sourcing", "A structured way to tell us what to hunt for next."],
               ].map(([title, body]) => (
                 <div key={title} className="border-t border-amber-300/15 pt-4">
                   <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300">
@@ -75,13 +69,10 @@ export default function WatchListPage() {
             id="join"
             className="rounded-2xl border border-amber-300/15 bg-[#0d0b09]/80 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl md:p-8"
           >
-            <h2 className="font-serif text-3xl leading-tight text-cream">
-              Join The Watch List
-            </h2>
+            <h2 className="font-serif text-3xl leading-tight text-cream">Join The Watch List</h2>
             <p className="mt-3 text-sm leading-7 text-cream-60">
-              Share the broad shape of what catches your eye. Already subscribed
-              with only an email? Use the same address here and we will update your
-              collector details.
+              Share the broad shape of what catches your eye. Already subscribed with only an email?
+              Use the same address here and we will update your collector details.
             </p>
             <div className="mt-7">
               <WatchListSignupForm
@@ -108,9 +99,8 @@ export default function WatchListPage() {
               Looking for a specific reference?
             </h2>
             <p className="mt-6 text-[15px] leading-7 text-cream-60">
-              Send a structured request with your budget, timing, condition
-              preference, and the details that matter. The brief becomes part of the
-              sourcing pipeline.
+              Send a structured request with your budget, timing, condition preference, and the
+              details that matter. The brief becomes part of the sourcing pipeline.
             </p>
             <Link
               href="/sold"

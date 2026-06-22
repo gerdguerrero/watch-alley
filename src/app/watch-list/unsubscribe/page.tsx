@@ -26,7 +26,7 @@ function StatusView({ status }: { status: string }) {
         </h1>
         <p className="mt-6 text-[16px] leading-8 text-cream-60">
           You will no longer receive Watch List emails. If you change your mind, you can rejoin
-          anytime — your collector details will be restored.
+          anytime. Your collector details will be restored.
         </p>
         <RejoinForm />
       </>
@@ -207,7 +207,7 @@ function ConfirmationView({ token }: { token: string }) {
       {/* Feedback form — optional */}
       <div className="mt-8 border-t border-amber-300/15 pt-6">
         <p className="text-sm leading-6 text-cream-60">
-          Help us improve — why are you unsubscribing?{" "}
+          Help us improve: why are you unsubscribing?{" "}
           <span className="text-cream-60/50">(optional)</span>
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

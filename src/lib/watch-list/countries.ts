@@ -12,10 +12,7 @@ export function countryCodeToFlag(code: string): string {
   if (code.length !== 2) return "";
   const a = "A".charCodeAt(0);
   const base = 0x1f1e6;
-  return String.fromCodePoint(
-    base + (code.charCodeAt(0) - a),
-    base + (code.charCodeAt(1) - a)
-  );
+  return String.fromCodePoint(base + (code.charCodeAt(0) - a), base + (code.charCodeAt(1) - a));
 }
 
 // Sorted alphabetically by name for usability.

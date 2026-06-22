@@ -186,9 +186,7 @@ export function WatchListSignupForm({
             </div>
           </div>
 
-          <label
-            className="flex items-start gap-3 text-left text-cream-60 text-[11px] leading-5"
-          >
+          <label className="flex items-start gap-3 text-left text-cream-60 text-[11px] leading-5">
             <input
               type="checkbox"
               name="consentAccepted"
@@ -229,8 +227,8 @@ export function WatchListSignupForm({
         </label>
       </div>
 
-      {/* Row 1: Name | Email | Country */}
-      <div className={`grid gap-4 ${stacked ? "grid-cols-1" : "md:grid-cols-3"}`}>
+      {/* Row 1: Name | Email | Country (stacked vertically to prevent compression) */}
+      <div className="grid gap-4 grid-cols-1">
         <label className="flex flex-col gap-2">
           <FieldLabel required>Name</FieldLabel>
           <input
@@ -267,14 +265,12 @@ export function WatchListSignupForm({
       <label className="flex flex-col gap-2">
         <FieldLabel>WhatsApp number</FieldLabel>
         <p className="text-[11px] leading-5 text-cream-60/60">
-          Optional — we&apos;ll only message you about pieces that match your taste.
+          Optional. We&apos;ll only message you about pieces that match your taste.
         </p>
         <div className="flex items-stretch gap-0">
           {/* Country code badge */}
           <div className="flex items-center gap-1.5 shrink-0 rounded-l-xl border border-r-0 border-amber-300/15 bg-black/35 px-3.5 py-3">
-            <span className="text-base leading-none">
-              {countryCodeToFlag(selectedCountryCode)}
-            </span>
+            <span className="text-base leading-none">{countryCodeToFlag(selectedCountryCode)}</span>
             <span className="text-sm text-cream-60 font-mono">{phonePrefix}</span>
           </div>
           <input
@@ -402,7 +398,7 @@ export function WatchListSignupForm({
               <textarea
                 className={`${inputBase} min-h-28 resize-y`}
                 name="notes"
-                placeholder="References you're hunting, case sizes, dial colors — anything that helps us curate for you."
+                placeholder="References you're hunting, case sizes, dial colors, or anything that helps us curate for you."
               />
             </label>
           </div>
@@ -410,12 +406,12 @@ export function WatchListSignupForm({
       )}
 
       {/* Consent */}
-      <label className="flex items-start gap-3 text-left text-cream-60 text-[12px] leading-5">
+      <label className="flex items-start gap-3 text-left text-cream-60 text-[12px] leading-5 my-2 cursor-pointer select-none">
         <input
           type="checkbox"
           name="consentAccepted"
           required
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-amber-300/30 bg-black accent-amber-300"
+          className="mt-1 h-4 w-4 shrink-0 rounded border-amber-300/30 bg-black accent-amber-300 cursor-pointer"
         />
         <span>{WATCH_LIST_CONSENT_TEXT}</span>
       </label>
