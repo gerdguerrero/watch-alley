@@ -1137,6 +1137,14 @@ code {
   color: var(--cream);
   margin: 8px 0 6px;
 }
+.admin-dashboard-note {
+  max-width: 740px;
+  margin: 6px 0 0;
+  color: var(--cream-60);
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
 .admin-dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1953,6 +1961,14 @@ code {
   font-style: italic;
   color: var(--cream-60);
   margin: 0;
+}
+.dashboard-card-note {
+  margin: 0;
+  color: var(--cream-60);
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 /* Admins list rows: row layout with right-aligned remove button, not a stack. */

@@ -3551,6 +3551,7 @@ function setDashboardKpiState(key, state) {
 }
 
 const ACTIVITY_KIND_LABEL = {
+  intent: 'INTENT',
   inquiry: 'INQUIRY',
   sold: 'SOLD',
   journal: 'JOURNAL',
@@ -3580,6 +3581,7 @@ async function loadDashboard() {
 }
 
 function renderDashboard(data) {
+  const intent = data.intent || {};
   const inq = data.inquiries || {};
   const repl = data.replySla || {};
   const conv = data.conversion || {};
@@ -3596,11 +3598,13 @@ function renderDashboard(data) {
   }
 
   // KPI tiles
-  const last7 = Number(inq.last7 || 0);
-  const last30 = Number(inq.last30 || 0);
-  setDashboardKpi('inquiries.last7', last7);
-  setDashboardKpi('inquiries.last30Foot', `${last30} in the last 30 days`);
-  setDashboardKpiState('inquiries.last7', last7 > 0 ? 'good' : 'quiet');
+  const intentLast7 = Number(intent.last7 ?? inq.last7 ?? 0);
+  const intentLast30 = Number(intent.last30 ?? inq.last30 ?? 0);
+  const intentUnique30 = Number(intent.unique_last30 || 0);
+  const loggedLast30 = Number(inq.last30 || 0);
+  setDashboardKpi('inquiries.last7', intentLast7);
+  setDashboardKpi('inquiries.last30Foot', `${intentLast30} clicks in 30d${intentUnique30 ? ` · ${intentUnique30} visitors` : ''} · ${loggedLast30} logged CRM`);
+  setDashboardKpiState('inquiries.last7', intentLast7 > 0 ? 'good' : 'quiet');
 
   const open = Number(inq.open_new || 0) + Number(inq.open_contacted || 0) + Number(inq.open_viewing || 0) + Number(inq.open_reserved || 0);
   setDashboardKpi('inquiries.open', open);
@@ -3610,14 +3614,14 @@ function renderDashboard(data) {
     inq.open_viewing ? `${inq.open_viewing} viewing` : null,
     inq.open_reserved ? `${inq.open_reserved} reserved` : null,
   ].filter(Boolean);
-  setDashboardKpi('inquiries.openFoot', openParts.length ? openParts.join(' · ') : 'no open inquiries');
+  setDashboardKpi('inquiries.openFoot', openParts.length ? openParts.join(' · ') : 'no open CRM leads');
   setDashboardKpiState('inquiries.open', open > 0 ? 'attention' : 'good');
 
   const won = Number(conv.won || 0);
   const closed = Number(conv.closed || 0);
   const rate = closed > 0 ? Math.round((won / closed) * 100) : null;
   setDashboardKpi('conversion.rate', rate == null ? '-' : `${rate}%`);
-  setDashboardKpi('conversion.foot', closed > 0 ? `${won} won of ${closed} closed` : 'no closed inquiries yet');
+  setDashboardKpi('conversion.foot', closed > 0 ? `${won} won of ${closed} closed CRM leads` : 'no closed CRM leads yet');
   setDashboardKpiState('conversion.rate', rate == null ? 'quiet' : (rate >= 40 ? 'good' : 'attention'));
 
   const median = Number(repl.medianSeconds);
@@ -3625,7 +3629,7 @@ function renderDashboard(data) {
   const total = Number(repl.inquiryCount || 0);
   const hasReplies = replied > 0 && Number.isFinite(median);
   setDashboardKpi('replySla.median', hasReplies ? formatDuration(median) : '-');
-  setDashboardKpi('replySla.foot', total > 0 ? (replied > 0 ? `${replied} of ${total} replied` : 'no replies yet') : 'no inquiries yet');
+  setDashboardKpi('replySla.foot', total > 0 ? (replied > 0 ? `${replied} of ${total} logged leads replied` : 'no logged replies yet') : 'no logged CRM leads yet');
   setDashboardKpiState('replySla.median', !hasReplies ? 'quiet' : (median <= 86400 ? 'good' : (median <= 172800 ? 'attention' : 'danger')));
 
   setDashboardKpi('inventory.soldThisMonth', Number(inv.sold_this_month || 0));
@@ -3639,6 +3643,11 @@ function renderDashboard(data) {
   setDashboardKpi('journal.published', Number(journal.published || 0));
   setDashboardKpi('journal.drafts', Number(journal.drafts || 0));
   setDashboardKpi('journal.scheduled', Number(journal.scheduled || 0));
+  const latestTitle = (journal.latestTitle || '').trim();
+  const latestWhen = formatRelativeTime(journal.latestPublishedAt);
+  setDashboardKpi('journal.latest', latestTitle
+    ? `${latestTitle}${latestWhen ? ` · ${latestWhen}` : ''}`
+    : 'No published journal posts yet');
 
   renderTopWatches(top);
   renderLostReasons(lost);
@@ -3647,7 +3656,7 @@ function renderDashboard(data) {
 
 function renderTopWatches(rows) {
   if (!els.dashboardTopWatches) return;
-  const max = rows.reduce((m, r) => Math.max(m, Number(r.inquiries || 0)), 0);
+  const max = rows.reduce((m, r) => Math.max(m, Number(r.intents ?? r.inquiries ?? 0)), 0);
   if (rows.length === 0) {
     els.dashboardTopWatches.innerHTML = '';
     if (els.dashboardTopWatchesEmpty) els.dashboardTopWatchesEmpty.hidden = false;
@@ -3655,17 +3664,19 @@ function renderTopWatches(rows) {
   }
   if (els.dashboardTopWatchesEmpty) els.dashboardTopWatchesEmpty.hidden = true;
   els.dashboardTopWatches.innerHTML = rows.map((r) => {
-    const inquiries = Number(r.inquiries || 0);
+    const inquiries = Number(r.intents ?? r.inquiries ?? 0);
+    const visitors = Number(r.visitors || 0);
     const won = Number(r.won || 0);
     const pct = max > 0 ? Math.round((inquiries / max) * 100) : 0;
     const label = (r.label || '').trim() || (r.watch_id ? r.watch_id : 'Unknown listing');
+    const meta = `${inquiries} MSG${visitors ? ` · ${visitors} VIS` : ''}${won ? ` · ${won} WON` : ''}`;
     return `
       <li>
         <div class="dashboard-list-bar-wrapper">
           <span class="dashboard-list-label">${escapeHtml(label)}</span>
           <span class="dashboard-list-bar" style="width: ${pct}%"></span>
         </div>
-        <span class="dashboard-list-meta">${inquiries} INQ${won ? ` · ${won} WON` : ''}</span>
+        <span class="dashboard-list-meta">${escapeHtml(meta)}</span>
       </li>
     `;
   }).join('');

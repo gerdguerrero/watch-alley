@@ -65,6 +65,53 @@ function buildMessengerUrl(watch: Watch, fullTitle: string, listingUrl?: string)
   return `https://m.me/${MESSENGER_USERNAME}?text=${encodeURIComponent(text)}`;
 }
 
+function getVisitorUid() {
+  try {
+    let uid = localStorage.getItem("wa_uid") || "";
+    if (!uid) {
+      uid = crypto.randomUUID();
+      localStorage.setItem("wa_uid", uid);
+    }
+    return uid;
+  } catch {
+    return "";
+  }
+}
+
+function trackInquiryIntent(
+  watch: Watch,
+  fullTitle: string,
+  targetUrl: string,
+  listingUrl: string
+) {
+  const messageText = buildInquiryMessage(watch, fullTitle, listingUrl);
+  const payload = JSON.stringify({
+    watchId: watch.id,
+    watchSlug: watch.slug,
+    watchTitle: fullTitle,
+    watchReference: watch.reference,
+    watchPricePhp: watch.price,
+    watchStatus: watch.status,
+    messageText,
+    targetUrl,
+    sourcePath: `${window.location.pathname}${window.location.search}`,
+    referrer: document.referrer || "",
+    visitorUid: getVisitorUid(),
+  });
+
+  if (navigator.sendBeacon) {
+    const blob = new Blob([payload], { type: "application/json" });
+    navigator.sendBeacon("/api/track-inquiry-intent", blob);
+    return;
+  }
+
+  fetch("/api/track-inquiry-intent", {
+    method: "POST",
+    body: payload,
+    keepalive: true,
+  }).catch(() => {});
+}
+
 interface InquiryButtonsProps {
   watch: Watch;
   /** Clean "Brand + name" title (brand-deduped) as shown in the page heading. */
@@ -78,7 +125,10 @@ export function InquiryButtons({ watch, title }: InquiryButtonsProps) {
   const upgradeWithLiveUrl = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       if (typeof window === "undefined") return;
-      event.currentTarget.href = buildMessengerUrl(watch, title, window.location.href);
+      const listingUrl = window.location.href;
+      const messengerUrl = buildMessengerUrl(watch, title, listingUrl);
+      event.currentTarget.href = messengerUrl;
+      trackInquiryIntent(watch, title, messengerUrl, listingUrl);
     },
     [watch, title]
   );
