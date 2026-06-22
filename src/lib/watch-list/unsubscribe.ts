@@ -64,7 +64,7 @@ export function verifyUnsubscribeToken(token: string) {
   }
 }
 
-export async function unsubscribeWatchListEmail(email: string) {
+export async function unsubscribeWatchListEmail(email: string, reason?: string) {
   const normalizedEmail = normalizeEmail(email);
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalizedEmail)) {
     throw new Error("Invalid email address.");
@@ -73,6 +73,7 @@ export async function unsubscribeWatchListEmail(email: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase.rpc("service_unsubscribe_watch_list_subscriber", {
     p_email: normalizedEmail,
+    p_reason: reason || null,
   });
 
   if (error) throw new Error(error.message);
