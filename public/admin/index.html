@@ -147,6 +147,24 @@
             <div class="kpi-value" data-kpi="inventory.published">-</div>
             <div class="kpi-foot" data-kpi="inventory.publishedFoot">published / drafts</div>
           </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Watch List subscribers</div>
+            <div class="kpi-value" data-kpi="subscribers.active">-</div>
+            <div class="kpi-foot" data-kpi="subscribers.activeFoot">active subscribers</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">With preferences</div>
+            <div class="kpi-value" data-kpi="subscribers.withPrefs">-</div>
+            <div class="kpi-foot" data-kpi="subscribers.withPrefsFoot">completed collector profile</div>
+          </article>
+
+          <article class="kpi-tile">
+            <div class="kpi-label">Missing profile</div>
+            <div class="kpi-value" data-kpi="subscribers.missingProfile">-</div>
+            <div class="kpi-foot" data-kpi="subscribers.missingProfileFoot">no name, country, or preferences</div>
+          </article>
         </div>
 
         <div class="admin-dashboard-rows">
@@ -174,6 +192,33 @@
               <div><dt>Published</dt><dd data-kpi="journal.published">-</dd></div>
               <div><dt>Drafts</dt><dd data-kpi="journal.drafts">-</dd></div>
               <div><dt>Scheduled</dt><dd data-kpi="journal.scheduled">-</dd></div>
+            </dl>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Watch List · By Country</div>
+            <ul id="admin-dashboard-subscriber-countries" class="dashboard-list"></ul>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-subscriber-countries-empty" hidden>No subscriber data yet.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Watch List · By Source</div>
+            <ul id="admin-dashboard-subscriber-sources" class="dashboard-list"></ul>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-subscriber-sources-empty" hidden>No subscriber data yet.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Watch List · Recent Signups</div>
+            <ol id="admin-dashboard-subscriber-recent" class="dashboard-list dashboard-activity"></ol>
+            <p class="admin-meta dashboard-empty" id="admin-dashboard-subscriber-recent-empty" hidden>No subscribers yet.</p>
+          </article>
+
+          <article class="admin-card admin-dashboard-row">
+            <div class="admin-eyebrow">Newsletter Issues</div>
+            <dl class="dashboard-keyvals" id="admin-dashboard-newsletter">
+              <div><dt>Sent</dt><dd data-kpi="newsletter.sent">-</dd></div>
+              <div><dt>Drafts</dt><dd data-kpi="newsletter.drafts">-</dd></div>
+              <div><dt>Queued</dt><dd data-kpi="newsletter.queued">-</dd></div>
             </dl>
           </article>
         </div>

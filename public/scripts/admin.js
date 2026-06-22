@@ -110,6 +110,14 @@ const els = {
   dashboardActivity: document.getElementById('admin-dashboard-activity'),
   dashboardActivityEmpty: document.getElementById('admin-dashboard-activity-empty'),
   dashboardJournal: document.getElementById('admin-dashboard-journal'),
+  // Dashboard — subscriber + newsletter sections
+  dashboardSubCountries: document.getElementById('admin-dashboard-subscriber-countries'),
+  dashboardSubCountriesEmpty: document.getElementById('admin-dashboard-subscriber-countries-empty'),
+  dashboardSubSources: document.getElementById('admin-dashboard-subscriber-sources'),
+  dashboardSubSourcesEmpty: document.getElementById('admin-dashboard-subscriber-sources-empty'),
+  dashboardSubRecent: document.getElementById('admin-dashboard-subscriber-recent'),
+  dashboardSubRecentEmpty: document.getElementById('admin-dashboard-subscriber-recent-empty'),
+  dashboardNewsletter: document.getElementById('admin-dashboard-newsletter'),
   // Journal tab
   journalList: document.getElementById('journal-list'),
   journalCount: document.getElementById('journal-count'),
@@ -3547,6 +3555,14 @@ async function loadDashboard() {
     const { data, error } = await supabase.rpc('admin_dashboard_metrics');
     if (error) throw error;
     renderDashboard(data || {});
+
+    // Also load subscriber + newsletter metrics
+    try {
+      const { data: subData, error: subError } = await supabase.rpc('admin_subscriber_metrics');
+      if (!subError && subData) renderSubscriberMetrics(subData);
+    } catch {
+      // Subscriber metrics are non-critical — dashboard still works without them
+    }
   } catch (error) {
     setStatus(`Failed to load dashboard: ${error.message || error}`, 'error');
   } finally {
@@ -3702,6 +3718,102 @@ function renderActivity(rows) {
       </li>
     `;
   }).join('');
+}
+
+function renderSubscriberMetrics(data) {
+  const subs = data.subscribers || {};
+  const countries = Array.isArray(data.byCountry) ? data.byCountry : [];
+  const sources = Array.isArray(data.bySource) ? data.bySource : [];
+  const recent = Array.isArray(data.recentSignups) ? data.recentSignups : [];
+  const newsletter = data.newsletter || {};
+
+  // KPI tiles
+  setDashboardKpi('subscribers.active', subs.total_active ?? '-');
+  setDashboardKpi('subscribers.activeFoot', `${subs.total_unsubscribed || 0} unsubscribed · ${subs.total_bounced || 0} bounced`);
+
+  setDashboardKpi('subscribers.withPrefs', subs.with_preferences ?? '-');
+  setDashboardKpi('subscribers.withPrefsFoot', `${subs.without_preferences || 0} without preferences`);
+
+  setDashboardKpi('subscribers.missingProfile', subs.missing_profile ?? '-');
+  setDashboardKpi('subscribers.missingProfileFoot', 'no name, country, or preferences');
+
+  // Newsletter keyvals
+  setDashboardKpi('newsletter.sent', newsletter.total_sent ?? '-');
+  setDashboardKpi('newsletter.drafts', newsletter.total_drafts ?? '-');
+  setDashboardKpi('newsletter.queued', newsletter.total_queued ?? '-');
+
+  // By country list
+  if (els.dashboardSubCountries) {
+    const maxCountry = countries.reduce((m, r) => Math.max(m, Number(r.cnt || 0)), 0);
+    if (countries.length === 0) {
+      els.dashboardSubCountries.innerHTML = '';
+      if (els.dashboardSubCountriesEmpty) els.dashboardSubCountriesEmpty.hidden = false;
+    } else {
+      if (els.dashboardSubCountriesEmpty) els.dashboardSubCountriesEmpty.hidden = true;
+      els.dashboardSubCountries.innerHTML = countries.map((r) => {
+        const cnt = Number(r.cnt || 0);
+        const pct = maxCountry > 0 ? Math.round((cnt / maxCountry) * 100) : 0;
+        const label = `${r.country || 'Unknown'}`;
+        return `
+          <li>
+            <div class="dashboard-list-bar-wrapper">
+              <span class="dashboard-list-label">${escapeHtml(label)}</span>
+              <span class="dashboard-list-bar" style="width: ${pct}%"></span>
+            </div>
+            <span class="dashboard-list-meta">${cnt}</span>
+          </li>
+        `;
+      }).join('');
+    }
+  }
+
+  // By source list
+  if (els.dashboardSubSources) {
+    const maxSource = sources.reduce((m, r) => Math.max(m, Number(r.cnt || 0)), 0);
+    if (sources.length === 0) {
+      els.dashboardSubSources.innerHTML = '';
+      if (els.dashboardSubSourcesEmpty) els.dashboardSubSourcesEmpty.hidden = false;
+    } else {
+      if (els.dashboardSubSourcesEmpty) els.dashboardSubSourcesEmpty.hidden = true;
+      els.dashboardSubSources.innerHTML = sources.map((r) => {
+        const cnt = Number(r.cnt || 0);
+        const pct = maxSource > 0 ? Math.round((cnt / maxSource) * 100) : 0;
+        const label = r.source || 'unknown';
+        return `
+          <li>
+            <div class="dashboard-list-bar-wrapper">
+              <span class="dashboard-list-label">${escapeHtml(label)}</span>
+              <span class="dashboard-list-bar" style="width: ${pct}%"></span>
+            </div>
+            <span class="dashboard-list-meta">${cnt}</span>
+          </li>
+        `;
+      }).join('');
+    }
+  }
+
+  // Recent signups
+  if (els.dashboardSubRecent) {
+    if (recent.length === 0) {
+      els.dashboardSubRecent.innerHTML = '';
+      if (els.dashboardSubRecentEmpty) els.dashboardSubRecentEmpty.hidden = false;
+    } else {
+      if (els.dashboardSubRecentEmpty) els.dashboardSubRecentEmpty.hidden = true;
+      els.dashboardSubRecent.innerHTML = recent.map((r) => {
+        const name = (r.first_name || '').trim();
+        const email = (r.email || '').trim();
+        const label = name ? `${name} · ${email}` : email;
+        const when = formatRelativeTime(r.created_at);
+        return `
+          <li>
+            <span class="dashboard-activity-kind">SIGNUP</span>
+            <span class="dashboard-activity-label">${escapeHtml(label)}</span>
+            <span class="dashboard-activity-when">${escapeHtml(when)}</span>
+          </li>
+        `;
+      }).join('');
+    }
+  }
 }
 
 if (els.dashboardRefresh) {
