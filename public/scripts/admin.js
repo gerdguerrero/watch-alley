@@ -1713,6 +1713,11 @@ function escapeHtml(value) {
   }[char]));
 }
 function escapeAttr(value) { return escapeHtml(value); }
+function getCountryFlagUrl(countryCode) {
+  var code = String(countryCode || '').trim().toLowerCase();
+  if (!/^[a-z]{2}$/.test(code)) return '';
+  return 'https://flagcdn.com/w40/' + code + '.png';
+}
 function formatPrice(value) {
   if (value == null) return '—';
   return Number(value).toLocaleString('en-PH', { maximumFractionDigits: 0 });
@@ -2188,23 +2193,9 @@ async function loadVercelAnalytics({ force = false } = {}) {
       summary.averageDailyPageviews,
       ' average daily pageviews'
     );
-    animateNumber(document.querySelector('[data-analytics="previousPageviews"]'), previous);
     animateNumber(document.querySelector('[data-analytics="todayPageviews"]'), summary.todayPageviews);
     setAnalyticsText('primaryLabel', 'Pageviews · ' + rangeLabel);
-
-    var trendText = delta === null ? 'No previous-period baseline' : (delta >= 0 ? '+' : '') + delta + '% vs previous period';
-    setAnalyticsText('rangeTrend', trendText);
-
-    var badge = document.querySelector('[data-analytics="rangeBadge"]');
-    if (badge) {
-      if (delta === null) {
-        setBadge(badge, '', 'am-badge');
-      } else if (delta >= 0) {
-        setBadge(badge, '\u25B2 +' + delta + '%', 'am-badge am-badge-up');
-      } else {
-        setBadge(badge, '\u25BC ' + delta + '%', 'am-badge am-badge-down');
-      }
-    }
+    setAnalyticsText('rangeTrend', '');
     setAnalyticsText('eventCount', 'Custom events: ' + formatInt(summary.totalEvents));
 
     if (document.getElementById('analytics-range-meta') && body.range) {
@@ -2262,19 +2253,22 @@ async function loadVercelAnalytics({ force = false } = {}) {
   } finally {
     analyticsInFlight = false;
     document.getElementById('analytics-refresh-btn').disabled = false;
+    loadUniqueVisitors();
     loadPopularWatches();
+    loadVisitorCountries();
   }
 }
 
 async function loadPopularWatches() {
   var list = document.getElementById('popular-watches-list');
   var status = document.getElementById('popular-watches-status');
+  var periodEl = document.querySelector('.pw-pill.is-active');
   if (!list) return;
-  if (status) status.textContent = 'Loading…';
+  if (status) status.textContent = 'Loading\u2026';
   list.innerHTML = '';
-  // Add shimmer on the popular watches card
   var pwCard = list.closest('.admin-card');
   if (pwCard) pwCard.classList.add('analytics-skeleton');
+  var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
 
   try {
     var { data: { session } } = await supabase.auth.getSession();
@@ -2285,7 +2279,7 @@ async function loadPopularWatches() {
       return;
     }
 
-    var resp = await fetch('/api/admin/popular-watches', {
+    var resp = await fetch('/api/admin/popular-watches?period=' + period, {
       headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
@@ -2299,13 +2293,11 @@ async function loadPopularWatches() {
     }
 
     var watches = Array.isArray(body.watches) ? body.watches : [];
-
     if (watches.length === 0) {
       if (status) status.textContent = 'No watch view data yet. Views are tracked as customers browse.';
       list.innerHTML = '';
       return;
     }
-
     if (status) status.hidden = true;
 
     var maxViews = Math.max(1, watches[0].view_count);
@@ -2320,7 +2312,7 @@ async function loadPopularWatches() {
         '<div class="pw-info">' +
           '<span class="pw-name">' + escapeHtml(label) + '</span>' +
           '<span class="pw-meta">' + formatInt(w.view_count) + ' views' +
-            (priceStr ? '  ·  ' + priceStr : '') +
+            (priceStr ? '  \u00B7  ' + priceStr : '') +
           '</span>' +
         '</div>' +
         '<span class="pw-bar-track"><span class="pw-bar-fill" style="width:' + pct + '%"></span></span>' +
@@ -2329,14 +2321,9 @@ async function loadPopularWatches() {
     }
     list.innerHTML = html;
 
-    // Staggered list entrance (GSAP with fallback)
     if (typeof gsap !== 'undefined') {
       try {
-        gsap.fromTo(
-          list.querySelectorAll('li'),
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
-        );
+        gsap.fromTo(list.querySelectorAll('li'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' });
       } catch (_) {
         list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
       }
@@ -2349,6 +2336,148 @@ async function loadPopularWatches() {
     list.innerHTML = '';
   }
 }
+
+// Unique visitors KPI
+async function loadUniqueVisitors() {
+  var el = document.querySelector('[data-analytics="uniqueVisitors"]');
+  var foot = document.querySelector('[data-analytics="visitorsFoot"]');
+  if (!el) return;
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) { el.textContent = '—'; return; }
+
+    var resp = await fetch('/api/admin/unique-visitors?period=7d', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+
+    if (body.ok && body.count > 0) {
+      if (foot) foot.textContent = 'Browsers who visited any watch page';
+      if (typeof gsap !== 'undefined') {
+        el.textContent = '0';
+        try {
+          gsap.fromTo(el, { textContent: 0 }, {
+            textContent: body.count,
+            duration: 1.2,
+            ease: 'power2.out',
+            snap: { textContent: 1 },
+            onUpdate: function () { el.textContent = formatInt(Math.round(this.targets()[0].textContent)); },
+          });
+          return;
+        } catch (_) {}
+      }
+      el.textContent = formatInt(body.count);
+    } else {
+      el.textContent = '0';
+      if (foot && body && !body.ok) foot.textContent = 'Run migration: visitor_ids table';
+    }
+  } catch { el.textContent = '—'; }
+}
+
+// Period pill switching
+document.querySelector('#pw-period-pills')?.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pw-pill');
+  if (!btn) return;
+  document.querySelectorAll('.pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  btn.classList.add('is-active');
+  loadPopularWatches();
+});
+
+// Visitor countries
+async function loadVisitorCountries() {
+  var list = document.getElementById('visitor-countries-list');
+  var status = document.getElementById('visitor-countries-status');
+  var periodEl = document.querySelector('#vc-period-pills .pw-pill.is-active');
+  if (!list) return;
+  if (status) status.textContent = 'Loading\u2026';
+  list.innerHTML = '';
+  var card = list.closest('.admin-card');
+  if (card) card.classList.add('analytics-skeleton');
+  var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) {
+      if (status) status.textContent = 'Sign in to see country data.';
+      if (card) card.classList.remove('analytics-skeleton');
+      return;
+    }
+
+    var resp = await fetch('/api/admin/visitor-countries?period=' + period, {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+    if (card) card.classList.remove('analytics-skeleton');
+
+    if (!body.ok) {
+      if (status) status.textContent = body.error || body.message || 'Could not load country data.';
+      list.innerHTML = '';
+      return;
+    }
+
+    var countries = Array.isArray(body.countries) ? body.countries : [];
+    if (countries.length === 0) {
+      if (status) status.textContent = 'No country data yet. Will populate as visitors browse the site.';
+      list.innerHTML = '';
+      return;
+    }
+
+    if (status) status.hidden = true;
+
+    var html = '';
+    for (var i = 0; i < countries.length; i++) {
+      var c = countries[i];
+      var countryCode = String(c.country || '').trim().toUpperCase();
+      var flagUrl = getCountryFlagUrl(countryCode);
+      var flagHtml = flagUrl
+        ? '<img class="vc-flag-img" src="' + escapeAttr(flagUrl) + '" srcset="' + escapeAttr(flagUrl.replace('/w40/', '/w80/')) + ' 2x" width="24" height="18" loading="lazy" alt="' + escapeAttr(countryCode + ' flag') + '" data-fallback="' + escapeAttr(countryCode) + '">'
+        : '<span class="vc-flag-code">' + escapeHtml(countryCode || c.flag || '—') + '</span>';
+      html += '<li>' +
+        '<span class="vc-rank">' + (i + 1) + '</span>' +
+        '<span class="vc-flag" title="' + escapeAttr(countryCode) + '">' + flagHtml + '</span>' +
+        '<span class="vc-name">' + escapeHtml(c.label) + '</span>' +
+        '<span class="vc-bar-track"><span class="vc-bar-fill" style="width:' + c.pct + '%"></span></span>' +
+        '<span class="vc-count">' + formatInt(c.count) + '</span>' +
+        '<span class="vc-share">' + c.share + '%</span>' +
+        '</li>';
+    }
+    list.innerHTML = html;
+    list.querySelectorAll('.vc-flag-img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        var fallback = document.createElement('span');
+        fallback.className = 'vc-flag-code';
+        fallback.textContent = img.getAttribute('data-fallback') || '';
+        img.replaceWith(fallback);
+      }, { once: true });
+    });
+
+    if (typeof gsap !== 'undefined') {
+      try {
+        gsap.fromTo(list.querySelectorAll('li'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' });
+      } catch (_) {
+        list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+      }
+    } else {
+      list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+    }
+  } catch (err) {
+    if (card) card.classList.remove('analytics-skeleton');
+    if (status) status.textContent = err.message || 'Failed to load country data.';
+    list.innerHTML = '';
+  }
+}
+
+// Visitor countries period pills
+document.querySelector('#vc-period-pills')?.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pw-pill');
+  if (!btn) return;
+  document.querySelectorAll('#vc-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  btn.classList.add('is-active');
+  loadVisitorCountries();
+});
 
 if (els.analyticsRangeSelect) {
   updateAnalyticsRangeControls();
