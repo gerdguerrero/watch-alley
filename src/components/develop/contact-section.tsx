@@ -104,7 +104,7 @@ export function ContactSection() {
                 <span className="font-light text-cream-60">your next piece?</span>
               </h2>
               <p className="mx-auto mb-8 max-w-md text-[15px] leading-relaxed text-cream-60 lg:mx-0">
-                Tell us what you are looking for — reference, budget, wrist size, occasion, or
+                Tell us what you are looking for: reference, budget, wrist size, occasion, or
                 simply the feeling you want from the watch. We will guide you toward the right fit.
               </p>
 

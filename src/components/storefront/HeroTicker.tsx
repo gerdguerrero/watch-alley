@@ -1,5 +1,5 @@
 /**
- * Editorial ticker — slow marquee under the hero. Trust micro-copy that
+ * Editorial ticker - slow marquee under the hero. Trust micro-copy that
  * never asks for a click. Pauses on hover, frozen for motion-reduce users.
  *
  * Pure CSS animation via inline <style>. No client JS needed. The track

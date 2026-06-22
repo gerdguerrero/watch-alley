@@ -26,7 +26,7 @@ export default async function SoldPage({
 
   const brands = collectBrands(all);
   const filtered = brand ? all.filter((w) => w.brand === brand) : all;
-  // Default to newest sales first — sold_at is "YYYY-MM" so lexicographic compare works.
+  // Default to newest sales first - sold_at is "YYYY-MM" so lexicographic compare works.
   const sold = sortWatches(filtered, (sort as SortKey) || "recent");
 
   return (
@@ -34,7 +34,7 @@ export default async function SoldPage({
       <PageTitle
         title="SOLD"
         eyebrow="◆ Recently honored"
-        description="A running record of watches placed through The Watch Alley. If you missed one, message us — similar references come around."
+        description="A running record of watches placed through The Watch Alley. If you missed one, message us; similar references come around."
         variant="catalog"
       />
 

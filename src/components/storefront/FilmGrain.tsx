@@ -1,16 +1,16 @@
 /**
- * SVG film-grain overlay. Server Component — pure markup, no JS.
+ * SVG film-grain overlay. Server Component - pure markup, no JS.
  *
  * Drops over a photo to lift it from "stock product shot" to "editorial
- * magazine spread." Layered at low opacity (0.06–0.10 is the editorial
- * sweet spot). Uses feTurbulence for a calm, monochrome noise field —
+ * magazine spread." Layered at low opacity (0.06-0.10 is the editorial
+ * sweet spot). Uses feTurbulence for a calm, monochrome noise field -
  * brighter than feFractalNoise, more like fine-grain 35mm than digital
  * static.
  *
  * Parent must be `position: relative`. Grain stretches to fill.
  */
 interface FilmGrainProps {
-  /** Opacity 0–1. Editorial defaults are 0.04–0.10. */
+  /** Opacity 0-1. Editorial defaults are 0.04-0.10. */
   opacity?: number;
   /** Optional className override on the wrapper div. */
   className?: string;

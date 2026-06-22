@@ -2,7 +2,7 @@
 //
 // Why this exists: client wants USD shown alongside PHP prices, sourced "like
 // Wise" (mid-market) rather than Google's commercial rate. Wise itself has no
-// public FX endpoint, so we use exchangerate.host — a free, no-key public API
+// public FX endpoint, so we use exchangerate.host - a free, no-key public API
 // that publishes ECB-derived mid-market rates. Wise's published rate is
 // mid-market + ~0.4% spread, so this estimate is within ~0.5% of what a
 // buyer sees in the Wise app at payment time. The final amount is still
@@ -127,7 +127,7 @@
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
       // Idempotent: skip nodes already enhanced. The marker attribute keeps
-      // repeat calls cheap and — critically — prevents a feedback loop if
+      // repeat calls cheap and - critically - prevents a feedback loop if
       // anything ever observes mutations on these nodes.
       if (el.getAttribute('data-fx-applied') === '1') continue;
       var php = Number(el.getAttribute('data-price-php'));
@@ -161,7 +161,7 @@
     enhance(document);
   }
 
-  // NOTE: MutationObserver-based auto-enhancement was removed — setting
+  // NOTE: MutationObserver-based auto-enhancement was removed - setting
   // textContent on the placeholder spans counts as a childList mutation,
   // which re-triggered the observer in a tight loop and froze the page.
   // Renderers now call window.WatchAlleyFx.enhance(root) explicitly after

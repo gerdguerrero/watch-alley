@@ -1,5 +1,5 @@
 /**
- * Homepage "Available Pieces" teaser selection. Pure functions — picking runs
+ * Homepage "Available Pieces" teaser selection. Pure functions - picking runs
  * on the server (in the home page) so only the three chosen watches, not the
  * whole catalog, are serialized into the Client accordion.
  *
@@ -22,7 +22,7 @@ interface TeaserSlot {
   match: (w: Watch) => boolean;
 }
 
-// "Limited Edition" is a badge/tag, NOT a category — so it matches on `badges`,
+// "Limited Edition" is a badge/tag, NOT a category - so it matches on `badges`,
 // while Brand New / Pre-owned match on `category`. The badge route reuses the
 // catalog's `category=limited-edition` param, which /available maps to a badge
 // filter.
@@ -51,7 +51,7 @@ const PICK_ORDER = ["Limited Edition", "Pre-owned", "Brand New"] as const;
 
 /**
  * Choose one distinct watch per teaser card. A slot with no genuine match is
- * dropped rather than back-filled with an unrelated piece — the Limited Edition
+ * dropped rather than back-filled with an unrelated piece - the Limited Edition
  * card only ever shows a real limited-edition watch. Cards are returned in the
  * fixed layout order (Brand New, Pre-owned, Limited Edition).
  */

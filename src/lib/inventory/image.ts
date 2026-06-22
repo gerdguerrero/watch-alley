@@ -1,5 +1,5 @@
 /**
- * Image thumbnail resolution. Pure functions — safe in Server and Client
+ * Image thumbnail resolution. Pure functions - safe in Server and Client
  * Components.
  *
  * The stored watch photos are full-resolution (≈1800px / ~800 KB). Serving

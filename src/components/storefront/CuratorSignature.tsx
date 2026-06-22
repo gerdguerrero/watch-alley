@@ -1,6 +1,6 @@
 /**
  * Curator signoff. Editorial italic treatment with a small gold flourish
- * stroke beneath — reads as a handwritten signature without needing a
+ * stroke beneath - reads as a handwritten signature without needing a
  * separate script font load.
  *
  * Server Component.
@@ -16,7 +16,7 @@ export function CuratorSignature() {
         viewBox="0 0 120 8"
         className="h-[8px] w-[clamp(80px,8vw,120px)] text-[color:var(--color-gold)]"
       >
-        {/* A single hand-drawn flourish — slight bow + tail, the kind of
+        {/* A single hand-drawn flourish - slight bow + tail, the kind of
             line you'd see under an editor's letter signoff. */}
         <path
           d="M 2 4 C 24 8, 60 1, 100 4 C 108 5, 116 7, 118 4"

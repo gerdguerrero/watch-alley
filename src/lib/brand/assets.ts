@@ -3,7 +3,7 @@
  *
  * Everything the site references for branding flows through this one map so
  * a future palette refresh or asset rename only touches one file. Prefer the
- * SVG variants for chrome (nav, footer, social mockups) — they stay crisp at
+ * SVG variants for chrome (nav, footer, social mockups) - they stay crisp at
  * any resolution. The PNG/WebP variants are kept for hero/section imagery
  * where the design is photographic.
  */
@@ -53,10 +53,10 @@ export const BRAND_ASSETS = {
  * canvas, etc.) reference the same values without parsing CSS.
  */
 export const BRAND_COLORS = {
-  /** Deep walnut — page background / favicon background. */
+  /** Deep walnut - page background / favicon background. */
   walnut: "#13110f",
-  /** Flat brand gold — accents, bezels, brand mark fill. */
+  /** Flat brand gold - accents, bezels, brand mark fill. */
   gold: "#BD9A32",
-  /** Off-white cream — body copy on dark surfaces. */
+  /** Off-white cream - body copy on dark surfaces. */
   cream: "#F1ECE0",
 } as const;

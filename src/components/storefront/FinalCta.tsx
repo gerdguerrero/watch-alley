@@ -1,5 +1,5 @@
 /**
- * Full-width closing CTA — second invitation to message before the footer.
+ * Full-width closing CTA - second invitation to message before the footer.
  *
  * Editorial: oversized italic headline, two clear channel buttons, single
  * reassurance line under them. Server Component.

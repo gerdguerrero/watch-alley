@@ -15,7 +15,7 @@ interface ScrollRevealProps {
  * `data-wa-reveal` attribute on its wrapper when the wrapper first
  * enters the viewport. Children opt into the animation by adding the
  * `.wa-rev-rule` (scaleX rule draw) or `.wa-rev-rise` (fade + 12px rise)
- * classes — both defined in globals.css and scoped to
+ * classes - both defined in globals.css and scoped to
  * `[data-wa-reveal="true"]`.
  *
  * Honors prefers-reduced-motion (reveals immediately, no animation).

@@ -11,9 +11,9 @@ import { buildSiteJsonLd, SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from "@/lib/s
 import "./globals.css";
 
 // Develop-branch font stack (replaces the Petrona/Spectral/JetBrains_Mono set):
-//   • Playfair Display — serif, headlines + watch names, italic emphasis
-//   • Geist           — sans, body copy and UI
-//   • Geist Mono      — eyebrows, labels, all-caps tracking-wide
+//   • Playfair Display - serif, headlines + watch names, italic emphasis
+//   • Geist - sans, body copy and UI
+//   • Geist Mono - eyebrows, labels, all-caps tracking-wide
 //
 // next/font self-hosts each and registers their @font-face under the literal
 // family names ("Geist", "Geist Mono", "Playfair Display") that the Tailwind
@@ -90,7 +90,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Viewport is its own export in Next.js 16 — `themeColor` inside metadata is
+// Viewport is its own export in Next.js 16 - `themeColor` inside metadata is
 // deprecated. The walnut here matches the page background so iOS Safari's
 // chrome blends into the design instead of flashing white.
 export const viewport: Viewport = {

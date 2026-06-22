@@ -10,7 +10,7 @@ interface HeroSectionProps {
 }
 
 /**
- * Editorial hero — matches the e6419b3 visual: 100dvh height with a min of
+ * Editorial hero - matches the e6419b3 visual: 100dvh height with a min of
  * 600px, video bg cropped to the right so the dial sits over the featured
  * card column, heavy walnut L→R gradient curtain on the left so the
  * headline reads, asymmetric top/bottom padding so the body sits about
@@ -26,7 +26,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
       className="relative min-h-[calc(100svh-94px)] overflow-hidden border-b border-[color:var(--color-gold-20)]"
       style={{ background: "#070b14" }}
     >
-      {/* Background media — poster + looping video, both cropped right. */}
+      {/* Background media - poster + looping video, both cropped right. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <Image
           src="/hero-poster.jpg"
@@ -47,7 +47,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
           <source src="/hero-bg.webm" type="video/webm" />
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
-        {/* L→R curtain — heavy walnut on the left, fading over the dial on the right. */}
+        {/* L→R curtain - heavy walnut on the left, fading over the dial on the right. */}
         <div
           className="absolute inset-0"
           style={{
@@ -63,7 +63,7 @@ export function HeroSection({ featured }: HeroSectionProps) {
               "linear-gradient(180deg, rgba(7,11,20,0.35) 0%, rgba(7,11,20,0.05) 20%, rgba(7,11,20,0.05) 65%, rgba(7,11,20,0.55) 100%)",
           }}
         />
-        {/* Film grain — lifts the video from digital playback to magazine spread. */}
+        {/* Film grain - lifts the video from digital playback to magazine spread. */}
         <FilmGrain opacity={0.06} />
       </div>
 
@@ -122,12 +122,12 @@ export function HeroSection({ featured }: HeroSectionProps) {
 }
 
 /**
- * Glassmorphic featured card — the one place in the project where backdrop
+ * Glassmorphic featured card - the one place in the project where backdrop
  * blur is allowed (per DESIGN.md): it sits over the hero video, so the
  * glass effect renders against real motion and earns its weight.
  */
 function HeroFeaturedCard({ watch }: { watch: Watch }) {
-  // Caliper labels — prefer real case + edition data, fall back to generic
+  // Caliper labels - prefer real case + edition data, fall back to generic
   // bench language so the overlay never reads as a missing field.
   const topLabel = watch.caseSize ? `Ø ${watch.caseSize.replace(/\s+/g, " ")}` : "ON THE BENCH";
   const bottomLabel = watch.movement

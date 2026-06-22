@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
  * When /admin is accessed with a valid ?token= query parameter, a secure
  * HTTP-only cookie is set so return visitors don't need the URL param.
  *
- * The proxy does NOT block access — the admin panel's own Supabase Auth
+ * The proxy does NOT block access - the admin panel's own Supabase Auth
  * and `admin_whoami()` allowlist handle authorization. Blocking here would
  * also block Supabase password-reset links, which arrive as bare /admin
  * with an #access_token hash that never reaches the server.
@@ -46,7 +46,7 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  // No valid token — allow access anyway. The admin panel's Supabase Auth
+  // No valid token - allow access anyway. The admin panel's Supabase Auth
   // and allowlist handle real security. Blocking here would also block
   // password-reset links from Supabase email (hash fragments never reach
   // the server, so we can't distinguish a reset link from a scanner).

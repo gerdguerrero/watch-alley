@@ -39,7 +39,7 @@ export function MainNav() {
   ];
 
   // Inquire pill opens Messenger with a pre-filled draft message. Same `?text=`
-  // pattern used by src/components/storefront/InquiryButtons.tsx — the visitor
+  // pattern used by src/components/storefront/InquiryButtons.tsx - the visitor
   // still has to tap Send, but the body is already typed for them.
   // NOTE: Facebook's m.me ?text= parameter does not reliably decode UTF-8
   // emojis (both 👋 4-byte SMP and ⌚ 3-byte BMP rendered as � in testing).

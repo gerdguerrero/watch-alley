@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
  * Service-role Supabase client. Bypasses RLS.
  *
  * The `server-only` import makes this file a hard error if any client component
- * pulls it in transitively — the bundler refuses, the leak is impossible.
+ * pulls it in transitively - the bundler refuses, the leak is impossible.
  *
  * Use this ONLY inside Server Actions for admin writes that legitimately need
  * to bypass RLS (audit logs, cron-style cleanup, image uploads to private

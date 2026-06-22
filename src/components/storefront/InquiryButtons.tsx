@@ -6,7 +6,7 @@ import type { Watch } from "@/lib/inventory/types";
 const MESSENGER_USERNAME = "thewatchalley";
 
 /**
- * Messenger's m.me `?text=` parameter does not reliably decode non-ASCII —
+ * Messenger's m.me `?text=` parameter does not reliably decode non-ASCII -
  * emojis, the peso sign (₱), curly quotes and en/em dashes all render as � in
  * the compose box. Fold everything down to ASCII so the prefilled message is
  * always clean, regardless of what punctuation a listing's title contains.
@@ -15,7 +15,7 @@ function toAscii(text: string): string {
   return text
     .replace(/[‘’‚‛]/g, "'")
     .replace(/[“”„‟]/g, '"')
-    .replace(/[–—―]/g, "-")
+    .replace(/[\u2013\u2014\u2015]/g, "-")
     .replace(/[•‣◦⁃]/g, "-")
     .replace(/…/g, "...")
     .replace(/ /g, " ")
@@ -24,11 +24,11 @@ function toAscii(text: string): string {
 
 /**
  * Per-watch inquiry message, prefilled into Messenger via the `text` parameter
- * of an m.me link (officially supported — it lands in the compose box so the
+ * of an m.me link (officially supported - it lands in the compose box so the
  * buyer just hits send). No AI: a template populated from live watch fields
  * (title, ref, price, listing URL), so every new listing automatically gets a
  * curated message with zero manual work. The legacy manual `inquiry_body`
- * override was removed (admin field deleted) — every listing uses this format.
+ * override was removed (admin field deleted) - every listing uses this format.
  */
 function buildInquiryMessage(watch: Watch, fullTitle: string, listingUrl?: string): string {
   // `fullTitle` is "Brand + clean name". Only append the reference when it
@@ -74,7 +74,7 @@ interface InquiryButtonsProps {
 export function InquiryButtons({ watch, title }: InquiryButtonsProps) {
   // Server-render a working href from the watch data alone (no-JS / middle-click
   // safe). On click we upgrade it in place to include the live page URL, so the
-  // seller receives the exact listing link — without risking a hydration mismatch.
+  // seller receives the exact listing link - without risking a hydration mismatch.
   const upgradeWithLiveUrl = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       if (typeof window === "undefined") return;

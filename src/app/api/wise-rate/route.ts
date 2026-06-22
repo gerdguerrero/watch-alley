@@ -5,7 +5,7 @@ const WISE_RATES_URL = "https://api.wise.com/v1/rates?source=USD&target=PHP";
 /**
  * Proxies the Wise live exchange rate API.
  *
- * The Wise API token lives on the server only — the client calls this
+ * The Wise API token lives on the server only - the client calls this
  * route instead, so the token is never shipped to the browser.
  *
  * Wise response: [{ rate: "58.12345", source: "USD", target: "PHP", time: "..." }]

@@ -11,9 +11,9 @@ interface PageTitleProps {
   headline?: ReactNode;
   description?: ReactNode;
   /**
-   * - "hero" (default): Full cinematic hero — homepage.
-   * - "catalog": Compact — first product row visible on desktop. Available / Sold.
-   * - "editorial": Capped cinematic — Journal.
+   * - "hero" (default): Full cinematic hero - homepage.
+   * - "catalog": Compact - first product row visible on desktop. Available / Sold.
+   * - "editorial": Capped cinematic - Journal.
    */
   variant?: PageTitleVariant;
 }
@@ -41,9 +41,9 @@ const TITLE_FONT_SIZE: Record<PageTitleVariant, string> = {
 
 /**
  * Develop-aesthetic page header with three height variants:
- * - hero: lg:h-[68vh] — full cinematic for homepage
- * - catalog: lg min-height clamp(360px,46svh,560px) — compact for Available/Sold
- * - editorial: lg min-height clamp(420px,52svh,640px) — capped for Journal
+ * - hero: lg:h-[68vh] - full cinematic for homepage
+ * - catalog: lg min-height clamp(360px,46svh,560px) - compact for Available/Sold
+ * - editorial: lg min-height clamp(420px,52svh,640px) - capped for Journal
  */
 export function PageTitle({
   title,

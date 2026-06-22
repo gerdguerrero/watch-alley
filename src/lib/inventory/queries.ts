@@ -29,7 +29,7 @@ interface FetchOptions {
 
 /**
  * Fetch published watches, optionally filtered by status/category/badge. Sorted by display
- * order ascending — admin controls priority via the `display_order` column.
+ * order ascending - admin controls priority via the `display_order` column.
  */
 export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]> {
   const { status = "all", category, badge, limit } = options;
@@ -124,7 +124,7 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
 }
 
 /**
- * Every published slug — feeds `generateStaticParams` so each watch page is
+ * Every published slug - feeds `generateStaticParams` so each watch page is
  * pre-rendered at build time. Unknown slugs fall through to on-demand ISR.
  */
 export async function fetchPublishedSlugs(): Promise<string[]> {

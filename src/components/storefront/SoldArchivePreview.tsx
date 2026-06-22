@@ -8,7 +8,7 @@ interface SoldArchivePreviewProps {
 }
 
 /**
- * Recently sold — curatorial preview on the homepage. Renders the most
+ * Recently sold - curatorial preview on the homepage. Renders the most
  * recent sold pieces as ledger rows, with a link to the full archive.
  *
  * Treated as a record, not a graveyard. Buyers see provenance, not "out

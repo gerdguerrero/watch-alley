@@ -175,7 +175,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
           >
             {/* Actual featured-watch photo as the card backdrop. The info sits
                 on a bottom-anchored gradient so the image reads as the hero of
-                the card — same treatment as the collection WatchCard. */}
+                the card - same treatment as the collection WatchCard. */}
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-walnut-deep/40">
               {featured.primaryImage ? (
                 <Image

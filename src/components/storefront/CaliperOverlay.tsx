@@ -1,11 +1,11 @@
 /**
  * Watchmaker's-bench caliper overlay for the hero featured card.
  *
- * Editorial replacement for the "tactical HUD targeting" aesthetic — same
+ * Editorial replacement for the "tactical HUD targeting" aesthetic - same
  * mechanical-animated energy, but the vocabulary is bench instruments
  * (calipers, dimension readouts) instead of military crosshairs.
  *
- * Pure SVG + inline CSS keyframes. No JS, no IO observer needed — the
+ * Pure SVG + inline CSS keyframes. No JS, no IO observer needed - the
  * animation fires on initial paint with a short delay so it reads as
  * "instrument calibrating" the moment the page lands.
  *
@@ -13,9 +13,9 @@
  * Honors prefers-reduced-motion.
  */
 interface CaliperOverlayProps {
-  /** Top dimension readout — e.g. "Ø 39.5 MM" or "39.5 MM CASE". */
+  /** Top dimension readout - e.g. "Ø 39.5 MM" or "39.5 MM CASE". */
   topLabel: string;
-  /** Bottom dimension readout — e.g. "47.5 MM LUG-TO-LUG". */
+  /** Bottom dimension readout - e.g. "47.5 MM LUG-TO-LUG". */
   bottomLabel: string;
 }
 
@@ -72,7 +72,7 @@ export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
       `}</style>
 
       <div className="wa-cal absolute inset-0">
-        {/* Top caliper rule — extends across the card */}
+        {/* Top caliper rule - extends across the card */}
         <div className="absolute left-3 right-3 top-1.5">
           <div
             className="wa-cal__rule h-px w-full bg-[color:var(--color-gold)]"
@@ -112,14 +112,14 @@ export function CaliperOverlay({ topLabel, bottomLabel }: CaliperOverlayProps) {
           </span>
         </div>
 
-        {/* Vertical rail on the left edge — instrument body */}
+        {/* Vertical rail on the left edge - instrument body */}
         <div className="absolute bottom-6 left-1.5 top-6">
           <div
             className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]"
             style={{ opacity: 0.35 }}
           />
         </div>
-        {/* Mirrored rail on the right edge — closes the instrument frame */}
+        {/* Mirrored rail on the right edge - closes the instrument frame */}
         <div className="absolute bottom-6 right-1.5 top-6">
           <div
             className="wa-cal__rail h-full w-px bg-[color:var(--color-gold)]"

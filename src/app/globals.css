@@ -3,17 +3,17 @@
 @import "shadcn/tailwind.css";
 
 /*
-  The Watch Alley — Tailwind v4 theme.
+  The Watch Alley - Tailwind v4 theme.
 
   Two layers:
     1. WA design tokens (walnut / paper / cream / gold + opacity variants,
-       fonts) — the palette and typography vocabulary the editorial design is
+       fonts) - the palette and typography vocabulary the editorial design is
        built on.
     2. shadcn semantic tokens (--primary, --background, --card, …) mapped to
        the WA palette so every shadcn primitive (Button, Dialog, Form, …)
        inherits the look without per-component restyling.
 
-  Font names in @theme inline are LITERALS, not var() refs — Tailwind v4 resolves
+  Font names in @theme inline are LITERALS, not var() refs - Tailwind v4 resolves
   @theme at parse time, so var(--font-petrona) would evaluate to nothing. The
   fonts themselves are loaded via next/font in app/layout.tsx; once loaded their
   @font-face registers under the literal family names below.
@@ -39,7 +39,7 @@
   --color-gold-30: oklch(0.76 0.12 75 / 0.30);
   --color-gold-20: oklch(0.76 0.12 75 / 0.20);
 
-  /* Develop-branch font stack — Playfair Display for editorial headlines and
+  /* Develop-branch font stack - Playfair Display for editorial headlines and
      display ghost titles, Geist for body / UI, Geist Mono for eyebrows and labels.
      Family names are literals because Tailwind v4 resolves @theme at parse
      time; next/font registers the @font-face under these canonical names. */
@@ -47,7 +47,7 @@
   --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* Editorial design uses crisp rectangles — buttons keep the slightest
+  /* Editorial design uses crisp rectangles - buttons keep the slightest
      softness so they don't feel like clickable text. */
   --radius: 0rem;
   --radius-sm: 0.125rem;
@@ -90,20 +90,20 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* The Watch Alley is always-dark — no light/dark toggle. We don't define a
+/* The Watch Alley is always-dark - no light/dark toggle. We don't define a
    .dark variant; the same values apply at :root, and color-scheme: dark
    tells the browser to render form controls / scrollbars accordingly. */
 :root {
   color-scheme: dark;
 
-  --background: oklch(0.13 0.012 55);             /* walnut-deep — page bg */
-  --foreground: oklch(0.91 0.018 78);             /* warm cream — primary text */
-  --card: oklch(0.19 0.016 58);                   /* walnut-card — surfaces */
+  --background: oklch(0.13 0.012 55);             /* walnut-deep - page bg */
+  --foreground: oklch(0.91 0.018 78);             /* warm cream - primary text */
+  --card: oklch(0.19 0.016 58);                   /* walnut-card - surfaces */
   --card-foreground: oklch(0.91 0.018 78);
   --popover: oklch(0.17 0.015 55);
   --popover-foreground: oklch(0.91 0.018 78);
-  --primary: oklch(0.76 0.12 75);                 /* honey brass — CTA, hover, focus */
-  --primary-foreground: oklch(0.13 0.012 55);     /* walnut-deep — text on gold */
+  --primary: oklch(0.76 0.12 75);                 /* honey brass - CTA, hover, focus */
+  --primary-foreground: oklch(0.13 0.012 55);     /* walnut-deep - text on gold */
   --secondary: oklch(0.21 0.018 60);
   --secondary-foreground: oklch(0.91 0.018 78);
   --muted: oklch(0.21 0.018 60);
@@ -145,7 +145,7 @@
     /* The editorial register: Geist carries body/UI copy, while Playfair
        Display is reserved for headlines, watch names, and approved ghost type. */
     font-family: var(--font-sans);
-    /* Premium text rendering — enables ligatures, kerning, proportional
+    /* Premium text rendering - enables ligatures, kerning, proportional
        oldstyle figures across the entire site. */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -161,7 +161,7 @@
 }
 
 @layer utilities {
-  /* Luxury-tier transitions — slow, deliberate, ease-out-quart. Premium
+  /* Luxury-tier transitions - slow, deliberate, ease-out-quart. Premium
      watch sites move glacially compared to SaaS defaults. Overrides
      Tailwind's 150ms default duration on the three commonest transition
      utilities so every hover and motion across the storefront inherits
@@ -175,7 +175,7 @@
   }
 }
 
-/* Scroll-reveal primitives — used by <ScrollReveal>. Opt-in via class on
+/* Scroll-reveal primitives - used by <ScrollReveal>. Opt-in via class on
    any descendant. The wrapper toggles data-wa-reveal=true on first entry. */
 [data-wa-reveal] .wa-rev-rule {
   transform: scaleX(0);
@@ -205,7 +205,7 @@
   }
 }
 
-/* Editorial article body — used by /journal/[slug] for the renderMarkdown HTML.
+/* Editorial article body - used by /journal/[slug] for the renderMarkdown HTML.
    Applies develop-aesthetic typography (zinc neutrals, amber accents) without
    pulling in a heavy prose plugin. */
 .article-body > * + * { margin-top: 1.5em; }
@@ -274,5 +274,5 @@
   margin: 2.5em 0;
 }
 
-/* Cross-route view transitions disabled — the global cross-fade made tab
+/* Cross-route view transitions disabled - the global cross-fade made tab
    navigation feel laggy. Each page handles its own in-view entrance. */

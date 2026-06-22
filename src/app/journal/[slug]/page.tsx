@@ -177,7 +177,7 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
 
         <div
           className="article-body font-sans text-[16px] md:text-[17px] leading-[1.85] text-zinc-300/95 tracking-wide font-normal"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML produced by our own escape-safe renderMarkdown() — see lib/journal/markdown.ts.
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML produced by our own escape-safe renderMarkdown() - see lib/journal/markdown.ts.
           dangerouslySetInnerHTML={{ __html: bodyHtml }}
         />
 

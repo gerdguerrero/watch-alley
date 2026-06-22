@@ -11,7 +11,7 @@ interface WatchTileProps {
 /**
  * Instagram-style image tile for the mobile catalog grid. Mirrors the desktop
  * {@link WatchCard}: the detail (brand, name, category, price) is overlaid on
- * the photo over a gradient scrim, not stacked below it. No hover/parallax —
+ * the photo over a gradient scrim, not stacked below it. No hover/parallax -
  * stays a Server Component, so it ships zero client JS. Used only at `< md`.
  */
 export function WatchTile({ watch }: WatchTileProps) {
@@ -39,7 +39,7 @@ export function WatchTile({ watch }: WatchTileProps) {
         <div className="absolute inset-0 bg-black" />
       )}
 
-      {/* Light scrim — keeps the photo visible behind the overlaid text while
+      {/* Light scrim - keeps the photo visible behind the overlaid text while
           a text-shadow (below) carries legibility over bright watch photos. */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
@@ -63,7 +63,7 @@ export function WatchTile({ watch }: WatchTileProps) {
         </span>
       )}
 
-      {/* Detail overlaid bottom-left, anchored to the image — like desktop */}
+      {/* Detail overlaid bottom-left, anchored to the image - like desktop */}
       <div className="absolute inset-x-0 bottom-0 p-2 [text-shadow:0_1px_4px_rgba(0,0,0,0.95)]">
         <p className="text-[8px] uppercase tracking-[0.2em] text-amber-300/80">{watch.brand}</p>
         <h3 className="mt-0.5 line-clamp-2 text-[11px] font-light leading-tight text-cream">

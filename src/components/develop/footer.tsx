@@ -64,7 +64,7 @@ export function Footer() {
             <BrandLogo variant="primary" className="h-24 w-32" sizes="128px" />
           </Link>
           <p className="mt-6 max-w-sm text-sm leading-7 text-cream-60">
-            A Manila-based curator of pre-owned and brand-new timepieces — daylight-photographed,
+            A Manila-based curator of pre-owned and brand-new timepieces, daylight-photographed,
             disclosed in writing, and handled with care.
           </p>
           <div className="mt-6 flex items-center gap-3">

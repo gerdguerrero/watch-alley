@@ -1,5 +1,5 @@
 /**
- * Inventory display helpers. Pure functions only — no DOM, no fetch.
+ * Inventory display helpers. Pure functions only - no DOM, no fetch.
  * Both Server Components and Client Components import from here.
  */
 

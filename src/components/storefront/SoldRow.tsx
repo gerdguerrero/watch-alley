@@ -22,7 +22,7 @@ function formatSoldPrice(price: number | null): string {
 
 /**
  * Editorial ledger row for the Sold Archive. Photo demoted to a 56×56
- * marginalia square cropped tight on the dial — intentionally NOT a
+ * marginalia square cropped tight on the dial - intentionally NOT a
  * graveyard of full cards.
  *
  * Hover: a 4px gold rule slides in from the left edge over 700ms ease-out-quart
@@ -53,7 +53,7 @@ export function SoldRow({ watch }: SoldRowProps) {
             alt=""
             fill
             sizes="56px"
-            // Tight dial-only crop — push the image up so the case fills the frame.
+            // Tight dial-only crop - push the image up so the case fills the frame.
             // 140% over default gives the bezel + dial more presence at 56px.
             className="scale-[1.4] object-cover object-center"
           />

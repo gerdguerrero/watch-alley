@@ -1,7 +1,7 @@
 import { FilmGrain } from "./FilmGrain";
 
 /**
- * Inquiry band — paper-stock callout between the sold archive and the
+ * Inquiry band - paper-stock callout between the sold archive and the
  * dedicated contact section. Direct conversation pitch, not a feature card.
  *
  * Premium: the paper surface carries an SVG film-grain overlay at 0.04

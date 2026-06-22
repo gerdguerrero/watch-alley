@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 /**
  * Live Manila-time stamp for the footer. Refreshes every 60s. Reads as
- * "operator detail" — premium watch site move ("we know what time it
+ * "operator detail" - premium watch site move ("we know what time it
  * actually is, here, on the bench").
  *
  * SSR renders an empty span, fills in after hydration so we don't ship

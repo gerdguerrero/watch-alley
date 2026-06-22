@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /**
  * Renderless client island. Toggles `data-scrolled` on #main-nav so the nav
  * CSS can shrink padding + logo when the user scrolls past 60px. Animation
- * uses cubic ease-out (0.22, 1, 0.36, 1) on transform — no layout thrash.
+ * uses cubic ease-out (0.22, 1, 0.36, 1) on transform - no layout thrash.
  */
 export function NavScrollMount() {
   useEffect(() => {

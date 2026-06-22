@@ -88,7 +88,7 @@ export function JournalSection({ posts = [] }: JournalSectionProps = {}) {
 
       <div className="relative z-10 px-6 md:px-12 lg:px-20">
         <div className="max-w-[1680px] mx-auto">
-          {/* Featured — Balanced 50/50 top-aligned layout */}
+          {/* Featured - Balanced 50/50 top-aligned layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Image */}
             <motion.div

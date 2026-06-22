@@ -28,7 +28,7 @@ function writeCache(rate: number) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ rate, at: Date.now() }));
   } catch {
-    /* localStorage unavailable — non-fatal */
+    /* localStorage unavailable - non-fatal */
   }
 }
 
@@ -72,13 +72,13 @@ async function getRate(): Promise<number> {
   const cached = readCache();
   if (cached) return cached;
 
-  // 1. Wise (via our server proxy — token stays secret)
+  // 1. Wise (via our server proxy - token stays secret)
   try {
     const rate = await fetchWiseRate();
     writeCache(rate);
     return rate;
   } catch {
-    // 2. exchangerate.host (direct — free, no key)
+    // 2. exchangerate.host (direct - free, no key)
     try {
       const rate = await fetchExchangeRateHost();
       writeCache(rate);

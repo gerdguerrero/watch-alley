@@ -123,8 +123,8 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
 
         {/* Content. On mobile this sits in normal flow below the image so
             long watch names never collide with the photo (cards that have
-            multi-line names like "Bulova Super Seville — Green Dial 262 kHz
-            Precisionist — Retro TV Style" overflow the gradient otherwise).
+            multi-line names like "Bulova Super Seville - Green Dial 262 kHz
+            Precisionist - Retro TV Style" overflow the gradient otherwise).
             On lg+ it returns to an absolute overlay anchored to the image
             bottom so the desktop aesthetic is preserved. */}
         <div className="relative p-5 lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:p-8">

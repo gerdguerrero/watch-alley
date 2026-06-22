@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * Editorial broadcasting masthead — replaces a generic horizontal ticker
+ * Editorial broadcasting masthead - replaces a generic horizontal ticker
  * with a single, large, slowly rotating italic Playfair quote in the
  * watchmaker's voice. One quote at a time, ~12s each, cubic fade+blur
  * transition. Pagination dots, live Manila bench-time stamp, and a thin
  * gold rule that scans across the section between quote transitions.
  *
  * Pause-on-hover (premium hospitality move). Honors prefers-reduced-motion.
- * Client island — state + interval + Intl.DateTimeFormat all live here.
+ * Client island - state + interval + Intl.DateTimeFormat all live here.
  */
 const QUOTES: ReadonlyArray<{ text: string; emphasize: string }> = [
   {
@@ -61,7 +61,7 @@ export function WatchmakerMarquee() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = useRef(false);
 
-  // Live bench-time stamp — updates once per minute, Asia/Manila.
+  // Live bench-time stamp - updates once per minute, Asia/Manila.
   useEffect(() => {
     function tick() {
       const now = new Date();
@@ -169,7 +169,7 @@ export function WatchmakerMarquee() {
       />
 
       <div className="relative grid gap-[clamp(20px,3vw,40px)] px-[clamp(20px,6vw,80px)]">
-        {/* Top row — eyebrow + live bench stamp */}
+        {/* Top row - eyebrow + live bench stamp */}
         <header className="flex items-center justify-between gap-4">
           <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-[color:var(--color-cream-60)]">
             Notes from the bench
@@ -179,11 +179,11 @@ export function WatchmakerMarquee() {
               aria-hidden="true"
               className="wa-mark__pulse inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-gold)]"
             />
-            <span>Bench {benchTime || "—"} · Manila · Open</span>
+            <span>Bench {benchTime || "-"} · Manila · Open</span>
           </span>
         </header>
 
-        {/* The quote — keyed on index so React re-mounts the element and the
+        {/* The quote - keyed on index so React re-mounts the element and the
             fade keyframe replays every time the quote rotates. */}
         <blockquote
           key={`quote-${index}`}
@@ -192,7 +192,7 @@ export function WatchmakerMarquee() {
           &ldquo;{renderQuote(quote.text, quote.emphasize)}&rdquo;
         </blockquote>
 
-        {/* Bottom row — pagination dots + quote counter */}
+        {/* Bottom row - pagination dots + quote counter */}
         <footer className="flex items-center justify-between gap-4">
           <div
             className="flex items-center gap-2.5"

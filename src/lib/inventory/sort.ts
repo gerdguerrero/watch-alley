@@ -1,5 +1,5 @@
 /**
- * Catalog sort helpers. Pure functions — safe to import from Server and
+ * Catalog sort helpers. Pure functions - safe to import from Server and
  * Client Components. Applied in-memory by /available and /sold after
  * `fetchWatches`, so adding a sort option never expands the query cache key.
  */

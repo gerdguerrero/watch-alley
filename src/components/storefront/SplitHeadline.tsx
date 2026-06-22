@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 interface SplitHeadlineProps {
   /**
    * Phrases, in order. Each phrase renders on its own line (no <br />
-   * needed). Wrap any substring in `<em>...</em>` to emphasize it — those
+   * needed). Wrap any substring in `<em>...</em>` to emphasize it - those
    * spans receive the gold italic treatment.
    */
   phrases: string[];

@@ -8,7 +8,7 @@ import { useEffect } from "react";
  * page load). Deduplicates within the same session via sessionStorage.
  *
  * Sends an anonymous visitor UUID (stored in localStorage) so we can
- * count unique visitors across sessions — the same browser/browser profile
+ * count unique visitors across sessions - the same browser/browser profile
  * gets the same UUID until the user clears site data.
  */
 export function WatchViewTracker({ slug }: { slug: string }) {

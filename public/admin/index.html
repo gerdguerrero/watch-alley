@@ -106,7 +106,7 @@
           <div>
             <div class="admin-eyebrow">Dashboard</div>
             <h2 class="admin-dashboard-title">From the bench, today.</h2>
-            <p class="admin-meta" id="admin-dashboard-meta">Last refreshed —</p>
+            <p class="admin-meta" id="admin-dashboard-meta">Last refreshed</p>
           </div>
           <button type="button" id="admin-dashboard-refresh" class="btn-ghost">Refresh</button>
         </div>
@@ -114,37 +114,37 @@
         <div class="admin-dashboard-grid" id="admin-dashboard-grid" aria-live="polite">
           <article class="kpi-tile">
             <div class="kpi-label">Inquiries · Last 7 days</div>
-            <div class="kpi-value" data-kpi="inquiries.last7">—</div>
-            <div class="kpi-foot" data-kpi="inquiries.last30Foot">— in the last 30</div>
+            <div class="kpi-value" data-kpi="inquiries.last7">-</div>
+            <div class="kpi-foot" data-kpi="inquiries.last30Foot">Loading last 30</div>
           </article>
 
           <article class="kpi-tile">
             <div class="kpi-label">Open inquiries</div>
-            <div class="kpi-value" data-kpi="inquiries.open">—</div>
+            <div class="kpi-value" data-kpi="inquiries.open">-</div>
             <div class="kpi-foot" data-kpi="inquiries.openFoot">new + contacted + viewing + reserved</div>
           </article>
 
           <article class="kpi-tile">
             <div class="kpi-label">Conversion · Last 30 days</div>
-            <div class="kpi-value" data-kpi="conversion.rate">—</div>
+            <div class="kpi-value" data-kpi="conversion.rate">-</div>
             <div class="kpi-foot" data-kpi="conversion.foot">won / closed</div>
           </article>
 
           <article class="kpi-tile">
             <div class="kpi-label">Median reply · Last 30 days</div>
-            <div class="kpi-value" data-kpi="replySla.median">—</div>
+            <div class="kpi-value" data-kpi="replySla.median">-</div>
             <div class="kpi-foot" data-kpi="replySla.foot">across replied inquiries</div>
           </article>
 
           <article class="kpi-tile">
             <div class="kpi-label">Sold this month</div>
-            <div class="kpi-value" data-kpi="inventory.soldThisMonth">—</div>
+            <div class="kpi-value" data-kpi="inventory.soldThisMonth">-</div>
             <div class="kpi-foot" data-kpi="inventory.soldFoot">closed-out listings</div>
           </article>
 
           <article class="kpi-tile">
             <div class="kpi-label">Inventory live</div>
-            <div class="kpi-value" data-kpi="inventory.published">—</div>
+            <div class="kpi-value" data-kpi="inventory.published">-</div>
             <div class="kpi-foot" data-kpi="inventory.publishedFoot">published / drafts</div>
           </article>
         </div>
@@ -171,9 +171,9 @@
           <article class="admin-card admin-dashboard-row">
             <div class="admin-eyebrow">Journal</div>
             <dl class="dashboard-keyvals" id="admin-dashboard-journal">
-              <div><dt>Published</dt><dd data-kpi="journal.published">—</dd></div>
-              <div><dt>Drafts</dt><dd data-kpi="journal.drafts">—</dd></div>
-              <div><dt>Scheduled</dt><dd data-kpi="journal.scheduled">—</dd></div>
+              <div><dt>Published</dt><dd data-kpi="journal.published">-</dd></div>
+              <div><dt>Drafts</dt><dd data-kpi="journal.drafts">-</dd></div>
+              <div><dt>Scheduled</dt><dd data-kpi="journal.scheduled">-</dd></div>
             </dl>
           </article>
         </div>
@@ -218,7 +218,7 @@
             <div class="am-body">
               <div class="am-label" data-analytics="primaryLabel">Pageviews · selected range</div>
               <div class="am-value-row">
-                <span class="am-value analytics-status-value" data-analytics="totalPageviews">—</span>
+                <span class="am-value analytics-status-value" data-analytics="totalPageviews">-</span>
                 <span class="am-badge" data-analytics="rangeBadge"></span>
               </div>
               <div class="am-foot" data-analytics="averageDaily">Loading Vercel data…</div>
@@ -230,7 +230,7 @@
             <div class="am-body">
               <div class="am-label">Unique visitors</div>
               <div class="am-value-row">
-                <span class="am-value analytics-path-value" data-analytics="uniqueVisitors">—</span>
+                <span class="am-value analytics-path-value" data-analytics="uniqueVisitors">-</span>
               </div>
               <div class="am-foot" data-analytics="visitorsFoot">Browsers who visited any watch page</div>
             </div>
@@ -241,9 +241,9 @@
             <div class="am-body">
               <div class="am-label">Pageviews · Today</div>
               <div class="am-value-row">
-                <span class="am-value analytics-domain-value" data-analytics="todayPageviews">—</span>
+                <span class="am-value analytics-domain-value" data-analytics="todayPageviews">-</span>
               </div>
-              <div class="am-foot" data-analytics="eventCount">Custom events: —</div>
+              <div class="am-foot" data-analytics="eventCount">Custom events: -</div>
             </div>
           </div>
         </div>
@@ -305,18 +305,18 @@
         </div>
 
         <div class="inbox-metrics" id="inbox-metrics" aria-live="polite">
-          <div class="inbox-metric"><div class="inbox-metric-label">New</div><div class="inbox-metric-value" data-metric="new">—</div></div>
-          <div class="inbox-metric"><div class="inbox-metric-label">Contacted</div><div class="inbox-metric-value" data-metric="contacted">—</div></div>
-          <div class="inbox-metric"><div class="inbox-metric-label">Viewing</div><div class="inbox-metric-value" data-metric="viewing">—</div></div>
-          <div class="inbox-metric"><div class="inbox-metric-label">Reserved</div><div class="inbox-metric-value" data-metric="reserved">—</div></div>
-          <div class="inbox-metric"><div class="inbox-metric-label">Won (30d)</div><div class="inbox-metric-value" data-metric="won">—</div></div>
-          <div class="inbox-metric"><div class="inbox-metric-label">Last 7d</div><div class="inbox-metric-value" data-metric="last7">—</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">New</div><div class="inbox-metric-value" data-metric="new">-</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Contacted</div><div class="inbox-metric-value" data-metric="contacted">-</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Viewing</div><div class="inbox-metric-value" data-metric="viewing">-</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Reserved</div><div class="inbox-metric-value" data-metric="reserved">-</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Won (30d)</div><div class="inbox-metric-value" data-metric="won">-</div></div>
+          <div class="inbox-metric"><div class="inbox-metric-label">Last 7d</div><div class="inbox-metric-value" data-metric="last7">-</div></div>
         </div>
 
         <details class="inbox-log-form" id="inbox-log-form-wrap">
           <summary>+ Log a Messenger inquiry</summary>
           <p class="admin-meta">
-            Use this when a buyer reached out via Messenger (or walk-in / phone) and you want to track the conversation in the Inbox. No email is sent — the row is tagged as manually logged.
+            Use this when a buyer reached out via Messenger (or walk-in / phone) and you want to track the conversation in the Inbox. No email is sent; the row is tagged as manually logged.
           </p>
           <form id="inbox-log-form" class="inbox-log-form-grid">
             <label>Buyer name *
@@ -366,7 +366,7 @@
               <option value="spam">Spam</option>
             </select>
           </label>
-          <span class="admin-meta" id="inbox-count">—</span>
+          <span class="admin-meta" id="inbox-count">-</span>
         </div>
 
         <ul id="inbox-list" class="inbox-list" aria-live="polite"></ul>
@@ -385,7 +385,7 @@
       <div class="admin-sidebar-header">
         <div>
           <div class="admin-eyebrow">Inventory</div>
-          <div class="admin-count" id="watch-count">—</div>
+          <div class="admin-count" id="watch-count">-</div>
         </div>
         <button type="button" id="new-watch-btn" class="btn-primary admin-new-btn">+ New</button>
       </div>
@@ -426,7 +426,7 @@
           </label>
           <label>Category *
             <select id="field-category" required>
-              <option value="">—</option>
+              <option value="">-</option>
               <option value="brand-new">Brand New</option>
               <option value="pre-owned">Pre-owned</option>
             </select>
@@ -623,7 +623,7 @@
                 </ul>
                 <div class="social-preview-summary-link">
                   <span class="admin-eyebrow social-preview-summary-link-label">Destination link</span>
-                  <a id="social-preview-summary-link-anchor" href="#" target="_blank" rel="noopener">—</a>
+                  <a id="social-preview-summary-link-anchor" href="#" target="_blank" rel="noopener">-</a>
                 </div>
               </div>
             </aside>
@@ -658,7 +658,7 @@
         <div class="admin-sidebar-header">
           <div>
             <div class="admin-eyebrow">Journal</div>
-            <div class="admin-count" id="journal-count">—</div>
+            <div class="admin-count" id="journal-count">-</div>
           </div>
           <button type="button" id="journal-new-btn" class="btn-primary admin-new-btn">+ New post</button>
         </div>
@@ -697,7 +697,7 @@
               <input type="text" id="journal-field-slug" required maxlength="120" pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$" placeholder="seiko-launches-5th-philippine-limited-edition" />
             </label>
             <label class="admin-col-2">Summary *
-              <span class="admin-meta">2–3 sentences. Shown on the Journal index, in OG previews, and as the article meta description for SEO.</span>
+              <span class="admin-meta">2-3 sentences. Shown on the Journal index, in OG previews, and as the article meta description for SEO.</span>
               <textarea id="journal-field-summary" rows="3" required maxlength="320"></textarea>
             </label>
             <label>Author
@@ -777,7 +777,7 @@
         <div class="admin-sidebar-header">
           <div>
             <div class="admin-eyebrow">Newsletter</div>
-            <div class="admin-count" id="newsletter-count">—</div>
+            <div class="admin-count" id="newsletter-count">-</div>
           </div>
           <button type="button" id="newsletter-new-btn" class="btn-primary admin-new-btn">+ New Draft</button>
         </div>
@@ -899,7 +899,7 @@
     <div class="admin-tabpanel" id="tabpanel-account" role="tabpanel" aria-labelledby="admin-tab-account" hidden>
       <section class="admin-card">
         <h2>Account</h2>
-        <p class="admin-meta">Signed in as <strong id="account-email">—</strong>.</p>
+        <p class="admin-meta">Signed in as <strong id="account-email">-</strong>.</p>
       </section>
 
       <section class="admin-card">

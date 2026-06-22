@@ -6,7 +6,7 @@ import { BenchTime } from "./BenchTime";
  * Site footer. Logo + copyright + legal links + live Manila bench-time.
  *
  * Editorial register: thin gold rule on top, generous spacing, mono labels.
- * The bench-time line is the premium operator detail — a quietly ticking
+ * The bench-time line is the premium operator detail - a quietly ticking
  * timestamp ("we know what time it actually is, here, on the bench").
  * Server Component shell; the time itself is a tiny client island.
  */
@@ -19,7 +19,7 @@ export function Footer() {
         <Link
           href="/"
           className="flex items-center gap-2.5 justify-self-center text-inherit md:justify-self-start"
-          aria-label="The Watch Alley — home"
+          aria-label="The Watch Alley home"
         >
           <Image
             src="/brand/logo-dp-flat.png"

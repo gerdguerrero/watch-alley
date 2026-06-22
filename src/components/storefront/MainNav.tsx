@@ -67,7 +67,7 @@ export function MainNav({ active }: MainNavProps) {
       {/* Center: logo + wordmark */}
       <Link
         href="/"
-        aria-label="The Watch Alley — home"
+        aria-label="The Watch Alley home"
         className="wa-logo-wrap order-1 flex min-w-0 items-center justify-center gap-3 md:order-none"
       >
         <Image

@@ -32,7 +32,7 @@ const searchInputClass =
   "w-full rounded-full border border-zinc-700 bg-black/20 px-4 py-2.5 pl-10 pr-10 font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-amber-500/40 focus:border-amber-500 focus:outline-none sm:min-w-[240px] lg:min-w-[280px]";
 
 /* ------------------------------------------------------------------ */
-/*  PillDropdown — custom select matching site design language         */
+/*  PillDropdown - custom select matching site design language         */
 /* ------------------------------------------------------------------ */
 
 const dropdownTriggerClass = `${pillBase} inline-flex items-center gap-1.5 border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400 focus:border-amber-500 focus:outline-none`;

@@ -1,7 +1,7 @@
 import { BigNum } from "./BigNum";
 
 /**
- * "How buying works" — 4-step educational flow. Browse → Inquire → Confirm
+ * "How buying works" - 4-step educational flow. Browse → Inquire → Confirm
  * → Ship.
  *
  * Compact 2x2 grid sized to fit within a single viewport. Each step is a

@@ -12,14 +12,14 @@ import type { Watch } from "@/lib/inventory/types";
 // Single timing source for every motion in the accordion so the container
 // resize, overlay tint, icon pill, and text opacity stay perfectly in step
 // when the user flicks the cursor across cards. Curve is Apple's standard
-// ease-out-quint — slow start, very gentle settle.
+// ease-out-quint - slow start, very gentle settle.
 const EASE = [0.32, 0.72, 0, 1] as const;
 const DUR_CONTAINER = 0.75;
 const DUR_FADE_IN = 0.45;
 const DUR_FADE_OUT = 0.25;
 const DUR_OVERLAY = 0.6;
 
-// Hover-intent window — flicking the cursor across the row no longer fires
+// Hover-intent window - flicking the cursor across the row no longer fires
 // 5 activations in a row, only one once the cursor settles.
 const HOVER_INTENT_MS = 60;
 
@@ -46,7 +46,7 @@ interface AccordionCardProps {
   isActive: boolean;
   onActivate: () => void;
   isMobile: boolean;
-  /** Card headline override — replaces the watch.name with a category label
+  /** Card headline override - replaces the watch.name with a category label
       (e.g. "Brand New", "Pre-owned", "Limited Edition"). */
   displayName: string;
   href: string;
@@ -96,7 +96,7 @@ function AccordionCard({
       onFocus={!isMobile ? onActivate : undefined}
       onClick={isMobile ? onActivate : undefined}
     >
-      {/* Tinted overlay — TWO layered divs so the colour interpolation is
+      {/* Tinted overlay - TWO layered divs so the colour interpolation is
           pure opacity (browsers cannot tween between a gradient and a flat
           rgba(), which was the source of the abrupt feel). */}
       <div
@@ -123,7 +123,7 @@ function AccordionCard({
         className="absolute inset-0 z-20"
       />
 
-      {/* Collapsed pill — centered. Always rendered, opacity 0 when active. */}
+      {/* Collapsed pill - centered. Always rendered, opacity 0 when active. */}
       <motion.div
         aria-hidden={isActive}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
@@ -139,7 +139,7 @@ function AccordionCard({
         </div>
       </motion.div>
 
-      {/* Expanded title block — anchored bottom-left. Always rendered, opacity
+      {/* Expanded title block - anchored bottom-left. Always rendered, opacity
           0 when inactive. */}
       <motion.div
         aria-hidden={!isActive}
@@ -148,7 +148,7 @@ function AccordionCard({
         transition={{
           duration: isActive ? DUR_FADE_IN : DUR_FADE_OUT,
           // Small delay only on enter so the container has started growing
-          // before the text appears — feels led by the resize, not racing it.
+          // before the text appears - feels led by the resize, not racing it.
           delay: isActive ? 0.18 : 0,
           ease: EASE,
         }}
@@ -188,7 +188,7 @@ export function CollectionSection({ teasers, totalCount }: CollectionSectionProp
         className="relative bg-walnut-deep py-32 md:py-48 text-center"
       >
         <p className="text-zinc-500 uppercase tracking-[0.18em] text-xs">
-          No pieces available right now —{" "}
+          No pieces available right now.{" "}
           <Link href="/sold" className="text-amber-400 underline-offset-4 hover:underline">
             browse the sold archive
           </Link>
@@ -281,7 +281,7 @@ export function CollectionSection({ teasers, totalCount }: CollectionSectionProp
             href="/available"
             className="group inline-flex items-center gap-3 border-b border-amber-500/40 pb-1 text-[12px] tracking-[0.22em] uppercase text-amber-400 transition-colors hover:text-amber-300 hover:border-amber-400"
           >
-            Browse Full Collection — {totalCount} pieces
+            Browse Full Collection ({totalCount} pieces)
             <svg
               className="w-3 h-3 transition-transform group-hover:translate-x-1"
               viewBox="0 0 12 12"

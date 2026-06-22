@@ -367,7 +367,7 @@ export default function SocialPosterPage() {
                     </h3>
                     <p className="text-[13px] leading-[1.5] text-[#a0aec0]">
                       The coding agent passes the rendered layer into its multimodal vision network,
-                      natively inspecting geometries, typographic details, and color palettes—fully
+                      natively inspecting geometries, typographic details, and color palettes, fully
                       bridging design to code instantly.
                     </p>
                   </div>

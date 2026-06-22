@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await readJsonObject(request)) ?? {};
   const issueMonth = monthLabel();
-  const title = String(body.title || `Newsletter - ${issueMonth}`);
+  const title = String(body.title || `Newsletter | ${issueMonth}`);
   const slug = slugify(String(body.slug || title));
 
   const [available, sold, posts] = await Promise.all([
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
           soldHighlight
             ? `
           <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">— From the Sold Archive —</div>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
             ${
               soldHighlight.primaryImage
                 ? `
@@ -442,7 +442,7 @@ export async function POST(request: NextRequest) {
       soldHighlight
         ? `
       <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">— From the Sold Archive —</div>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
         ${
           soldHighlight.primaryImage
             ? `

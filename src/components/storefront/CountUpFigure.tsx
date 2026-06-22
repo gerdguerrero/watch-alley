@@ -41,7 +41,7 @@ export function CountUpFigure({
     const el = ref.current;
     if (!el) return;
 
-    // Honor reduced motion — keep final value, skip animation.
+    // Honor reduced motion - keep final value, skip animation.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       started.current = true;
       return;

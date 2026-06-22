@@ -24,7 +24,7 @@ function nonNullStringList(value: string[] | null): string[] {
  * Turn a Supabase `public.watches` row into a domain `Watch`.
  *
  * Single source of truth for null-coalescing, camelCase rename, and type
- * coercion. Components consume the `Watch` type — they never see snake_case
+ * coercion. Components consume the `Watch` type - they never see snake_case
  * or nulls.
  */
 export function normalizeWatchRow(row: WatchRow): Watch {

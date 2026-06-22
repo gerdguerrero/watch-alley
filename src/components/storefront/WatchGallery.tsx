@@ -7,7 +7,7 @@ import { thumbnailUrl } from "@/lib/inventory/image";
 /* ------------------------------------------------------------------ */
 /*  Cursor‑tracking full‑image zoom                                   */
 /*  Hover → image scales 3× and pans to follow the cursor.            */
-/*  No lens, no side panel — the entire container becomes the zoom    */
+/*  No lens, no side panel - the entire container becomes the zoom    */
 /*  viewport, like Cartier / Hodinkee / high‑end watch retailers.     */
 /* ------------------------------------------------------------------ */
 

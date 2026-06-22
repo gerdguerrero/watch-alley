@@ -1,5 +1,5 @@
 /**
- * Section-header decoration — oversize italic Playfair numeral that sits to
+ * Section-header decoration - oversize italic Playfair numeral that sits to
  * the left of a section's eyebrow + title. Brand signature. Server Component.
  *
  * Mirrors the .big-num element from the Vite-era homepage so section headers

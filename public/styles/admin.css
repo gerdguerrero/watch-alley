@@ -14,7 +14,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   min-height: 16px;
-  /* Pure status readout — never interactive. On mobile it becomes a sticky,
+  /* Pure status readout - never interactive. On mobile it becomes a sticky,
      opaque, z-index:35 bar; without this it silently intercepts taps on the
      content scrolling beneath it (e.g. the inventory Drafts/Published filter,
      which then appears "stuck on All"). */
@@ -70,7 +70,7 @@
   color: var(--cream-60);
   margin-bottom: 24px;
 }
-/* Email addresses inside .admin-meta should NOT be uppercased — keep their
+/* Email addresses inside .admin-meta should NOT be uppercased - keep their
    real casing. They're rendered inside <strong> tags. */
 .admin-meta strong {
   font-family: 'Geist', system-ui, sans-serif;
@@ -598,7 +598,7 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   color: var(--gold);
   background: oklch(0.76 0.12 75 / 0.08);
 }
-/* Hover only on devices that truly hover — otherwise the style sticks after a
+/* Hover only on devices that truly hover - otherwise the style sticks after a
    tap on touchscreens and a non-selected tab looks active. */
 @media (hover: hover) {
   .admin-inventory-state-filter button:hover {
@@ -1086,7 +1086,7 @@ code {
 .admin-tabpanel[hidden] { display: none; }
 
 /* =====================================================================
- * Dashboard tab — the operator's landing surface. Heritage atelier
+ * Dashboard tab - the operator's landing surface. Heritage atelier
  * register: paper-tinted KPI tiles, Playfair figures, Geist Mono labels,
  * thin gold rules. The single grid up top is "this week at a glance"; the
  * row of cards below is per-domain detail (top inquired, lost reasons,
@@ -2001,7 +2001,7 @@ code {
 .admin-image-paths-details label { display: block; margin-top: 8px; }
 .admin-image-paths-details .admin-meta { margin-top: 6px; }
 
-/* Inline helper text inside an admin-form label — Geist italic, lowercase,
+/* Inline helper text inside an admin-form label - Geist italic, lowercase,
    so it reads as a calm hint rather than another shouting mono label. */
 .admin-form label .admin-meta {
   font-family: 'Geist', system-ui, sans-serif;

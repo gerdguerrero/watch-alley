@@ -6,7 +6,7 @@ import { createBrowserClient } from "@supabase/ssr";
  * Supabase client for Client Components.
  *
  * Only use this when a Server Component / Server Action genuinely can't do
- * the work — e.g. realtime subscriptions, file uploads with progress events.
+ * the work - e.g. realtime subscriptions, file uploads with progress events.
  * For reads and mutations, prefer the server client.
  */
 export function createSupabaseBrowserClient() {

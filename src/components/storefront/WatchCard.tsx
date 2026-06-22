@@ -11,7 +11,7 @@ interface WatchCardProps {
  * Storefront watch card. Used by the homepage arrivals carousel, the
  * dedicated /available grid, and any future "related pieces" surface.
  *
- * Server Component — no event handlers. The whole card is a <Link>, so click
+ * Server Component - no event handlers. The whole card is a <Link>, so click
  * + keyboard activation work without any client-side JS.
  */
 export function WatchCard({ watch }: WatchCardProps) {

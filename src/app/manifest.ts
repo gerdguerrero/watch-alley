@@ -3,7 +3,7 @@ import { BRAND_COLORS } from "@/lib/brand/assets";
 import { SITE_DESCRIPTION } from "@/lib/seo/schema";
 
 /**
- * PWA manifest — controls "Add to Home Screen" appearance on iOS and Android
+ * PWA manifest - controls "Add to Home Screen" appearance on iOS and Android
  * and the install card on desktop Chrome. Colours mirror the brand palette so
  * the install splash matches the storefront chrome.
  *

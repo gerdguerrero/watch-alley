@@ -165,7 +165,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             sticky buy-box rail. The middle column soaks up extra width on
             large monitors; the buy box stays pinned while the details scroll. */}
         <article className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(300px,330px)] lg:items-start lg:gap-8 xl:gap-10">
-          {/* Col 1 — Gallery (specs now live in the buy box, so the image fills) */}
+          {/* Col 1 - Gallery (specs now live in the buy box, so the image fills) */}
           <WatchGallery
             images={
               watch.images.length > 0
@@ -181,7 +181,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             isReserved={isReserved}
           />
 
-          {/* Col 2 — Details: title + story */}
+          {/* Col 2 - Details: title + story */}
           <div className="flex min-w-0 flex-col gap-4">
             <header>
               <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -251,7 +251,7 @@ export default async function WatchDetailPage({ params }: { params: Promise<{ sl
             )}
           </div>
 
-          {/* Col 3 — Sticky buy box */}
+          {/* Col 3 - Sticky buy box */}
           <aside className="lg:sticky lg:top-[100px] lg:self-start">
             <div className="flex flex-col gap-4 rounded-2xl border border-zinc-800/70 bg-gradient-to-b from-zinc-900/60 to-zinc-950/40 p-5">
               <div>

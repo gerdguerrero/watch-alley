@@ -88,7 +88,7 @@ export async function fetchJournalPost(slug: string): Promise<JournalPost | null
 }
 
 /**
- * Every published journal slug — feeds /journal/[slug] generateStaticParams.
+ * Every published journal slug - feeds /journal/[slug] generateStaticParams.
  */
 export async function fetchPublishedJournalSlugs(): Promise<string[]> {
   const supabase = createSupabasePublicClient();

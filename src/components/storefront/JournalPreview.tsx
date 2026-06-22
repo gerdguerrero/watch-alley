@@ -74,11 +74,11 @@ function MagazineMasthead({ issue, count }: { issue: string; count: number }) {
  *
  * Premium register: a masthead bar at the top reads the section as a real
  * publication, a 60/40 grid carries a film-grained featured story on the
- * left and a hairline-divided ledger of further entries on the right —
+ * left and a hairline-divided ledger of further entries on the right -
  * no card chrome, no rounded corners, no shadow. Byline + tabular date +
  * read-time stamp on every entry. Drop-cap leads the featured summary.
  *
- * All hover signals are slow gold rules drawing in from the left edge —
+ * All hover signals are slow gold rules drawing in from the left edge -
  * the same vocabulary the SoldRow component uses elsewhere.
  *
  * Server Component. Posts are passed in pre-fetched so the parent
@@ -95,7 +95,7 @@ export function JournalPreview({ posts }: JournalPreviewProps) {
         id="journal"
         className="border-t border-border bg-background px-[clamp(20px,4vw,80px)] py-[clamp(48px,8vw,96px)]"
       >
-        {/* Section eyebrow row — BigNum + headline + VIEW ALL */}
+        {/* Section eyebrow row - BigNum + headline + VIEW ALL */}
         <header className="mb-10 flex flex-wrap items-end justify-between gap-6">
           <div
             className="wa-rev-rise flex items-end gap-[clamp(16px,3vw,40px)]"
@@ -126,7 +126,7 @@ export function JournalPreview({ posts }: JournalPreviewProps) {
         <MagazineMasthead issue="Issue Nº 47 · April 2026" count={posts.length} />
 
         <div className="grid gap-[clamp(28px,3vw,48px)] lg:grid-cols-[1.4fr_1fr]">
-          {/* Featured story — film-grained image, byline + drop-cap summary */}
+          {/* Featured story - film-grained image, byline + drop-cap summary */}
           <Link
             href={`/journal/${featured.slug}`}
             style={{ transitionDelay: "500ms" }}
@@ -182,7 +182,7 @@ export function JournalPreview({ posts }: JournalPreviewProps) {
             </div>
           </Link>
 
-          {/* Right column — hairline ledger. No card chrome. */}
+          {/* Right column - hairline ledger. No card chrome. */}
           <ol className="flex flex-col">
             {ledger.map((post, i) => (
               <li

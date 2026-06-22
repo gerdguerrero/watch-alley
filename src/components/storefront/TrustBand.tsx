@@ -1,13 +1,13 @@
 import { CountUpFigure } from "./CountUpFigure";
 
 /**
- * Trust band — the four-stat ledger row that sits under the hero.
+ * Trust band - the four-stat ledger row that sits under the hero.
  *
  * Editorial register, not a SaaS hero-metric template: thin gold rules,
  * generous gaps, Playfair figures with oldstyle-nums, mono labels. No cards.
  *
  * Each stat carries a cascading 220ms delay so the figures count up left to
- * right in sequence — quietly telegraphs care, like a master watchmaker
+ * right in sequence - quietly telegraphs care, like a master watchmaker
  * winding pieces one at a time. Server Component shell + client CountUpFigure
  * islands per number.
  */

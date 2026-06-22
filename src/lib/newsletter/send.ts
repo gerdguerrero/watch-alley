@@ -423,7 +423,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string, countr
       <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
         <p style="margin-top: 0;">Hi${greetingName},</p>
         <p>Mabuhay from Manila! Thank you for joining <strong>The Watch List</strong> by The Watch Alley.</p>
-        <p>We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops—before they go public on our storefront or social channels.</p>
+        <p>We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops before they go public on our storefront or social channels.</p>
         <p><strong>What to expect next:</strong></p>
         <ul style="padding-left: 20px; margin-bottom: 24px;">
           <li style="margin-bottom: 8px;"><strong>Curated Watch Drops</strong>: We share daylight-photographed watches with fully transparent condition notes. No surprises, no hidden flaws.</li>
@@ -438,7 +438,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string, countr
 
 Mabuhay from Manila! Thank you for joining The Watch List by The Watch Alley.
 
-We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops—before they go public on our storefront or social channels.
+We are a boutique curator dedicated to sourcing exceptional timepieces. By subscribing, you've unlocked direct, early access to our curated drops before they go public on our storefront or social channels.
 
 What to expect next:
 - Curated Watch Drops: We share daylight-photographed watches with fully transparent condition notes. No surprises, no hidden flaws.

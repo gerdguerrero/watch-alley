@@ -4,7 +4,7 @@
 // writes to the watches table directly.
 //
 // supabase-js is loaded as a regular <script> (UMD build) from
-// ../scripts/vendor/supabase.min.js — zero external CDN dependencies.
+// ../scripts/vendor/supabase.min.js - zero external CDN dependencies.
 
 import { renderMarkdown } from './lib/markdown.mjs';
 
@@ -226,7 +226,7 @@ let passwordSetupReason = 'invite';
 // Guard against duplicate session renders. The top-level renderForCurrentSession
 // call at the bottom of this file handles the initial session. The
 // onAuthStateChange listener also fires INITIAL_SESSION on load, and SIGNED_IN
-// fires after a successful signInWithPassword() — both of which would
+// fires after a successful signInWithPassword() - both of which would
 // re-render the workspace and trigger admin_whoami + admin_list_watches +
 // admin_dashboard_metrics a second time. That tripled the post-sign-in RPC
 // load and surfaced as the workspace appearing to "hang" for 3-5 seconds
@@ -289,7 +289,7 @@ function setStatus(message, tone) {
   else els.status.removeAttribute('data-tone');
 }
 
-// ---------------- Revalidation ---------------- 
+// ---------------- Revalidation ----------------
 
 /**
  * Trigger Next.js on-demand ISR revalidation so the storefront reflects
@@ -375,7 +375,7 @@ els.authForm.addEventListener('submit', async (event) => {
     if (error) throw error;
     setStatus('Signed in.', 'success');
     // onAuthStateChange will fire SIGNED_IN and run renderForCurrentSession().
-    // Don't call it explicitly here — doing so doubled every post-sign-in
+    // Don't call it explicitly here - doing so doubled every post-sign-in
     // RPC (admin_whoami, admin_list_watches, admin_dashboard_metrics).
   } catch (error) {
     setStatus(error.message || 'Sign-in failed', 'error');
@@ -427,13 +427,13 @@ if (supabase) {
   supabase.auth.onAuthStateChange((event) => {
     // PASSWORD_RECOVERY fires when supabase-js consumes a recovery link's
     // hash. SIGNED_IN can fire on invite acceptance too. The URL hash also
-    // tells us — readEmailLinkType already captured it above. Either signal
+    // tells us - readEmailLinkType already captured it above. Either signal
     // is sufficient: surface the password-setup panel.
     if (event === 'PASSWORD_RECOVERY') {
       mustSetPassword = true;
       passwordSetupReason = 'recovery';
     }
-    // Skip a full re-render on routine token refresh — that path doesn't
+    // Skip a full re-render on routine token refresh - that path doesn't
     // change the gate state and reloading inventory on every refresh would
     // disrupt the workspace UI.
     if (event === 'TOKEN_REFRESHED') return;
@@ -441,7 +441,7 @@ if (supabase) {
     // The workspace is already loaded; rerendering would needlessly refire
     // every dashboard RPC.
     if (event === 'USER_UPDATED') return;
-    // Don't auto-flip mustSetPassword off here — the password-setup form
+    // Don't auto-flip mustSetPassword off here - the password-setup form
     // handler clears it on success.
     renderForCurrentSession();
   });
@@ -600,7 +600,7 @@ function renderList() {
     const li = document.createElement('li');
     if (w.id === activeId) li.classList.add('is-active');
     // Render the DRAFT pill inline. A prior version used a MutationObserver
-    // on #watch-list to retrofit pills after the fact — that observer fired
+    // on #watch-list to retrofit pills after the fact - that observer fired
     // on every subtree mutation, and its own appendChild/removeChild calls
     // re-triggered itself, locking up the page with an infinite loop the
     // moment any inventory loaded.
@@ -828,7 +828,7 @@ function loadIntoForm(watch) {
   setField('primaryImage', watch?.primary_image || '');
   setField('images', Array.isArray(watch?.images) ? watch.images.join('\n') : '');
   setImageList(Array.isArray(watch?.images) ? watch.images.slice() : []);
-  // Inquiry subject/body fields were removed from the form — the storefront
+  // Inquiry subject/body fields were removed from the form - the storefront
   // generates the Messenger message per-watch. Nothing to populate here.
   setField('soldAt', watch?.sold_at || '');
   setField('soldPrice', watch?.sold_price ?? '');
@@ -878,7 +878,7 @@ async function saveCurrentForm({ publishNow = false, skipValidation = false } = 
       if (refreshed) loadIntoForm(refreshed);
     }
     // Auto-save social drafts in the same click. Silent if user did not
-    // generate / write any captions — no error, no status flash.
+    // generate / write any captions - no error, no status flash.
     await saveSocialDrafts({ silentIfEmpty: true });
     setStatus(
       publishNow
@@ -978,8 +978,8 @@ function socialInclusionsText(listing) {
 }
 
 function socialStatusText(status) {
-  if (status === 'reserved') return 'Reserved — message us to check availability.';
-  if (status === 'sold') return 'Sold — ask about similar references.';
+  if (status === 'reserved') return 'Reserved. Message us to check availability.';
+  if (status === 'sold') return 'Sold. Ask about similar references.';
   return 'Available now.';
 }
 
@@ -1065,7 +1065,7 @@ function renderSocialPreviewFromForm({ announce = true } = {}) {
 }
 
 // Platform character + hashtag limits used by the Preview & Limits panel.
-// These mirror the public Meta caps; treat them as advisory — going over
+// These mirror the public Meta caps; treat them as advisory - going over
 // renders an over-limit pill so the operator sees it before posting.
 const SOCIAL_LIMITS = {
   facebook: { chars: 63206 },
@@ -1298,7 +1298,7 @@ function setSavedDraftsMeta(rows) {
 // devices. Silently no-ops when no listing is loaded yet.
 //
 // Captures the activeId at call time and bails on response if the user
-// has switched listings while the RPC was in flight — otherwise a
+// has switched listings while the RPC was in flight - otherwise a
 // stale response from watch A could overwrite watch B's captions and
 // the next Save click would silently persist A's drafts onto B.
 async function loadSocialDraftsForActiveWatch() {
@@ -1331,14 +1331,14 @@ async function loadSocialDraftsForActiveWatch() {
     setSocialPreviewStatus('Loaded saved drafts. Edit and re-save to update.', 'success');
   } catch (error) {
     if (requestedWatchId !== activeId) return; // user switched listings; bail.
-    // Non-blocking — owner can still generate fresh previews.
+    // Non-blocking - owner can still generate fresh previews.
     setSavedDraftsMeta([]);
   }
 }
 
 // Persist the current Facebook + Instagram captions to Supabase as
 // drafts. Phase A only writes status='draft'. Requires a saved listing
-// (foreign key) — a brand-new unsaved row has no watch_id to anchor
+// (foreign key) - a brand-new unsaved row has no watch_id to anchor
 // the drafts to. Captures activeId at call time so a mid-flight watch
 // switch cannot stamp the success message or reload against the wrong
 // listing (the writes themselves are already keyed by the captured id
@@ -1450,7 +1450,7 @@ function collectFormPayload() {
     images,
     // Deprecated manual inquiry copy. The form fields were removed and the
     // storefront generates the message per-watch, but the DB columns are still
-    // NOT NULL — persist empty strings to satisfy the constraint.
+    // NOT NULL - persist empty strings to satisfy the constraint.
     inquirySubject: '',
     inquiryBody: '',
     hasBox: getCheckbox('hasBox'),
@@ -1719,7 +1719,7 @@ function getCountryFlagUrl(countryCode) {
   return 'https://flagcdn.com/w40/' + code + '.png';
 }
 function formatPrice(value) {
-  if (value == null) return '—';
+  if (value == null) return '-';
   return Number(value).toLocaleString('en-PH', { maximumFractionDigits: 0 });
 }
 
@@ -1833,7 +1833,7 @@ function setAnalyticsText(key, value) {
   if (node) node.textContent = value;
 }
 
-// — SVG sparkline helper —
+// - SVG sparkline helper -
 
 function renderSparkline(container, data, color) {
   if (!container || !data || data.length < 2) return;
@@ -1864,7 +1864,7 @@ function renderSparkline(container, data, color) {
   container.appendChild(svg);
 }
 
-// — SVG area chart —
+// - SVG area chart -
 
 function renderAnalyticsChart(series, previousSeries) {
   var svg = document.getElementById('analytics-chart');
@@ -1886,7 +1886,7 @@ function renderAnalyticsChart(series, previousSeries) {
   var niceMax = Math.ceil(maxVal / ceil) * ceil || ceil;
   if (niceMax <= maxVal) niceMax = maxVal * 1.1;
 
-  // Y axis ticks — compute positions
+  // Y axis ticks - compute positions
   var yTicks = [];
   for (var t = 0; t <= niceMax; t += niceMax / 4) {
     yTicks.push(t);
@@ -2015,7 +2015,7 @@ function renderAnalyticsChart(series, previousSeries) {
   avgLabel.textContent = 'avg ' + formatInt(Math.round(avg));
   chartGroup.appendChild(avgLabel);
 
-  // X axis labels — show ~6 evenly spaced dates
+  // X axis labels - show ~6 evenly spaced dates
   var labelCount = Math.min(series.length, 6);
   var step = Math.max(1, Math.floor((series.length - 1) / (labelCount - 1)));
   for (var li = 0; li < series.length; li += step) {
@@ -2115,14 +2115,14 @@ async function loadVercelAnalytics({ force = false } = {}) {
     el.classList.add('analytics-skeleton');
   });
   document.querySelectorAll('.am-value, .am-badge').forEach(function (el) {
-    el.dataset.animateTo = el.textContent !== '—' ? el.textContent : '';
+    el.dataset.animateTo = el.textContent !== '-' ? el.textContent : '';
     el.textContent = '';
   });
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
-    if (!token) throw new Error('No active admin session — sign in again.');
+    if (!token) throw new Error('No active admin session. Sign in again.');
 
     var qs = analyticsQueryString();
     var resp = await fetch('/api/admin/vercel-analytics?' + qs, {
@@ -2346,7 +2346,7 @@ async function loadUniqueVisitors() {
   try {
     var { data: { session } } = await supabase.auth.getSession();
     var token = session?.access_token;
-    if (!token) { el.textContent = '—'; return; }
+    if (!token) { el.textContent = '-'; return; }
 
     var resp = await fetch('/api/admin/unique-visitors?period=7d', {
       headers: { Authorization: 'Bearer ' + token },
@@ -2373,7 +2373,7 @@ async function loadUniqueVisitors() {
       el.textContent = '0';
       if (foot && body && !body.ok) foot.textContent = 'Run migration: visitor_ids table';
     }
-  } catch { el.textContent = '—'; }
+  } catch { el.textContent = '-'; }
 }
 
 // Period pill switching
@@ -2434,7 +2434,7 @@ async function loadVisitorCountries() {
       var flagUrl = getCountryFlagUrl(countryCode);
       var flagHtml = flagUrl
         ? '<img class="vc-flag-img" src="' + escapeAttr(flagUrl) + '" srcset="' + escapeAttr(flagUrl.replace('/w40/', '/w80/')) + ' 2x" width="24" height="18" loading="lazy" alt="' + escapeAttr(countryCode + ' flag') + '" data-fallback="' + escapeAttr(countryCode) + '">'
-        : '<span class="vc-flag-code">' + escapeHtml(countryCode || c.flag || '—') + '</span>';
+        : '<span class="vc-flag-code">' + escapeHtml(countryCode || c.flag || '-') + '</span>';
       html += '<li>' +
         '<span class="vc-rank">' + (i + 1) + '</span>' +
         '<span class="vc-flag" title="' + escapeAttr(countryCode) + '">' + flagHtml + '</span>' +
@@ -2624,7 +2624,7 @@ if (els.inviteForm) {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
-      if (!accessToken) throw new Error('No active session — sign in again.');
+      if (!accessToken) throw new Error('No active session. Sign in again.');
 
       const response = await fetch(`${SUPABASE_URL}/functions/v1/invite-admin`, {
         method: 'POST',
@@ -3044,7 +3044,7 @@ const LOST_REASON_OPTIONS = [
 
 function lostReasonLabel(value) {
   const found = LOST_REASON_OPTIONS.find((opt) => opt.value === value);
-  return found ? found.label : value || '—';
+  return found ? found.label : value || '-';
 }
 
 async function loadInbox() {
@@ -3134,9 +3134,9 @@ function renderInboxDrawer(row) {
   const fullMessage = String(row.message || '');
   const watchLabel = row.watch_slug || row.watch_id || '';
   const watchHref = row.watch_slug ? `../watch/${encodeURIComponent(row.watch_slug)}` : '';
-  const respondedAt = row.responded_at ? new Date(row.responded_at).toLocaleString('en-PH') : '—';
-  const closedAt = row.closed_at ? new Date(row.closed_at).toLocaleString('en-PH') : '—';
-  const created = row.created_at ? new Date(row.created_at).toLocaleString('en-PH') : '—';
+  const respondedAt = row.responded_at ? new Date(row.responded_at).toLocaleString('en-PH') : '-';
+  const closedAt = row.closed_at ? new Date(row.closed_at).toLocaleString('en-PH') : '-';
+  const created = row.created_at ? new Date(row.created_at).toLocaleString('en-PH') : '-';
 
   const statusOptionsHtml = INBOX_STATUS_OPTIONS
     .map((opt) => `<option value="${escapeAttr(opt.value)}"${opt.value === row.status ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`)
@@ -3156,9 +3156,9 @@ function renderInboxDrawer(row) {
   return `
     <p class="inbox-drawer-message">${escapeHtml(fullMessage)}</p>
     <dl class="inbox-drawer-meta">
-      <div><dt>Email</dt><dd>${row.buyer_email ? `<a href="mailto:${escapeAttr(row.buyer_email)}">${escapeHtml(row.buyer_email)}</a>` : '—'}</dd></div>
+      <div><dt>Email</dt><dd>${row.buyer_email ? `<a href="mailto:${escapeAttr(row.buyer_email)}">${escapeHtml(row.buyer_email)}</a>` : '-'}</dd></div>
       ${row.buyer_phone ? `<div><dt>Phone</dt><dd>${escapeHtml(row.buyer_phone)}</dd></div>` : ''}
-      <div><dt>Watch</dt><dd>${watchHref ? `<a href="${escapeAttr(watchHref)}" target="_blank" rel="noopener">${escapeHtml(watchLabel)}</a>` : escapeHtml(watchLabel || '—')}</dd></div>
+      <div><dt>Watch</dt><dd>${watchHref ? `<a href="${escapeAttr(watchHref)}" target="_blank" rel="noopener">${escapeHtml(watchLabel)}</a>` : escapeHtml(watchLabel || '-')}</dd></div>
       <div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div>
       <div><dt>Responded</dt><dd>${escapeHtml(respondedAt)}</dd></div>
       <div><dt>Closed</dt><dd>${escapeHtml(closedAt)}</dd></div>
@@ -3187,7 +3187,7 @@ function renderInboxMetrics(metrics) {
   };
   for (const [metric, value] of Object.entries(map)) {
     const node = els.inboxMetrics.querySelector(`[data-metric="${metric}"]`);
-    if (node) node.textContent = value == null ? '—' : String(value);
+    if (node) node.textContent = value == null ? '-' : String(value);
   }
 
   const top = Array.isArray(metrics && metrics.perWatchTop20) ? metrics.perWatchTop20 : [];
@@ -3334,7 +3334,7 @@ function cssEscape(value) {
   return String(value).replace(/[^a-zA-Z0-9_-]/g, (ch) => `\\${ch}`);
 }
 // =====================================================================
-// Dashboard tab — the operator's landing surface
+// Dashboard tab - the operator's landing surface
 // =====================================================================
 
 let dashboardLoading = false;
@@ -3355,7 +3355,7 @@ function formatRelativeTime(at) {
 }
 
 function formatDuration(seconds) {
-  if (!Number.isFinite(seconds) || seconds < 0) return '—';
+  if (!Number.isFinite(seconds) || seconds < 0) return '-';
   if (seconds < 90) return `${Math.round(seconds)}s`;
   const minutes = seconds / 60;
   if (minutes < 90) return `${Math.round(minutes)}m`;
@@ -3367,7 +3367,7 @@ function formatDuration(seconds) {
 
 function setDashboardKpi(key, value) {
   const node = document.querySelector(`[data-kpi="${key}"]`);
-  if (node) node.textContent = value == null ? '—' : String(value);
+  if (node) node.textContent = value == null ? '-' : String(value);
 }
 
 const ACTIVITY_KIND_LABEL = {
@@ -3426,11 +3426,11 @@ function renderDashboard(data) {
   const won = Number(conv.won || 0);
   const closed = Number(conv.closed || 0);
   const rate = closed > 0 ? Math.round((won / closed) * 100) : null;
-  setDashboardKpi('conversion.rate', rate == null ? '—' : `${rate}%`);
+  setDashboardKpi('conversion.rate', rate == null ? '-' : `${rate}%`);
   setDashboardKpi('conversion.foot', closed > 0 ? `${won} won of ${closed} closed` : 'no closed inquiries yet');
 
   const median = Number(repl.medianSeconds);
-  setDashboardKpi('replySla.median', Number.isFinite(median) ? formatDuration(median) : '—');
+  setDashboardKpi('replySla.median', Number.isFinite(median) ? formatDuration(median) : '-');
   const replied = Number(repl.repliedCount || 0);
   const total = Number(repl.inquiryCount || 0);
   setDashboardKpi('replySla.foot', total > 0 ? `${replied} of ${total} replied` : 'no inquiries yet');
@@ -3545,7 +3545,7 @@ if (els.dashboardRefresh) {
   els.dashboardRefresh.addEventListener('click', () => loadDashboard());
 }
 
-// Preview as buyer — opens the public storefront URL for the active watch
+// Preview as buyer - opens the public storefront URL for the active watch
 // in a new tab. Drafts render with a DRAFT banner + noindex; published
 // listings show their normal page. Wired here because both states share
 // the same /watch/<slug> URL.
@@ -3561,7 +3561,7 @@ document.addEventListener('click', (event) => {
 // the moment any inventory loaded.)
 
 // =====================================================================
-// Journal tab — list, edit, save, delete, toolbar, live preview, hero
+// Journal tab - list, edit, save, delete, toolbar, live preview, hero
 // =====================================================================
 
 let journalPosts = [];
@@ -3809,7 +3809,7 @@ function applyMarkdownAction(action) {
       break;
     }
     case 'image':
-      // Trigger the same hero-input element under the hood — it uploads to
+      // Trigger the same hero-input element under the hood - it uploads to
       // the journal-images bucket and inserts a markdown image at the
       // cursor when it returns. We re-route via a hidden input.
       els.journalHeroInput.dataset.target = 'inline';
@@ -4045,7 +4045,7 @@ async function loadNewsletterTab() {
   try {
     const { data, error } = await supabase.rpc('admin_list_newsletter_issues');
     if (error) throw error;
-    
+
     currentNewsletters = data || [];
     renderNewsletterList();
     clearNewsletterForm();
@@ -4060,10 +4060,10 @@ function renderNewsletterList() {
   const list = els.newsletterList;
   if (!list) return;
   list.innerHTML = '';
-  
+
   const filterVal = els.newsletterFilter.value.trim().toLowerCase();
-  const filtered = currentNewsletters.filter(n => 
-    !filterVal || 
+  const filtered = currentNewsletters.filter(n =>
+    !filterVal ||
     (n.public_title && n.public_title.toLowerCase().includes(filterVal)) ||
     (n.subject && n.subject.toLowerCase().includes(filterVal)) ||
     (n.slug && n.slug.toLowerCase().includes(filterVal))
@@ -4081,10 +4081,10 @@ function renderNewsletterList() {
     if (selectedNewsletter && selectedNewsletter.id === n.id) {
       li.classList.add('is-active');
     }
-    
-    const formattedDate = n.sent_at 
+
+    const formattedDate = n.sent_at
       ? new Date(n.sent_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
-      : n.scheduled_at 
+      : n.scheduled_at
         ? `Sched: ${new Date(n.scheduled_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}`
         : 'Draft';
 
@@ -4097,7 +4097,7 @@ function renderNewsletterList() {
         </div>
       </button>
     `;
-    
+
     const btn = li.querySelector('button');
     if (btn) {
       btn.addEventListener('click', () => selectNewsletter(n));
@@ -4111,7 +4111,7 @@ function clearNewsletterForm() {
   if (els.newsletterForm) els.newsletterForm.hidden = true;
   if (els.newsletterDetailEmpty) els.newsletterDetailEmpty.hidden = false;
   if (els.tabpanelNewsletter) els.tabpanelNewsletter.dataset.mobileView = 'list';
-  
+
   if (els.newsletterList) {
     const activeItems = els.newsletterList.querySelectorAll('.admin-watch-item.is-active');
     activeItems.forEach(item => item.classList.remove('is-active'));
@@ -4123,7 +4123,7 @@ function selectNewsletter(n) {
   if (els.newsletterDetailEmpty) els.newsletterDetailEmpty.hidden = true;
   if (els.newsletterForm) els.newsletterForm.hidden = false;
   if (els.tabpanelNewsletter) els.tabpanelNewsletter.dataset.mobileView = 'detail';
-  
+
   renderNewsletterList(); // updates active item highlight
 
   // Populate form
@@ -4159,7 +4159,7 @@ function selectNewsletter(n) {
 
   // Button visibilities based on status
   const s = n.status;
-  
+
   // Can delete if draft / needs_review / rejected / failed
   const deletable = ['draft', 'needs_review', 'rejected', 'failed'].includes(s);
   els.newsletterDeleteBtn.hidden = !deletable;
@@ -4179,14 +4179,14 @@ function selectNewsletter(n) {
   // Save changes allowed for all non-sending/sent/archived statuses
   const editable = !['sending', 'sent', 'archived'].includes(s);
   els.newsletterSaveBtn.hidden = !editable;
-  
+
   // Disable fields if not editable
   els.newsletterFieldSubject.disabled = !editable;
   els.newsletterFieldPreheader.disabled = !editable;
   els.newsletterFieldPublicTitle.disabled = !editable;
   els.newsletterFieldBodyHtml.disabled = !editable;
   els.newsletterFieldBodyText.disabled = !editable;
-  
+
   // Clear test email status
   els.newsletterTestStatus.textContent = '';
 }
@@ -4218,7 +4218,7 @@ if (els.newsletterNewBtn) {
   els.newsletterNewBtn.addEventListener('click', async () => {
     const title = prompt('Enter a title prefix for this newsletter issue (optional):');
     setStatus('Generating AI dispatch draft...', 'pending');
-    
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -4232,7 +4232,7 @@ if (els.newsletterNewBtn) {
         },
         body: JSON.stringify({ title })
       });
-      
+
       const body = await res.json();
       if (!res.ok || !body.ok) throw new Error(body.message || 'Generation failed.');
 
@@ -4334,7 +4334,7 @@ if (els.newsletterSendTestBtn) {
 if (els.newsletterApproveBtn) {
   els.newsletterApproveBtn.addEventListener('click', async () => {
     if (!selectedNewsletter) return;
-    
+
     const confirmed = confirm('Approve this dispatch? Once approved, it can be scheduled or broadcast to subscribers.');
     if (!confirmed) return;
 

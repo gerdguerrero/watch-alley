@@ -4,7 +4,7 @@ import { CuratorSignature } from "./CuratorSignature";
 import { FilmGrain } from "./FilmGrain";
 
 /**
- * Curator's Note — heritage atelier callout. Photo on the left, stacked
+ * Curator's Note - heritage atelier callout. Photo on the left, stacked
  * column on the right: big-num "06" above the eyebrow + headline + body +
  * italic signoff + CTA.
  *
