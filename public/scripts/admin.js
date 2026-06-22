@@ -2077,9 +2077,8 @@ function renderAnalyticsChart(series, previousSeries) {
   crosshair.setAttribute('y1', String(MARGIN.top));
   crosshair.setAttribute('x2', '0');
   crosshair.setAttribute('y2', String(MARGIN.top + ih));
-  crosshair.setAttribute('stroke', 'oklch(0.91 0.018 78 / 0.40)');
-  crosshair.setAttribute('stroke-width', '1');
-  crosshair.setAttribute('stroke-dasharray', '4,3');
+  crosshair.setAttribute('stroke', 'oklch(0.91 0.018 78 / 0.55)');
+  crosshair.setAttribute('stroke-width', '1.5');
   crosshair.setAttribute('opacity', '0');
   crosshair.style.pointerEvents = 'none';
   svg.appendChild(crosshair);
