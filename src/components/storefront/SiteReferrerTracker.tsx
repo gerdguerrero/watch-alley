@@ -10,18 +10,29 @@ function getExplicitSource(searchParams: URLSearchParams) {
     if (value && value.trim()) return value.trim();
   }
 
-  // Instagram/Facebook sometimes append platform-specific click IDs instead of
-  // preserving a useful document.referrer. Treat these as real platform signals.
   if (searchParams.has("igshid") || searchParams.has("igsh")) return "instagram";
   if (searchParams.has("fbclid")) return "facebook";
 
   return "";
 }
 
+function getVisitorUid() {
+  try {
+    let uid = localStorage.getItem("wa_uid") || "";
+    if (!uid) {
+      uid = crypto.randomUUID();
+      localStorage.setItem("wa_uid", uid);
+    }
+    return uid;
+  } catch {
+    return "";
+  }
+}
+
 /**
  * Tracks the external source that landed a visitor anywhere on the App Router
- * storefront. This complements WatchViewTracker, which only fires on watch
- * detail pages.
+ * storefront. This complements page-level watch analytics and models Vercel's
+ * Web Analytics referrer collection: raw referrer/source + anonymous visitor.
  */
 export function SiteReferrerTracker() {
   useEffect(() => {
@@ -31,15 +42,18 @@ export function SiteReferrerTracker() {
 
     if (!source && !referrer) return;
 
+    const uid = getVisitorUid();
+    const path = `${window.location.pathname}${window.location.search}`;
+
     try {
-      const sessionKey = `wa-ref:${source || referrer}`;
+      const sessionKey = `wa-ref:${source || referrer}:${path}`;
       if (sessionStorage.getItem(sessionKey)) return;
       sessionStorage.setItem(sessionKey, "1");
     } catch {
       // sessionStorage may be unavailable; still send the beacon.
     }
 
-    const payload = JSON.stringify({ source, referrer });
+    const payload = JSON.stringify({ source, referrer, uid, path });
     if (navigator.sendBeacon) {
       const blob = new Blob([payload], { type: "application/json" });
       navigator.sendBeacon("/api/track-referrer", blob);

@@ -3,22 +3,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-// Watch Alley hostnames are internal navigation, not external referrer sources.
-const SITE_HOSTS = new Set(["thewatchalley.com", "www.thewatchalley.com"]);
-
-function normalizeReferrer(value: unknown) {
-  if (typeof value !== "string" || value.length > 2048) return null;
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
-    const host = url.hostname.toLowerCase().replace(/^www\./, "");
-    if (!host || SITE_HOSTS.has(host) || SITE_HOSTS.has(url.hostname.toLowerCase())) return null;
-    return { key: host, label: host };
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -129,60 +113,7 @@ export async function POST(
       }
     }
 
-    // ── Track external referrer hostname ─────────────────
-    const referrer = normalizeReferrer(body?.referrer);
-    if (referrer) {
-      try {
-        const { data: existingReferrer } = await supabase
-          .from("visitor_referrers")
-          .select("*")
-          .eq("source_key", referrer.key)
-          .maybeSingle();
 
-        if (existingReferrer) {
-          const refStarted = new Date(existingReferrer.window_started_at || existingReferrer.last_seen_at);
-          const refHours = (Date.now() - refStarted.getTime()) / 3_600_000;
-
-          let ref24h = existingReferrer.views_24h + 1;
-          let ref7d = existingReferrer.views_7d + 1;
-          let refWindowStart = existingReferrer.window_started_at;
-
-          if (refHours >= 24) {
-            ref24h = 1;
-            if (refHours >= 168) ref7d = 1;
-            refWindowStart = now;
-          } else if (refHours >= 168) {
-            ref7d = 1;
-            ref24h = 1;
-            refWindowStart = now;
-          }
-
-          await supabase.from("visitor_referrers").update({
-            source_label: referrer.label,
-            visitor_count: existingReferrer.visitor_count + 1,
-            views_24h: ref24h,
-            views_7d: ref7d,
-            window_started_at: refWindowStart,
-            last_seen_at: now,
-          }).eq("source_key", referrer.key);
-        } else {
-          await supabase.from("visitor_referrers").insert({
-            source_key: referrer.key,
-            source_label: referrer.label,
-            visitor_count: 1,
-            views_24h: 1,
-            views_7d: 1,
-            window_started_at: now,
-            first_seen_at: now,
-            last_seen_at: now,
-          });
-        }
-      } catch {
-        // Non-critical - referrer tracking should never block the page view beacon.
-      }
-    }
-
-    // ── Track unique visitor ID ─────────────────────────
     let uid = "";
     try {
       uid = (body?.uid || "").trim();

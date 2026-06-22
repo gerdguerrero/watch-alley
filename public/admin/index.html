@@ -297,9 +297,15 @@
             </article>
 
             <article class="admin-card admin-dashboard-row analytics-note-card analytics-list-card analytics-list-card-compact">
-              <div class="admin-eyebrow">Referrers</div>
+              <div class="ref-card-head">
+                <div class="ref-tabs" aria-label="Referrer analytics views">
+                  <button type="button" class="ref-tab is-active" data-ref-view="referrers">Referrers</button>
+                  <button type="button" class="ref-tab" data-ref-view="utm" disabled title="UTM breakdown can be added after campaign traffic arrives">UTM Parameters</button>
+                </div>
+                <button type="button" class="ref-metric-toggle" id="ref-metric-toggle" data-metric="visitors">VISITORS</button>
+              </div>
               <div class="analytics-card-toolbar">
-                <p class="admin-hint">External sites that sent visitors to watch pages.</p>
+                <p class="admin-hint">Raw external sources, counted like Vercel: unique visitors and page views.</p>
                 <span class="pw-period-pills" id="ref-period-pills">
                   <button type="button" class="pw-pill" data-period="24h">24 hours</button>
                   <button type="button" class="pw-pill is-active" data-period="7d">7 days</button>

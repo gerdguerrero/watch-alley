@@ -1718,7 +1718,14 @@ function getCountryFlagUrl(countryCode) {
   if (!/^[a-z]{2}$/.test(code)) return '';
   return 'https://flagcdn.com/w40/' + code + '.png';
 }
-function getFaviconUrl(hostname) {
+function getFaviconUrl(hostname, iconType) {
+  if (iconType === 'instagram') return 'https://www.instagram.com/favicon.ico';
+  if (iconType === 'facebook') return 'https://www.facebook.com/favicon.ico';
+  if (iconType === 'google') return 'https://www.google.com/favicon.ico';
+  if (iconType === 'bing') return 'https://www.bing.com/favicon.ico';
+  if (iconType === 'duckduckgo') return 'https://duckduckgo.com/favicon.ico';
+  if (iconType === 'tiktok') return 'https://www.tiktok.com/favicon.ico';
+  if (iconType === 'youtube') return 'https://www.youtube.com/favicon.ico';
   var host = String(hostname || '').trim().toLowerCase();
   if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(host)) return '';
   return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=32';
@@ -2486,6 +2493,17 @@ document.querySelector('#vc-period-pills')?.addEventListener('click', function (
 });
 
 // Visitor referrers
+function getReferrersMetric() {
+  var toggle = document.getElementById('ref-metric-toggle');
+  return toggle ? toggle.getAttribute('data-metric') || 'visitors' : 'visitors';
+}
+function setReferrersMetric(metric) {
+  var toggle = document.getElementById('ref-metric-toggle');
+  if (!toggle) return;
+  var next = metric === 'pageviews' ? 'pageviews' : 'visitors';
+  toggle.setAttribute('data-metric', next);
+  toggle.textContent = next === 'pageviews' ? 'PAGE VIEWS' : 'VISITORS';
+}
 async function loadReferrers() {
   var list = document.getElementById('referrers-list');
   var status = document.getElementById('referrers-status');
@@ -2496,6 +2514,7 @@ async function loadReferrers() {
   var card = list.closest('.admin-card');
   if (card) card.classList.add('analytics-skeleton');
   var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
+  var metric = getReferrersMetric();
 
   try {
     var { data: { session } } = await supabase.auth.getSession();
@@ -2506,7 +2525,7 @@ async function loadReferrers() {
       return;
     }
 
-    var resp = await fetch('/api/admin/referrers?period=' + period, {
+    var resp = await fetch('/api/admin/referrers?period=' + period + '&metric=' + metric, {
       headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
@@ -2520,7 +2539,7 @@ async function loadReferrers() {
 
     var referrers = Array.isArray(body.referrers) ? body.referrers : [];
     if (referrers.length === 0) {
-      if (status) status.textContent = 'No external referrer data yet. This fills as visitors arrive from Instagram, Facebook, Google, and other sites.';
+      if (status) status.textContent = 'No external referrer data yet. This fills from real referrer headers and UTM/source links.';
       list.innerHTML = '';
       return;
     }
@@ -2530,17 +2549,20 @@ async function loadReferrers() {
     var html = '';
     for (var i = 0; i < referrers.length; i++) {
       var r = referrers[i];
-      var faviconUrl = getFaviconUrl(r.source);
+      var faviconUrl = getFaviconUrl(r.source, r.icon);
       var firstLetter = String(r.label || r.source || '?').charAt(0) || '?';
       var iconHtml = faviconUrl
-        ? '<img src="' + escapeAttr(faviconUrl) + '" width="16" height="16" loading="lazy" alt="" data-fallback="' + escapeAttr(firstLetter.toUpperCase()) + '">'
+        ? '<img src="' + escapeAttr(faviconUrl) + '" width="18" height="18" loading="lazy" alt="" data-fallback="' + escapeAttr(firstLetter.toUpperCase()) + '">'
         : '<span class="ref-fallback-icon">' + escapeHtml(firstLetter.toUpperCase()) + '</span>';
+      var secondary = metric === 'pageviews'
+        ? formatInt(r.visitors || 0) + ' visitors'
+        : formatInt(r.pageviews || 0) + ' page views';
       html += '<li style="--ref-width:' + Math.max(8, Number(r.pct || 0)) + '%">' +
         '<span class="ref-bar-bg"></span>' +
-        '<span class="ref-rank">' + (i + 1) + '</span>' +
         '<span class="ref-icon">' + iconHtml + '</span>' +
         '<span class="ref-info"><span class="ref-name">' + escapeHtml(r.label || r.source) + '</span>' +
-        '<span class="ref-meta">' + Number(r.share || 0) + '% of tracked external referrers</span></span>' +
+        '<span class="ref-meta">' + escapeHtml(secondary) + '</span></span>' +
+        '<span class="ref-share">' + escapeHtml(String(r.share || '0')) + '%</span>' +
         '<span class="ref-count">' + formatInt(r.count) + '</span>' +
         '</li>';
     }
@@ -2575,6 +2597,11 @@ document.querySelector('#ref-period-pills')?.addEventListener('click', function 
   if (!btn) return;
   document.querySelectorAll('#ref-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
   btn.classList.add('is-active');
+  loadReferrers();
+});
+
+document.querySelector('#ref-metric-toggle')?.addEventListener('click', function () {
+  setReferrersMetric(getReferrersMetric() === 'visitors' ? 'pageviews' : 'visitors');
   loadReferrers();
 });
 
