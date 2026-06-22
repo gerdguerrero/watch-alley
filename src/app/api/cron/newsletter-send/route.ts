@@ -3,6 +3,7 @@ import { sendNewsletterBroadcast } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   try {

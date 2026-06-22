@@ -17,6 +17,12 @@ const COOKIE_NAME = "wa_admin_access";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname.startsWith("/api/admin/")) {
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
+
   if (pathname !== "/admin" && pathname !== "/admin/") {
     return NextResponse.next();
   }
@@ -54,5 +60,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/"],
+  matcher: ["/admin", "/admin/", "/api/admin/:path*"],
 };

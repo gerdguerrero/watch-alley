@@ -1,12 +1,16 @@
 import "server-only";
 import { NextResponse } from "next/server";
 
+const PRIVATE_NO_STORE = {
+  "Cache-Control": "private, no-store",
+};
+
 export function jsonOk(payload: Record<string, unknown> = {}) {
-  return NextResponse.json({ ok: true, ...payload });
+  return NextResponse.json({ ok: true, ...payload }, { headers: PRIVATE_NO_STORE });
 }
 
 export function jsonError(message: string, status = 400) {
-  return NextResponse.json({ ok: false, message }, { status });
+  return NextResponse.json({ ok: false, message }, { status, headers: PRIVATE_NO_STORE });
 }
 
 export async function readJsonObject(request: Request) {

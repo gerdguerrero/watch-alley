@@ -6,6 +6,7 @@ import { generateNewsletterDraftAI } from "@/lib/newsletter/ai";
 import { jsonError, jsonOk, readJsonObject } from "@/lib/newsletter/api";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 function slugify(value: string) {
   return value

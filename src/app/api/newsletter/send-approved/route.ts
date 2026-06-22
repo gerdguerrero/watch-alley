@@ -4,6 +4,7 @@ import { jsonError, jsonOk, readJsonObject } from "@/lib/newsletter/api";
 import { sendNewsletterBroadcast } from "@/lib/newsletter/send";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   let admin: Awaited<ReturnType<typeof assertAdmin>>;

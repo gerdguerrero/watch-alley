@@ -3,6 +3,7 @@ import { sendProfileCompletionEmail } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 type CandidateRow = {
   id: string;
