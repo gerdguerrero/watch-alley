@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Unsubscribe — The Watch List",
+  title: "Unsubscribe from The Watch List",
   description: "Manage your Watch List subscription from The Watch Alley.",
   alternates: { canonical: "/watch-list/unsubscribe" },
 };

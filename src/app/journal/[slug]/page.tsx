@@ -6,6 +6,7 @@ import { renderMarkdown } from "@/lib/journal/markdown";
 import { fetchJournalPost, fetchPublishedJournalSlugs } from "@/lib/journal/queries";
 import type { JournalPost } from "@/lib/journal/types";
 import { resolveMetadataImageUrl } from "@/lib/metadata/images";
+import { SITE_URL } from "@/lib/seo/schema";
 
 // Pre-render every published slug at build; unknown slugs ISR at request time.
 // 60s revalidate so admin edits propagate within a minute.
@@ -24,18 +25,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await fetchJournalPost(slug);
-  if (!post) return { title: "Article not found — The Watch Alley PH" };
+  if (!post) return { title: "Article not found" };
   const imageUrl = resolveMetadataImageUrl(post.heroImage);
   const image = imageUrl ? [{ url: imageUrl, alt: post.title }] : undefined;
   return {
-    title: `${post.title} — The Watch Alley PH`,
+    title: post.title,
     description: post.summary,
     alternates: { canonical: `/journal/${post.slug}` },
     openGraph: {
       type: "article",
       title: post.title,
       description: post.summary,
-      url: `/journal/${post.slug}`,
+      url: `${SITE_URL}/journal/${post.slug}`,
       images: image,
       publishedTime: post.publishedAt || undefined,
       authors: post.author ? [post.author] : undefined,
@@ -91,10 +92,10 @@ function buildArticleJsonLd(post: JournalPost) {
       name: "The Watch Alley",
       logo: {
         "@type": "ImageObject",
-        url: "https://thewatchalley.com/brand/logo-dp-flat.png",
+        url: `${SITE_URL}/brand/logo-dp-flat.png`,
       },
     },
-    mainEntityOfPage: `https://thewatchalley.com/journal/${post.slug}`,
+    mainEntityOfPage: `${SITE_URL}/journal/${post.slug}`,
     keywords: post.tags.join(", "),
   };
 }

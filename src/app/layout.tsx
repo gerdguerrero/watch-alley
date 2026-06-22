@@ -7,6 +7,7 @@ import { WatchListModal } from "@/components/watch-list/WatchListModal";
 import { BRAND_COLORS } from "@/lib/brand/assets";
 import { fetchFeaturedWatch } from "@/lib/inventory/queries";
 import { FALLBACK_SITE_OG_IMAGE, resolveMetadataImageUrl } from "@/lib/metadata/images";
+import { buildSiteJsonLd, SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from "@/lib/seo/schema";
 import "./globals.css";
 
 // Develop-branch font stack (replaces the Petrona/Spectral/JetBrains_Mono set):
@@ -37,10 +38,6 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const SITE_TITLE = "The Watch Alley PH";
-const SITE_DESCRIPTION =
-  "A Manila-based curator of pre-owned and brand-new timepieces. Daylight-photographed, disclosed in writing, and handled with a collector-first concierge standard.";
-
 // Keep site-level metadata on the same freshness window as the inventory pages.
 // When the admin changes the featured available watch, the homepage/general OG
 // image refreshes after ISR and fetch-cache revalidation instead of requiring a code change.
@@ -57,11 +54,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: "The Watch Alley PH — Curated Watches in Manila",
-      template: "%s · The Watch Alley",
+      default: SITE_TITLE,
+      template: "%s | The Watch Alley",
     },
     description: SITE_DESCRIPTION,
-    metadataBase: new URL("https://thewatchalley.com"),
+    metadataBase: new URL(SITE_URL),
     applicationName: "The Watch Alley",
     // Icons are managed by the file-based metadata API:
     //   src/app/icon.png          → modern browsers
@@ -73,8 +70,8 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       title: SITE_TITLE,
-      description: "A Manila-based curator of pre-owned and brand-new timepieces.",
-      url: "https://thewatchalley.com",
+      description: SITE_DESCRIPTION,
+      url: SITE_URL,
       siteName: "The Watch Alley",
       locale: "en_PH",
       images: [
@@ -87,7 +84,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: SITE_TITLE,
-      description: "Curated pre-owned and brand-new timepieces, Manila.",
+      description: SITE_DESCRIPTION,
       images: [siteOgImage],
     },
   };
@@ -106,6 +103,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteJsonLd = buildSiteJsonLd();
+
   return (
     <html
       lang="en"
@@ -117,6 +116,11 @@ export default function RootLayout({
         <Footer />
         <WatchListModal />
         <Analytics />
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Schema.org JSON-LD is generated from static site constants.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
       </body>
     </html>
   );

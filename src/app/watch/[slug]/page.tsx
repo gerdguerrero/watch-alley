@@ -4,13 +4,14 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { InquiryButtons } from "@/components/storefront/InquiryButtons";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
-import { WatchViewTracker } from "@/components/storefront/WatchViewTracker";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
+import { WatchViewTracker } from "@/components/storefront/WatchViewTracker";
 import { WatchAlertForm } from "@/components/watch-list/WatchAlertForm";
 import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 import { resolveMetadataImageUrl } from "@/lib/metadata/images";
+import { buildProductJsonLd, SITE_URL } from "@/lib/seo/schema";
 
 // ISR: every published slug is pre-rendered at build, unknown slugs fall
 // through to on-demand render (dynamicParams defaults to true). Admin edits
@@ -40,12 +41,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const watch = await fetchWatchBySlug(slug);
   if (!watch) {
-    return { title: "Watch not found — The Watch Alley PH" };
+    return { title: "Watch not found" };
   }
-  const title = `${watch.brand} ${watch.name} — The Watch Alley PH`;
+  const title = `${watch.brand} ${watch.name}`;
   const description =
     watch.description ||
-    `${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""} — available at The Watch Alley.`;
+    `${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""} available from The Watch Alley in Manila.`;
   const imageUrl = resolveMetadataImageUrl(watch.primaryImage);
   const image = imageUrl ? [{ url: imageUrl, alt: `${watch.brand} ${watch.name}` }] : undefined;
   return {
@@ -56,7 +57,7 @@ export async function generateMetadata({
       type: "website",
       title,
       description,
-      url: `/watch/${watch.slug}`,
+      url: `${SITE_URL}/watch/${watch.slug}`,
       images: image,
     },
     twitter: {
@@ -64,31 +65,6 @@ export async function generateMetadata({
       title,
       description,
       images: imageUrl ? [imageUrl] : undefined,
-    },
-  };
-}
-
-function buildProductJsonLd(watch: Watch) {
-  const availability =
-    watch.status === "available"
-      ? "https://schema.org/InStock"
-      : watch.status === "reserved"
-        ? "https://schema.org/LimitedAvailability"
-        : "https://schema.org/SoldOut";
-  return {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: `${watch.brand} ${watch.name}`,
-    description: watch.description || undefined,
-    image: watch.primaryImage || undefined,
-    brand: { "@type": "Brand", name: watch.brand },
-    sku: watch.reference || undefined,
-    offers: {
-      "@type": "Offer",
-      price: watch.price,
-      priceCurrency: watch.currency || "PHP",
-      availability,
-      url: `https://thewatchalley.com/watch/${watch.slug}`,
     },
   };
 }

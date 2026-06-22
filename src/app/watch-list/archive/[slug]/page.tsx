@@ -13,10 +13,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const data = await fetchNewsletterIssueBySlug(slug);
-  if (!data) return { title: "Issue not found — The Watch Alley PH" };
+  if (!data) return { title: "Issue not found" };
 
   return {
-    title: `${data.issue.publicTitle} — The Watch List`,
+    title: data.issue.publicTitle,
     description: data.issue.preheader || data.issue.subject,
     alternates: { canonical: `/watch-list/archive/${slug}` },
   };

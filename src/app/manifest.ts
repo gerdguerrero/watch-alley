@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { BRAND_COLORS } from "@/lib/brand/assets";
+import { SITE_DESCRIPTION } from "@/lib/seo/schema";
 
 /**
  * PWA manifest — controls "Add to Home Screen" appearance on iOS and Android
@@ -13,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "The Watch Alley",
     short_name: "Watch Alley",
-    description: "A Manila-based curator of pre-owned and brand-new timepieces.",
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: BRAND_COLORS.walnut,

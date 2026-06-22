@@ -4,13 +4,14 @@ import { AvailableCatalog } from "@/components/storefront/AvailableCatalog";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";
 import { AVAILABLE_SORTS } from "@/lib/inventory/sort";
+import { buildAvailableItemListJsonLd } from "@/lib/seo/schema";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Available Pieces — The Watch Alley PH",
+  title: "Available Watches",
   description:
-    "Every available watch in our current rotation. Pre-owned and brand-new timepieces curated in Manila, daylight-photographed, disclosed in writing.",
+    "Browse available pre-owned, brand-new, and limited-edition watches from The Watch Alley in Manila, with prices, photos, and written condition notes.",
   alternates: { canonical: "/available" },
 };
 
@@ -34,6 +35,8 @@ export default async function AvailablePage({
     category: isBadge ? undefined : category,
     badge: isBadge ? "limited-edition" : undefined,
   });
+  const itemListJsonLd = buildAvailableItemListJsonLd(all);
+
   return (
     <main className="bg-[#080706] text-zinc-100">
       <PageTitle title="AVAILABLE" eyebrow="◆ Currently in rotation" variant="catalog" />
@@ -53,6 +56,11 @@ export default async function AvailablePage({
         </p>
       </section>
       <UsdPriceMount />
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Schema.org JSON-LD is server-built from published inventory rows.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
     </main>
   );
 }

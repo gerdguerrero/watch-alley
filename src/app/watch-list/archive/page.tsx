@@ -3,7 +3,7 @@ import Link from "next/link";
 import { fetchNewsletterIssues } from "@/lib/newsletter/queries";
 
 export const metadata: Metadata = {
-  title: "Watch List Archive — The Watch Alley PH",
+  title: "Watch List Archive",
   description: "Past Watch List dispatches from The Watch Alley.",
   alternates: { canonical: "/watch-list/archive" },
 };

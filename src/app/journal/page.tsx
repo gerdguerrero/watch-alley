@@ -6,7 +6,7 @@ import { fetchJournalPosts } from "@/lib/journal/queries";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Journal — The Watch Alley PH",
+  title: "Journal",
   description:
     "Notes from the bench: dispatches on watches we love, market observations from Manila, and a slow-build collector library from The Watch Alley.",
   alternates: { canonical: "/journal" },

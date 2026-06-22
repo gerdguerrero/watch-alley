@@ -10,7 +10,7 @@ import { collectBrands, SOLD_SORTS, type SortKey, sortWatches } from "@/lib/inve
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Sold Archive — The Watch Alley PH",
+  title: "Sold Archive",
   description:
     "A running record of watches placed through The Watch Alley. Browse what we've sold; message us when a similar reference comes around.",
   alternates: { canonical: "/sold" },

@@ -5,7 +5,7 @@ import { WatchListSignupForm } from "@/components/watch-list/WatchListSignupForm
 import { WATCH_LIST_POSITIONING } from "@/lib/watch-list/constants";
 
 export const metadata: Metadata = {
-  title: "The Watch List — The Watch Alley PH",
+  title: "The Watch List",
   description:
     "First access to curated drops, rare finds, collector notes, and sourcing opportunities from Manila.",
   alternates: { canonical: "/watch-list" },
