@@ -3,7 +3,7 @@ import type { Watch } from "@/lib/inventory/types";
 
 export const SITE_URL = "https://www.thewatchalley.com";
 export const SITE_NAME = "The Watch Alley";
-export const SITE_TITLE = "The Watch Alley PH | Watches in Manila";
+export const SITE_TITLE = "The Watch Alley PH: Curated Watches in Manila";
 export const SITE_DESCRIPTION =
   "Shop curated pre-owned, brand-new, and limited-edition watches in Manila with daylight photos, written condition notes, and direct collector concierge.";
 

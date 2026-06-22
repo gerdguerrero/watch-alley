@@ -31,7 +31,7 @@ export function WatchListSection({ source = "homepage-watch-list" }: WatchListSe
           <p className="mt-6 max-w-2xl text-[clamp(15px,1.6vw,18px)] leading-8 text-cream-60">
             {WATCH_LIST_SUBHEADLINE}
           </p>
-          <div className="mt-8 flex flex-wrap gap-2 text-[11px] text-cream-60">
+          <div data-nosnippet className="mt-8 flex flex-wrap gap-2 text-[11px] text-cream-60">
             {["Curated drops", "Rare finds", "Collector notes", "Sourcing opportunities"].map(
               (item) => (
                 <span key={item} className="rounded-full border border-amber-300/15 px-3 py-2">
