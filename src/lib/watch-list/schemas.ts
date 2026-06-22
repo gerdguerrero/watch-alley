@@ -54,6 +54,7 @@ export const signupSchema = z
     email: emailSchema,
     firstName: optionalText(120),
     country: optionalText(100),
+    whatsApp: optionalText(32),
     preferences: preferencesSchema,
   })
   .merge(consentSchema)

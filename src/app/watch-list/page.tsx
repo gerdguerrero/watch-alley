@@ -14,25 +14,34 @@ export const metadata: Metadata = {
 export default function WatchListPage() {
   return (
     <main className="bg-[#080706] pt-[clamp(92px,10vh,124px)] text-cream">
-      <section className="relative overflow-hidden px-6 pb-20 pt-12 md:px-12 md:pb-28 lg:px-20">
+      {/* ── Hero + Signup section ────────────────────────────────── */}
+      <section className="relative overflow-hidden px-6 pb-24 pt-12 md:px-12 md:pb-32 lg:px-20">
+        {/* Background texture */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 opacity-[0.08]"
+          className="absolute inset-0 opacity-[0.11]"
           style={{
             backgroundImage: "url(/brand/background-3.webp)",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,7,6,0.98),rgba(8,7,6,0.74)_58%,rgba(245,158,11,0.16))]" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,7,6,0.97),rgba(8,7,6,0.70)_50%,rgba(180,120,60,0.13)_85%,rgba(245,158,11,0.06))]" />
+        {/* Ambient glow behind the form card */}
+        <div
+          aria-hidden="true"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-300/[0.03] rounded-full blur-[120px] pointer-events-none"
+        />
 
-        <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
+          {/* Left column — copy */}
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/80">
               The Watch List by The Watch Alley
             </p>
             <h1 className="mt-5 max-w-4xl font-serif text-[clamp(48px,8vw,104px)] leading-[0.92] text-cream">
-              First access from Manila's collecting desk.
+              First access from Manila&apos;s collecting desk.
             </h1>
             <p className="mt-7 max-w-2xl text-[clamp(16px,1.7vw,20px)] leading-8 text-cream-60">
               {WATCH_LIST_POSITIONING}
@@ -42,8 +51,14 @@ export default function WatchListPage() {
               {[
                 ["Curated drops", "Available pieces before they get buried in the feed."],
                 ["Rare finds", "Alerts for references that do not sit around for long."],
-                ["Collector notes", "A tighter read on condition, provenance, and taste."],
-                ["Sourcing", "A structured way to tell us what to hunt for next."],
+                [
+                  "Collector notes",
+                  "A tighter read on condition, provenance, and taste.",
+                ],
+                [
+                  "Sourcing",
+                  "A structured way to tell us what to hunt for next.",
+                ],
               ].map(([title, body]) => (
                 <div key={title} className="border-t border-amber-300/15 pt-4">
                   <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300">
@@ -55,16 +70,20 @@ export default function WatchListPage() {
             </div>
           </div>
 
+          {/* Right column — signup card */}
           <div
             id="join"
-            className="rounded-2xl border border-amber-300/15 bg-black/35 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur md:p-7"
+            className="rounded-2xl border border-amber-300/15 bg-[#0d0b09]/80 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl md:p-8"
           >
-            <h2 className="font-serif text-3xl leading-tight text-cream">Join The Watch List</h2>
-            <p className="mt-3 text-sm leading-6 text-cream-60">
-              Share the broad shape of what catches your eye. Already subscribed with only an email?
-              Use the same address here and we will update your collector details.
+            <h2 className="font-serif text-3xl leading-tight text-cream">
+              Join The Watch List
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-cream-60">
+              Share the broad shape of what catches your eye. Already subscribed
+              with only an email? Use the same address here and we will update your
+              collector details.
             </p>
-            <div className="mt-6">
+            <div className="mt-7">
               <WatchListSignupForm
                 source="watch-list-page"
                 showPreferences
@@ -75,11 +94,12 @@ export default function WatchListPage() {
         </div>
       </section>
 
+      {/* ── Sourcing section ─────────────────────────────────────── */}
       <section
         id="sourcing"
-        className="border-t border-amber-300/10 px-6 py-20 md:px-12 md:py-28 lg:px-20"
+        className="border-t border-amber-300/10 px-6 py-20 md:px-12 md:py-32 lg:px-20"
       >
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.75fr_1fr]">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.75fr_1fr] lg:gap-16">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/80">
               Private Collecting Desk
@@ -88,8 +108,9 @@ export default function WatchListPage() {
               Looking for a specific reference?
             </h2>
             <p className="mt-6 text-[15px] leading-7 text-cream-60">
-              Send a structured request with your budget, timing, condition preference, and the
-              details that matter. The brief becomes part of the sourcing pipeline.
+              Send a structured request with your budget, timing, condition
+              preference, and the details that matter. The brief becomes part of the
+              sourcing pipeline.
             </p>
             <Link
               href="/sold"
@@ -99,7 +120,7 @@ export default function WatchListPage() {
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-amber-300/15 bg-black/30 p-5 md:p-7">
+          <div className="rounded-2xl border border-amber-300/15 bg-[#0d0b09]/70 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl md:p-8">
             <SourcingRequestForm source="watch-list-page-sourcing" />
           </div>
         </div>
