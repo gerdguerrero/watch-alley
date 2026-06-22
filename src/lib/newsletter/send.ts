@@ -29,6 +29,14 @@ function absoluteUrl(path: string) {
   return `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+function managePreferencesUrl() {
+  return absoluteUrl("/watch-list?intent=preferences");
+}
+
+function archiveUrl() {
+  return absoluteUrl("/watch-list/archive");
+}
+
 function absolutizeUrls(html: string) {
   return html
     .replace(/\shref="\/([^"]*)"/g, (_match, path: string) => {
@@ -182,8 +190,9 @@ function wrapHtmlEmail({
           You received this email because you are on The Watch List.
         </p>
         <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;">
-          <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a> · 
-          <a href="${absoluteUrl("/watch-list/archive")}">View Online Archive</a>
+          <a href="${managePreferencesUrl()}">Manage Preferences</a> |
+          <a href="${archiveUrl()}">View Online Archive</a> |
+          <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a>
         </p>
       </div>
     </div>
@@ -193,6 +202,15 @@ function wrapHtmlEmail({
 
 function buildUnsubscribeUrl(email: string) {
   return absoluteUrl(`/api/watch-list/unsubscribe?token=${createUnsubscribeToken(email)}`);
+}
+
+function appendTextFooter(bodyText: string, unsubscribeUrl: string) {
+  return `${bodyText.trim()}
+
+--
+Manage Preferences: ${managePreferencesUrl()}
+View Online Archive: ${archiveUrl()}
+Unsubscribe: ${unsubscribeUrl}`;
 }
 
 async function deliveryAlreadySent(
@@ -255,12 +273,13 @@ export async function sendTestEmail(issueId: string, recipient: string) {
     throw new Error(issueError?.message || "Newsletter issue not found.");
   }
   const issue = data.issue;
+  const unsubscribeUrl = buildUnsubscribeUrl(recipient);
 
   const html = wrapHtmlEmail({
     subject: issue.subject,
     preheader: issue.preheader || "",
     bodyHtml: issue.body_html || "",
-    unsubscribeUrl: absoluteUrl("/watch-list/unsubscribe"),
+    unsubscribeUrl,
   });
   const from = getFromEmail();
 
@@ -270,7 +289,7 @@ export async function sendTestEmail(issueId: string, recipient: string) {
     to: recipient,
     subject: `[TEST] ${issue.subject}`,
     html,
-    text: issue.body_text || "",
+    text: appendTextFooter(issue.body_text || issue.subject, unsubscribeUrl),
   });
 
   if (sendError) {
@@ -357,7 +376,7 @@ export async function sendNewsletterBroadcast(issueId: string) {
       to: email,
       subject: issue.subject,
       html,
-      text: issue.body_text || "",
+      text: appendTextFooter(issue.body_text || issue.subject, unsubscribeUrl),
       headers: {
         "List-Unsubscribe": `<${unsubscribeUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
@@ -411,7 +430,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string, countr
 
   const greetingName = firstName ? ` ${firstName}` : "";
 
-  const subject = "Welcome to The Watch List · The Watch Alley";
+  const subject = "Welcome to The Watch List | The Watch Alley";
   const preheader = "You're now on The Watch List. Welcome to curated timepiece drops from Manila.";
 
   const unsubscribeUrl = buildUnsubscribeUrl(email);
@@ -451,8 +470,9 @@ Wear them in good health,
 The Watch Alley Team
 
 ---
-Unsubscribe: ${unsubscribeUrl}
-View Online Archive: ${absoluteUrl("/watch-list/archive")}`;
+Manage Preferences: ${managePreferencesUrl()}
+View Online Archive: ${archiveUrl()}
+Unsubscribe: ${unsubscribeUrl}`;
   } else {
     bodyHtml = `
       <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
@@ -486,8 +506,9 @@ Wear them in good health,
 The Watch Alley Team
 
 ---
-Unsubscribe: ${unsubscribeUrl}
-View Online Archive: ${absoluteUrl("/watch-list/archive")}`;
+Manage Preferences: ${managePreferencesUrl()}
+View Online Archive: ${archiveUrl()}
+Unsubscribe: ${unsubscribeUrl}`;
   }
 
   const html = wrapHtmlEmail({

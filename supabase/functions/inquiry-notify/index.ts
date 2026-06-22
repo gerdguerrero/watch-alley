@@ -107,11 +107,11 @@ function formatPhp(price: number | null): string {
 }
 
 function buildEmailHtml(inquiry: InquiryRecord, watch: WatchRecord | null): string {
-  // Heritage atelier tone — paper background, walnut ink, gold rule. Inline
+  // Heritage atelier tone - paper background, walnut ink, gold rule. Inline
   // styles only (mail clients don't honor <style>). Petrona/Spectral fall
   // back to Georgia, JetBrains Mono falls back to Menlo.
   const watchLabel = watch && (watch.brand || watch.name)
-    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' — ' : ''}${watch.name ?? ''}`
+    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' - ' : ''}${watch.name ?? ''}`
     : 'a piece in the catalog';
   const watchRef = watch?.reference ? `Ref ${watch.reference}` : '';
   const priceLine = watch?.price ? formatPhp(Number(watch.price)) : '';
@@ -163,7 +163,7 @@ function buildEmailHtml(inquiry: InquiryRecord, watch: WatchRecord | null): stri
         <tr><td style="padding:32px 36px 32px;">
           <hr style="border:none;border-top:1px solid rgba(120,86,36,0.30);margin:0 0 14px;">
           <div style="font-family:Georgia,serif;font-style:italic;font-size:13px;color:#7a5a1a;">
-            — Sent automatically when this inquiry was received. Reply directly to ${escapeHtml(inquiry.buyer_email)}.
+            - Sent automatically when this inquiry was received. Reply directly to ${escapeHtml(inquiry.buyer_email)}.
           </div>
         </td></tr>
       </table>
@@ -177,7 +177,7 @@ function buildEmailHtml(inquiry: InquiryRecord, watch: WatchRecord | null): stri
 
 function buildEmailText(inquiry: InquiryRecord, watch: WatchRecord | null): string {
   const watchLabel = watch && (watch.brand || watch.name)
-    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' — ' : ''}${watch.name ?? ''}`
+    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' - ' : ''}${watch.name ?? ''}`
     : 'a piece in the catalog';
   const watchRef = watch?.reference ? `Ref ${watch.reference}` : '';
   const priceLine = watch?.price ? formatPhp(Number(watch.price)) : '';
@@ -249,7 +249,7 @@ async function sendResendEmail(inquiry: InquiryRecord, watch: WatchRecord | null
   if (!OWNER_EMAIL) return { ok: false, status: 'skipped', detail: 'OWNER_EMAIL not configured' };
 
   const watchLabel = watch && (watch.brand || watch.name)
-    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' — ' : ''}${watch.name ?? ''}`
+    ? `${watch.brand ?? ''}${watch.brand && watch.name ? ' - ' : ''}${watch.name ?? ''}`
     : 'a piece';
   const subject = `Inquiry · ${watchLabel}${watch?.reference ? ` (${watch.reference})` : ''}`;
 
@@ -343,7 +343,7 @@ Deno.serve(async (req: Request) => {
 
   // Manually-logged inquiries (admin recorded a Messenger / walk-in / phone
   // conversation after the fact) are already in our hands. Don't email
-  // ourselves about them. Also bail early if there's no buyer_email — the
+  // ourselves about them. Also bail early if there's no buyer_email - the
   // Resend path has no destination and the row was probably logged manually.
   if (inquiry.source === 'admin-manual' || !inquiry.buyer_email) {
     return json({

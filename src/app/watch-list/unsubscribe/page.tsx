@@ -11,7 +11,7 @@ function messageForStatus(status: string | undefined) {
   if (status === "success") {
     return {
       title: "You are unsubscribed.",
-      body: "You will no longer receive Watch List emails. If you ever want first access again, you can rejoin from the Watch List page.",
+      body: "You will no longer receive Watch List emails. If you ever want first access again, you can rejoin or update your collector details from the Watch List page.",
     };
   }
   if (status === "invalid") {
@@ -28,7 +28,7 @@ function messageForStatus(status: string | undefined) {
   }
   return {
     title: "Manage The Watch List.",
-    body: "Use the unsubscribe link in a Watch List email to remove that address from future sends.",
+    body: "Use the link in a Watch List email to unsubscribe. To update your details instead, open The Watch List and submit the form again with the same email.",
   };
 }
 

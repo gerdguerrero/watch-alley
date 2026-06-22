@@ -23,14 +23,14 @@
 //   3. Pre-record the invitee on the allowlist (idempotent upsert).
 //   4. Send Supabase Auth invite email.
 //   5. If the invite send fails, roll back the allowlist row (only if
-//      we were the one who just inserted it — never delete an existing
+//      we were the one who just inserted it - never delete an existing
 //      admin's row).
 //
 //   Rationale: If we sent the email first and the allowlist write
 //   failed, the invitee would receive an email but hit the forbidden
 //   panel after accepting. Re-running the function then 409s on
 //   inviteUserByEmail (already registered) and never reaches the
-//   allowlist write again — a stuck state. Pre-record-then-invite
+//   allowlist write again - a stuck state. Pre-record-then-invite
 //   makes retries safe and the failure mode self-heal-able.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';

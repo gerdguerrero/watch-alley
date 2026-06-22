@@ -3,10 +3,15 @@ import { unsubscribeWatchListEmail, verifyUnsubscribeToken } from "@/lib/watch-l
 
 export const runtime = "nodejs";
 
+function redirectStatus(base: string, status: "invalid" | "success" | "error") {
+  return NextResponse.redirect(new URL(`/watch-list/unsubscribe?status=${status}`, base));
+}
+
 async function handleUnsubscribe(request: Request) {
   const url = new URL(request.url);
   const token = url.searchParams.get("token") || "";
   const verified = verifyUnsubscribeToken(token);
+  const isPost = request.method === "POST";
 
   // Resolve base URL for redirects to prevent internal proxy port leaks
   let base = url.origin;
@@ -19,14 +24,30 @@ async function handleUnsubscribe(request: Request) {
   }
 
   if (!verified) {
-    return NextResponse.redirect(new URL("/watch-list/unsubscribe?status=invalid", base));
+    if (isPost) {
+      return NextResponse.json(
+        { ok: false, message: "Invalid unsubscribe token." },
+        { status: 400 }
+      );
+    }
+    return redirectStatus(base, "invalid");
   }
 
   try {
-    await unsubscribeWatchListEmail(verified.email);
-    return NextResponse.redirect(new URL("/watch-list/unsubscribe?status=success", base));
-  } catch {
-    return NextResponse.redirect(new URL("/watch-list/unsubscribe?status=error", base));
+    const result = await unsubscribeWatchListEmail(verified.email);
+    if (!result.found) {
+      console.info("Unsubscribe token was valid, but no subscriber row matched.");
+    }
+    if (isPost) {
+      return NextResponse.json({ ok: true });
+    }
+    return redirectStatus(base, "success");
+  } catch (error) {
+    console.error("Watch List unsubscribe failed:", error);
+    if (isPost) {
+      return NextResponse.json({ ok: false, message: "Unable to unsubscribe." }, { status: 500 });
+    }
+    return redirectStatus(base, "error");
   }
 }
 

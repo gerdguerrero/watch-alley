@@ -71,14 +71,10 @@ export async function unsubscribeWatchListEmail(email: string) {
   }
 
   const supabase = createSupabaseAdminClient();
-  const { error } = await supabase
-    .schema("watch_alley")
-    .from("watch_list_subscribers")
-    .update({
-      status: "unsubscribed",
-      updated_at: new Date().toISOString(),
-    })
-    .eq("email", normalizedEmail);
+  const { data, error } = await supabase.rpc("service_unsubscribe_watch_list_subscriber", {
+    p_email: normalizedEmail,
+  });
 
   if (error) throw new Error(error.message);
+  return data as { email: string; found: boolean; subscriberId: string | null };
 }
