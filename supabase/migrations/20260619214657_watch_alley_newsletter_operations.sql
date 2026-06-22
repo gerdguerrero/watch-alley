@@ -44,10 +44,8 @@ create table if not exists watch_alley.newsletter_issues (
   constraint newsletter_sending_requires_approval
     check (status <> 'sending' or approved_at is not null)
 );
-
 comment on table watch_alley.newsletter_issues is
   'The Watch List newsletter issues. AI may create drafts only; admin approval is required before scheduling/sending.';
-
 create index if not exists newsletter_issues_status_created_idx
   on watch_alley.newsletter_issues (status, created_at desc);
 create index if not exists newsletter_issues_scheduled_idx
@@ -56,12 +54,10 @@ create index if not exists newsletter_issues_scheduled_idx
 create index if not exists newsletter_issues_archive_idx
   on watch_alley.newsletter_issues (sent_at desc)
   where archive_visible = true and status in ('sent','archived');
-
 drop trigger if exists newsletter_issues_set_updated_at on watch_alley.newsletter_issues;
 create trigger newsletter_issues_set_updated_at
   before update on watch_alley.newsletter_issues
   for each row execute function watch_alley.set_updated_at();
-
 create table if not exists watch_alley.newsletter_issue_items (
   id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references watch_alley.newsletter_issues(id) on delete cascade,
@@ -76,10 +72,8 @@ create table if not exists watch_alley.newsletter_issue_items (
   metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(metadata) = 'object'),
   created_at timestamptz not null default now()
 );
-
 create index if not exists newsletter_issue_items_issue_position_idx
   on watch_alley.newsletter_issue_items (issue_id, position asc);
-
 create table if not exists watch_alley.ai_generation_runs (
   id uuid primary key default gen_random_uuid(),
   issue_id uuid references watch_alley.newsletter_issues(id) on delete set null,
@@ -94,10 +88,8 @@ create table if not exists watch_alley.ai_generation_runs (
   created_by_email text,
   created_at timestamptz not null default now()
 );
-
 create index if not exists ai_generation_runs_issue_created_idx
   on watch_alley.ai_generation_runs (issue_id, created_at desc);
-
 create table if not exists watch_alley.newsletter_send_logs (
   id uuid primary key default gen_random_uuid(),
   issue_id uuid not null references watch_alley.newsletter_issues(id) on delete cascade,
@@ -111,10 +103,8 @@ create table if not exists watch_alley.newsletter_send_logs (
   created_by_email text,
   created_at timestamptz not null default now()
 );
-
 create index if not exists newsletter_send_logs_issue_created_idx
   on watch_alley.newsletter_send_logs (issue_id, created_at desc);
-
 create table if not exists watch_alley.evergreen_content_library (
   id uuid primary key default gen_random_uuid(),
   title text not null check (length(trim(title)) between 1 and 240),
@@ -130,15 +120,12 @@ create table if not exists watch_alley.evergreen_content_library (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 create index if not exists evergreen_content_status_category_idx
   on watch_alley.evergreen_content_library (status, category, updated_at desc);
-
 drop trigger if exists evergreen_content_library_set_updated_at on watch_alley.evergreen_content_library;
 create trigger evergreen_content_library_set_updated_at
   before update on watch_alley.evergreen_content_library
   for each row execute function watch_alley.set_updated_at();
-
 -- ===========================================================================
 -- 2. RLS posture
 -- ===========================================================================
@@ -148,14 +135,12 @@ alter table watch_alley.newsletter_issue_items enable row level security;
 alter table watch_alley.ai_generation_runs enable row level security;
 alter table watch_alley.newsletter_send_logs enable row level security;
 alter table watch_alley.evergreen_content_library enable row level security;
-
 drop policy if exists "Public read archived newsletter issues" on watch_alley.newsletter_issues;
 create policy "Public read archived newsletter issues"
   on watch_alley.newsletter_issues
   for select
   to anon, authenticated
   using (archive_visible = true and status in ('sent','archived'));
-
 drop policy if exists "Public read archived newsletter items" on watch_alley.newsletter_issue_items;
 create policy "Public read archived newsletter items"
   on watch_alley.newsletter_issue_items
@@ -170,7 +155,6 @@ create policy "Public read archived newsletter items"
         and i.status in ('sent','archived')
     )
   );
-
 drop policy if exists "Deny direct newsletter issue writes" on watch_alley.newsletter_issues;
 create policy "Deny direct newsletter issue writes"
   on watch_alley.newsletter_issues for insert to anon, authenticated with check (false);
@@ -180,7 +164,6 @@ create policy "Deny direct newsletter issue updates"
 drop policy if exists "Deny direct newsletter issue deletes" on watch_alley.newsletter_issues;
 create policy "Deny direct newsletter issue deletes"
   on watch_alley.newsletter_issues for delete to anon, authenticated using (false);
-
 drop policy if exists "Deny direct newsletter item writes" on watch_alley.newsletter_issue_items;
 create policy "Deny direct newsletter item writes"
   on watch_alley.newsletter_issue_items for insert to anon, authenticated with check (false);
@@ -190,31 +173,25 @@ create policy "Deny direct newsletter item updates"
 drop policy if exists "Deny direct newsletter item deletes" on watch_alley.newsletter_issue_items;
 create policy "Deny direct newsletter item deletes"
   on watch_alley.newsletter_issue_items for delete to anon, authenticated using (false);
-
 drop policy if exists "Deny all direct AI generation access" on watch_alley.ai_generation_runs;
 create policy "Deny all direct AI generation access"
   on watch_alley.ai_generation_runs for all to anon, authenticated using (false) with check (false);
-
 drop policy if exists "Deny all direct send log access" on watch_alley.newsletter_send_logs;
 create policy "Deny all direct send log access"
   on watch_alley.newsletter_send_logs for all to anon, authenticated using (false) with check (false);
-
 drop policy if exists "Deny all direct evergreen writes" on watch_alley.evergreen_content_library;
 create policy "Deny all direct evergreen writes"
   on watch_alley.evergreen_content_library for all to anon, authenticated using (false) with check (false);
-
 -- Security-invoker views still require underlying SELECT grants. RLS narrows
 -- anon/authenticated callers to sent/archived public rows.
 grant select on watch_alley.newsletter_issues to anon, authenticated;
 grant select on watch_alley.newsletter_issue_items to anon, authenticated;
-
 -- ===========================================================================
 -- 3. Public archive views
 -- ===========================================================================
 
 drop view if exists public.newsletter_issue_items;
 drop view if exists public.newsletter_issues;
-
 create view public.newsletter_issues
 with (security_invoker = true)
 as
@@ -223,7 +200,6 @@ select
   hero_image_url, sent_at, created_at, updated_at
 from watch_alley.newsletter_issues
 where archive_visible = true and status in ('sent','archived');
-
 create view public.newsletter_issue_items
 with (security_invoker = true)
 as
@@ -233,15 +209,12 @@ select
 from watch_alley.newsletter_issue_items it
 join watch_alley.newsletter_issues i on i.id = it.issue_id
 where i.archive_visible = true and i.status in ('sent','archived');
-
 grant select on public.newsletter_issues to anon, authenticated;
 grant select on public.newsletter_issue_items to anon, authenticated;
-
 comment on view public.newsletter_issues is
   'Public archive view for sent/archived Watch List issues.';
 comment on view public.newsletter_issue_items is
   'Public archive items for sent/archived Watch List issues.';
-
 -- ===========================================================================
 -- 4. Admin helper and RPCs
 -- ===========================================================================
@@ -271,9 +244,7 @@ as $$
     ), '[]'::jsonb)
   );
 $$;
-
 revoke all on function watch_alley.newsletter_issue_json(watch_alley.newsletter_issues) from public, anon, authenticated;
-
 create or replace function public.admin_list_newsletter_issues(
   status_filter text default null,
   limit_count int default 100
@@ -298,7 +269,6 @@ end;
 $$;
 revoke all on function public.admin_list_newsletter_issues(text, int) from public, anon;
 grant execute on function public.admin_list_newsletter_issues(text, int) to authenticated;
-
 create or replace function public.admin_get_newsletter_issue(issue_id uuid)
 returns jsonb
 language plpgsql
@@ -325,7 +295,6 @@ end;
 $$;
 revoke all on function public.admin_get_newsletter_issue(uuid) from public, anon;
 grant execute on function public.admin_get_newsletter_issue(uuid) to authenticated;
-
 create or replace function public.admin_upsert_newsletter_issue(payload jsonb)
 returns jsonb
 language plpgsql
@@ -430,7 +399,6 @@ end;
 $$;
 revoke all on function public.admin_upsert_newsletter_issue(jsonb) from public, anon;
 grant execute on function public.admin_upsert_newsletter_issue(jsonb) to authenticated;
-
 create or replace function public.admin_update_newsletter_issue_status(
   issue_id uuid,
   new_status text,
@@ -493,7 +461,6 @@ end;
 $$;
 revoke all on function public.admin_update_newsletter_issue_status(uuid, text, timestamptz, boolean) from public, anon;
 grant execute on function public.admin_update_newsletter_issue_status(uuid, text, timestamptz, boolean) to authenticated;
-
 create or replace function public.admin_delete_newsletter_issue(issue_id uuid)
 returns boolean
 language plpgsql
@@ -518,7 +485,6 @@ end;
 $$;
 revoke all on function public.admin_delete_newsletter_issue(uuid) from public, anon;
 grant execute on function public.admin_delete_newsletter_issue(uuid) to authenticated;
-
 create or replace function public.admin_log_ai_generation_run(payload jsonb)
 returns jsonb
 language plpgsql
@@ -559,7 +525,6 @@ end;
 $$;
 revoke all on function public.admin_log_ai_generation_run(jsonb) from public, anon;
 grant execute on function public.admin_log_ai_generation_run(jsonb) to authenticated;
-
 create or replace function public.admin_log_newsletter_send(payload jsonb)
 returns jsonb
 language plpgsql
@@ -600,7 +565,6 @@ end;
 $$;
 revoke all on function public.admin_log_newsletter_send(jsonb) from public, anon;
 grant execute on function public.admin_log_newsletter_send(jsonb) to authenticated;
-
 -- Service-role-only helper for cron/email workers. The route handler must
 -- verify NEWSLETTER_CRON_SECRET before calling this.
 create or replace function public.service_list_due_newsletter_issues(limit_count int default 10)

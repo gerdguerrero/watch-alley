@@ -26,10 +26,8 @@ create table if not exists watch_alley.inquiry_intents (
   user_agent text,
   created_at timestamptz not null default now()
 );
-
 comment on table watch_alley.inquiry_intents is
   'Anonymous top-of-funnel click intents from watch-page Messenger CTAs. Does not imply the Messenger message was sent.';
-
 create index if not exists inquiry_intents_created_idx
   on watch_alley.inquiry_intents (created_at desc);
 create index if not exists inquiry_intents_watch_slug_idx
@@ -40,7 +38,6 @@ create index if not exists inquiry_intents_visitor_uid_idx
 create index if not exists inquiry_intents_country_code_idx
   on watch_alley.inquiry_intents (country_code)
   where country_code is not null;
-
 alter table watch_alley.inquiry_intents enable row level security;
 drop policy if exists "Deny all direct access" on watch_alley.inquiry_intents;
 create policy "Deny all direct access"
@@ -49,7 +46,6 @@ create policy "Deny all direct access"
   to anon, authenticated
   using (false)
   with check (false);
-
 create or replace function public.service_record_inquiry_intent(payload jsonb)
 returns jsonb
 language plpgsql
@@ -125,13 +121,10 @@ begin
   return jsonb_build_object('tracked', true, 'id', result_row.id);
 end;
 $$;
-
 revoke all on function public.service_record_inquiry_intent(jsonb) from public, anon, authenticated;
 grant execute on function public.service_record_inquiry_intent(jsonb) to service_role;
-
 comment on function public.service_record_inquiry_intent(jsonb) is
   'Service-role-only logger for anonymous Messenger inquiry-intent clicks from public watch pages.';
-
 create or replace function public.admin_dashboard_metrics()
 returns jsonb
 language plpgsql
@@ -343,9 +336,7 @@ begin
   return result;
 end;
 $$;
-
 revoke all on function public.admin_dashboard_metrics() from public, anon;
 grant execute on function public.admin_dashboard_metrics() to authenticated;
-
 comment on function public.admin_dashboard_metrics() is
   'Single-payload metrics for the admin Dashboard tab. Separates anonymous Messenger inquiry intent from manually logged CRM inquiries and outcomes.';

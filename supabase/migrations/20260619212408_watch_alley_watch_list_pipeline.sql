@@ -26,18 +26,14 @@ create table if not exists watch_alley.watch_list_subscribers (
   updated_at timestamptz not null default now(),
   last_subscribed_at timestamptz not null default now()
 );
-
 create unique index if not exists watch_list_subscribers_email_uidx
   on watch_alley.watch_list_subscribers (email);
-
 create index if not exists watch_list_subscribers_created_idx
   on watch_alley.watch_list_subscribers (created_at desc);
-
 drop trigger if exists watch_list_subscribers_set_updated_at on watch_alley.watch_list_subscribers;
 create trigger watch_list_subscribers_set_updated_at
   before update on watch_alley.watch_list_subscribers
   for each row execute function watch_alley.set_updated_at();
-
 create table if not exists watch_alley.watch_list_preferences (
   subscriber_id uuid primary key references watch_alley.watch_list_subscribers(id) on delete cascade,
   brands text[] not null default '{}',
@@ -54,12 +50,10 @@ create table if not exists watch_alley.watch_list_preferences (
   updated_at timestamptz not null default now(),
   check (budget_min_php is null or budget_max_php is null or budget_min_php <= budget_max_php)
 );
-
 drop trigger if exists watch_list_preferences_set_updated_at on watch_alley.watch_list_preferences;
 create trigger watch_list_preferences_set_updated_at
   before update on watch_alley.watch_list_preferences
   for each row execute function watch_alley.set_updated_at();
-
 create table if not exists watch_alley.watch_list_alerts (
   id uuid primary key default gen_random_uuid(),
   subscriber_id uuid not null references watch_alley.watch_list_subscribers(id) on delete cascade,
@@ -79,17 +73,14 @@ create table if not exists watch_alley.watch_list_alerts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 create index if not exists watch_list_alerts_subscriber_created_idx
   on watch_alley.watch_list_alerts (subscriber_id, created_at desc);
 create index if not exists watch_list_alerts_watch_slug_idx
   on watch_alley.watch_list_alerts (watch_slug);
-
 drop trigger if exists watch_list_alerts_set_updated_at on watch_alley.watch_list_alerts;
 create trigger watch_list_alerts_set_updated_at
   before update on watch_alley.watch_list_alerts
   for each row execute function watch_alley.set_updated_at();
-
 create table if not exists watch_alley.sourcing_requests (
   id uuid primary key default gen_random_uuid(),
   subscriber_id uuid references watch_alley.watch_list_subscribers(id) on delete set null,
@@ -122,17 +113,14 @@ create table if not exists watch_alley.sourcing_requests (
   updated_at timestamptz not null default now(),
   check (budget_min_php is null or budget_max_php is null or budget_min_php <= budget_max_php)
 );
-
 create index if not exists sourcing_requests_status_created_idx
   on watch_alley.sourcing_requests (status, created_at desc);
 create index if not exists sourcing_requests_email_created_idx
   on watch_alley.sourcing_requests (buyer_email, created_at desc);
-
 drop trigger if exists sourcing_requests_set_updated_at on watch_alley.sourcing_requests;
 create trigger sourcing_requests_set_updated_at
   before update on watch_alley.sourcing_requests
   for each row execute function watch_alley.set_updated_at();
-
 comment on table watch_alley.watch_list_subscribers is
   'The Watch List subscribers with consent/source metadata. Writes go through service-role-only RPCs.';
 comment on table watch_alley.watch_list_preferences is
@@ -141,40 +129,34 @@ comment on table watch_alley.watch_list_alerts is
   'Per-watch alerts, especially sold-watch similar-piece requests.';
 comment on table watch_alley.sourcing_requests is
   'Structured Private Collecting Desk sourcing requests.';
-
 alter table watch_alley.watch_list_subscribers enable row level security;
 alter table watch_alley.watch_list_preferences enable row level security;
 alter table watch_alley.watch_list_alerts enable row level security;
 alter table watch_alley.sourcing_requests enable row level security;
-
 drop policy if exists "Deny all direct access" on watch_alley.watch_list_subscribers;
 create policy "Deny all direct access"
   on watch_alley.watch_list_subscribers
   for all to anon, authenticated
   using (false)
   with check (false);
-
 drop policy if exists "Deny all direct access" on watch_alley.watch_list_preferences;
 create policy "Deny all direct access"
   on watch_alley.watch_list_preferences
   for all to anon, authenticated
   using (false)
   with check (false);
-
 drop policy if exists "Deny all direct access" on watch_alley.watch_list_alerts;
 create policy "Deny all direct access"
   on watch_alley.watch_list_alerts
   for all to anon, authenticated
   using (false)
   with check (false);
-
 drop policy if exists "Deny all direct access" on watch_alley.sourcing_requests;
 create policy "Deny all direct access"
   on watch_alley.sourcing_requests
   for all to anon, authenticated
   using (false)
   with check (false);
-
 grant usage on schema watch_alley to service_role;
 grant select, insert, update on
   watch_alley.watch_list_subscribers,
@@ -182,7 +164,6 @@ grant select, insert, update on
   watch_alley.watch_list_alerts,
   watch_alley.sourcing_requests
 to service_role;
-
 create or replace function watch_alley.jsonb_text_array(input jsonb)
 returns text[]
 language sql
@@ -196,7 +177,6 @@ as $$
   from jsonb_array_elements_text(coalesce(input, '[]'::jsonb)) as value
   where length(trim(value)) between 1 and 80;
 $$;
-
 create or replace function watch_alley.jsonb_positive_int(payload jsonb, key_name text)
 returns integer
 language plpgsql
@@ -216,7 +196,6 @@ begin
   return raw_value::integer;
 end;
 $$;
-
 create or replace function watch_alley.upsert_watch_list_subscriber(payload jsonb)
 returns jsonb
 language plpgsql
@@ -312,7 +291,6 @@ begin
   return jsonb_build_object('subscriberId', result_id, 'duplicate', duplicate);
 end;
 $$;
-
 create or replace function public.submit_watch_list_signup(payload jsonb)
 returns jsonb
 language plpgsql
@@ -323,7 +301,6 @@ begin
   return watch_alley.upsert_watch_list_subscriber(payload);
 end;
 $$;
-
 create or replace function public.submit_watch_list_alert(payload jsonb)
 returns jsonb
 language plpgsql
@@ -374,7 +351,6 @@ begin
   );
 end;
 $$;
-
 create or replace function public.submit_sourcing_request(payload jsonb)
 returns jsonb
 language plpgsql
@@ -426,15 +402,12 @@ begin
   );
 end;
 $$;
-
 revoke all on function watch_alley.jsonb_text_array(jsonb) from public, anon, authenticated;
 revoke all on function watch_alley.jsonb_positive_int(jsonb, text) from public, anon, authenticated;
 revoke all on function watch_alley.upsert_watch_list_subscriber(jsonb) from public, anon, authenticated;
-
 revoke all on function public.submit_watch_list_signup(jsonb) from public, anon, authenticated;
 revoke all on function public.submit_watch_list_alert(jsonb) from public, anon, authenticated;
 revoke all on function public.submit_sourcing_request(jsonb) from public, anon, authenticated;
-
 grant execute on function public.submit_watch_list_signup(jsonb) to service_role;
 grant execute on function public.submit_watch_list_alert(jsonb) to service_role;
 grant execute on function public.submit_sourcing_request(jsonb) to service_role;
