@@ -1718,6 +1718,11 @@ function getCountryFlagUrl(countryCode) {
   if (!/^[a-z]{2}$/.test(code)) return '';
   return 'https://flagcdn.com/w40/' + code + '.png';
 }
+function getFaviconUrl(hostname) {
+  var host = String(hostname || '').trim().toLowerCase();
+  if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(host)) return '';
+  return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(host) + '&sz=32';
+}
 function formatPrice(value) {
   if (value == null) return '-';
   return Number(value).toLocaleString('en-PH', { maximumFractionDigits: 0 });
@@ -2256,6 +2261,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
     loadUniqueVisitors();
     loadPopularWatches();
     loadVisitorCountries();
+    loadReferrers();
   }
 }
 
@@ -2264,7 +2270,7 @@ async function loadPopularWatches() {
   var status = document.getElementById('popular-watches-status');
   var periodEl = document.querySelector('.pw-pill.is-active');
   if (!list) return;
-  if (status) status.textContent = 'Loading\u2026';
+  if (status) { status.hidden = false; status.textContent = 'Loading\u2026'; }
   list.innerHTML = '';
   var pwCard = list.closest('.admin-card');
   if (pwCard) pwCard.classList.add('analytics-skeleton');
@@ -2380,7 +2386,7 @@ async function loadUniqueVisitors() {
 document.querySelector('#pw-period-pills')?.addEventListener('click', function (e) {
   var btn = e.target.closest('.pw-pill');
   if (!btn) return;
-  document.querySelectorAll('.pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  document.querySelectorAll('#pw-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
   btn.classList.add('is-active');
   loadPopularWatches();
 });
@@ -2391,7 +2397,7 @@ async function loadVisitorCountries() {
   var status = document.getElementById('visitor-countries-status');
   var periodEl = document.querySelector('#vc-period-pills .pw-pill.is-active');
   if (!list) return;
-  if (status) status.textContent = 'Loading\u2026';
+  if (status) { status.hidden = false; status.textContent = 'Loading\u2026'; }
   list.innerHTML = '';
   var card = list.closest('.admin-card');
   if (card) card.classList.add('analytics-skeleton');
@@ -2477,6 +2483,99 @@ document.querySelector('#vc-period-pills')?.addEventListener('click', function (
   document.querySelectorAll('#vc-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
   btn.classList.add('is-active');
   loadVisitorCountries();
+});
+
+// Visitor referrers
+async function loadReferrers() {
+  var list = document.getElementById('referrers-list');
+  var status = document.getElementById('referrers-status');
+  var periodEl = document.querySelector('#ref-period-pills .pw-pill.is-active');
+  if (!list) return;
+  if (status) { status.hidden = false; status.textContent = 'Loading\u2026'; }
+  list.innerHTML = '';
+  var card = list.closest('.admin-card');
+  if (card) card.classList.add('analytics-skeleton');
+  var period = periodEl ? periodEl.getAttribute('data-period') || '7d' : '7d';
+
+  try {
+    var { data: { session } } = await supabase.auth.getSession();
+    var token = session?.access_token;
+    if (!token) {
+      if (status) status.textContent = 'Sign in to see referrers.';
+      if (card) card.classList.remove('analytics-skeleton');
+      return;
+    }
+
+    var resp = await fetch('/api/admin/referrers?period=' + period, {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    var body = await resp.json().catch(function () { return {}; });
+    if (card) card.classList.remove('analytics-skeleton');
+
+    if (!body.ok) {
+      if (status) status.textContent = body.migrationHint || body.message || 'Could not load referrers.';
+      list.innerHTML = '';
+      return;
+    }
+
+    var referrers = Array.isArray(body.referrers) ? body.referrers : [];
+    if (referrers.length === 0) {
+      if (status) status.textContent = 'No external referrer data yet. This fills as visitors arrive from Instagram, Facebook, Google, and other sites.';
+      list.innerHTML = '';
+      return;
+    }
+
+    if (status) status.hidden = true;
+
+    var html = '';
+    for (var i = 0; i < referrers.length; i++) {
+      var r = referrers[i];
+      var faviconUrl = getFaviconUrl(r.source);
+      var firstLetter = String(r.label || r.source || '?').charAt(0) || '?';
+      var iconHtml = faviconUrl
+        ? '<img src="' + escapeAttr(faviconUrl) + '" width="16" height="16" loading="lazy" alt="" data-fallback="' + escapeAttr(firstLetter.toUpperCase()) + '">'
+        : '<span class="ref-fallback-icon">' + escapeHtml(firstLetter.toUpperCase()) + '</span>';
+      html += '<li style="--ref-width:' + Math.max(8, Number(r.pct || 0)) + '%">' +
+        '<span class="ref-bar-bg"></span>' +
+        '<span class="ref-rank">' + (i + 1) + '</span>' +
+        '<span class="ref-icon">' + iconHtml + '</span>' +
+        '<span class="ref-info"><span class="ref-name">' + escapeHtml(r.label || r.source) + '</span>' +
+        '<span class="ref-meta">' + Number(r.share || 0) + '% of tracked external referrers</span></span>' +
+        '<span class="ref-count">' + formatInt(r.count) + '</span>' +
+        '</li>';
+    }
+    list.innerHTML = html;
+    list.querySelectorAll('.ref-icon img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        var fallback = document.createElement('span');
+        fallback.className = 'ref-fallback-icon';
+        fallback.textContent = img.getAttribute('data-fallback') || '?';
+        img.replaceWith(fallback);
+      }, { once: true });
+    });
+
+    if (typeof gsap !== 'undefined') {
+      try {
+        gsap.fromTo(list.querySelectorAll('li'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' });
+      } catch (_) {
+        list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+      }
+    } else {
+      list.querySelectorAll('li').forEach(function (li) { li.style.opacity = '1'; li.style.transform = 'translateY(0)'; });
+    }
+  } catch (err) {
+    if (card) card.classList.remove('analytics-skeleton');
+    if (status) status.textContent = err.message || 'Failed to load referrers.';
+    list.innerHTML = '';
+  }
+}
+
+document.querySelector('#ref-period-pills')?.addEventListener('click', function (e) {
+  var btn = e.target.closest('.pw-pill');
+  if (!btn) return;
+  document.querySelectorAll('#ref-period-pills .pw-pill').forEach(function (p) { p.classList.remove('is-active'); });
+  btn.classList.add('is-active');
+  loadReferrers();
 });
 
 if (els.analyticsRangeSelect) {

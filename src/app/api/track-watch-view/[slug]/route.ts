@@ -3,28 +3,21 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-// ISO-3166-1 alpha-2 → country name mapping (top 60 by population)
-const COUNTRY_NAMES: Record<string, string> = {
-  AF: "Afghanistan", AL: "Albania", DZ: "Algeria", AO: "Angola", AR: "Argentina",
-  AM: "Armenia", AU: "Australia", AT: "Austria", AZ: "Azerbaijan", BD: "Bangladesh",
-  BE: "Belgium", BO: "Bolivia", BR: "Brazil", BG: "Bulgaria", KH: "Cambodia",
-  CM: "Cameroon", CA: "Canada", CL: "Chile", CN: "China", CO: "Colombia",
-  CD: "DR Congo", CR: "Costa Rica", CI: "Côte d'Ivoire", HR: "Croatia", CU: "Cuba",
-  CZ: "Czechia", DK: "Denmark", DO: "Dominican Republic", EC: "Ecuador", EG: "Egypt",
-  SV: "El Salvador", ET: "Ethiopia", FI: "Finland", FR: "France", DE: "Germany",
-  GH: "Ghana", GR: "Greece", GT: "Guatemala", HN: "Honduras", HK: "Hong Kong",
-  HU: "Hungary", IN: "India", ID: "Indonesia", IR: "Iran", IQ: "Iraq", IE: "Ireland",
-  IL: "Israel", IT: "Italy", JP: "Japan", JO: "Jordan", KZ: "Kazakhstan", KE: "Kenya",
-  KW: "Kuwait", LB: "Lebanon", MY: "Malaysia", MX: "Mexico", MA: "Morocco",
-  MM: "Myanmar", NL: "Netherlands", NZ: "New Zealand", NG: "Nigeria", KP: "North Korea",
-  NO: "Norway", PK: "Pakistan", PE: "Peru", PH: "Philippines", PL: "Poland",
-  PT: "Portugal", QA: "Qatar", RO: "Romania", RU: "Russia", SA: "Saudi Arabia",
-  RS: "Serbia", SG: "Singapore", SK: "Slovakia", ZA: "South Africa", KR: "South Korea",
-  ES: "Spain", LK: "Sri Lanka", SE: "Sweden", CH: "Switzerland", SY: "Syria",
-  TW: "Taiwan", TH: "Thailand", TN: "Tunisia", TR: "Turkey", UA: "Ukraine",
-  AE: "United Arab Emirates", GB: "United Kingdom", US: "United States", UY: "Uruguay",
-  UZ: "Uzbekistan", VE: "Venezuela", VN: "Vietnam", ZW: "Zimbabwe",
-};
+// Watch Alley hostnames are internal navigation, not external referrer sources.
+const SITE_HOSTS = new Set(["thewatchalley.com", "www.thewatchalley.com"]);
+
+function normalizeReferrer(value: unknown) {
+  if (typeof value !== "string" || value.length > 2048) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    if (!host || SITE_HOSTS.has(host) || SITE_HOSTS.has(url.hostname.toLowerCase())) return null;
+    return { key: host, label: host };
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(
   request: Request,
@@ -38,6 +31,7 @@ export async function POST(
   try {
     const supabase = createSupabaseAdminClient();
     const now = new Date().toISOString();
+    const body = await request.json().catch(() => ({}));
 
     // ── Track watch view ─────────────────────────────────
     // Read existing row
@@ -135,10 +129,62 @@ export async function POST(
       }
     }
 
+    // ── Track external referrer hostname ─────────────────
+    const referrer = normalizeReferrer(body?.referrer);
+    if (referrer) {
+      try {
+        const { data: existingReferrer } = await supabase
+          .from("visitor_referrers")
+          .select("*")
+          .eq("source_key", referrer.key)
+          .maybeSingle();
+
+        if (existingReferrer) {
+          const refStarted = new Date(existingReferrer.window_started_at || existingReferrer.last_seen_at);
+          const refHours = (Date.now() - refStarted.getTime()) / 3_600_000;
+
+          let ref24h = existingReferrer.views_24h + 1;
+          let ref7d = existingReferrer.views_7d + 1;
+          let refWindowStart = existingReferrer.window_started_at;
+
+          if (refHours >= 24) {
+            ref24h = 1;
+            if (refHours >= 168) ref7d = 1;
+            refWindowStart = now;
+          } else if (refHours >= 168) {
+            ref7d = 1;
+            ref24h = 1;
+            refWindowStart = now;
+          }
+
+          await supabase.from("visitor_referrers").update({
+            source_label: referrer.label,
+            visitor_count: existingReferrer.visitor_count + 1,
+            views_24h: ref24h,
+            views_7d: ref7d,
+            window_started_at: refWindowStart,
+            last_seen_at: now,
+          }).eq("source_key", referrer.key);
+        } else {
+          await supabase.from("visitor_referrers").insert({
+            source_key: referrer.key,
+            source_label: referrer.label,
+            visitor_count: 1,
+            views_24h: 1,
+            views_7d: 1,
+            window_started_at: now,
+            first_seen_at: now,
+            last_seen_at: now,
+          });
+        }
+      } catch {
+        // Non-critical — referrer tracking should never block the page view beacon.
+      }
+    }
+
     // ── Track unique visitor ID ─────────────────────────
     let uid = "";
     try {
-      const body = await request.json().catch(() => ({}));
       uid = (body?.uid || "").trim();
     } catch { /* ok */ }
     if (uid && /^[0-9a-f-]{32,40}$/i.test(uid)) {

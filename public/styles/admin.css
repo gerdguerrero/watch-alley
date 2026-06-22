@@ -1525,6 +1525,86 @@ code {
   }
 }
 
+/* Analytics lower cards */
+.analytics-lower-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+  align-items: stretch;
+}
+.analytics-side-stack {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+.analytics-list-card {
+  min-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+.analytics-list-card-tall {
+  height: 640px;
+}
+.analytics-list-card-compact {
+  height: 312px;
+}
+.analytics-card-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+.analytics-card-toolbar .admin-hint {
+  margin: 0;
+  min-width: 0;
+}
+.analytics-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-right: -8px;
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.76 0.12 75 / 0.38) oklch(0.13 0.012 55 / 0.35);
+}
+.analytics-scroll-area::-webkit-scrollbar { width: 8px; }
+.analytics-scroll-area::-webkit-scrollbar-track {
+  background: oklch(0.13 0.012 55 / 0.35);
+  border-radius: 999px;
+}
+.analytics-scroll-area::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, oklch(0.76 0.12 75 / 0.48), oklch(0.76 0.12 75 / 0.20));
+  border: 2px solid oklch(0.13 0.012 55 / 0.35);
+  border-radius: 999px;
+}
+.analytics-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.76 0.12 75 / 0.58);
+}
+.analytics-scroll-area-compact {
+  max-height: 178px;
+}
+
+@media (max-width: 900px) {
+  .analytics-lower-grid {
+    grid-template-columns: 1fr;
+  }
+  .analytics-list-card-tall,
+  .analytics-list-card-compact {
+    height: min(560px, 80vh);
+  }
+  .analytics-side-stack {
+    grid-template-rows: auto;
+  }
+  .analytics-card-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .analytics-scroll-area-compact {
+    max-height: 340px;
+  }
+}
+
 /* Popular watches */
 .popular-watches-list {
   list-style: none;
@@ -1650,6 +1730,29 @@ code {
 .vc-bar-fill { display: block; height: 100%; background: linear-gradient(90deg,oklch(0.76 0.12 75/0.50),oklch(0.76 0.12 75)); border-radius: 999px; transition: width 0.4s ease; }
 .vc-count { width: 52px; font-family: 'Geist Mono',monospace; font-size: 12px; color: var(--cream-60); text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .vc-share { width: 36px; font-family: 'Geist Mono',monospace; font-size: 10px; color: var(--cream-60); text-align: right; flex-shrink: 0; opacity: 0.6; }
+
+/* Referrers card */
+.ref-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.ref-list li {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 4px;
+  border-top: 1px solid oklch(0.76 0.12 75 / 0.08);
+  overflow: hidden;
+}
+.ref-list li:first-child { border-top: none; }
+.ref-rank { width: 18px; font-family: 'Geist Mono',monospace; font-size: 10px; color: var(--cream-60); text-align: right; flex-shrink: 0; z-index: 1; }
+.ref-icon { width: 22px; height: 22px; border-radius: 6px; background: oklch(0.76 0.12 75 / 0.12); border: 1px solid oklch(0.76 0.12 75 / 0.18); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; z-index: 1; }
+.ref-icon img { width: 16px; height: 16px; display: block; }
+.ref-fallback-icon { font-family: 'Geist Mono',monospace; font-size: 10px; font-weight: 700; color: var(--gold); text-transform: uppercase; }
+.ref-info { position: relative; z-index: 1; flex: 1; min-width: 0; }
+.ref-name { display: block; font-family: 'Geist',system-ui,sans-serif; font-size: 13px; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ref-meta { display: block; margin-top: 2px; font-family: 'Geist Mono',monospace; font-size: 10px; letter-spacing: 0.10em; color: var(--cream-60); text-transform: uppercase; }
+.ref-bar-bg { position: absolute; left: 56px; top: 7px; bottom: 7px; width: var(--ref-width, 0%); max-width: calc(100% - 112px); background: oklch(0.91 0.018 78 / 0.055); border-radius: 8px; pointer-events: none; }
+.ref-count { width: 52px; font-family: 'Geist Mono',monospace; font-size: 12px; color: var(--cream); text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; z-index: 1; }
 
 /* Mobile: row for the 2 sidecards */
 .admin-dashboard-rows {

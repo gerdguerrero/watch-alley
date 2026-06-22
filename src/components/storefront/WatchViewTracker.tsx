@@ -36,12 +36,13 @@ export function WatchViewTracker({ slug }: { slug: string }) {
     }
 
     const url = `/api/track-watch-view/${encodeURIComponent(slug)}`;
+    const referrer = document.referrer || "";
 
     if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify({ uid })], { type: "application/json" });
+      const blob = new Blob([JSON.stringify({ uid, referrer })], { type: "application/json" });
       navigator.sendBeacon(url, blob);
     } else {
-      fetch(url, { method: "POST", body: JSON.stringify({ uid }), keepalive: true }).catch(() => {});
+      fetch(url, { method: "POST", body: JSON.stringify({ uid, referrer }), keepalive: true }).catch(() => {});
     }
   }, [slug]);
 
