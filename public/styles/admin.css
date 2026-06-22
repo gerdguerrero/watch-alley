@@ -1642,7 +1642,9 @@ code {
 }
 .vc-list li:first-child { border-top: none; }
 .vc-rank { width: 18px; font-family: 'Geist Mono',monospace; font-size: 10px; color: var(--cream-60); text-align: right; flex-shrink: 0; }
-.vc-flag { font-size: 18px; line-height: 1; flex-shrink: 0; width: 26px; text-align: center; }
+.vc-flag { display: flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; width: 26px; height: 18px; text-align: center; }
+.vc-flag-img { display: block; width: 22px; height: 16px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px oklch(0.91 0.018 78 / 0.18); }
+.vc-flag-code { font-family: 'Geist Mono',monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; color: var(--cream); }
 .vc-name { width: clamp(100px,20vw,180px); font-family: 'Geist',system-ui,sans-serif; font-size: 13px; color: var(--cream); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vc-bar-track { flex: 1; height: 6px; min-width: 30px; background: oklch(0.76 0.12 75/0.08); border-radius: 999px; overflow: hidden; }
 .vc-bar-fill { display: block; height: 100%; background: linear-gradient(90deg,oklch(0.76 0.12 75/0.50),oklch(0.76 0.12 75)); border-radius: 999px; transition: width 0.4s ease; }

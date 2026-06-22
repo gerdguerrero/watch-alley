@@ -1713,6 +1713,11 @@ function escapeHtml(value) {
   }[char]));
 }
 function escapeAttr(value) { return escapeHtml(value); }
+function getCountryFlagUrl(countryCode) {
+  var code = String(countryCode || '').trim().toLowerCase();
+  if (!/^[a-z]{2}$/.test(code)) return '';
+  return 'https://flagcdn.com/w40/' + code + '.png';
+}
 function formatPrice(value) {
   if (value == null) return '—';
   return Number(value).toLocaleString('en-PH', { maximumFractionDigits: 0 });
@@ -2425,9 +2430,14 @@ async function loadVisitorCountries() {
     var html = '';
     for (var i = 0; i < countries.length; i++) {
       var c = countries[i];
+      var countryCode = String(c.country || '').trim().toUpperCase();
+      var flagUrl = getCountryFlagUrl(countryCode);
+      var flagHtml = flagUrl
+        ? '<img class="vc-flag-img" src="' + escapeAttr(flagUrl) + '" srcset="' + escapeAttr(flagUrl.replace('/w40/', '/w80/')) + ' 2x" width="24" height="18" loading="lazy" alt="' + escapeAttr(countryCode + ' flag') + '" data-fallback="' + escapeAttr(countryCode) + '">'
+        : '<span class="vc-flag-code">' + escapeHtml(countryCode || c.flag || '—') + '</span>';
       html += '<li>' +
         '<span class="vc-rank">' + (i + 1) + '</span>' +
-        '<span class="vc-flag">' + c.flag + '</span>' +
+        '<span class="vc-flag" title="' + escapeAttr(countryCode) + '">' + flagHtml + '</span>' +
         '<span class="vc-name">' + escapeHtml(c.label) + '</span>' +
         '<span class="vc-bar-track"><span class="vc-bar-fill" style="width:' + c.pct + '%"></span></span>' +
         '<span class="vc-count">' + formatInt(c.count) + '</span>' +
@@ -2435,6 +2445,14 @@ async function loadVisitorCountries() {
         '</li>';
     }
     list.innerHTML = html;
+    list.querySelectorAll('.vc-flag-img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        var fallback = document.createElement('span');
+        fallback.className = 'vc-flag-code';
+        fallback.textContent = img.getAttribute('data-fallback') || '';
+        img.replaceWith(fallback);
+      }, { once: true });
+    });
 
     if (typeof gsap !== 'undefined') {
       try {
