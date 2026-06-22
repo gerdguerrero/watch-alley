@@ -3,6 +3,19 @@ import { unsubscribeWatchListEmail, verifyUnsubscribeToken } from "@/lib/watch-l
 
 export const runtime = "nodejs";
 
+function resolveBase(request: Request): string {
+  const url = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  return url.origin;
+}
+
 function redirectStatus(base: string, status: "invalid" | "success" | "error") {
   return NextResponse.redirect(new URL(`/watch-list/unsubscribe?status=${status}`, base));
 }
@@ -14,17 +27,13 @@ async function handleUnsubscribe(request: Request) {
   const isPost = request.method === "POST";
 
   // Resolve base URL for redirects to prevent internal proxy port leaks
-  let base = url.origin;
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
-  if (forwardedHost) {
-    base = `${forwardedProto}://${forwardedHost}`;
-  } else if (process.env.NEXT_PUBLIC_SITE_URL) {
-    base = process.env.NEXT_PUBLIC_SITE_URL;
-  }
+  const base = resolveBase(request);
 
   if (!verified) {
     if (isPost) {
+      // For email-client POST (one-click unsubscribe), return 400 so the
+      // sending MTA knows the token was invalid.  Most MUAs will also show
+      // a generic "unsubscribe failed" UI.
       return NextResponse.json(
         { ok: false, message: "Invalid unsubscribe token." },
         { status: 400 }
@@ -39,13 +48,31 @@ async function handleUnsubscribe(request: Request) {
       console.info("Unsubscribe token was valid, but no subscriber row matched.");
     }
     if (isPost) {
-      return NextResponse.json({ ok: true });
+      // RFC 8058 one-click unsubscribe: return 200 with a Location header so
+      // the MUA can optionally redirect the user to a confirmation page.
+      return NextResponse.json(
+        { ok: true, email: verified.email },
+        {
+          status: 200,
+          headers: {
+            Location: new URL(`/watch-list/unsubscribe?status=success`, base).toString(),
+          },
+        }
+      );
     }
     return redirectStatus(base, "success");
   } catch (error) {
     console.error("Watch List unsubscribe failed:", error);
     if (isPost) {
-      return NextResponse.json({ ok: false, message: "Unable to unsubscribe." }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, message: "Unable to unsubscribe." },
+        {
+          status: 500,
+          headers: {
+            Location: new URL(`/watch-list/unsubscribe?status=error`, base).toString(),
+          },
+        }
+      );
     }
     return redirectStatus(base, "error");
   }

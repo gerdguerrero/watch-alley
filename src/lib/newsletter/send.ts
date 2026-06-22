@@ -539,3 +539,85 @@ Unsubscribe: ${unsubscribeUrl}`;
 
   return data;
 }
+
+/**
+ * Send a profile-completion nudge email to subscribers who are missing
+ * key collector profile fields (first name, country, or preferences).
+ */
+export async function sendProfileCompletionEmail(
+  email: string,
+  firstName?: string,
+  missingFields: string[] = []
+) {
+  const greetingName = firstName ? ` ${firstName}` : "";
+  const subject = "Complete your collector profile | The Watch Alley";
+  const preheader = "Help us send you better watch selections. A quick update takes less than a minute.";
+
+  const unsubscribeUrl = buildUnsubscribeUrl(email);
+  const preferencesUrl = absoluteUrl("/watch-list?intent=preferences");
+
+  const missingList =
+    missingFields.length > 0
+      ? `<ul style="padding-left: 20px; margin-bottom: 24px;">
+          ${missingFields.map((f) => `<li style="margin-bottom: 8px;">${f}</li>`).join("\n")}
+        </ul>`
+      : "";
+
+  const bodyHtml = `
+    <div style="font-family: 'Spectral', Georgia, serif; line-height: 1.8; font-size: 16px; color: #F1ECE0;">
+      <p style="margin-top: 0;">Hi${greetingName},</p>
+      <p>We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste — brands you follow, your budget, and where you're based — we can surface pieces that actually match your eye instead of sending everything.</p>
+      ${missingList}
+      <p>Updating takes less than a minute:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${escapeHtml(preferencesUrl)}" style="display: inline-block; background-color: #BD9A32; color: #090806; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; text-decoration: none; padding: 14px 28px; border-radius: 12px;">Complete Your Profile</a>
+      </div>
+      <p style="font-size: 13px; color: rgba(241, 236, 224, 0.5);">If you prefer to stay as a simple subscriber with no collector details, no action is needed — you will still receive our regular Watch List dispatches.</p>
+      <p style="margin-bottom: 0;">Wear them in good health,<br><strong>The Watch Alley Team</strong></p>
+    </div>
+  `;
+
+  const bodyText = `Hi${greetingName},
+
+We noticed your Watch List profile is missing a few details that help us curate better selections for you. When we know your taste — brands you follow, your budget, and where you're based — we can surface pieces that actually match your eye instead of sending everything.
+
+Update your profile here: ${preferencesUrl}
+
+If you prefer to stay as a simple subscriber with no collector details, no action is needed — you will still receive our regular Watch List dispatches.
+
+Wear them in good health,
+The Watch Alley Team
+
+--
+Manage Preferences: ${managePreferencesUrl()}
+View Online Archive: ${archiveUrl()}
+Unsubscribe: ${unsubscribeUrl}`;
+
+  const html = wrapHtmlEmail({
+    subject,
+    preheader,
+    bodyHtml,
+    unsubscribeUrl,
+  });
+
+  const from = getFromEmail();
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: email,
+    subject,
+    html,
+    text: bodyText,
+    headers: {
+      "List-Unsubscribe": `<${unsubscribeUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  });
+
+  if (error) {
+    console.error("Failed to send profile completion email:", error);
+    throw error;
+  }
+
+  return data;
+}
