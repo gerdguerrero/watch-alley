@@ -13,16 +13,28 @@ function normalizeStatus(value: string | null): JournalStatus {
   return "published";
 }
 
+function normalizeDashCharacters(value: string | null | undefined): string {
+  return String(value ?? "")
+    .replace(/([0-9])\s*[\u2013]\s*([0-9])/g, "$1-$2")
+    .replace(/\s*[\u2013\u2014\u2015]\s*/g, " - ");
+}
+
+function normalizeDisplayText(value: string | null | undefined): string {
+  return normalizeDashCharacters(value)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeRow(row: JournalRow): JournalPost {
   return {
     slug: row.slug ?? "",
-    title: row.title ?? "",
-    summary: row.summary ?? "",
-    bodyMarkdown: row.body_markdown ?? "",
+    title: normalizeDisplayText(row.title),
+    summary: normalizeDisplayText(row.summary),
+    bodyMarkdown: normalizeDashCharacters(row.body_markdown).trim(),
     heroImage: row.hero_image ?? "",
-    tags: Array.isArray(row.tags) ? row.tags : [],
+    tags: Array.isArray(row.tags) ? row.tags.map(normalizeDisplayText) : [],
     status: normalizeStatus(row.status),
-    author: row.author ?? "The Watch Alley",
+    author: normalizeDisplayText(row.author) || "The Watch Alley",
     readMinutes: typeof row.read_minutes === "number" ? row.read_minutes : null,
     publishedAt: row.published_at ?? "",
   };

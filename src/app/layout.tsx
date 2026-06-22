@@ -60,12 +60,14 @@ export async function generateMetadata(): Promise<Metadata> {
     description: SITE_DESCRIPTION,
     metadataBase: new URL(SITE_URL),
     applicationName: "The Watch Alley",
-    // Icons are managed by the file-based metadata API:
-    //   src/app/icon.png          → modern browsers
-    //   src/app/apple-icon.png    → iOS home screen
-    //   src/app/favicon.ico       → legacy IE/Edge fallback
-    // Next.js auto-emits the correct <link rel="icon" …> tags from those files,
-    // so this object only sets things the file convention can't.
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      ],
+      shortcut: ["/favicon.ico"],
+      apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "512x512" }],
+    },
     manifest: "/manifest.webmanifest",
     openGraph: {
       type: "website",

@@ -13,16 +13,28 @@ const ISSUE_COLUMNS =
 
 const ITEM_COLUMNS = "id, issue_id, item_type, item_id, title, summary, url, image_url, position";
 
+function normalizeDashCharacters(value: string | null | undefined): string {
+  return String(value ?? "")
+    .replace(/([0-9])\s*[\u2013]\s*([0-9])/g, "$1-$2")
+    .replace(/\s*[\u2013\u2014\u2015]\s*/g, " - ");
+}
+
+function normalizeDisplayText(value: string | null | undefined): string {
+  return normalizeDashCharacters(value)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizeIssue(row: NewsletterIssueRow): NewsletterIssue {
   return {
     id: row.id ?? "",
     slug: row.slug ?? "",
-    publicTitle: row.public_title ?? "",
-    subject: row.subject ?? "",
-    preheader: row.preheader ?? "",
-    introHtml: row.intro_html ?? "",
-    bodyHtml: row.body_html ?? "",
-    bodyText: row.body_text ?? "",
+    publicTitle: normalizeDisplayText(row.public_title),
+    subject: normalizeDisplayText(row.subject),
+    preheader: normalizeDisplayText(row.preheader),
+    introHtml: normalizeDashCharacters(row.intro_html).trim(),
+    bodyHtml: normalizeDashCharacters(row.body_html).trim(),
+    bodyText: normalizeDashCharacters(row.body_text).trim(),
     heroImageUrl: row.hero_image_url ?? "",
     sentAt: row.sent_at ?? "",
   };
@@ -34,8 +46,8 @@ function normalizeItem(row: NewsletterIssueItemRow): NewsletterIssueItem {
     issueId: row.issue_id ?? "",
     itemType: row.item_type ?? "",
     itemId: row.item_id ?? "",
-    title: row.title ?? "",
-    summary: row.summary ?? "",
+    title: normalizeDisplayText(row.title),
+    summary: normalizeDisplayText(row.summary),
     url: row.url ?? "",
     imageUrl: row.image_url ?? "",
     position: typeof row.position === "number" ? row.position : 0,
