@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -49,9 +49,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, count: count || 0, period });
   } catch (err) {
     console.error("unique-visitors error:", err);
-    return NextResponse.json(
-      { ok: false, message: "Failed to load", count: 0 },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, message: "Failed to load", count: 0 }, { status: 500 });
   }
 }

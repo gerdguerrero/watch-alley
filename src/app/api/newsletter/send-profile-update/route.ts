@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendProfileCompletionEmail } from "@/lib/newsletter/send";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
@@ -32,9 +32,7 @@ export async function GET(request: Request) {
   let query = supabase
     .schema("watch_alley")
     .from("watch_list_subscribers")
-    .select(
-      "id, email, first_name, country"
-    )
+    .select("id, email, first_name, country")
     .eq("status", "active")
     .order("created_at", { ascending: false });
 
@@ -109,11 +107,7 @@ export async function GET(request: Request) {
 
   for (const sub of targets) {
     try {
-      await sendProfileCompletionEmail(
-        sub.email,
-        sub.first_name ?? undefined,
-        sub.missingFields
-      );
+      await sendProfileCompletionEmail(sub.email, sub.first_name ?? undefined, sub.missingFields);
       sentCount += 1;
       // Small delay between sends to respect Resend rate limits
       await new Promise((r) => setTimeout(r, 200));

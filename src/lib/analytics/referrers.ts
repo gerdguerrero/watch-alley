@@ -14,7 +14,10 @@ const APP_SOURCE_ALIASES: Record<string, { key: string; label: string }> = {
 };
 
 function normalizeHost(hostname: string) {
-  return hostname.trim().toLowerCase().replace(/^www\./, "");
+  return hostname
+    .trim()
+    .toLowerCase()
+    .replace(/^www\./, "");
 }
 
 function labelFromHost(host: string) {
@@ -22,9 +25,7 @@ function labelFromHost(host: string) {
 }
 
 function labelFromSource(value: string) {
-  return value
-    .replace(/[-_]+/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return value.replace(/[-_]+/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 export function normalizeReferrerSource(value: unknown) {
@@ -47,7 +48,10 @@ export function normalizeReferrerSource(value: unknown) {
     // UTM/source values are commonly plain strings, not URLs.
   }
 
-  const plainHost = lowered.replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "");
+  const plainHost = lowered
+    .replace(/^https?:\/\//, "")
+    .split("/")[0]
+    .replace(/^www\./, "");
   if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(plainHost)) {
     if (SITE_HOSTS.has(plainHost)) return null;
     return { key: plainHost, label: labelFromHost(plainHost) };
@@ -56,7 +60,10 @@ export function normalizeReferrerSource(value: unknown) {
   const alias = APP_SOURCE_ALIASES[lowered.replace(/^www\./, "")];
   if (alias) return alias;
 
-  const key = lowered.replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+  const key = lowered
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
   if (!key) return null;
   return { key, label: labelFromSource(raw.slice(0, 80)) };
 }

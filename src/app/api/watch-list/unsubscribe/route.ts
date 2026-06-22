@@ -30,18 +30,13 @@ export async function GET(request: Request) {
   const base = resolveBase(request);
 
   if (!verified) {
-    return NextResponse.redirect(
-      new URL(`/watch-list/unsubscribe?status=invalid`, base)
-    );
+    return NextResponse.redirect(new URL(`/watch-list/unsubscribe?status=invalid`, base));
   }
 
   // Redirect to the confirmation page, carrying the token so the user can
   // confirm the unsubscribe there.
   return NextResponse.redirect(
-    new URL(
-      `/watch-list/unsubscribe?token=${encodeURIComponent(token)}`,
-      base
-    )
+    new URL(`/watch-list/unsubscribe?token=${encodeURIComponent(token)}`, base)
   );
 }
 
@@ -85,10 +80,7 @@ export async function POST(request: Request) {
   }
 
   if (!token) {
-    return NextResponse.json(
-      { ok: false, message: "Missing unsubscribe token." },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, message: "Missing unsubscribe token." }, { status: 400 });
   }
 
   const verified = verifyUnsubscribeToken(token);
@@ -110,10 +102,7 @@ export async function POST(request: Request) {
       {
         status: 200,
         headers: {
-          Location: new URL(
-            `/watch-list/unsubscribe?status=success`,
-            base
-          ).toString(),
+          Location: new URL(`/watch-list/unsubscribe?status=success`, base).toString(),
         },
       }
     );
@@ -124,10 +113,7 @@ export async function POST(request: Request) {
       {
         status: 500,
         headers: {
-          Location: new URL(
-            `/watch-list/unsubscribe?status=error`,
-            base
-          ).toString(),
+          Location: new URL(`/watch-list/unsubscribe?status=error`, base).toString(),
         },
       }
     );

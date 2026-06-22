@@ -551,7 +551,8 @@ export async function sendProfileCompletionEmail(
 ) {
   const greetingName = firstName ? ` ${firstName}` : "";
   const subject = "Complete your collector profile | The Watch Alley";
-  const preheader = "Help us send you better watch selections. A quick update takes less than a minute.";
+  const preheader =
+    "Help us send you better watch selections. A quick update takes less than a minute.";
 
   const unsubscribeUrl = buildUnsubscribeUrl(email);
   const preferencesUrl = absoluteUrl("/watch-list?intent=preferences");

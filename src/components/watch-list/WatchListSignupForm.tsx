@@ -14,6 +14,7 @@ interface WatchListSignupFormProps {
   source: string;
   compact?: boolean;
   showPreferences?: boolean;
+  defaultExpandedPreferences?: boolean;
   className?: string;
   stacked?: boolean;
   onSuccess?: () => void;
@@ -49,6 +50,7 @@ export function WatchListSignupForm({
   source,
   compact = false,
   showPreferences = false,
+  defaultExpandedPreferences = false,
   className = "",
   stacked = false,
   onSuccess,
@@ -56,6 +58,7 @@ export function WatchListSignupForm({
   const formStartedAt = useMemo(() => Date.now(), []);
   const [state, setState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
+  const [preferencesExpanded, setPreferencesExpanded] = useState(defaultExpandedPreferences);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -199,73 +202,112 @@ export function WatchListSignupForm({
       )}
 
       {showPreferences && (
-        <div className="grid gap-5 border-y border-amber-300/10 py-5">
-          <fieldset className="space-y-3">
-            <legend className={labelClass}>Brands</legend>
-            <div className="flex flex-wrap gap-2">
-              {BRAND_OPTIONS.map((brand) => (
-                <label
-                  key={brand}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-amber-300/15 px-3 py-2 text-xs text-cream-60 transition-colors has-[:checked]:border-amber-300/70 has-[:checked]:text-amber-200"
+        <div className="flex flex-col gap-4">
+          <button
+            type="button"
+            onClick={() => setPreferencesExpanded(!preferencesExpanded)}
+            className="w-fit text-left font-mono text-[10px] uppercase tracking-[0.22em] text-amber-200 hover:text-amber-300 transition-colors flex items-center gap-1.5 py-1 focus:outline-none"
+            aria-expanded={preferencesExpanded}
+          >
+            {preferencesExpanded ? (
+              <>
+                <svg
+                  className="h-2.5 w-2.5 fill-current text-amber-300"
+                  viewBox="0 0 10 10"
+                  aria-hidden="true"
                 >
-                  <input type="checkbox" name="brands" value={brand} className="sr-only" />
-                  {brand}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <fieldset className="space-y-3">
-            <legend className={labelClass}>Preference</legend>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORY_OPTIONS.map((category) => (
-                <label
-                  key={category.value}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-amber-300/15 px-3 py-2 text-xs text-cream-60 transition-colors has-[:checked]:border-amber-300/70 has-[:checked]:text-amber-200"
+                  <path d="M1 4h8v2H1z" />
+                </svg>
+                Hide preferences
+              </>
+            ) : (
+              <>
+                <svg
+                  className="h-2.5 w-2.5 fill-current text-amber-300"
+                  viewBox="0 0 10 10"
+                  aria-hidden="true"
                 >
-                  <input
-                    type="checkbox"
-                    name="categories"
-                    value={category.value}
-                    className="sr-only"
-                  />
-                  {category.label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+                  <path d="M6 1H4v3H1v2h3v3h2V6h3V4H6V1z" />
+                </svg>
+                Add preferences (brands, budget, timing)
+              </>
+            )}
+          </button>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div
+            className={`grid gap-5 border-y border-amber-300/10 transition-all duration-300 ease-in-out ${
+              preferencesExpanded
+                ? "max-h-[1400px] py-5 opacity-100"
+                : "max-h-0 py-0 opacity-0 overflow-hidden border-none"
+            }`}
+          >
+            <fieldset className="space-y-3">
+              <legend className={labelClass}>Brands</legend>
+              <div className="flex flex-wrap gap-2">
+                {BRAND_OPTIONS.map((brand) => (
+                  <label
+                    key={brand}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-amber-300/15 px-3 py-2 text-xs text-cream-60 transition-colors has-[:checked]:border-amber-300/70 has-[:checked]:text-amber-200"
+                  >
+                    <input type="checkbox" name="brands" value={brand} className="sr-only" />
+                    {brand}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className="space-y-3">
+              <legend className={labelClass}>Preference</legend>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_OPTIONS.map((category) => (
+                  <label
+                    key={category.value}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-amber-300/15 px-3 py-2 text-xs text-cream-60 transition-colors has-[:checked]:border-amber-300/70 has-[:checked]:text-amber-200"
+                  >
+                    <input
+                      type="checkbox"
+                      name="categories"
+                      value={category.value}
+                      className="sr-only"
+                    />
+                    {category.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-2">
+                <span className={labelClass}>From PHP</span>
+                <input className={inputClass} name="budgetMinPhp" inputMode="numeric" />
+              </label>
+              <label className="flex flex-col gap-2">
+                <span className={labelClass}>To PHP</span>
+                <input className={inputClass} name="budgetMaxPhp" inputMode="numeric" />
+              </label>
+            </div>
+
             <label className="flex flex-col gap-2">
-              <span className={labelClass}>From PHP</span>
-              <input className={inputClass} name="budgetMinPhp" inputMode="numeric" />
+              <span className={labelClass}>Timing</span>
+              <select className={inputClass} name="purchaseIntent" defaultValue="">
+                <option value="">Open</option>
+                <option value="just-browsing">Just browsing</option>
+                <option value="ready-now">Ready now</option>
+                <option value="next-30-days">Next 30 days</option>
+                <option value="next-90-days">Next 90 days</option>
+                <option value="specific-reference">Specific reference</option>
+              </select>
             </label>
+
             <label className="flex flex-col gap-2">
-              <span className={labelClass}>To PHP</span>
-              <input className={inputClass} name="budgetMaxPhp" inputMode="numeric" />
+              <span className={labelClass}>Collector note</span>
+              <textarea
+                className={`${inputClass} min-h-24 resize-y`}
+                name="notes"
+                placeholder="References, case sizes, dial colors, or anything you want us to remember."
+              />
             </label>
           </div>
-
-          <label className="flex flex-col gap-2">
-            <span className={labelClass}>Timing</span>
-            <select className={inputClass} name="purchaseIntent" defaultValue="">
-              <option value="">Open</option>
-              <option value="just-browsing">Just browsing</option>
-              <option value="ready-now">Ready now</option>
-              <option value="next-30-days">Next 30 days</option>
-              <option value="next-90-days">Next 90 days</option>
-              <option value="specific-reference">Specific reference</option>
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-2">
-            <span className={labelClass}>Collector note</span>
-            <textarea
-              className={`${inputClass} min-h-24 resize-y`}
-              name="notes"
-              placeholder="References, case sizes, dial colors, or anything you want us to remember."
-            />
-          </label>
         </div>
       )}
 

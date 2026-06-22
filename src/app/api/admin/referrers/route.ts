@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -25,12 +25,15 @@ function sourceIconType(source: string) {
 }
 
 function aggregateRows(events: any[], visitors: any[], metric: ReferrerMetric) {
-  const map = new Map<string, {
-    source: string;
-    label: string;
-    visitors: number;
-    pageviews: number;
-  }>();
+  const map = new Map<
+    string,
+    {
+      source: string;
+      label: string;
+      visitors: number;
+      pageviews: number;
+    }
+  >();
 
   for (const event of events) {
     const key = event.source_key;
@@ -62,12 +65,18 @@ function aggregateRows(events: any[], visitors: any[], metric: ReferrerMetric) {
 
   const rows = Array.from(map.values());
   const metricKey = metric === "pageviews" ? "pageviews" : "visitors";
-  rows.sort((a, b) => b[metricKey] - a[metricKey] || b.pageviews - a.pageviews || a.label.localeCompare(b.label));
+  rows.sort(
+    (a, b) =>
+      b[metricKey] - a[metricKey] || b.pageviews - a.pageviews || a.label.localeCompare(b.label)
+  );
 
   const totalVisitors = rows.reduce((sum, row) => sum + row.visitors, 0);
   const totalPageviews = rows.reduce((sum, row) => sum + row.pageviews, 0);
   const totalMetric = metric === "pageviews" ? totalPageviews : totalVisitors;
-  const maxMetric = Math.max(1, ...rows.map((row) => metric === "pageviews" ? row.pageviews : row.visitors));
+  const maxMetric = Math.max(
+    1,
+    ...rows.map((row) => (metric === "pageviews" ? row.pageviews : row.visitors))
+  );
 
   return {
     referrers: rows.slice(0, 20).map((row) => {
@@ -89,7 +98,11 @@ function aggregateRows(events: any[], visitors: any[], metric: ReferrerMetric) {
   };
 }
 
-async function loadFallbackSummary(supabase: ReturnType<typeof createSupabaseAdminClient>, period: string, metric: ReferrerMetric) {
+async function loadFallbackSummary(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  period: string,
+  metric: ReferrerMetric
+) {
   const column = period === "24h" ? "views_24h" : period === "all" ? "visitor_count" : "views_7d";
   const { data: rows, error } = await supabase
     .from("visitor_referrers")
@@ -99,7 +112,7 @@ async function loadFallbackSummary(supabase: ReturnType<typeof createSupabaseAdm
 
   if (error) return null;
   const total = (rows || []).reduce((sum: number, row: any) => sum + (row[column] || 0), 0);
-  const max = Math.max(1, ...((rows || []).map((row: any) => row[column] || 0)));
+  const max = Math.max(1, ...(rows || []).map((row: any) => row[column] || 0));
   return {
     ok: true,
     period,

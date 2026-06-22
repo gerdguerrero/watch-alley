@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-const WATCHES_DATA_URL =
-  "https://www.thewatchalley.com/data/watches.json";
+const WATCHES_DATA_URL = "https://www.thewatchalley.com/data/watches.json";
 
 interface WatchEntry {
   slug: string;
@@ -51,14 +50,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch watches metadata
-    let watchesMap: Record<string, WatchEntry> = {};
+    const watchesMap: Record<string, WatchEntry> = {};
     try {
       const resp = await fetch(WATCHES_DATA_URL);
       if (resp.ok) {
         const data = await resp.json();
-        const list: WatchEntry[] = Array.isArray(data)
-          ? data
-          : data.watches ?? [];
+        const list: WatchEntry[] = Array.isArray(data) ? data : (data.watches ?? []);
         for (const w of list) {
           watchesMap[w.slug] = w;
         }

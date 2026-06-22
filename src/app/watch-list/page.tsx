@@ -55,14 +55,21 @@ export default function WatchListPage() {
             </div>
           </div>
 
-          <div id="join" className="rounded-2xl border border-amber-300/15 bg-black/35 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur md:p-7">
+          <div
+            id="join"
+            className="rounded-2xl border border-amber-300/15 bg-black/35 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.32)] backdrop-blur md:p-7"
+          >
             <h2 className="font-serif text-3xl leading-tight text-cream">Join The Watch List</h2>
             <p className="mt-3 text-sm leading-6 text-cream-60">
               Share the broad shape of what catches your eye. Already subscribed with only an email?
               Use the same address here and we will update your collector details.
             </p>
             <div className="mt-6">
-              <WatchListSignupForm source="watch-list-page" showPreferences />
+              <WatchListSignupForm
+                source="watch-list-page"
+                showPreferences
+                defaultExpandedPreferences
+              />
             </div>
           </div>
         </div>

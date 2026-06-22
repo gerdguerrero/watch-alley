@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
 const UNSUBSCRIBE_REASONS = [
@@ -25,8 +25,8 @@ function StatusView({ status }: { status: string }) {
           You are unsubscribed.
         </h1>
         <p className="mt-6 text-[16px] leading-8 text-cream-60">
-          You will no longer receive Watch List emails. If you change your mind, you
-          can rejoin anytime — your collector details will be restored.
+          You will no longer receive Watch List emails. If you change your mind, you can rejoin
+          anytime — your collector details will be restored.
         </p>
         <RejoinForm />
       </>
@@ -43,8 +43,8 @@ function StatusView({ status }: { status: string }) {
           This link is not valid.
         </h1>
         <p className="mt-6 text-[16px] leading-8 text-cream-60">
-          The unsubscribe link may be incomplete or expired. Reply to the email or
-          contact The Watch Alley and we will handle it manually.
+          The unsubscribe link may be incomplete or expired. Reply to the email or contact The Watch
+          Alley and we will handle it manually.
         </p>
         <Link
           href="/watch-list"
@@ -66,8 +66,7 @@ function StatusView({ status }: { status: string }) {
         We could not update that subscription.
       </h1>
       <p className="mt-6 text-[16px] leading-8 text-cream-60">
-        Please try the link again, or contact The Watch Alley and we will sort it
-        out manually.
+        Please try the link again, or contact The Watch Alley and we will sort it out manually.
       </p>
       <Link
         href="/watch-list"
@@ -132,10 +131,7 @@ function RejoinForm() {
           <p className="text-sm leading-6 text-cream-60">
             Enter your email to rejoin The Watch List.
           </p>
-          <form
-            onSubmit={onSubmit}
-            className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"
-          >
+          <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
             <label className="flex flex-col gap-2">
               <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300/80">
                 Email
@@ -202,12 +198,10 @@ function ConfirmationView({ token }: { token: string }) {
       <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/80">
         The Watch List
       </p>
-      <h1 className="mt-5 font-serif text-[clamp(38px,6vw,68px)] leading-[0.95]">
-        Are you sure?
-      </h1>
+      <h1 className="mt-5 font-serif text-[clamp(38px,6vw,68px)] leading-[0.95]">Are you sure?</h1>
       <p className="mt-6 text-[16px] leading-8 text-cream-60">
-        You are about to unsubscribe from The Watch List. You will stop receiving
-        curated watch drops, collector notes, and sourcing opportunities from Manila.
+        You are about to unsubscribe from The Watch List. You will stop receiving curated watch
+        drops, collector notes, and sourcing opportunities from Manila.
       </p>
 
       {/* Feedback form — optional */}
@@ -287,8 +281,8 @@ function UnsubscribeContent() {
         Manage The Watch List.
       </h1>
       <p className="mt-6 text-[16px] leading-8 text-cream-60">
-        Use the link in a Watch List email to manage your subscription, or visit The
-        Watch List to update your collector details.
+        Use the link in a Watch List email to manage your subscription, or visit The Watch List to
+        update your collector details.
       </p>
       <Link
         href="/watch-list"

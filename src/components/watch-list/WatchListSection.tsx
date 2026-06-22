@@ -20,7 +20,7 @@ export function WatchListSection({ source = "homepage-watch-list" }: WatchListSe
       />
       <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(8,7,6,0.96),rgba(8,7,6,0.7)_55%,rgba(180,120,60,0.14))]" />
 
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_0.86fr] lg:items-end">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_0.86fr] lg:items-center">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-300/80">
             The Watch List
@@ -43,7 +43,7 @@ export function WatchListSection({ source = "homepage-watch-list" }: WatchListSe
         </div>
 
         <div className="rounded-2xl border border-amber-300/15 bg-black/35 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur md:p-7">
-          <WatchListSignupForm source={source} showPreferences />
+          <WatchListSignupForm source={source} showPreferences defaultExpandedPreferences={false} />
           <Link
             href="/watch-list"
             className="mt-5 inline-flex border-b border-amber-300/30 pb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200 transition-colors hover:border-amber-200"

@@ -20,9 +20,7 @@ function normalizeDashCharacters(value: string | null | undefined): string {
 }
 
 function normalizeDisplayText(value: string | null | undefined): string {
-  return normalizeDashCharacters(value)
-    .replace(/\s+/g, " ")
-    .trim();
+  return normalizeDashCharacters(value).replace(/\s+/g, " ").trim();
 }
 
 function normalizeRow(row: JournalRow): JournalPost {
