@@ -4,14 +4,6 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-type SubscriberRow = {
-  id: string;
-  email: string;
-  first_name: string | null;
-  country: string | null;
-  has_preferences: boolean;
-};
-
 /**
  * GET /api/newsletter/send-profile-update?filter=email-only|no-preferences|all&preview=true
  *
