@@ -1741,12 +1741,12 @@ code {
   margin: -2px -2px 2px;
   padding: 0 2px 10px;
 }
-.ref-tabs {
-  display: flex;
-  align-items: center;
-  gap: 22px;
+.ref-card-label {
+  font-family: 'Geist', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cream);
 }
-.ref-tab,
 .ref-metric-toggle {
   appearance: none;
   border: 0;
@@ -1758,22 +1758,6 @@ code {
   font-weight: 600;
   padding: 0;
 }
-.ref-tab {
-  position: relative;
-  padding-bottom: 10px;
-}
-.ref-tab.is-active { color: var(--cream); }
-.ref-tab.is-active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -11px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--cream);
-}
-.ref-tab:disabled { cursor: not-allowed; opacity: 0.55; }
 .ref-metric-toggle {
   font-family: 'Geist Mono', monospace;
   font-size: 10px;
