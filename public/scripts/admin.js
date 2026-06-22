@@ -2071,27 +2071,66 @@ function renderAnalyticsChart(series, previousSeries) {
 
   svg.appendChild(chartGroup);
 
-  // Hover tooltip
-  svg.addEventListener('mouseenter', function () { if (tooltip) tooltip.hidden = false; });
-  svg.addEventListener('mouseleave', function () { if (tooltip) tooltip.hidden = true; });
+  // Vercel-style vertical crosshair line + active dot highlight
+  var crosshair = document.createElementNS(ns, 'line');
+  crosshair.setAttribute('x1', '0');
+  crosshair.setAttribute('y1', String(MARGIN.top));
+  crosshair.setAttribute('x2', '0');
+  crosshair.setAttribute('y2', String(MARGIN.top + ih));
+  crosshair.setAttribute('stroke', 'oklch(0.91 0.018 78 / 0.40)');
+  crosshair.setAttribute('stroke-width', '1');
+  crosshair.setAttribute('stroke-dasharray', '4,3');
+  crosshair.setAttribute('opacity', '0');
+  crosshair.style.pointerEvents = 'none';
+  svg.appendChild(crosshair);
+
+  var activeDot = document.createElementNS(ns, 'circle');
+  activeDot.setAttribute('r', '5');
+  activeDot.setAttribute('fill', 'oklch(0.76 0.12 75)');
+  activeDot.setAttribute('stroke', '#090806');
+  activeDot.setAttribute('stroke-width', '2');
+  activeDot.setAttribute('opacity', '0');
+  activeDot.style.pointerEvents = 'none';
+  svg.appendChild(activeDot);
+
+  // Hover tooltip with crosshair
+  svg.addEventListener('mouseenter', function () {
+    crosshair.setAttribute('opacity', '1');
+    activeDot.setAttribute('opacity', '1');
+    if (tooltip) tooltip.hidden = false;
+  });
+  svg.addEventListener('mouseleave', function () {
+    crosshair.setAttribute('opacity', '0');
+    activeDot.setAttribute('opacity', '0');
+    if (tooltip) tooltip.hidden = true;
+  });
   svg.addEventListener('mousemove', function (e) {
     var rect = svg.getBoundingClientRect();
     var mx = e.clientX - rect.left;
     var ratio = mx / rect.width;
     var idx = Math.round(ratio * (series.length - 1));
     idx = Math.max(0, Math.min(series.length - 1, idx));
+
+    var cx = xPos(idx);
+    crosshair.setAttribute('x1', String(cx));
+    crosshair.setAttribute('x2', String(cx));
+
+    var cy = yPos(Number(series[idx].pageviews || 0));
+    activeDot.setAttribute('cx', String(cx));
+    activeDot.setAttribute('cy', String(cy));
+
     if (!tooltip) return;
     var pt = series[idx];
     var prevPt = previousSeries && previousSeries.length > idx ? previousSeries[idx] : null;
     var pageviews = formatInt(Number(pt.pageviews || 0));
     var dateStr = formatAnalyticsDateShort(pt.date);
     var prevStr = prevPt ? ' ' + formatInt(Number(prevPt.pageviews || 0)) + ' prev' : '';
-    tooltip.textContent = dateStr + ' · ' + pageviews + ' pageviews' + prevStr;
+    tooltip.textContent = dateStr + ' \u00B7 ' + pageviews + ' pageviews' + prevStr;
     tooltip.hidden = false;
-    // Position tooltip near the hover point, clamped to viewport
-    var tx = mx + 16;
-    var ty = e.clientY - rect.top - 20;
-    if (tx + 160 > rect.width) tx = mx - 180;
+    // Position tooltip near the crosshair, clamped to viewport
+    var tx = cx + 16;
+    var ty = cy - 20;
+    if (tx + 160 > rect.width) tx = cx - 180;
     if (ty < 4) ty = 4;
     tooltip.style.left = Math.round(tx) + 'px';
     tooltip.style.top = Math.round(ty) + 'px';
