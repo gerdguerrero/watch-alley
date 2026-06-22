@@ -2552,22 +2552,19 @@ async function loadReferrers() {
       var faviconUrl = getFaviconUrl(r.source, r.icon);
       var firstLetter = String(r.label || r.source || '?').charAt(0) || '?';
       var iconHtml = faviconUrl
-        ? '<img src="' + escapeAttr(faviconUrl) + '" width="18" height="18" loading="lazy" alt="" data-fallback="' + escapeAttr(firstLetter.toUpperCase()) + '">'
+        ? '<img class="ref-icon-img" src="' + escapeAttr(faviconUrl) + '" width="18" height="18" loading="lazy" alt="" data-fallback="' + escapeAttr(firstLetter.toUpperCase()) + '">'
         : '<span class="ref-fallback-icon">' + escapeHtml(firstLetter.toUpperCase()) + '</span>';
-      var secondary = metric === 'pageviews'
-        ? formatInt(r.visitors || 0) + ' visitors'
-        : formatInt(r.pageviews || 0) + ' page views';
-      html += '<li style="--ref-width:' + Math.max(8, Number(r.pct || 0)) + '%">' +
-        '<span class="ref-bar-bg"></span>' +
+      html += '<li>' +
+        '<span class="ref-rank">' + (i + 1) + '</span>' +
         '<span class="ref-icon">' + iconHtml + '</span>' +
-        '<span class="ref-info"><span class="ref-name">' + escapeHtml(r.label || r.source) + '</span>' +
-        '<span class="ref-meta">' + escapeHtml(secondary) + '</span></span>' +
-        '<span class="ref-share">' + escapeHtml(String(r.share || '0')) + '%</span>' +
+        '<span class="ref-name">' + escapeHtml(r.label || r.source) + '</span>' +
+        '<span class="ref-bar-track"><span class="ref-bar-fill" style="width:' + Math.max(6, Number(r.pct || 0)) + '%"></span></span>' +
         '<span class="ref-count">' + formatInt(r.count) + '</span>' +
+        '<span class="ref-share">' + escapeHtml(String(r.share || '0')) + '%</span>' +
         '</li>';
     }
     list.innerHTML = html;
-    list.querySelectorAll('.ref-icon img').forEach(function (img) {
+    list.querySelectorAll('.ref-icon-img').forEach(function (img) {
       img.addEventListener('error', function () {
         var fallback = document.createElement('span');
         fallback.className = 'ref-fallback-icon';
