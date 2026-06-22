@@ -20,6 +20,11 @@ interface SmoothScrollProviderProps {
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const shouldUseNativeScroll =
+      window.matchMedia("(max-width: 767px)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (shouldUseNativeScroll) return;
 
     const lenis = new Lenis({
       duration: 1.2,

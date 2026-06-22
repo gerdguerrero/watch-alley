@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { formatPhp } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
@@ -33,8 +33,14 @@ export function Hero({ featured = null }: HeroProps = {}) {
   const splineContainerRef = useRef<HTMLDivElement>(null);
   const bottomLeftRef = useRef<HTMLDivElement>(null);
   const bottomRightRef = useRef<HTMLDivElement>(null);
+  const [enableWatchScene, setEnableWatchScene] = useState(false);
 
   useEffect(() => {
+    const canUseWatchScene =
+      window.matchMedia("(min-width: 768px)").matches &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setEnableWatchScene(canUseWatchScene);
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         bottomLeftRef.current,
@@ -91,7 +97,7 @@ export function Hero({ featured = null }: HeroProps = {}) {
         className="absolute inset-0 z-10 flex items-center justify-center"
       >
         <div className="mx-auto h-full max-h-[74vh] w-full max-w-4xl lg:translate-x-[16vw]">
-          <WatchScene />
+          {enableWatchScene ? <WatchScene /> : <HeroStaticVisual featured={featured} />}
         </div>
       </div>
 
@@ -266,5 +272,25 @@ export function Hero({ featured = null }: HeroProps = {}) {
         />
       </motion.div>
     </section>
+  );
+}
+
+function HeroStaticVisual({ featured }: { featured?: Watch | null }) {
+  const imageSrc = featured?.primaryImage ?? BRAND_ASSETS.coverPhoto;
+  const imageAlt = featured
+    ? `${featured.brand} ${featured.name}`
+    : "The Watch Alley curated watch selection";
+
+  return (
+    <div className="relative h-full w-full">
+      <Image
+        src={imageSrc}
+        alt={imageAlt}
+        fill
+        priority
+        sizes="(max-width: 767px) 100vw, 896px"
+        className="object-contain px-6 opacity-80 saturate-75 [filter:drop-shadow(0_28px_70px_rgba(0,0,0,0.55))] md:px-10 md:opacity-65"
+      />
+    </div>
   );
 }

@@ -27,7 +27,6 @@ export default async function Page() {
 
   return (
     <SmoothScrollProvider>
-      <link rel="preload" href="/models/watch.glb" as="fetch" crossOrigin="anonymous" />
       <EntrancePreloader />
       <main className="bg-[#080706]">
         <Hero featured={featured} />

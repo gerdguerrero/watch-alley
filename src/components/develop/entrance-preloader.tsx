@@ -24,6 +24,17 @@ export function EntrancePreloader() {
     }
 
     const force = new URLSearchParams(window.location.search).get("force-preload") === "true";
+    const shouldSkipMotion =
+      !force &&
+      (window.matchMedia("(max-width: 767px)").matches ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    // Mobile in-app browsers are often memory-constrained. Do not block the
+    // first customer view behind a full-screen animation there.
+    if (shouldSkipMotion) {
+      hasPlayedInSession = true;
+      return;
+    }
 
     // 2. Safe check of localStorage with a 5-minute (300,000 ms) cooldown
     let shouldPlay = true;
