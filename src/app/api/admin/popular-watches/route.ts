@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -16,13 +17,36 @@ interface WatchEntry {
   price?: number;
 }
 
-const PERIOD_COLUMNS: Record<string, string> = {
+type WatchViewColumn = "view_count" | "views_24h" | "views_7d";
+
+type WatchViewRow = {
+  slug: string;
+  view_count: number | null;
+  views_24h: number | null;
+  views_7d: number | null;
+  last_viewed_at: string | null;
+};
+
+const PERIOD_COLUMNS: Record<string, WatchViewColumn> = {
   all: "view_count",
   "24h": "views_24h",
   "7d": "views_7d",
 };
 
 export async function GET(request: NextRequest) {
+  try {
+    await assertAdmin(request);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: error instanceof Error ? error.message : "Not authorized.",
+        watches: [],
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const period = request.nextUrl.searchParams.get("period") || "7d";
     const sortColumn = PERIOD_COLUMNS[period] || PERIOD_COLUMNS["7d"];
@@ -45,7 +69,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (!views || views.length === 0) {
+    const viewRows = (views ?? []) as WatchViewRow[];
+    if (viewRows.length === 0) {
       return NextResponse.json({ ok: true, watches: [], period });
     }
 
@@ -64,7 +89,7 @@ export async function GET(request: NextRequest) {
       // Non-critical
     }
 
-    const result = (views as any[]).map((v) => {
+    const result = viewRows.map((v) => {
       const meta = watchesMap[v.slug];
       return {
         slug: v.slug,

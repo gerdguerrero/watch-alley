@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -101,7 +102,17 @@ const COUNTRY_NAMES: Record<string, string> = {
   ZW: "Zimbabwe",
 };
 
-const PERIOD_COLUMNS: Record<string, string> = {
+type VisitorCountryColumn = "visitor_count" | "views_24h" | "views_7d";
+
+type VisitorCountryRow = {
+  country: string;
+  visitor_count: number | null;
+  views_24h: number | null;
+  views_7d: number | null;
+  last_seen_at: string | null;
+};
+
+const PERIOD_COLUMNS: Record<string, VisitorCountryColumn> = {
   all: "visitor_count",
   "24h": "views_24h",
   "7d": "views_7d",
@@ -116,6 +127,19 @@ function countryToFlag(code: string) {
 }
 
 export async function GET(request: NextRequest) {
+  try {
+    await assertAdmin(request);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: error instanceof Error ? error.message : "Not authorized.",
+        countries: [],
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const period = request.nextUrl.searchParams.get("period") || "7d";
     const sortColumn = PERIOD_COLUMNS[period] || PERIOD_COLUMNS["7d"];
@@ -136,14 +160,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (!rows || rows.length === 0) {
+    const countryRows = (rows ?? []) as VisitorCountryRow[];
+    if (countryRows.length === 0) {
       return NextResponse.json({ ok: true, countries: [], period });
     }
 
-    const max = Math.max(1, (rows[0] as any)[sortColumn] || 0);
-    const total = rows.reduce((s, r) => s + ((r as any)[sortColumn] || 0), 0);
+    const max = Math.max(1, countryRows[0][sortColumn] || 0);
+    const total = countryRows.reduce((s, r) => s + (r[sortColumn] || 0), 0);
 
-    const countries = rows.map((r: any) => ({
+    const countries = countryRows.map((r) => ({
       country: r.country,
       label: COUNTRY_NAMES[r.country] || r.country,
       flag: countryToFlag(r.country),

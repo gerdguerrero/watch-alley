@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -14,6 +15,15 @@ export const runtime = "nodejs";
  * (enforced by the `admin_subscriber_metrics()` RPC's `is_admin()` guard).
  */
 export async function GET(request: NextRequest) {
+  try {
+    await assertAdmin(request);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, message: error instanceof Error ? error.message : "Not authorized." },
+      { status: 401 }
+    );
+  }
+
   try {
     const supabase = createSupabaseAdminClient();
 

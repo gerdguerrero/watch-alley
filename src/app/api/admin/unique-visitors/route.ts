@@ -1,17 +1,27 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   try {
+    await assertAdmin(request);
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, message: error instanceof Error ? error.message : "Not authorized.", count: 0 },
+      { status: 401 }
+    );
+  }
+
+  try {
     const period = request.nextUrl.searchParams.get("period") || "7d";
     const supabase = createSupabaseAdminClient();
 
     // Count unique visitors within the time window
-    let hours = 168; // default 7d
+    let hours: number | null = 168; // default 7d
     if (period === "24h") hours = 24;
-    else if (period === "all") hours = null as any;
+    else if (period === "all") hours = null;
 
     if (hours) {
       // Count visitors whose last_seen_at is within the window

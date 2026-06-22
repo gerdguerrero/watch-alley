@@ -67,7 +67,6 @@ export async function fetchNewsletterIssues(limit = 24): Promise<NewsletterIssue
       const { data, error } = await supabase
         .from("newsletter_issues")
         .select(ISSUE_COLUMNS)
-        .eq("archive_visible", true)
         .order("sent_at", { ascending: false, nullsFirst: false })
         .limit(Math.max(1, Math.min(count, 100)));
 
@@ -99,7 +98,6 @@ export async function fetchNewsletterIssueBySlug(slug: string): Promise<{
         .from("newsletter_issues")
         .select(ISSUE_COLUMNS)
         .eq("slug", s)
-        .eq("archive_visible", true)
         .maybeSingle();
 
       if (issueError || !issueData) return null;

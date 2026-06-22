@@ -1,9 +1,35 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
 type ReferrerMetric = "visitors" | "pageviews";
+
+type ReferrerEventRow = {
+  source_key: string | null;
+  source_label: string | null;
+  uid?: string | null;
+  created_at?: string | null;
+};
+
+type ReferrerVisitorRow = {
+  source_key: string | null;
+  source_label: string | null;
+  uid?: string | null;
+  last_seen_at?: string | null;
+};
+
+type ReferrerSummaryRow = {
+  source_key: string;
+  source_label: string | null;
+  visitor_count: number | null;
+  views_24h: number | null;
+  views_7d: number | null;
+  last_seen_at: string | null;
+};
+
+type ReferrerSummaryColumn = "visitor_count" | "views_24h" | "views_7d";
 
 function getPeriodStart(period: string) {
   if (period === "24h") return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -24,7 +50,11 @@ function sourceIconType(source: string) {
   return "website";
 }
 
-function aggregateRows(events: any[], visitors: any[], metric: ReferrerMetric) {
+function aggregateRows(
+  events: ReferrerEventRow[],
+  visitors: ReferrerVisitorRow[],
+  metric: ReferrerMetric
+) {
   const map = new Map<
     string,
     {
@@ -103,7 +133,8 @@ async function loadFallbackSummary(
   period: string,
   metric: ReferrerMetric
 ) {
-  const column = period === "24h" ? "views_24h" : period === "all" ? "visitor_count" : "views_7d";
+  const column: ReferrerSummaryColumn =
+    period === "24h" ? "views_24h" : period === "all" ? "visitor_count" : "views_7d";
   const { data: rows, error } = await supabase
     .from("visitor_referrers")
     .select("source_key, source_label, visitor_count, views_24h, views_7d, last_seen_at")
@@ -111,14 +142,15 @@ async function loadFallbackSummary(
     .limit(15);
 
   if (error) return null;
-  const total = (rows || []).reduce((sum: number, row: any) => sum + (row[column] || 0), 0);
-  const max = Math.max(1, ...(rows || []).map((row: any) => row[column] || 0));
+  const summaryRows = (rows ?? []) as ReferrerSummaryRow[];
+  const total = summaryRows.reduce((sum, row) => sum + (row[column] || 0), 0);
+  const max = Math.max(1, ...summaryRows.map((row) => row[column] || 0));
   return {
     ok: true,
     period,
     metric,
     source: "legacy-summary",
-    referrers: (rows || []).map((row: any) => ({
+    referrers: summaryRows.map((row) => ({
       source: row.source_key,
       label: row.source_label || row.source_key,
       icon: sourceIconType(row.source_key || ""),
@@ -136,6 +168,19 @@ async function loadFallbackSummary(
 }
 
 export async function GET(request: NextRequest) {
+  try {
+    await assertAdmin(request);
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: error instanceof Error ? error.message : "Not authorized.",
+        referrers: [],
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const period = request.nextUrl.searchParams.get("period") || "7d";
     const metricParam = request.nextUrl.searchParams.get("metric");
@@ -179,7 +224,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const result = aggregateRows(events || [], visitors || [], metric);
+    const result = aggregateRows(
+      (events ?? []) as ReferrerEventRow[],
+      (visitors ?? []) as ReferrerVisitorRow[],
+      metric
+    );
     return NextResponse.json({
       ok: true,
       period,

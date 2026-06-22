@@ -3527,7 +3527,8 @@ function formatRelativeTime(at) {
 
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) return '-';
-  if (seconds < 90) return `${Math.round(seconds)}s`;
+  if (seconds < 60) return '<1m';
+  if (seconds < 90) return '1m';
   const minutes = seconds / 60;
   if (minutes < 90) return `${Math.round(minutes)}m`;
   const hours = minutes / 60;
@@ -3539,6 +3540,14 @@ function formatDuration(seconds) {
 function setDashboardKpi(key, value) {
   const node = document.querySelector(`[data-kpi="${key}"]`);
   if (node) node.textContent = value == null ? '-' : String(value);
+}
+
+function setDashboardKpiState(key, state) {
+  const node = document.querySelector(`[data-kpi="${key}"]`);
+  const tile = node?.closest('.kpi-tile');
+  if (!tile) return;
+  if (state) tile.dataset.state = state;
+  else delete tile.dataset.state;
 }
 
 const ACTIVITY_KIND_LABEL = {
@@ -3591,6 +3600,7 @@ function renderDashboard(data) {
   const last30 = Number(inq.last30 || 0);
   setDashboardKpi('inquiries.last7', last7);
   setDashboardKpi('inquiries.last30Foot', `${last30} in the last 30 days`);
+  setDashboardKpiState('inquiries.last7', last7 > 0 ? 'good' : 'quiet');
 
   const open = Number(inq.open_new || 0) + Number(inq.open_contacted || 0) + Number(inq.open_viewing || 0) + Number(inq.open_reserved || 0);
   setDashboardKpi('inquiries.open', open);
@@ -3601,24 +3611,30 @@ function renderDashboard(data) {
     inq.open_reserved ? `${inq.open_reserved} reserved` : null,
   ].filter(Boolean);
   setDashboardKpi('inquiries.openFoot', openParts.length ? openParts.join(' · ') : 'no open inquiries');
+  setDashboardKpiState('inquiries.open', open > 0 ? 'attention' : 'good');
 
   const won = Number(conv.won || 0);
   const closed = Number(conv.closed || 0);
   const rate = closed > 0 ? Math.round((won / closed) * 100) : null;
   setDashboardKpi('conversion.rate', rate == null ? '-' : `${rate}%`);
   setDashboardKpi('conversion.foot', closed > 0 ? `${won} won of ${closed} closed` : 'no closed inquiries yet');
+  setDashboardKpiState('conversion.rate', rate == null ? 'quiet' : (rate >= 40 ? 'good' : 'attention'));
 
   const median = Number(repl.medianSeconds);
-  setDashboardKpi('replySla.median', Number.isFinite(median) ? formatDuration(median) : '-');
   const replied = Number(repl.repliedCount || 0);
   const total = Number(repl.inquiryCount || 0);
-  setDashboardKpi('replySla.foot', total > 0 ? `${replied} of ${total} replied` : 'no inquiries yet');
+  const hasReplies = replied > 0 && Number.isFinite(median);
+  setDashboardKpi('replySla.median', hasReplies ? formatDuration(median) : '-');
+  setDashboardKpi('replySla.foot', total > 0 ? (replied > 0 ? `${replied} of ${total} replied` : 'no replies yet') : 'no inquiries yet');
+  setDashboardKpiState('replySla.median', !hasReplies ? 'quiet' : (median <= 86400 ? 'good' : (median <= 172800 ? 'attention' : 'danger')));
 
   setDashboardKpi('inventory.soldThisMonth', Number(inv.sold_this_month || 0));
   setDashboardKpi('inventory.soldFoot', `${inv.sold_all_time || 0} placed all time`);
+  setDashboardKpiState('inventory.soldThisMonth', Number(inv.sold_this_month || 0) > 0 ? 'good' : 'quiet');
 
   setDashboardKpi('inventory.published', Number(inv.published || 0));
   setDashboardKpi('inventory.publishedFoot', `${inv.published || 0} published · ${inv.drafts || 0} drafts`);
+  setDashboardKpiState('inventory.published', Number(inv.published || 0) > 0 ? 'good' : 'attention');
 
   setDashboardKpi('journal.published', Number(journal.published || 0));
   setDashboardKpi('journal.drafts', Number(journal.drafts || 0));
@@ -3730,12 +3746,21 @@ function renderSubscriberMetrics(data) {
   // KPI tiles
   setDashboardKpi('subscribers.active', subs.total_active ?? '-');
   setDashboardKpi('subscribers.activeFoot', `${subs.total_unsubscribed || 0} unsubscribed · ${subs.total_bounced || 0} bounced`);
+  setDashboardKpiState('subscribers.active', Number(subs.total_active || 0) > 0 ? 'good' : 'quiet');
 
   setDashboardKpi('subscribers.withPrefs', subs.with_preferences ?? '-');
-  setDashboardKpi('subscribers.withPrefsFoot', `${subs.without_preferences || 0} without preferences`);
+  const totalActive = Number(subs.total_active || 0);
+  const withPrefs = Number(subs.with_preferences || 0);
+  const withoutPrefs = Number(subs.without_preferences || 0);
+  const completionRate = totalActive > 0 ? Math.round((withPrefs / totalActive) * 100) : null;
+  setDashboardKpi('subscribers.withPrefsFoot', completionRate == null
+    ? `${withoutPrefs} without preferences`
+    : `${completionRate}% complete · ${withoutPrefs} without preferences`);
+  setDashboardKpiState('subscribers.withPrefs', completionRate == null ? 'quiet' : (completionRate >= 50 ? 'good' : 'attention'));
 
   setDashboardKpi('subscribers.missingProfile', subs.missing_profile ?? '-');
   setDashboardKpi('subscribers.missingProfileFoot', 'no name, country, or preferences');
+  setDashboardKpiState('subscribers.missingProfile', Number(subs.missing_profile || 0) > 0 ? 'attention' : 'good');
 
   // Newsletter keyvals
   setDashboardKpi('newsletter.sent', newsletter.total_sent ?? '-');
