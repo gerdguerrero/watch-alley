@@ -75,19 +75,184 @@ interface AiDraftResponse {
     title: string;
     bodyHtml: string;
   };
+  research?: NewsletterResearchContext;
+}
+
+interface NewsletterResearchContext {
+  enabled: boolean;
+  summary?: string;
+  queries?: string[];
+  citations?: { title: string; url: string }[];
+  error?: string;
+}
+
+function normalizeDashCharacters(value: string): string {
+  return value
+    .replace(/([0-9])\s*[\u2013]\s*([0-9])/g, "$1-$2")
+    .replace(/\s*[\u2013\u2014\u2015]\s*/g, " - ");
+}
+
+function normalizeDraftText(value: string): string {
+  return normalizeDashCharacters(value).replace(/\s+/g, " ").trim();
+}
+
+function normalizeDraftHtml(value: string): string {
+  return normalizeDashCharacters(value).trim();
 }
 
 function sanitizeAiDraft(draft: AiDraftResponse): AiDraftResponse {
   return {
     ...draft,
-    introHtml: sanitizeNewsletterHtml(draft.introHtml),
+    subject: normalizeDraftText(draft.subject),
+    preheader: normalizeDraftText(draft.preheader),
+    issueTitle: normalizeDraftText(draft.issueTitle),
+    introHtml: sanitizeNewsletterHtml(normalizeDraftHtml(draft.introHtml)),
+    watches: draft.watches.map((watch) => ({
+      ...watch,
+      headline: normalizeDraftText(watch.headline),
+      copy: normalizeDraftText(watch.copy),
+    })),
+    soldHighlight: draft.soldHighlight
+      ? {
+          ...draft.soldHighlight,
+          headline: normalizeDraftText(draft.soldHighlight.headline),
+          copy: normalizeDraftText(draft.soldHighlight.copy),
+        }
+      : undefined,
     collectorNote: draft.collectorNote
       ? {
           ...draft.collectorNote,
-          bodyHtml: sanitizeNewsletterHtml(draft.collectorNote.bodyHtml),
+          title: normalizeDraftText(draft.collectorNote.title),
+          bodyHtml: sanitizeNewsletterHtml(normalizeDraftHtml(draft.collectorNote.bodyHtml)),
         }
       : undefined,
   };
+}
+
+function extractInteractionText(interaction: unknown): string {
+  const payload = interaction as {
+    output_text?: unknown;
+    outputText?: unknown;
+    steps?: Array<{
+      type?: string;
+      content?: Array<{ type?: string; text?: unknown }>;
+    }>;
+  };
+
+  if (typeof payload.output_text === "string") return payload.output_text;
+  if (typeof payload.outputText === "string") return payload.outputText;
+
+  return (
+    payload.steps
+      ?.filter((step) => step.type === "model_output")
+      .flatMap((step) => step.content ?? [])
+      .filter((content) => content.type === "text" && typeof content.text === "string")
+      .map((content) => content.text as string)
+      .join("\n\n") ?? ""
+  );
+}
+
+function extractInteractionCitations(interaction: unknown): NewsletterResearchContext["citations"] {
+  const payload = interaction as {
+    steps?: Array<{
+      type?: string;
+      content?: Array<{
+        type?: string;
+        annotations?: Array<{ type?: string; title?: string; url?: string }>;
+      }>;
+    }>;
+  };
+  const seen = new Set<string>();
+  const citations: { title: string; url: string }[] = [];
+
+  for (const step of payload.steps ?? []) {
+    if (step.type !== "model_output") continue;
+    for (const content of step.content ?? []) {
+      if (content.type !== "text") continue;
+      for (const annotation of content.annotations ?? []) {
+        if (annotation.type !== "url_citation" || !annotation.url || seen.has(annotation.url)) {
+          continue;
+        }
+        seen.add(annotation.url);
+        citations.push({ title: annotation.title || annotation.url, url: annotation.url });
+      }
+    }
+  }
+
+  return citations.slice(0, 8);
+}
+
+function extractInteractionQueries(interaction: unknown): string[] {
+  const payload = interaction as {
+    steps?: Array<{ type?: string; arguments?: { queries?: unknown } }>;
+  };
+  const queries = new Set<string>();
+
+  for (const step of payload.steps ?? []) {
+    if (step.type !== "google_search_call" || !Array.isArray(step.arguments?.queries)) continue;
+    for (const query of step.arguments.queries) {
+      if (typeof query === "string" && query.trim()) queries.add(query.trim());
+    }
+  }
+
+  return [...queries].slice(0, 8);
+}
+
+async function generateNewsletterResearchContext(
+  ai: GoogleGenAI,
+  payload: {
+    available: WatchData[];
+    sold: WatchData[];
+    posts: PostData[];
+  }
+): Promise<NewsletterResearchContext> {
+  if (process.env.NEWSLETTER_ENABLE_WEB_RESEARCH !== "true") {
+    return { enabled: false, error: "NEWSLETTER_ENABLE_WEB_RESEARCH is not enabled." };
+  }
+
+  const researchTargets = [...payload.available.slice(0, 6), ...payload.sold.slice(0, 3)].map(
+    (watch) => ({
+      brand: watch.brand,
+      name: watch.name,
+      reference: watch.reference,
+      movement: watch.movement || "",
+      category: watch.category || "",
+    })
+  );
+
+  try {
+    const interaction = await ai.interactions.create({
+      model: "gemini-3.5-flash",
+      input: `Research concise, source-grounded context for a Watch Alley newsletter.
+
+Use Google Search for verifiable external context only. Do not change product facts, pricing, condition, inclusions, or availability because those must come from the database.
+
+Return a short research brief with:
+- 3 to 6 externally verifiable context notes about the brands, references, movements, collections, or current collector interest represented here.
+- Notes that can help connect the editorial angle to available inventory.
+- No em dashes or en dashes. Use commas, colons, parentheses, or a simple hyphen.
+
+Recent journal themes:
+${JSON.stringify(payload.posts.slice(0, 2), null, 2)}
+
+Inventory research targets:
+${JSON.stringify(researchTargets, null, 2)}`,
+      tools: [{ type: "google_search" }],
+    });
+
+    const summary = normalizeDashCharacters(extractInteractionText(interaction)).trim();
+    return {
+      enabled: Boolean(summary),
+      summary: summary || undefined,
+      queries: extractInteractionQueries(interaction),
+      citations: extractInteractionCitations(interaction),
+    };
+  } catch (error) {
+    return {
+      enabled: false,
+      error: error instanceof Error ? error.message : "Research grounding failed.",
+    };
+  }
 }
 
 export async function generateNewsletterDraftAI(payload: {
@@ -101,6 +266,7 @@ export async function generateNewsletterDraftAI(payload: {
   }
 
   const ai = new GoogleGenAI({ apiKey });
+  const research = await generateNewsletterResearchContext(ai, payload);
 
   const systemInstruction = `You are the editorial and commerce assistant for The Watch Alley, a Manila-based curated watch reseller and collector desk.
 Your job is to draft a newsletter issue for "The Watch List by The Watch Alley".
@@ -109,6 +275,8 @@ Tone:
 - Collector-first, knowledgeable, sophisticated
 - Warm but premium, conversational, never hypey or spammy
 - Helpful for watch buyers in the Philippines
+- Write in The Watch Alley's direct editorial voice: clear, grounded, personal, and practical.
+- Never use em dashes or en dashes. Use commas, parentheses, colons, semicolons, or a simple hyphen.
 
 Curating & Matching Inventory:
 - Look at the "Recent Journal Posts" (usually the first post represents the main weekly article). Identify its main themes, topics, design elements, brands, era, styles, materials (e.g., gold, steel), or movements discussed.
@@ -124,6 +292,9 @@ Curating & Matching Inventory:
 Factual constraint:
 - Do not invent specs, condition, price, inclusions, or availability. Use only the provided data.
 - Do not claim a watch is rare unless source data explicitly says so.
+- Product-card facts must come from the database payload only: brand, model/name, reference, price, availability, condition, inclusions, movement/specs, service history, product URL, and product image.
+- External research may only provide broad historical, brand, collection, or market context. Do not use it to override database product facts.
+- If a claim is not supported by either the database payload or the web research notes, do not make the claim.
 - Link URLs should use the canonical path format: "/watch/[slug]" for watches, "/journal/[slug]" for journal posts.
 
 Format:
@@ -205,6 +376,9 @@ ${JSON.stringify(
   null,
   2
 )}
+
+### Optional Web Research Notes:
+${research.enabled ? research.summary : "No web research context is available. Use database and journal content only."}
 `;
 
   const response = await ai.models.generateContent({
@@ -221,7 +395,10 @@ ${JSON.stringify(
   }
 
   try {
-    return sanitizeAiDraft(aiDraftResponseSchema.parse(JSON.parse(response.text)));
+    return {
+      ...sanitizeAiDraft(aiDraftResponseSchema.parse(JSON.parse(response.text))),
+      research,
+    };
   } catch {
     console.error("Failed to parse Gemini JSON output:", response.text);
     throw new Error("Gemini returned invalid newsletter JSON output.");

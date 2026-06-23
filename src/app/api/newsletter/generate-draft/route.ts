@@ -113,10 +113,12 @@ export async function POST(request: NextRequest) {
 
       // Resolve sold watch highlight from AI draft selections
       const aiSoldHighlight = aiDraft.soldHighlight;
+      let resolvedAiSoldHighlight: typeof aiSoldHighlight | undefined;
       if (aiSoldHighlight) {
         const foundSold = sold.find((w) => w.id === aiSoldHighlight.id);
         if (foundSold) {
           soldHighlight = foundSold;
+          resolvedAiSoldHighlight = aiSoldHighlight;
         }
       }
 
@@ -151,9 +153,9 @@ export async function POST(request: NextRequest) {
 
       // Map sold watch highlight
       if (soldHighlight) {
-        const aiSold = aiDraft.soldHighlight || {
+        const aiSold = resolvedAiSoldHighlight || {
           headline: `${soldHighlight.brand} ${soldHighlight.name}`,
-          copy: "Sold archive highlight for similar-watch sourcing demand.",
+          copy: `${soldHighlight.brand} ${soldHighlight.name} is now in the sold archive. Send the Private Collecting Desk a sourcing brief if you want us to look for a similar reference.`,
         };
         items.push({
           itemType: "sold_watch",
@@ -250,7 +252,7 @@ export async function POST(request: NextRequest) {
                 ? `
             <div style="margin-bottom: 20px; text-align: center;">
               <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
-                <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15); filter: grayscale(20%);" width="520" />
+                <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
               </a>
             </div>
             `
@@ -320,6 +322,21 @@ export async function POST(request: NextRequest) {
           soldCount: sold.length,
           journalCount: posts.length,
           modelUsed: "gemini-3.5-flash",
+          research: aiDraft.research
+            ? {
+                enabled: aiDraft.research.enabled,
+                queries: aiDraft.research.queries || [],
+                citations: aiDraft.research.citations || [],
+                error: aiDraft.research.error || null,
+              }
+            : { enabled: false },
+          sourceSnapshot: {
+            availableIds: available.map((w) => w.id),
+            soldIds: sold.map((w) => w.id),
+            journalSlugs: posts.map((p) => p.slug),
+            selectedAvailableIds: featured.map((w) => w.id),
+            selectedSoldId: soldHighlight?.id || null,
+          },
         },
         items,
       };
@@ -335,9 +352,18 @@ export async function POST(request: NextRequest) {
           issueId: issue?.issue?.id,
           runType: "full_issue",
           model: "gemini-3.5-flash",
-          promptVersion: "watch-list-ai-v1",
-          inputPayload: { requestedTitle: body.title ?? null },
-          outputPayload: { slug, itemCount: items.length },
+          promptVersion: "watch-list-ai-v2",
+          inputPayload: {
+            requestedTitle: body.title ?? null,
+            sourceSnapshot: payload.metadata.sourceSnapshot,
+            research: payload.metadata.research,
+          },
+          outputPayload: {
+            slug,
+            itemCount: items.length,
+            selectedAvailableIds: featured.map((w) => w.id),
+            selectedSoldId: soldHighlight?.id || null,
+          },
           status: "completed",
         },
       });
@@ -449,7 +475,7 @@ export async function POST(request: NextRequest) {
             ? `
         <div style="margin-bottom: 20px; text-align: center;">
           <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
-            <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15); filter: grayscale(20%);" width="520" />
+            <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
           </a>
         </div>
         `

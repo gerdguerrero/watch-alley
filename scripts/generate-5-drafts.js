@@ -58,6 +58,51 @@ function slugify(value) {
     .slice(0, 120);
 }
 
+function normalizeDashCharacters(value) {
+  return String(value || "")
+    .replace(/([0-9])\s*[\u2013]\s*([0-9])/g, "$1-$2")
+    .replace(/\s*[\u2013\u2014\u2015]\s*/g, " - ");
+}
+
+function normalizeCopy(value) {
+  return normalizeDashCharacters(value).replace(/\s+/g, " ").trim();
+}
+
+function normalizeHtml(value) {
+  return normalizeDashCharacters(value).trim();
+}
+
+function cleanAiDraft(draft) {
+  return {
+    ...draft,
+    subject: normalizeCopy(draft.subject),
+    preheader: normalizeCopy(draft.preheader),
+    issueTitle: normalizeCopy(draft.issueTitle),
+    introHtml: normalizeHtml(draft.introHtml),
+    watches: Array.isArray(draft.watches)
+      ? draft.watches.map((watch) => ({
+          ...watch,
+          headline: normalizeCopy(watch.headline),
+          copy: normalizeCopy(watch.copy),
+        }))
+      : [],
+    soldHighlight: draft.soldHighlight
+      ? {
+          ...draft.soldHighlight,
+          headline: normalizeCopy(draft.soldHighlight.headline),
+          copy: normalizeCopy(draft.soldHighlight.copy),
+        }
+      : undefined,
+    collectorNote: draft.collectorNote
+      ? {
+          ...draft.collectorNote,
+          title: normalizeCopy(draft.collectorNote.title),
+          bodyHtml: normalizeHtml(draft.collectorNote.bodyHtml),
+        }
+      : undefined,
+  };
+}
+
 const THEMES = [
   {
     name: "Summer Rotation",
@@ -98,10 +143,14 @@ Tone:
 - Collector-first, knowledgeable, sophisticated
 - Warm but premium, conversational, never hypey or spammy
 - Helpful for watch buyers in the Philippines
+- Write in The Watch Alley's direct editorial voice: clear, grounded, personal, and practical.
+- Never use em dashes or en dashes. Use commas, parentheses, colons, semicolons, or a simple hyphen.
 
 Factual constraint:
 - Do not invent specs, condition, price, inclusions, or availability. Use only the provided data.
 - Do not claim a watch is rare unless source data explicitly says so.
+- Product-card facts must come from the database payload only: brand, model/name, reference, price, availability, condition, inclusions, movement/specs, service history, product URL, and product image.
+- Do not use external historical or market claims unless that information is present in the supplied journal or listing data.
 - Link URLs should use the canonical path format: "/watch/[slug]" for watches, "/journal/[slug]" for journal posts.
 
 Format:
@@ -155,7 +204,7 @@ ${JSON.stringify(posts, null, 2)}
   }
 
   const aiDraft = JSON.parse(response.text);
-  return aiDraft;
+  return cleanAiDraft(aiDraft);
 }
 
 async function main() {
@@ -259,10 +308,12 @@ async function main() {
 
       // Resolve sold watch highlight from AI draft selections
       const aiSoldHighlight = aiDraft.soldHighlight;
+      let resolvedAiSoldHighlight;
       if (aiSoldHighlight) {
         const foundSold = sold.find(w => w.id === aiSoldHighlight.id);
         if (foundSold) {
           soldHighlight = foundSold;
+          resolvedAiSoldHighlight = aiSoldHighlight;
         }
       }
 
@@ -288,9 +339,9 @@ async function main() {
 
       // Map sold highlight to item
       if (soldHighlight) {
-        const aiSold = aiDraft.soldHighlight || {
+        const aiSold = resolvedAiSoldHighlight || {
           headline: `${soldHighlight.brand} ${soldHighlight.name}`,
-          copy: "Sold archive highlight for similar-watch sourcing demand.",
+          copy: `${soldHighlight.brand} ${soldHighlight.name} is now in the sold archive. Send the Private Collecting Desk a sourcing brief if you want us to look for a similar reference.`,
         };
         items.push({
           itemType: "sold_watch",
@@ -378,11 +429,11 @@ async function main() {
           soldHighlight
             ? `
           <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">— From the Sold Archive —</div>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
             ${soldHighlight.primary_image ? `
             <div style="margin-bottom: 20px; text-align: center;">
               <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
-                <img src="${soldHighlight.primary_image}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15); filter: grayscale(20%);" width="520" />
+                <img src="${soldHighlight.primary_image}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
               </a>
             </div>
             ` : ''}
@@ -436,6 +487,13 @@ async function main() {
           availableCount: available.length,
           soldCount: sold.length,
           modelUsed: "gemini-3.5-flash",
+          sourceSnapshot: {
+            availableIds: available.map((w) => w.id),
+            soldIds: sold.map((w) => w.id),
+            journalSlugs: rawPosts.map((p) => p.slug),
+            selectedAvailableIds: featured.map((w) => w.id),
+            selectedSoldId: soldHighlight?.id || null,
+          },
         },
         items
       };
@@ -457,9 +515,17 @@ async function main() {
           issueId,
           runType: "full_issue",
           model: "gemini-3.5-flash",
-          promptVersion: "watch-list-ai-v1-script",
-          inputPayload: { theme: theme.name },
-          outputPayload: { slug, itemCount: items.length },
+          promptVersion: "watch-list-ai-v2-script",
+          inputPayload: {
+            theme: theme.name,
+            sourceSnapshot: payload.metadata.sourceSnapshot,
+          },
+          outputPayload: {
+            slug,
+            itemCount: items.length,
+            selectedAvailableIds: featured.map((w) => w.id),
+            selectedSoldId: soldHighlight?.id || null,
+          },
           status: "completed"
         }
       });
