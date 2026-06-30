@@ -4,19 +4,23 @@ import { assertAdmin } from "@/lib/newsletter/admin";
 
 export const runtime = "nodejs";
 
-type VercelUsageRow = {
+type VercelObservabilityRow = {
   timestamp?: string;
-  projectName?: string;
-  projectId?: string;
-  count?: number;
-  eventCount?: number;
-  pageviewCount?: number;
+  vercel_analytics_pageview_count_sum?: number;
 };
 
-const VERCEL_TEAM_ID = "team_fdiNWLh4i3WbFcIC2f41ucFK";
-const VERCEL_PROJECT_ID = "prj_h4BRq8PsNM6c7rktxnszWB7PRDC9";
+type VercelObservabilityResponse = {
+  data?: VercelObservabilityRow[];
+};
+
+// Watch Alley lives under the Hype Kidz Vercel team. The previous value was
+// Joseph's paused personal team, which made Vercel return 404/403 for this
+// project and left the admin analytics tab stuck in a skeleton state.
+const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID || "team_cGwnjCC7Oe9hTbIrF1ktGS1L";
+const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID || "prj_h4BRq8PsNM6c7rktxnszWB7PRDC9";
 const VERCEL_PROJECT_NAME = "watch-alley";
-const VERCEL_ANALYTICS_URL = "https://vercel.com/api/v1/usage/analytics";
+const VERCEL_ANALYTICS_METRIC = "vercel.analytics_pageview.count";
+const VERCEL_OBSERVABILITY_URL = "https://api.vercel.com/v2/observability/query";
 
 function startOfUtcDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -109,20 +113,31 @@ export async function GET(request: NextRequest) {
   const previousFrom = addDays(range.from, -range.days);
   const queryTo = addDays(range.to, 1);
 
-  const params = new URLSearchParams({
-    teamId: VERCEL_TEAM_ID,
-    projectId: VERCEL_PROJECT_ID,
-    from: toVercelDateParam(previousFrom),
-    to: toVercelDateParam(queryTo),
-  });
-
-  const response = await fetch(`${VERCEL_ANALYTICS_URL}?${params.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
+  const response = await fetch(
+    `${VERCEL_OBSERVABILITY_URL}?teamId=${encodeURIComponent(VERCEL_TEAM_ID)}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        scope: {
+          type: "project",
+          ownerId: VERCEL_TEAM_ID,
+          projectIds: [VERCEL_PROJECT_ID],
+        },
+        metric: VERCEL_ANALYTICS_METRIC,
+        aggregation: "sum",
+        startTime: toVercelDateParam(previousFrom),
+        endTime: toVercelDateParam(queryTo),
+        granularity: { days: 1 },
+        limit: 10,
+      }),
+      cache: "no-store",
+    }
+  );
 
   if (!response.ok) {
     const message = await response.text().catch(() => "");
@@ -136,17 +151,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const rows = (await response.json()) as VercelUsageRow[];
+  const payload = (await response.json()) as VercelObservabilityResponse;
+  const rows = Array.isArray(payload.data) ? payload.data : [];
   const byDate = new Map<string, { pageviews: number; events: number; total: number }>();
 
   for (const row of rows) {
-    if (row.projectId !== VERCEL_PROJECT_ID && row.projectName !== VERCEL_PROJECT_NAME) continue;
     if (!row.timestamp) continue;
     const date = row.timestamp.slice(0, 10);
+    const pageviews = numberValue(row.vercel_analytics_pageview_count_sum);
     byDate.set(date, {
-      pageviews: numberValue(row.pageviewCount),
-      events: numberValue(row.eventCount),
-      total: numberValue(row.count),
+      pageviews,
+      events: 0,
+      total: pageviews,
     });
   }
 

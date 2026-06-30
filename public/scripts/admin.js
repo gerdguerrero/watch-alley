@@ -2306,6 +2306,13 @@ async function loadVercelAnalytics({ force = false } = {}) {
     }
     analyticsLoaded = true;
   } catch (error) {
+    document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
+      el.classList.remove('analytics-skeleton');
+    });
+    document.querySelectorAll('.am-value').forEach(function (el) {
+      if (!el.textContent) el.textContent = '-';
+    });
+    document.querySelectorAll('[data-sparkline]').forEach(function (el) { el.textContent = ''; });
     var statusEl2 = document.getElementById('analytics-status');
     if (statusEl2) {
       statusEl2.textContent = error instanceof Error ? error.message : 'Unable to load Vercel Analytics.';
