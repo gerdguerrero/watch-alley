@@ -7,10 +7,12 @@ export const runtime = "nodejs";
 type VercelObservabilityRow = {
   timestamp?: string;
   vercel_analytics_pageview_count_sum?: number;
+  vercel_analytics_pageview_count_unique_visitor_id?: number;
 };
 
 type VercelObservabilityResponse = {
   data?: VercelObservabilityRow[];
+  summary?: VercelObservabilityRow[];
 };
 
 // Watch Alley lives under the Hype Kidz Vercel team. The previous value was
@@ -21,6 +23,15 @@ const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID || "prj_h4BRq8PsNM6c7rkt
 const VERCEL_PROJECT_NAME = "watch-alley";
 const VERCEL_ANALYTICS_METRIC = "vercel.analytics_pageview.count";
 const VERCEL_OBSERVABILITY_URL = "https://api.vercel.com/v2/observability/query";
+
+function vercelAnalyticsValue(
+  row: VercelObservabilityRow,
+  aggregation: "sum" | "unique/visitor_id"
+) {
+  return aggregation === "unique/visitor_id"
+    ? numberValue(row.vercel_analytics_pageview_count_unique_visitor_id)
+    : numberValue(row.vercel_analytics_pageview_count_sum);
+}
 
 function startOfUtcDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -113,57 +124,100 @@ export async function GET(request: NextRequest) {
   const previousFrom = addDays(range.from, -range.days);
   const queryTo = addDays(range.to, 1);
 
-  const response = await fetch(
-    `${VERCEL_OBSERVABILITY_URL}?teamId=${encodeURIComponent(VERCEL_TEAM_ID)}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        scope: {
-          type: "project",
-          ownerId: VERCEL_TEAM_ID,
-          projectIds: [VERCEL_PROJECT_ID],
+  async function queryVercelAnalytics(aggregation: "sum" | "unique/visitor_id") {
+    const response = await fetch(
+      `${VERCEL_OBSERVABILITY_URL}?teamId=${encodeURIComponent(VERCEL_TEAM_ID)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-        metric: VERCEL_ANALYTICS_METRIC,
-        aggregation: "sum",
-        startTime: toVercelDateParam(previousFrom),
-        endTime: toVercelDateParam(queryTo),
-        granularity: { days: 1 },
-        limit: 10,
-      }),
-      cache: "no-store",
-    }
-  );
+        body: JSON.stringify({
+          scope: {
+            type: "project",
+            ownerId: VERCEL_TEAM_ID,
+            projectIds: [VERCEL_PROJECT_ID],
+          },
+          metric: VERCEL_ANALYTICS_METRIC,
+          aggregation,
+          startTime: toVercelDateParam(previousFrom),
+          endTime: toVercelDateParam(queryTo),
+          granularity: { days: 1 },
+          limit: 10,
+        }),
+        cache: "no-store",
+      }
+    );
 
-  if (!response.ok) {
-    const message = await response.text().catch(() => "");
+    if (!response.ok) {
+      const message = await response.text().catch(() => "");
+      throw new Error(
+        JSON.stringify({
+          status: response.status,
+          detail: message.slice(0, 500),
+        })
+      );
+    }
+
+    const payload = (await response.json()) as VercelObservabilityResponse;
+    return {
+      rows: Array.isArray(payload.data) ? payload.data : [],
+      summary: Array.isArray(payload.summary) ? (payload.summary[0] ?? {}) : {},
+    };
+  }
+
+  let pageviewRows: VercelObservabilityRow[] = [];
+  let visitorRows: VercelObservabilityRow[] = [];
+  let visitorSummary: VercelObservabilityRow = {};
+  try {
+    const [pageviewResult, visitorResult] = await Promise.all([
+      queryVercelAnalytics("sum"),
+      queryVercelAnalytics("unique/visitor_id"),
+    ]);
+    pageviewRows = pageviewResult.rows;
+    visitorRows = visitorResult.rows;
+    visitorSummary = visitorResult.summary;
+  } catch (error) {
+    let status = 502;
+    let detail = "";
+    if (error instanceof Error) {
+      try {
+        const parsed = JSON.parse(error.message) as { status?: number; detail?: string };
+        status = parsed.status ?? status;
+        detail = parsed.detail ?? "";
+      } catch {
+        detail = error.message;
+      }
+    }
     return NextResponse.json(
       {
         ok: false,
-        message: `Vercel analytics request failed (${response.status}).`,
-        detail: message.slice(0, 500),
+        message: `Vercel analytics request failed (${status}).`,
+        detail,
       },
       { status: 502 }
     );
   }
 
-  const payload = (await response.json()) as VercelObservabilityResponse;
-  const rows = Array.isArray(payload.data) ? payload.data : [];
   const byDate = new Map<string, { pageviews: number; events: number; total: number }>();
+  const visitorsByDate = new Map<string, number>();
 
-  for (const row of rows) {
+  for (const row of pageviewRows) {
     if (!row.timestamp) continue;
     const date = row.timestamp.slice(0, 10);
-    const pageviews = numberValue(row.vercel_analytics_pageview_count_sum);
+    const pageviews = vercelAnalyticsValue(row, "sum");
     byDate.set(date, {
       pageviews,
       events: 0,
       total: pageviews,
     });
+  }
+
+  for (const row of visitorRows) {
+    if (!row.timestamp) continue;
+    visitorsByDate.set(row.timestamp.slice(0, 10), vercelAnalyticsValue(row, "unique/visitor_id"));
   }
 
   function buildSeries(start: Date, length: number) {
@@ -174,12 +228,23 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  function buildVisitorSeries(start: Date, length: number) {
+    return Array.from({ length }, (_, index) => {
+      const date = isoDate(addDays(start, index));
+      return { date, visitors: visitorsByDate.get(date) ?? 0 };
+    });
+  }
+
   const series = buildSeries(range.from, range.days);
   const previousSeries = buildSeries(previousFrom, range.days);
+  const visitorSeries = buildVisitorSeries(range.from, range.days);
   const totalPageviews = series.reduce((sum, day) => sum + day.pageviews, 0);
   const previousPageviews = previousSeries.reduce((sum, day) => sum + day.pageviews, 0);
   const totalEvents = series.reduce((sum, day) => sum + day.events, 0);
   const total = series.reduce((sum, day) => sum + day.total, 0);
+  const uniqueVisitors =
+    vercelAnalyticsValue(visitorSummary, "unique/visitor_id") ||
+    visitorSeries.reduce((sum, day) => sum + day.visitors, 0);
   const todayRow = series.at(-1) ?? { pageviews: 0, events: 0, total: 0 };
 
   return NextResponse.json({
@@ -205,9 +270,11 @@ export async function GET(request: NextRequest) {
       previousPageviews,
       todayPageviews: todayRow.pageviews,
       averageDailyPageviews: Math.round(totalPageviews / series.length),
+      uniqueVisitors,
     },
     series,
     previousSeries,
+    visitorSeries,
     updatedAt: now.toISOString(),
   });
 }

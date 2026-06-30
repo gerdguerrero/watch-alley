@@ -2298,6 +2298,8 @@ async function loadVercelAnalytics({ force = false } = {}) {
       }
     });
 
+    renderUniqueVisitorsFromVercel(body);
+
     // Status update
     var statusEl = document.getElementById('analytics-status');
     if (statusEl) {
@@ -2320,7 +2322,6 @@ async function loadVercelAnalytics({ force = false } = {}) {
   } finally {
     analyticsInFlight = false;
     document.getElementById('analytics-refresh-btn').disabled = false;
-    loadUniqueVisitors();
     loadPopularWatches();
     loadVisitorCountries();
     loadReferrers();
@@ -2405,10 +2406,39 @@ async function loadPopularWatches() {
   }
 }
 
-// Unique visitors KPI
-async function loadUniqueVisitors() {
+// Unique visitors KPI — sourced from Vercel Web Analytics, not Supabase.
+function renderUniqueVisitorsFromVercel(body) {
   var el = document.querySelector('[data-analytics="uniqueVisitors"]');
   var foot = document.querySelector('[data-analytics="visitorsFoot"]');
+  var chart = document.querySelector('[data-sparkline="visitors"]');
+  if (!el) return;
+
+  var summary = body && body.summary ? body.summary : {};
+  var count = Number(summary.uniqueVisitors || 0);
+  var visitorSeries = Array.isArray(body && body.visitorSeries)
+    ? body.visitorSeries.map(function (d) { return Number(d.visitors || 0); })
+    : [];
+
+  if (foot) foot.textContent = 'Unique visitors from Vercel Web Analytics';
+  if (chart) renderSparkline(chart, visitorSeries, 'oklch(0.76 0.12 75)');
+  if (typeof gsap !== 'undefined') {
+    el.textContent = '0';
+    try {
+      gsap.fromTo(el, { textContent: 0 }, {
+        textContent: count,
+        duration: 1.2,
+        ease: 'power2.out',
+        snap: { textContent: 1 },
+        onUpdate: function () { el.textContent = formatInt(Math.round(this.targets()[0].textContent)); },
+      });
+      return;
+    } catch (_) {}
+  }
+  el.textContent = formatInt(count);
+}
+
+async function loadUniqueVisitors() {
+  var el = document.querySelector('[data-analytics="uniqueVisitors"]');
   var chart = document.querySelector('[data-sparkline="visitors"]');
   if (!el) return;
 
@@ -2418,37 +2448,12 @@ async function loadUniqueVisitors() {
     if (!token) { el.textContent = '-'; return; }
 
     var qs = analyticsQueryString();
-    var resp = await fetch('/api/admin/unique-visitors?' + qs, {
-      headers: { Authorization: `Bearer ${token}` },
+    var resp = await fetch('/api/admin/vercel-analytics?' + qs, {
+      headers: { Authorization: 'Bearer ' + token },
     });
     var body = await resp.json().catch(function () { return {}; });
-
-    if (body.ok) {
-      var count = Number(body.count || 0);
-      var visitorSeries = Array.isArray(body.series)
-        ? body.series.map(function (d) { return Number(d.visitors || 0); })
-        : [];
-      if (foot) foot.textContent = 'Browsers who visited any watch page';
-      if (chart) renderSparkline(chart, visitorSeries, 'oklch(0.76 0.12 75)');
-      if (typeof gsap !== 'undefined') {
-        el.textContent = '0';
-        try {
-          gsap.fromTo(el, { textContent: 0 }, {
-            textContent: count,
-            duration: 1.2,
-            ease: 'power2.out',
-            snap: { textContent: 1 },
-            onUpdate: function () { el.textContent = formatInt(Math.round(this.targets()[0].textContent)); },
-          });
-          return;
-        } catch (_) {}
-      }
-      el.textContent = formatInt(count);
-    } else {
-      el.textContent = '0';
-      if (chart) chart.textContent = '';
-      if (foot) foot.textContent = body.error || body.message || 'Run migration: visitor_ids table';
-    }
+    if (!resp.ok || !body.ok) throw new Error(body.message || 'Unable to load Vercel visitors.');
+    renderUniqueVisitorsFromVercel(body);
   } catch {
     el.textContent = '-';
     if (chart) chart.textContent = '';
