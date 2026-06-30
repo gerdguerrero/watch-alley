@@ -1,0 +1,9 @@
+# Never upload local secrets to Vercel deployments.
+.env
+.env.*
+!.env.example
+
+# Local Vercel/agent metadata and audit scratch files.
+.vercel
+va_*.json
+va_*.err
