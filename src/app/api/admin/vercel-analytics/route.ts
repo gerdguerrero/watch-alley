@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { assertAdmin } from "@/lib/newsletter/admin";
 
 export const runtime = "nodejs";
+export const maxDuration = 10;
 
 type VercelObservabilityRow = {
   timestamp?: string;
@@ -23,6 +24,14 @@ const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID || "prj_h4BRq8PsNM6c7rkt
 const VERCEL_PROJECT_NAME = "watch-alley";
 const VERCEL_ANALYTICS_METRIC = "vercel.analytics_pageview.count";
 const VERCEL_OBSERVABILITY_URL = "https://api.vercel.com/v2/observability/query";
+const VERCEL_REQUEST_TIMEOUT_MS = 8_000;
+const JSON_NO_STORE = {
+  "Cache-Control": "private, no-store",
+};
+
+function json(payload: Record<string, unknown>, status = 200) {
+  return NextResponse.json(payload, { status, headers: JSON_NO_STORE });
+}
 
 function vercelAnalyticsValue(
   row: VercelObservabilityRow,
@@ -101,21 +110,21 @@ export async function GET(request: NextRequest) {
   try {
     await assertAdmin(request);
   } catch (error) {
-    return NextResponse.json(
+    return json(
       { ok: false, message: error instanceof Error ? error.message : "Not authorized." },
-      { status: 401 }
+      401
     );
   }
 
   const token = process.env.VERCEL_API_TOKEN || process.env.VERCEL_AUTH_TOKEN;
   if (!token) {
-    return NextResponse.json(
+    return json(
       {
         ok: false,
         message:
           "Vercel analytics token is not configured. Set VERCEL_API_TOKEN in the Vercel project environment.",
       },
-      { status: 500 }
+      500
     );
   }
 
@@ -148,6 +157,7 @@ export async function GET(request: NextRequest) {
           limit: 10,
         }),
         cache: "no-store",
+        signal: AbortSignal.timeout(VERCEL_REQUEST_TIMEOUT_MS),
       }
     );
 
@@ -191,13 +201,13 @@ export async function GET(request: NextRequest) {
         detail = error.message;
       }
     }
-    return NextResponse.json(
+    return json(
       {
         ok: false,
         message: `Vercel analytics request failed (${status}).`,
         detail,
       },
-      { status: 502 }
+      502
     );
   }
 
@@ -247,7 +257,7 @@ export async function GET(request: NextRequest) {
     visitorSeries.reduce((sum, day) => sum + day.visitors, 0);
   const todayRow = series.at(-1) ?? { pageviews: 0, events: 0, total: 0 };
 
-  return NextResponse.json({
+  return json({
     ok: true,
     project: {
       id: VERCEL_PROJECT_ID,

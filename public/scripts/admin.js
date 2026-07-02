@@ -2169,6 +2169,7 @@ async function loadVercelAnalytics({ force = false } = {}) {
   if (!document.getElementById('tabpanel-analytics') || analyticsInFlight || (analyticsLoaded && !force)) return;
   analyticsInFlight = true;
   if (document.getElementById('analytics-status')) document.getElementById('analytics-status').textContent = 'Loading Vercel Analytics…';
+  if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = true;
 
   // Show shimmer skeletons while loading
   document.querySelectorAll('.analytics-metrics, .analytics-chart-wrap').forEach(function (el) {
@@ -2185,9 +2186,17 @@ async function loadVercelAnalytics({ force = false } = {}) {
     if (!token) throw new Error('No active admin session. Sign in again.');
 
     var qs = analyticsQueryString();
-    var resp = await fetch('/api/admin/vercel-analytics?' + qs, {
-      headers: { Authorization: 'Bearer ' + token },
-    });
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeout = controller ? setTimeout(function () { controller.abort(); }, 10000) : null;
+    var resp;
+    try {
+      resp = await fetch('/api/admin/vercel-analytics?' + qs, {
+        headers: { Authorization: 'Bearer ' + token },
+        signal: controller ? controller.signal : undefined,
+      });
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
     var body = await resp.json().catch(function () { return {}; });
     if (!resp.ok || !body.ok) {
       throw new Error(body.message || 'Analytics request failed (' + resp.status + ').');
@@ -2315,13 +2324,30 @@ async function loadVercelAnalytics({ force = false } = {}) {
       if (!el.textContent) el.textContent = '-';
     });
     document.querySelectorAll('[data-sparkline]').forEach(function (el) { el.textContent = ''; });
+    var message = error instanceof Error && error.name === 'AbortError'
+      ? 'Vercel Analytics took too long to respond. Try Refresh again.'
+      : error instanceof Error
+        ? error.message
+        : 'Unable to load Vercel Analytics.';
+    setAnalyticsText('primaryLabel', 'Pageviews · unavailable');
+    setAnalyticsText('averageDaily', message);
+    setAnalyticsText('totalPageviews', '-');
+    setAnalyticsText('uniqueVisitors', '-');
+    setAnalyticsText('todayPageviews', '-');
+    setAnalyticsText('eventCount', 'Custom events: -');
+    if (document.getElementById('analytics-range-meta')) {
+      document.getElementById('analytics-range-meta').textContent = 'Unable to load selected range from Vercel.';
+    }
+    var chartEl = document.getElementById('analytics-chart');
+    if (chartEl) chartEl.innerHTML = '';
+    if (document.getElementById('analytics-top-days')) document.getElementById('analytics-top-days').innerHTML = '';
     var statusEl2 = document.getElementById('analytics-status');
     if (statusEl2) {
-      statusEl2.textContent = error instanceof Error ? error.message : 'Unable to load Vercel Analytics.';
+      statusEl2.textContent = message;
     }
   } finally {
     analyticsInFlight = false;
-    document.getElementById('analytics-refresh-btn').disabled = false;
+    if (els.analyticsRefreshBtn) els.analyticsRefreshBtn.disabled = false;
     loadPopularWatches();
     loadVisitorCountries();
     loadReferrers();
