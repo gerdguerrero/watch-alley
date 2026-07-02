@@ -24,6 +24,14 @@ breaking changes — `proxy.ts` instead of `middleware.ts`, Cache Components,
 - **Biome** for lint + format
 - **Biome** + **TypeScript** + `next build` are the default quality gates
 
+## Deployment
+
+- Production Vercel project is Hype Kidz Pro: `https://vercel.com/hype-kidz/watch-alley`.
+- Vercel Analytics dashboard: `https://vercel.com/hype-kidz/watch-alley/analytics`.
+- Production deploys should flow through GitHub: fetch `origin/master`, commit, push to `origin/master`, then let the connected Vercel project deploy.
+- Do not use local `vercel deploy --prod` as the normal release path. Local `.vercel/project.json` may point at a different team/project than the public custom domain.
+- See [docs/deployment-workflow.md](./docs/deployment-workflow.md) before deployment work.
+
 ## File layout
 
 ```
