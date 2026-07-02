@@ -124,9 +124,19 @@ function sanitizeStyle(styleStr: string): string {
     }
 
     if (val.includes("(")) {
-      if (!/^(?:rgb|rgba|oklch|hsl|hsla)\([^)]+\)$/i.test(val)) {
+      const matches = val.match(/[a-zA-Z0-9-]+\s*\(/g);
+      if (!matches) {
         continue;
       }
+      let allSafe = true;
+      for (const m of matches) {
+        const name = m.replace("(", "").trim().toLowerCase();
+        if (!["rgb", "rgba", "oklch", "hsl", "hsla"].includes(name)) {
+          allSafe = false;
+          break;
+        }
+      }
+      if (!allSafe) continue;
     }
 
     cleanDeclarations.push(`${prop}: ${val}`);
