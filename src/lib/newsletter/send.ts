@@ -197,6 +197,9 @@ function wrapHtmlEmail({
         border: 1px solid #BD9A32;
         color: #BD9A32;
       }
+      .content .show-light {
+        display: none;
+      }
       .footer {
         margin-top: 60px;
         border-top: 1px solid rgba(189, 154, 50, 0.15);
@@ -245,6 +248,12 @@ function wrapHtmlEmail({
         .content a.btn-outline {
           border-color: #8A6B1C !important;
           color: #8A6B1C !important;
+        }
+        .content .show-dark {
+          display: none !important;
+        }
+        .content .show-light {
+          display: inline-block !important;
         }
         .header {
           border-bottom-color: rgba(138, 107, 28, 0.2) !important;

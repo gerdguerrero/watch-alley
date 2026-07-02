@@ -22,7 +22,15 @@ const SAFE_TAGS = new Set([
 // Semantic classes styled centrally in the email shell (src/lib/newsletter/send.ts) so
 // text colors can adapt to the recipient's light/dark mode preference. Newsletter authors
 // should reach for these instead of hardcoding a hex color that only looks right in one mode.
-const SAFE_CLASSES = new Set(["eyebrow", "muted", "accent-heading", "heading", "btn-outline"]);
+const SAFE_CLASSES = new Set([
+  "eyebrow",
+  "muted",
+  "accent-heading",
+  "heading",
+  "btn-outline",
+  "show-dark",
+  "show-light",
+]);
 
 export function escapeHtml(value: string) {
   return value
