@@ -69,11 +69,17 @@ function wrapHtmlEmail({
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
     <title>${safeSubject}</title>
     <link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,300..900;1,300..900&family=Spectral:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        color-scheme: light dark;
+        supported-color-schemes: light dark;
+      }
       body {
-        background-color: #13110f;
+        background-color: #13110f !important;
         color: #F1ECE0;
         font-family: 'Spectral', Georgia, serif;
         margin: 0;
@@ -81,11 +87,30 @@ function wrapHtmlEmail({
         -webkit-text-size-adjust: 100%;
         -ms-text-size-adjust: 100%;
       }
+      .email-bg {
+        background-color: #13110f !important;
+        width: 100%;
+      }
       .container {
         max-width: 600px;
         margin: 0 auto;
         padding: 40px 24px;
-        background-color: #13110f;
+        background-color: #13110f !important;
+        text-align: left;
+      }
+      @media screen and (max-width: 480px) {
+        .container {
+          padding: 28px 16px !important;
+        }
+        .content h2 {
+          font-size: 19px !important;
+        }
+        .content h3 {
+          font-size: 17px !important;
+        }
+        .content {
+          font-size: 15px !important;
+        }
       }
       .header {
         text-align: center;
@@ -154,6 +179,24 @@ function wrapHtmlEmail({
         padding-left: 20px;
         margin-bottom: 24px;
       }
+      /* Semantic classes newsletter authors can use in body_html (see html.ts SAFE_CLASSES)
+         instead of hardcoding a hex color, so text stays legible in both color schemes. */
+      .content .heading {
+        color: #F1ECE0;
+      }
+      .content .eyebrow {
+        color: #BD9A32;
+      }
+      .content .muted {
+        color: #d1d1cd;
+      }
+      .content .accent-heading {
+        color: #BD9A32;
+      }
+      .content a.btn-outline {
+        border: 1px solid #BD9A32;
+        color: #BD9A32;
+      }
       .footer {
         margin-top: 60px;
         border-top: 1px solid rgba(189, 154, 50, 0.15);
@@ -170,32 +213,85 @@ function wrapHtmlEmail({
         text-decoration: none;
         margin: 0 6px;
       }
+      @media screen and (prefers-color-scheme: light) {
+        body {
+          background-color: #FBF7EE !important;
+          color: #3F392E !important;
+        }
+        .email-bg,
+        .container {
+          background-color: #FBF7EE !important;
+        }
+        .content {
+          color: #3F392E !important;
+        }
+        .content a {
+          color: #8A6B1C !important;
+          border-bottom-color: rgba(138, 107, 28, 0.35) !important;
+        }
+        .content h2,
+        .content h3,
+        .content .heading {
+          color: #1C1712 !important;
+          border-bottom-color: rgba(138, 107, 28, 0.25) !important;
+        }
+        .content .eyebrow,
+        .content .accent-heading {
+          color: #8A6B1C !important;
+        }
+        .content .muted {
+          color: #6B6252 !important;
+        }
+        .content a.btn-outline {
+          border-color: #8A6B1C !important;
+          color: #8A6B1C !important;
+        }
+        .header {
+          border-bottom-color: rgba(138, 107, 28, 0.2) !important;
+        }
+        .footer {
+          border-top-color: rgba(138, 107, 28, 0.2) !important;
+          color: rgba(28, 23, 18, 0.55) !important;
+        }
+        .footer a {
+          color: #8A6B1C !important;
+        }
+        .preheader {
+          color: #FBF7EE !important;
+        }
+      }
     </style>
   </head>
-  <body>
+  <body style="background-color: #13110f; margin: 0; padding: 0;" bgcolor="#13110f">
     <span class="preheader">${safePreheader}</span>
-    <div class="container">
-      <div class="header">
-        <a href="${siteUrl}" class="logo-link" style="display: block; text-decoration: none; text-align: center; margin: 0 auto;">
-          <img class="email-logo" src="${logoUrl}" width="170" height="126" alt="The Watch Alley" style="border: 0; display: block; height: auto; margin: 0 auto; max-width: 170px; outline: none; text-decoration: none; width: 170px;" />
-        </a>
-      </div>
-      <div class="content">
-        ${safeBodyHtml}
-      </div>
-      <div class="footer">
-        <p style="margin: 0 0 10px 0;">© 2026 The Watch Alley PH. All rights reserved.</p>
-        <p style="margin: 0 0 15px 0;">Manila, Philippines</p>
-        <p style="margin: 0;">
-          You received this email because you are on The Watch List.
-        </p>
-        <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;">
-          <a href="${managePreferencesUrl()}">Manage Preferences</a> |
-          <a href="${archiveUrl()}">View Online Archive</a> |
-          <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a>
-        </p>
-      </div>
-    </div>
+    <table role="presentation" class="email-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#13110f" style="background-color: #13110f; width: 100%;">
+      <tr>
+        <td align="center" class="email-bg" bgcolor="#13110f" style="background-color: #13110f;">
+          <div class="container">
+            <div class="header">
+              <a href="${siteUrl}" class="logo-link" style="display: block; text-decoration: none; text-align: center; margin: 0 auto;">
+                <img class="email-logo" src="${logoUrl}" width="170" height="126" alt="The Watch Alley" style="border: 0; display: block; height: auto; margin: 0 auto; max-width: 170px; outline: none; text-decoration: none; width: 170px;" />
+              </a>
+            </div>
+            <div class="content">
+              ${safeBodyHtml}
+            </div>
+            <div class="footer">
+              <p style="margin: 0 0 10px 0;">© 2026 The Watch Alley PH. All rights reserved.</p>
+              <p style="margin: 0 0 15px 0;">Manila, Philippines</p>
+              <p style="margin: 0;">
+                You received this email because you are on The Watch List.
+              </p>
+              <p style="margin: 10px 0 0 0; font-family: monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;">
+                <a href="${managePreferencesUrl()}">Manage Preferences</a> |
+                <a href="${archiveUrl()}">View Online Archive</a> |
+                <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a>
+              </p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>`;
 }

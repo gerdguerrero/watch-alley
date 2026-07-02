@@ -19,6 +19,11 @@ const SAFE_TAGS = new Set([
   "hr",
 ]);
 
+// Semantic classes styled centrally in the email shell (src/lib/newsletter/send.ts) so
+// text colors can adapt to the recipient's light/dark mode preference. Newsletter authors
+// should reach for these instead of hardcoding a hex color that only looks right in one mode.
+const SAFE_CLASSES = new Set(["eyebrow", "muted", "accent-heading", "heading", "btn-outline"]);
+
 export function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -28,15 +33,24 @@ export function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+const SAFE_HREF_PROTOCOLS = new Set(["https:", "mailto:", "tel:"]);
+
 function safeHref(value: string) {
   const trimmed = value.trim();
   if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
   try {
     const url = new URL(trimmed);
-    return url.protocol === "https:" ? url.toString() : "";
+    return SAFE_HREF_PROTOCOLS.has(url.protocol) ? url.toString() : "";
   } catch {
     return "";
   }
+}
+
+function safeClassAttr(rawTag: string) {
+  const classMatch = rawTag.match(/\s(?:class)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+  const raw = classMatch?.[1] ?? classMatch?.[2] ?? classMatch?.[3] ?? "";
+  const classes = raw.split(/\s+/).filter((cls) => SAFE_CLASSES.has(cls));
+  return classes.length ? ` class="${classes.join(" ")}"` : "";
 }
 
 function safeImgSrc(value: string) {
@@ -156,12 +170,13 @@ function sanitizeTag(rawTag: string) {
   const rawStyle = styleMatch?.[1] ?? styleMatch?.[2] ?? styleMatch?.[3] ?? "";
   const style = sanitizeStyle(rawStyle);
   const styleAttr = style ? ` style="${escapeHtml(style)}"` : "";
+  const classAttr = safeClassAttr(rawTag);
 
   if (tag === "a") {
     const hrefMatch = rawTag.match(/\s(?:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
     const href = safeHref(hrefMatch?.[1] ?? hrefMatch?.[2] ?? hrefMatch?.[3] ?? "");
-    if (!href) return `<a${styleAttr}>`;
-    return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"${styleAttr}>`;
+    if (!href) return `<a${classAttr}${styleAttr}>`;
+    return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"${classAttr}${styleAttr}>`;
   }
 
   if (tag === "img") {
@@ -181,10 +196,10 @@ function sanitizeTag(rawTag: string) {
     const height = heightMatch?.[1] ?? heightMatch?.[2] ?? heightMatch?.[3] ?? "";
     const heightAttr = height && /^[0-9%a-zA-Z]+$/.test(height) ? ` height="${height}"` : "";
 
-    return `<img src="${escapeHtml(src)}"${altAttr}${widthAttr}${heightAttr}${styleAttr} />`;
+    return `<img src="${escapeHtml(src)}"${altAttr}${widthAttr}${heightAttr}${classAttr}${styleAttr} />`;
   }
 
-  return `<${tag}${styleAttr}>`;
+  return `<${tag}${classAttr}${styleAttr}>`;
 }
 
 export function sanitizeNewsletterHtml(value: string) {
