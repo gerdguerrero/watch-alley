@@ -163,7 +163,7 @@ export function ContactSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Message The Watch Alley on WhatsApp Business at ${WATCH_ALLEY_WHATSAPP_BUSINESS.display}`}
-                  className="group inline-flex items-center gap-3 rounded-full border border-emerald-300/35 bg-emerald-300/10 px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-100 transition-colors hover:border-emerald-200 hover:bg-emerald-300 hover:text-[#090806]"
+                  className="group inline-flex items-center gap-3 rounded-full border border-[#6f9f82]/45 bg-[#132a20]/70 px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#c5d8ca] transition-colors hover:border-[#a6c8b1] hover:bg-[#8fb99e] hover:text-[#090806]"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400 }}

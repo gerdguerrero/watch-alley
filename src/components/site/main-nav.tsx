@@ -122,7 +122,7 @@ export function MainNav() {
             href={whatsAppHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-emerald-100 transition-all duration-300 hover:border-emerald-200/70 hover:bg-emerald-300 hover:text-[#090806] md:gap-2 md:px-4 md:py-1.5"
+            className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-[#6f9f82]/45 bg-[#132a20]/70 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-[#c5d8ca] transition-all duration-300 hover:border-[#a6c8b1] hover:bg-[#8fb99e] hover:text-[#090806] md:gap-2 md:px-4 md:py-1.5"
           >
             <MessageCircle className="h-3 w-3" aria-hidden="true" />
             <span>WhatsApp</span>

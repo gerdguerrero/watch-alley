@@ -103,7 +103,7 @@ export function MobileNavOverlay({
               rel="noopener noreferrer"
               onClick={onClose}
               role="menuitem"
-              className="mx-3 mb-2 inline-flex items-center justify-center rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-100"
+              className="mx-3 mb-2 inline-flex items-center justify-center rounded-full border border-[#6f9f82]/45 bg-[#132a20]/70 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-[#c5d8ca]"
             >
               WhatsApp
             </a>

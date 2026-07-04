@@ -112,7 +112,7 @@ export function InquiryButtons({ watch, title }: InquiryButtonsProps) {
         rel="noopener noreferrer"
         onClick={upgradeWhatsAppWithLiveUrl}
         aria-label={`Message The Watch Alley on WhatsApp Business at ${WATCH_ALLEY_WHATSAPP_BUSINESS.display}`}
-        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/35 bg-emerald-300/10 px-4 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100 transition-colors hover:border-emerald-200 hover:bg-emerald-300 hover:text-zinc-950"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#6f9f82]/45 bg-[#132a20]/70 px-4 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#c5d8ca] transition-colors hover:border-[#a6c8b1] hover:bg-[#8fb99e] hover:text-zinc-950"
       >
         <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
         WhatsApp Business
