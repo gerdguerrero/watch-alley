@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "check": "biome check src && tsc --noEmit",
-    "test": "pnpm run check && pnpm run build",
+    "test:unit": "vitest run",
+    "test": "pnpm run check && pnpm run test:unit && pnpm run build",
     "transcribe:feedback": "node scripts/transcribe-feedback.mjs",
     "media:compress-watch-images": "node scripts/compress-supabase-watch-images.mjs",
     "media:generate-watch-thumbnails": "node scripts/generate-watch-thumbnails.mjs",
@@ -50,6 +51,7 @@
     "@types/three": "^0.184.1",
     "sharp": "^0.35.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

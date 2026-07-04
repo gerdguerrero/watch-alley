@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { JournalCard } from "@/components/develop/journal-card";
-import { PageTitle } from "@/components/develop/page-title";
+import { JournalCard } from "@/components/site/journal-card";
+import { PageTitle } from "@/components/site/page-title";
 import { fetchJournalPosts } from "@/lib/journal/queries";
 
 export const revalidate = 60;

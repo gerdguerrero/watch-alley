@@ -1,8 +1,8 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { WatchCard } from "@/components/develop/watch-card";
-import { WatchTile } from "@/components/develop/watch-tile";
+import { WatchCard } from "@/components/site/watch-card";
+import { WatchTile } from "@/components/site/watch-tile";
 import { formatCategory } from "@/lib/inventory/format";
 import { collectBrands, type SortKey, sortWatches } from "@/lib/inventory/sort";
 import type { Watch } from "@/lib/inventory/types";

@@ -62,3 +62,4 @@ skills-lock.json
 # Storage organize/cleanup run manifests (generated artifacts)
 .storage-cleanup/
 .vercel
+scratch/

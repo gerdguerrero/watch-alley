@@ -4,10 +4,15 @@ import {
   normalizeVisitorUid,
   recordReferrerVisit,
 } from "@/lib/analytics/referrers";
+import { checkRateLimit, clientIpKey } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  if (!checkRateLimit("track-referrer", clientIpKey(request), { limit: 30, windowMs: 60_000 })) {
+    return NextResponse.json({ ok: true, tracked: false, throttled: true });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const source = normalizeReferrerSource(body?.referrer) || normalizeReferrerSource(body?.source);

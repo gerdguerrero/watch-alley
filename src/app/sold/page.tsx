@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { PageTitle } from "@/components/develop/page-title";
-import { WatchCard } from "@/components/develop/watch-card";
-import { WatchTile } from "@/components/develop/watch-tile";
+import { PageTitle } from "@/components/site/page-title";
+import { WatchCard } from "@/components/site/watch-card";
+import { WatchTile } from "@/components/site/watch-tile";
 import { CatalogToolbar } from "@/components/storefront/CatalogToolbar";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";

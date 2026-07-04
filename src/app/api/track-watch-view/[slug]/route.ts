@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, clientIpKey } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -18,6 +19,10 @@ function text(value: unknown, maxLength: number) {
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+  if (!checkRateLimit("track-view", clientIpKey(request), { limit: 60, windowMs: 60_000 })) {
+    return json({ ok: true, throttled: true });
+  }
+
   const { slug } = await params;
   if (!slug || typeof slug !== "string") {
     return json({ ok: false, message: "Missing slug" }, 400);

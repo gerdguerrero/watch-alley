@@ -1,9 +1,9 @@
-import { CollectionSection } from "@/components/develop/collection-section";
-import { ContactSection } from "@/components/develop/contact-section";
-import { EntrancePreloader } from "@/components/develop/entrance-preloader";
-import { Hero } from "@/components/develop/hero";
-import { JournalSection } from "@/components/develop/journal-section";
-import { SmoothScrollProvider } from "@/components/develop/smooth-scroll-provider";
+import { CollectionSection } from "@/components/site/collection-section";
+import { ContactSection } from "@/components/site/contact-section";
+import { EntrancePreloader } from "@/components/site/entrance-preloader";
+import { Hero } from "@/components/site/hero";
+import { JournalSection } from "@/components/site/journal-section";
+import { SmoothScrollProvider } from "@/components/site/smooth-scroll-provider";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { WatchListSection } from "@/components/watch-list/WatchListSection";
 import { fetchFeaturedWatch, fetchWatches } from "@/lib/inventory/queries";

@@ -1,5 +1,8 @@
+import { timingSafeEqual } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { assertAdmin } from "@/lib/newsletter/admin";
 
 /**
  * On-demand ISR revalidation endpoint.
@@ -10,18 +13,38 @@ import { NextResponse } from "next/server";
  *
  * POST /api/revalidate
  * Body: { paths: string[] }
- * Header: Authorization: Bearer <token>
+ * Header: Authorization: Bearer <admin Supabase access token>
+ *         (or the server-only REVALIDATION_TOKEN for scripts)
  */
-export async function POST(request: Request) {
-  const auth = request.headers.get("authorization");
-  const expected = process.env.REVALIDATION_TOKEN;
+const MAX_PATHS = 50;
 
-  if (!expected) {
-    return NextResponse.json({ error: "REVALIDATION_TOKEN not configured" }, { status: 500 });
+function matchesRevalidationToken(bearer: string) {
+  const expected = process.env.REVALIDATION_TOKEN;
+  if (!expected) return false;
+  const a = Buffer.from(bearer);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+export async function POST(request: NextRequest) {
+  const bearer =
+    request.headers
+      .get("authorization")
+      ?.replace(/^Bearer\s+/i, "")
+      .trim() ?? "";
+
+  if (!bearer) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!auth || auth !== `Bearer ${expected}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Server-side scripts may use the static env token; the admin panel sends
+  // its Supabase session token, verified against the admin_emails allowlist.
+  if (!matchesRevalidationToken(bearer)) {
+    try {
+      await assertAdmin(request);
+    } catch {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   let paths: string[];
@@ -31,6 +54,10 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
+
+  paths = paths
+    .filter((path): path is string => typeof path === "string" && path.startsWith("/"))
+    .slice(0, MAX_PATHS);
 
   if (paths.length === 0) {
     return NextResponse.json({ revalidated: [] });

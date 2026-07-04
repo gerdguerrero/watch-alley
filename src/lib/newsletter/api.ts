@@ -32,10 +32,11 @@ export function requireCronSecret(request: Request) {
     throw new Error("NEWSLETTER_CRON_SECRET or CRON_SECRET is not configured.");
   }
 
+  // Header-only on purpose: query-string secrets leak into request logs and
+  // referrer headers. Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`.
   const auth = request.headers.get("authorization");
-  const queryToken = new URL(request.url).searchParams.get("token") || undefined;
   const bearerToken = auth?.replace(/^Bearer\s+/i, "").trim();
-  if (!allowedSecrets.includes(bearerToken) && !allowedSecrets.includes(queryToken)) {
+  if (!bearerToken || !allowedSecrets.includes(bearerToken)) {
     throw new Error("Unauthorized cron request.");
   }
 }

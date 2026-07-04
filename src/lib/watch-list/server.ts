@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import type { ZodError, z } from "zod";
 import { sendWelcomeEmail } from "@/lib/newsletter/send";
+import { checkRateLimit, clientIpKey } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { alertSchema, signupSchema, sourcingSchema, type WatchListSignupInput } from "./schemas";
 
@@ -36,11 +37,10 @@ function clientIp(request: NextRequest) {
 
 function hashIp(ip: string | undefined) {
   if (!ip) return undefined;
+  // REVALIDATION_TOKEN was removed from this chain: it shipped in the public
+  // admin bundle for a while, and a public salt makes IP hashes reversible.
   const salt =
-    process.env.WATCH_LIST_IP_HASH_SALT ||
-    process.env.REVALIDATION_TOKEN ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    "watch-list";
+    process.env.WATCH_LIST_IP_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY || "watch-list";
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
 }
 
@@ -85,6 +85,12 @@ async function handleWatchListPost<Schema extends z.ZodTypeAny>({
   rpcName: RpcName;
   kind: SubmissionKind;
 }) {
+  // These endpoints trigger outbound email (welcome sends) and DB writes, so
+  // throttle hard: honest visitors never submit these forms in bursts.
+  if (!checkRateLimit("watch-list", clientIpKey(request), { limit: 5, windowMs: 10 * 60_000 })) {
+    return jsonError("Too many requests. Please try again in a few minutes.", 429);
+  }
+
   const raw = await readJson(request);
   if (!raw || typeof raw !== "object") {
     return jsonError("Invalid request body.");

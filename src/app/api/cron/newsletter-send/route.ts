@@ -3,7 +3,9 @@ import { sendNewsletterBroadcast } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Broadcasts are batched (50/request) but delivery logging is per-recipient;
+// give the cron the full Fluid Compute window so a large list finishes in one run.
+export const maxDuration = 300;
 
 export async function GET(request: Request) {
   try {

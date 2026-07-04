@@ -454,6 +454,9 @@ export async function sendNewsletterBroadcast(issueId: string) {
   const errors: string[] = [];
   let sentCount = 0;
 
+  // Filter recipients already delivered on a previous (possibly interrupted)
+  // run, so cron retries after a timeout pick up exactly where they stopped.
+  const pending: { email: string; hash: string }[] = [];
   for (const email of emails) {
     const hash = recipientHash(email);
     if (await deliveryAlreadySent(supabase, { issueId, hash })) {
@@ -465,44 +468,64 @@ export async function sendNewsletterBroadcast(issueId: string) {
       });
       continue;
     }
+    pending.push({ email, hash });
+  }
 
-    await logDeliveryEvent(supabase, { issueId, hash, status: "sending" });
+  // Resend's batch endpoint takes up to 100 emails per API call, which is the
+  // lever that matters against the per-request rate limit. Headers (including
+  // List-Unsubscribe) are supported in batch; only attachments/scheduledAt
+  // are not.
+  const BATCH_SIZE = 50;
 
-    const unsubscribeUrl = buildUnsubscribeUrl(email);
-    const html = wrapHtmlEmail({
-      subject: issue.subject,
-      preheader: issue.preheader || "",
-      bodyHtml: issue.body_html || "",
-      unsubscribeUrl,
+  for (let offset = 0; offset < pending.length; offset += BATCH_SIZE) {
+    const chunk = pending.slice(offset, offset + BATCH_SIZE);
+
+    for (const recipient of chunk) {
+      await logDeliveryEvent(supabase, { issueId, hash: recipient.hash, status: "sending" });
+    }
+
+    const payloads = chunk.map(({ email }) => {
+      const unsubscribeUrl = buildUnsubscribeUrl(email);
+      return {
+        from,
+        to: email,
+        subject: issue.subject,
+        html: wrapHtmlEmail({
+          subject: issue.subject,
+          preheader: issue.preheader || "",
+          bodyHtml: issue.body_html || "",
+          unsubscribeUrl,
+        }),
+        text: appendTextFooter(issue.body_text || issue.subject, unsubscribeUrl),
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      };
     });
 
-    const { data: sendData, error: sendError } = await resend.emails.send({
-      from,
-      to: email,
-      subject: issue.subject,
-      html,
-      text: appendTextFooter(issue.body_text || issue.subject, unsubscribeUrl),
-      headers: {
-        "List-Unsubscribe": `<${unsubscribeUrl}>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-      },
-    });
+    const { data: batchData, error: batchError } = await resend.batch.send(payloads);
 
-    if (sendError) {
+    if (batchError) {
+      for (const recipient of chunk) {
+        await logDeliveryEvent(supabase, {
+          issueId,
+          hash: recipient.hash,
+          status: "failed",
+          errorMessage: batchError.message,
+        });
+      }
+      errors.push(batchError.message);
+      continue;
+    }
+
+    const messageIds = batchData?.data ?? [];
+    for (let i = 0; i < chunk.length; i++) {
       await logDeliveryEvent(supabase, {
         issueId,
-        hash,
-        status: "failed",
-        errorMessage: sendError.message,
-      });
-      errors.push(sendError.message);
-    } else {
-      await logDeliveryEvent(supabase, {
-        issueId,
-        hash,
+        hash: chunk[i].hash,
         status: "sent",
-        providerMessageId:
-          sendData && "id" in sendData && typeof sendData.id === "string" ? sendData.id : undefined,
+        providerMessageId: messageIds[i]?.id,
       });
       sentCount += 1;
     }
@@ -665,7 +688,7 @@ export async function sendProfileCompletionEmail(
   const missingList =
     missingFields.length > 0
       ? `<ul style="padding-left: 20px; margin-bottom: 24px;">
-          ${missingFields.map((f) => `<li style="margin-bottom: 8px;">${f}</li>`).join("\n")}
+          ${missingFields.map((f) => `<li style="margin-bottom: 8px;">${escapeHtml(f)}</li>`).join("\n")}
         </ul>`
       : "";
 

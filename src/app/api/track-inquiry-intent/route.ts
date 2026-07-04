@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, clientIpKey } from "@/lib/rate-limit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -14,6 +15,10 @@ function positiveInteger(value: unknown) {
 }
 
 export async function POST(request: Request) {
+  if (!checkRateLimit("track-inquiry", clientIpKey(request), { limit: 30, windowMs: 60_000 })) {
+    return NextResponse.json({ ok: true, throttled: true });
+  }
+
   const body = await request.json().catch(() => ({}));
   const watchSlug = text(body?.watchSlug, 180);
 

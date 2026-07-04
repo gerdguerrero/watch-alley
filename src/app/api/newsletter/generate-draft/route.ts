@@ -4,6 +4,13 @@ import { fetchJournalPosts } from "@/lib/journal/queries";
 import { assertAdmin } from "@/lib/newsletter/admin";
 import { generateNewsletterDraftAI } from "@/lib/newsletter/ai";
 import { jsonError, jsonOk, readJsonObject } from "@/lib/newsletter/api";
+import { escapeHtml } from "@/lib/newsletter/html";
+import {
+  renderNoteBoxHtml,
+  renderSoldHighlightHtml,
+  renderWatchCardHtml,
+  SOURCING_CTA_HTML,
+} from "@/lib/newsletter/template";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,14 +21,6 @@ function slugify(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 120);
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function monthLabel() {
@@ -193,17 +192,13 @@ export async function POST(request: NextRequest) {
 
       const introHtml = aiDraft.introHtml;
       const collectorNoteHtml = aiDraft.collectorNote
-        ? `
-        <div style="margin-bottom: 40px; padding: 24px; border: 1px solid rgba(189, 154, 50, 0.2); background-color: rgba(189, 154, 50, 0.03);">
-          <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 16px 0; color: #BD9A32; line-height: 1.3;">
-            ${escapeHtml(aiDraft.collectorNote.title)}
-          </h3>
-          <div style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd;">
-            ${aiDraft.collectorNote.bodyHtml}
-          </div>
-        </div>`
+        ? renderNoteBoxHtml({
+            title: aiDraft.collectorNote.title,
+            innerHtml: aiDraft.collectorNote.bodyHtml,
+          })
         : "";
 
+      const soldItem = items.find((it) => it.itemType === "sold_watch");
       const bodyHtml = `
         ${introHtml}
         <h2>In rotation</h2>
@@ -212,72 +207,22 @@ export async function POST(request: NextRequest) {
             const item = items.find(
               (it) => it.itemId === watch.id && it.itemType === "available_watch"
             );
-            return `
-              <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-                ${
-                  watch.primaryImage
-                    ? `
-                <div style="margin-bottom: 20px; text-align: center;">
-                  <a href="/watch/${watch.slug}" style="text-decoration: none;">
-                    <img src="${watch.primaryImage}" alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
-                  </a>
-                </div>
-                `
-                    : ""
-                }
-                <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3;">
-                  <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(item?.title || `${watch.brand} ${watch.name}`)}</a>
-                </h3>
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.1em; color: #BD9A32; text-transform: uppercase; margin-bottom: 12px; font-weight: bold;">
-                  Ref: ${escapeHtml(watch.reference || "N/A")} · ${escapeHtml(watch.conditionLabel || "Excellent")} · ₱${watch.price ? watch.price.toLocaleString("en-PH") : "Inquire"}
-                </div>
-                <p style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0;">
-                  ${escapeHtml(item?.summary || "")}
-                </p>
-                <div style="text-align: left;">
-                  <a href="/watch/${watch.slug}" style="display: inline-block; background-color: #BD9A32; color: #13110f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; padding: 12px 24px; border-radius: 0px; text-align: center;">View watch details</a>
-                </div>
-              </div>
-            `;
+            return renderWatchCardHtml(watch, {
+              title: item?.title || `${watch.brand} ${watch.name}`,
+              summary: item?.summary || "",
+            });
           })
           .join("")}
-        
         ${
           soldHighlight
-            ? `
-          <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
-            ${
-              soldHighlight.primaryImage
-                ? `
-            <div style="margin-bottom: 20px; text-align: center;">
-              <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
-                <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
-              </a>
-            </div>
-            `
-                : ""
-            }
-            <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3; text-align: center;">
-              <a href="/watch/${soldHighlight.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(
-                items.find((it) => it.itemType === "sold_watch")?.title ||
-                  `${soldHighlight.brand} ${soldHighlight.name}`
-              )}</a>
-            </h3>
-            <p style="font-family: 'Spectral', Georgia, serif; font-size: 14px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0; text-align: center;">
-              ${escapeHtml(items.find((it) => it.itemType === "sold_watch")?.summary || "")}
-            </p>
-            <div style="text-align: center;">
-              <a href="/watch-list#sourcing" style="display: inline-block; border: 1px solid #BD9A32; color: #BD9A32; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; padding: 12px 24px; border-radius: 0px; text-align: center;">Request a similar piece</a>
-            </div>
-          </div>
-        `
+            ? renderSoldHighlightHtml(soldHighlight, {
+                title: soldItem?.title || `${soldHighlight.brand} ${soldHighlight.name}`,
+                summary: soldItem?.summary || "",
+              })
             : ""
         }
-
         ${collectorNoteHtml}
-        
-        <p style="margin-top: 32px; text-align: center;"><a href="https://www.thewatchalley.com/watch-list#sourcing" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; color: #BD9A32; text-decoration: none; border-bottom: 1px solid #BD9A32;">Send a sourcing request</a></p>
+        ${SOURCING_CTA_HTML}
       `;
 
       const bodyText = [
@@ -434,84 +379,31 @@ export async function POST(request: NextRequest) {
     <p>First access to curated drops, rare finds, collector notes, and sourcing opportunities from Manila.</p>
     <h2>In rotation</h2>
     ${featured
-      .map(
-        (watch) => `
-        <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-          ${
-            watch.primaryImage
-              ? `
-          <div style="margin-bottom: 20px; text-align: center;">
-            <a href="/watch/${watch.slug}" style="text-decoration: none;">
-              <img src="${watch.primaryImage}" alt="${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
-            </a>
-          </div>
-          `
-              : ""
-          }
-          <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3;">
-            <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(watch.brand)} ${escapeHtml(watch.name)}</a>
-          </h3>
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.1em; color: #BD9A32; text-transform: uppercase; margin-bottom: 12px; font-weight: bold;">
-            Ref: ${escapeHtml(watch.reference || "N/A")} · ${escapeHtml(watch.conditionLabel || "Excellent")} · ₱${watch.price ? watch.price.toLocaleString("en-PH") : "Inquire"}
-          </div>
-          <p style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0;">
-            ${escapeHtml(watch.description || `${watch.brand} ${watch.reference || watch.model}`.trim())}
-          </p>
-          <div style="text-align: left;">
-            <a href="/watch/${watch.slug}" style="display: inline-block; background-color: #BD9A32; color: #13110f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; padding: 12px 24px; border-radius: 0px; text-align: center;">View watch details</a>
-          </div>
-        </div>
-      `
+      .map((watch) =>
+        renderWatchCardHtml(watch, {
+          title: `${watch.brand} ${watch.name}`,
+          summary: watch.description || `${watch.brand} ${watch.reference || watch.model}`.trim(),
+        })
       )
       .join("")}
-    
     ${
       soldHighlight
-        ? `
-      <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
-        ${
-          soldHighlight.primaryImage
-            ? `
-        <div style="margin-bottom: 20px; text-align: center;">
-          <a href="/watch/${soldHighlight.slug}" style="text-decoration: none; opacity: 0.85;">
-            <img src="${soldHighlight.primaryImage}" alt="${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid rgba(189, 154, 50, 0.15);" width="520" />
-          </a>
-        </div>
-        `
-            : ""
-        }
-        <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3; text-align: center;">
-          <a href="/watch/${soldHighlight.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(soldHighlight.brand)} ${escapeHtml(soldHighlight.name)}</a>
-        </h3>
-        <p style="font-family: 'Spectral', Georgia, serif; font-size: 14px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0; text-align: center;">
-          This exceptional ${escapeHtml(soldHighlight.brand)} is now with its new keeper. Get in touch with our Private Collecting Desk to source a similar reference.
-        </p>
-        <div style="text-align: center;">
-          <a href="/watch-list#sourcing" style="display: inline-block; border: 1px solid #BD9A32; color: #BD9A32; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; padding: 12px 24px; border-radius: 0px; text-align: center;">Request a similar piece</a>
-        </div>
-      </div>
-    `
+        ? renderSoldHighlightHtml(soldHighlight, {
+            title: `${soldHighlight.brand} ${soldHighlight.name}`,
+            summary: `This exceptional ${soldHighlight.brand} is now with its new keeper. Get in touch with our Private Collecting Desk to source a similar reference.`,
+          })
         : ""
     }
-    
     ${
       journal
-        ? `
-      <div style="margin-bottom: 40px; padding: 24px; border: 1px solid rgba(189, 154, 50, 0.2); background-color: rgba(189, 154, 50, 0.03);">
-        <h3 style="font-family: 'Petrona', Georgia, serif; font-size: 20px; font-weight: normal; margin: 0 0 16px 0; color: #BD9A32; line-height: 1.3;">
-          ${escapeHtml(journal.title)}
-        </h3>
-        <p style="font-family: 'Spectral', Georgia, serif; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 16px 0;">
-          ${escapeHtml(journal.summary)}
-        </p>
-        <p style="margin: 0;"><a href="/journal/${escapeHtml(journal.slug)}">Read the full dispatch on our Bench Blog</a></p>
-      </div>
-    `
+        ? renderNoteBoxHtml({
+            title: journal.title,
+            innerHtml: `<p style="margin: 0 0 16px 0;">${escapeHtml(journal.summary)}</p>
+        <p style="margin: 0;"><a href="/journal/${escapeHtml(journal.slug)}">Read the full dispatch on our Bench Blog</a></p>`,
+          })
         : ""
     }
-    
-    <p style="margin-top: 32px; text-align: center;"><a href="https://www.thewatchalley.com/watch-list#sourcing" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; color: #BD9A32; text-decoration: none; border-bottom: 1px solid #BD9A32;">Send a Sourcing Request</a></p>
+    ${SOURCING_CTA_HTML}
   `;
 
   const payload = {

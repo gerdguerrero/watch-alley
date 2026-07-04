@@ -4,14 +4,16 @@ import { unsubscribeWatchListEmail, verifyUnsubscribeToken } from "@/lib/watch-l
 export const runtime = "nodejs";
 
 function resolveBase(request: Request): string {
+  // Prefer the configured site URL over forwarded headers: x-forwarded-host is
+  // attacker-suppliable and this base ends up in redirect Location headers.
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
   const url = new URL(request.url);
   const forwardedHost = request.headers.get("x-forwarded-host");
   const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
   if (forwardedHost) {
     return `${forwardedProto}://${forwardedHost}`;
-  }
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
   }
   return url.origin;
 }
@@ -62,8 +64,9 @@ export async function POST(request: Request) {
   // Try JSON body first (our confirmation page)
   try {
     const body = await request.clone().json();
-    token = body.token || "";
-    reason = body.reason || undefined;
+    token = typeof body.token === "string" ? body.token : "";
+    reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : undefined;
+    if (!reason) reason = undefined;
   } catch {
     // Not JSON — try query param or form-encoded (email client one-click)
     token = url.searchParams.get("token") || "";

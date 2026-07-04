@@ -42,18 +42,20 @@ src/
 │   ├── sold/                # /sold
 │   ├── journal/             # /journal and /journal/[slug]
 │   ├── watch/[slug]/        # /watch/<slug>
-│   ├── admin/               # Future native admin; current admin is public/admin bridge
-│   └── api/                 # Webhooks ONLY — prefer Server Actions
+│   ├── watch-list/          # /watch-list, archive, unsubscribe
+│   └── api/                 # Cron, tracking, newsletter + watch-list endpoints
 ├── components/
 │   ├── ui/                  # shadcn primitives (do not hand-edit unless re-running `shadcn add`)
-│   ├── storefront/          # Public-facing components
-│   └── admin/               # Admin shell + forms
+│   ├── site/                # Live design system: nav, footer, hero, watch cards/tiles
+│   ├── storefront/          # Feature islands: catalog, gallery, inquiry, trackers
+│   └── watch-list/          # Watch List signup/alert/sourcing forms + modal
 ├── lib/
 │   ├── supabase/            # public.ts, server.ts, client.ts, admin.ts
 │   ├── inventory/           # Domain: types, normalize, queries, format
 │   ├── journal/             # Domain: types, normalize, queries, renderMarkdown
-│   ├── fx/                  # PHP → USD helper
-│   └── schema/              # Zod schemas, one per Server Action boundary
+│   ├── newsletter/          # Issue drafting (Gemini), sanitizer, Resend sends
+│   ├── watch-list/          # Zod schemas, submission handlers, unsubscribe tokens
+│   └── fx/                  # PHP → USD helper
 ```
 
 ## Server / Client component boundary
@@ -67,8 +69,7 @@ src/
 
 If none apply, it stays a Server Component — even with props, even inside a
 Client Component. Push the `"use client"` boundary as far down the tree as it
-will go. The arrivals carousel is a Server Component; only its arrow controls
-are a tiny Client Component island.
+will go.
 
 ## Supabase patterns
 

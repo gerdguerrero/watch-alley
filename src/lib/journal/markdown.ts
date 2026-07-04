@@ -43,7 +43,7 @@ function applyInline(escaped: string): string {
     const safeHref = safeUrl(href);
     if (!safeHref) return m;
     const isExternal =
-      /^https?:/i.test(safeHref) && !/^https?:\/\/(?:www\.)?watchalley\.ph/i.test(safeHref);
+      /^https?:/i.test(safeHref) && !/^https?:\/\/(?:www\.)?thewatchalley\.com/i.test(safeHref);
     const rel = isExternal ? ' rel="noopener noreferrer" target="_blank"' : "";
     return `<a href="${escapeHtml(safeHref)}"${rel}>${text}</a>`;
   });

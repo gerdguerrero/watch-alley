@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageTitle } from "@/components/develop/page-title";
+import { PageTitle } from "@/components/site/page-title";
 import { AvailableCatalog } from "@/components/storefront/AvailableCatalog";
 import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { fetchWatches } from "@/lib/inventory/queries";

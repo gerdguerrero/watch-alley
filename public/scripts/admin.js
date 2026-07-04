@@ -13,7 +13,6 @@ import { renderMarkdown } from './lib/markdown.mjs';
 // (https://supabase.com/dashboard/project/yrzawkqcifuubtltktbk).
 const SUPABASE_URL = 'https://yrzawkqcifuubtltktbk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_OU38evYLP4E6Kl6TiByOqA_7l-mrxzY';
-const REVALIDATION_TOKEN = 'twa-reval-8k2mN7pQ4vX1yF9bR3wL6dH5';
 
 const PLACEHOLDER_URL_HOST = 'YOUR-NEW-PROJECT-REF';
 const isConfigured = !SUPABASE_URL.includes(PLACEHOLDER_URL_HOST) && SUPABASE_ANON_KEY.length > 0;
@@ -307,15 +306,23 @@ function setStatus(message, tone) {
 async function revalidateStorefront(slug) {
   const paths = ['/available', '/sold', '/journal'];
   if (slug) paths.push(`/watch/${slug}`);
-  // Fire-and-forget: don't block the UI on revalidation.
-  fetch('/api/revalidate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${REVALIDATION_TOKEN}`,
-    },
-    body: JSON.stringify({ paths }),
-  }).catch(() => {});
+  try {
+    // The route verifies this session token against the admin allowlist.
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) return;
+    // Fire-and-forget: don't block the UI on revalidation.
+    fetch('/api/revalidate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ paths }),
+    }).catch(() => {});
+  } catch {
+    // Revalidation is best-effort; ISR catches up on its own window.
+  }
 }
 
 // ---------------- Confirmation modal ----------------

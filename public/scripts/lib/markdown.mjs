@@ -51,7 +51,7 @@ function applyInline(escaped) {
   out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, text, href) => {
     const safeHref = safeUrl(href);
     if (!safeHref) return _match;
-    const isExternal = /^https?:/i.test(safeHref) && !/^https?:\/\/(?:www\.)?watchalley\.ph/i.test(safeHref);
+    const isExternal = /^https?:/i.test(safeHref) && !/^https?:\/\/(?:www\.)?thewatchalley\.com/i.test(safeHref);
     const rel = isExternal ? ' rel="noopener noreferrer" target="_blank"' : '';
     return `<a href="${escapeHtml(safeHref)}"${rel}>${text}</a>`;
   });

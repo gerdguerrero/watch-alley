@@ -1,8 +1,8 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
-import { Footer } from "@/components/develop/footer";
-import { MainNav } from "@/components/develop/main-nav";
+import { Footer } from "@/components/site/footer";
+import { MainNav } from "@/components/site/main-nav";
 import { SiteReferrerTracker } from "@/components/storefront/SiteReferrerTracker";
 import { WatchListModal } from "@/components/watch-list/WatchListModal";
 import { BRAND_COLORS } from "@/lib/brand/assets";

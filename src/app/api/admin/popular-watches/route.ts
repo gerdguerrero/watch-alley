@@ -4,17 +4,15 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-const WATCHES_DATA_URL = "https://www.thewatchalley.com/data/watches.json";
-
 interface WatchEntry {
   slug: string;
-  brand: string;
-  model: string;
-  name: string;
-  reference?: string;
-  status: string;
-  primaryImage?: string;
-  price?: number;
+  brand: string | null;
+  model: string | null;
+  name: string | null;
+  reference: string | null;
+  status: string | null;
+  primary_image: string | null;
+  price: number | null;
 }
 
 type WatchViewColumn = "view_count" | "views_24h" | "views_7d";
@@ -74,19 +72,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: true, watches: [], period });
     }
 
-    // Fetch watches metadata
+    // Fetch watch metadata for the viewed slugs straight from the database.
+    // (This used to read the legacy /data/watches.json snapshot, which went
+    // stale the moment inventory changed after the Vite era.)
     const watchesMap: Record<string, WatchEntry> = {};
-    try {
-      const resp = await fetch(WATCHES_DATA_URL);
-      if (resp.ok) {
-        const data = await resp.json();
-        const list: WatchEntry[] = Array.isArray(data) ? data : (data.watches ?? []);
-        for (const w of list) {
-          watchesMap[w.slug] = w;
-        }
-      }
-    } catch {
-      // Non-critical
+    const { data: watchRows } = await supabase
+      .from("watches")
+      .select("slug, brand, model, name, reference, status, primary_image, price")
+      .in(
+        "slug",
+        viewRows.map((v) => v.slug)
+      );
+    for (const w of (watchRows ?? []) as WatchEntry[]) {
+      watchesMap[w.slug] = w;
     }
 
     const result = viewRows.map((v) => {
@@ -101,7 +99,7 @@ export async function GET(request: NextRequest) {
         model: meta?.model ?? null,
         reference: meta?.reference ?? null,
         status: meta?.status ?? null,
-        image: meta?.primaryImage ?? null,
+        image: meta?.primary_image ?? null,
         price: meta?.price ?? null,
       };
     });
