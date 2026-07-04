@@ -119,7 +119,7 @@ export function AvailableCatalog({
         <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">
           {watches.length > 0 && hasActiveFilters
             ? "No pieces match this search. Try a brand, model, reference, or clear the filters."
-            : "No active pieces right now. Message us on Messenger for the next drop."}
+            : "No active pieces right now. Message us on Messenger or WhatsApp for the next drop."}
         </p>
       ) : (
         <>

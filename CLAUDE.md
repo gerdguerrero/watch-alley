@@ -96,12 +96,13 @@ Display helpers (`formatPhp`, `formatWatchMeta`, `badgeIsBrandNew`) live in
 to import from both Server and Client Components.
 
 **Buyer inquiry message is auto-generated — don't add manual fields back.**
-[InquiryButtons](./src/components/storefront/InquiryButtons.tsx) builds the
-"Message the Seller" Messenger draft per-watch from live fields (title, ref,
-price, listing URL) into an `m.me/...?text=` link (folded to ASCII — Messenger
-mangles non-ASCII like `₱`). The old manual `inquiry_subject`/`inquiry_body`
-admin fields were removed; those columns are `NOT NULL` but **deprecated** —
-the admin upsert writes empty strings, and the storefront never reads them.
+[src/lib/contact.ts](./src/lib/contact.ts) owns the Messenger and WhatsApp
+Business contact constants plus the shared per-watch inquiry drafts. The public
+CTAs build prefilled `m.me/...` and `wa.me/...` links from live fields (title,
+ref, price, listing URL), folded to ASCII because Messenger mangles non-ASCII
+like `₱`. The old manual `inquiry_subject`/`inquiry_body` admin fields were
+removed; those columns are `NOT NULL` but **deprecated** — the admin upsert
+writes empty strings, and the storefront never reads them.
 
 ## Theming + design tokens
 

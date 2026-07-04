@@ -1,9 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { MessageCircle, Send } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { buildMessengerUrl, buildWhatsAppUrl } from "@/lib/contact";
 import { HorologicalLogo } from "./horological-logo";
 import { type MobileNavLink, MobileNavOverlay } from "./mobile-nav-overlay";
 
@@ -38,15 +40,8 @@ export function MainNav() {
     { label: "Journal", href: "/journal" },
   ];
 
-  // Inquire pill opens Messenger with a pre-filled draft message. Same `?text=`
-  // pattern used by src/components/storefront/InquiryButtons.tsx - the visitor
-  // still has to tap Send, but the body is already typed for them.
-  // NOTE: Facebook's m.me ?text= parameter does not reliably decode UTF-8
-  // emojis (both 👋 4-byte SMP and ⌚ 3-byte BMP rendered as � in testing).
-  // Keep the template ASCII-only.
-  const INQUIRE_TEMPLATE =
-    "Hi Watch Alley! I was browsing your website and I'd love to learn more about your available pieces. Could you help me find the right watch?";
-  const inquireHref = `https://m.me/thewatchalley?text=${encodeURIComponent(INQUIRE_TEMPLATE)}`;
+  const messengerHref = buildMessengerUrl();
+  const whatsAppHref = buildWhatsAppUrl();
 
   return (
     <motion.header
@@ -90,7 +85,7 @@ export function MainNav() {
           </Link>
         </div>
 
-        {/* Right: Hamburger (mobile) + Locale + Inquire */}
+        {/* Right: Hamburger (mobile) + Locale + contact channels */}
         <div className="flex items-center justify-end gap-2 md:gap-5 flex-shrink-0">
           <button
             ref={menuTriggerRef}
@@ -111,31 +106,26 @@ export function MainNav() {
             </svg>
           </button>
 
-          <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[color:var(--color-gold)] hidden md:inline">
+          <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[color:var(--color-gold)] hidden xl:inline">
             EN · ₱ PHP
           </span>
           <a
-            href={inquireHref}
+            href={messengerHref}
             target="_blank"
             rel="noopener noreferrer"
             className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-300 transition-all duration-300 hover:border-amber-300/60 hover:bg-amber-300 hover:text-[#090806] md:gap-2 md:px-4 md:py-1.5"
           >
-            <span>Inquire</span>
-            <svg
-              className="h-2.5 w-2.5 transition-transform group-hover:translate-x-0.5"
-              viewBox="0 0 12 12"
-              fill="none"
-              aria-hidden="true"
-            >
-              <title>Arrow</title>
-              <path
-                d="M1 11L11 1M11 1H3M11 1V9"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Send className="h-3 w-3" aria-hidden="true" />
+            <span>Messenger</span>
+          </a>
+          <a
+            href={whatsAppHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group hidden lg:inline-flex items-center gap-1.5 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-emerald-100 transition-all duration-300 hover:border-emerald-200/70 hover:bg-emerald-300 hover:text-[#090806] md:gap-2 md:px-4 md:py-1.5"
+          >
+            <MessageCircle className="h-3 w-3" aria-hidden="true" />
+            <span>WhatsApp</span>
           </a>
         </div>
 
@@ -143,7 +133,8 @@ export function MainNav() {
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
           links={overlayLinks}
-          inquireHref={inquireHref}
+          messengerHref={messengerHref}
+          whatsAppHref={whatsAppHref}
           triggerRef={menuTriggerRef}
         />
       </div>

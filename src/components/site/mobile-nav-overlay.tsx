@@ -14,7 +14,8 @@ interface MobileNavDropdownProps {
   open: boolean;
   onClose: () => void;
   links: MobileNavLink[];
-  inquireHref: string;
+  messengerHref: string;
+  whatsAppHref: string;
   /** Ref to the hamburger trigger button. Outside-click handler ignores
       clicks that originate inside this element so the trigger can toggle
       the dropdown without close-then-reopen in the same gesture. */
@@ -30,7 +31,8 @@ export function MobileNavOverlay({
   open,
   onClose,
   links,
-  inquireHref,
+  messengerHref,
+  whatsAppHref,
   triggerRef,
 }: MobileNavDropdownProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -86,14 +88,24 @@ export function MobileNavOverlay({
             ))}
             <div className="mx-5 my-2 h-px bg-amber-400/15" />
             <a
-              href={inquireHref}
+              href={messengerHref}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onClose}
               role="menuitem"
               className="mx-3 mb-2 inline-flex items-center justify-center rounded-full border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-300"
             >
-              Inquire
+              Messenger
+            </a>
+            <a
+              href={whatsAppHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              role="menuitem"
+              className="mx-3 mb-2 inline-flex items-center justify-center rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-100"
+            >
+              WhatsApp
             </a>
           </nav>
         </motion.div>

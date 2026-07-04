@@ -1,10 +1,12 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
+import { MessageCircle, Send } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { buildMessengerUrl, buildWhatsAppUrl, WATCH_ALLEY_WHATSAPP_BUSINESS } from "@/lib/contact";
 import { BrandLogo } from "./brand-logo";
 import { ErrorBoundary } from "./ErrorBoundary";
 
@@ -17,8 +19,9 @@ const WatchDisplay = dynamic(() => import("./watch-display").then((mod) => mod.W
   ),
 });
 
-const MESSENGER_URL = "https://m.me/thewatchalley";
 const MotionLink = motion.create(Link);
+const MESSENGER_URL = buildMessengerUrl();
+const WHATSAPP_URL = buildWhatsAppUrl();
 
 function ContactWatchFallback() {
   return (
@@ -138,7 +141,7 @@ export function ContactSection() {
               </p>
 
               <motion.div
-                className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:items-start lg:justify-start"
+                className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap lg:items-start lg:justify-start"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.45, duration: 0.6 }}
@@ -152,21 +155,21 @@ export function ContactSection() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400 }}
                 >
-                  <span>Message on Messenger</span>
-                  <svg
-                    className="h-3 w-3 transition-transform group-hover:translate-x-1"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M1 11L11 1M11 1H3M11 1V9"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Messenger</span>
+                </motion.a>
+                <motion.a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Message The Watch Alley on WhatsApp Business at ${WATCH_ALLEY_WHATSAPP_BUSINESS.display}`}
+                  className="group inline-flex items-center gap-3 rounded-full border border-emerald-300/35 bg-emerald-300/10 px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.14em] text-emerald-100 transition-colors hover:border-emerald-200 hover:bg-emerald-300 hover:text-[#090806]"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                >
+                  <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>WhatsApp Business</span>
                 </motion.a>
                 <MotionLink
                   href="/available"
