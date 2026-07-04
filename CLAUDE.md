@@ -98,11 +98,11 @@ to import from both Server and Client Components.
 **Buyer inquiry message is auto-generated — don't add manual fields back.**
 [src/lib/contact.ts](./src/lib/contact.ts) owns the Messenger and WhatsApp
 Business contact constants plus the shared per-watch inquiry drafts. The public
-CTAs build prefilled `m.me/...` and `wa.me/...` links from live fields (title,
-ref, price, listing URL), folded to ASCII because Messenger mangles non-ASCII
-like `₱`. The old manual `inquiry_subject`/`inquiry_body` admin fields were
-removed; those columns are `NOT NULL` but **deprecated** — the admin upsert
-writes empty strings, and the storefront never reads them.
+CTAs build prefilled `m.me/...` and `api.whatsapp.com/send?...` links from live
+fields (title, ref, price, listing URL), folded to ASCII because Messenger
+mangles non-ASCII like `₱`. The old manual `inquiry_subject`/`inquiry_body`
+admin fields were removed; those columns are `NOT NULL` but **deprecated** —
+the admin upsert writes empty strings, and the storefront never reads them.
 
 ## Theming + design tokens
 

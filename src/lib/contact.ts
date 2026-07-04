@@ -67,9 +67,12 @@ export function buildMessengerUrl(message = buildGeneralInquiryMessage()): strin
 }
 
 export function buildWhatsAppUrl(message = buildGeneralInquiryMessage()): string {
-  return `https://wa.me/${WATCH_ALLEY_WHATSAPP_BUSINESS.waNumber}?text=${encodeURIComponent(
-    message
-  )}`;
+  const params = new URLSearchParams({
+    phone: WATCH_ALLEY_WHATSAPP_BUSINESS.waNumber,
+    text: message,
+  });
+
+  return `https://api.whatsapp.com/send?${params.toString()}`;
 }
 
 export function buildWatchMessengerUrl(
