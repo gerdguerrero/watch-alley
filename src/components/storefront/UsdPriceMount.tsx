@@ -51,10 +51,10 @@ async function fetchWiseRate(): Promise<number> {
 }
 
 /**
- * Fallback: fetch from exchangerate.host directly.
+ * Fallback: fetch from Frankfurter directly.
  * Response: { rates: { PHP: 58.12345 } }
  */
-async function fetchExchangeRateHost(): Promise<number> {
+async function fetchFallbackRate(): Promise<number> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), FX_TIMEOUT_MS);
   const res = await fetch(FALLBACK_URL, {
@@ -78,9 +78,9 @@ async function getRate(): Promise<number> {
     writeCache(rate);
     return rate;
   } catch {
-    // 2. exchangerate.host (direct - free, no key)
+    // 2. Frankfurter (direct - free, no key)
     try {
-      const rate = await fetchExchangeRateHost();
+      const rate = await fetchFallbackRate();
       writeCache(rate);
       return rate;
     } catch {
