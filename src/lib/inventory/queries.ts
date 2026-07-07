@@ -76,7 +76,7 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
     {
       // Long safety-net window; the admin invalidates the "watches" tag
       // on-demand after every mutation, so this rarely drives a refresh.
-      revalidate: 3600,
+      revalidate: 86400,
       tags: ["watches"],
     }
   );
@@ -115,7 +115,7 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
     },
     [`watch-by-slug-${slug}`],
     {
-      revalidate: 3600,
+      revalidate: 86400,
       tags: [`watch-${slug}`],
     }
   );

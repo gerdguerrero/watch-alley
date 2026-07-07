@@ -6,7 +6,7 @@ import { fetchWatches } from "@/lib/inventory/queries";
 import { AVAILABLE_SORTS } from "@/lib/inventory/sort";
 import { buildAvailableItemListJsonLd } from "@/lib/seo/schema";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Available Watches",

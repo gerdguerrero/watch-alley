@@ -42,7 +42,7 @@ const playfair = Playfair_Display({
 // Keep site-level metadata on the same freshness window as the inventory pages.
 // When the admin changes the featured available watch, the homepage/general OG
 // image refreshes after ISR and fetch-cache revalidation instead of requiring a code change.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateMetadata(): Promise<Metadata> {
   const featured = await fetchFeaturedWatch();

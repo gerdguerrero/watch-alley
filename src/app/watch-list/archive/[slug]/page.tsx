@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { sanitizeNewsletterHtml } from "@/lib/newsletter/html";
 import { fetchNewsletterIssueBySlug } from "@/lib/newsletter/queries";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateMetadata({
   params,

@@ -10,7 +10,7 @@ import { fetchFeaturedWatch, fetchWatches } from "@/lib/inventory/queries";
 import { pickCollectionTeasers } from "@/lib/inventory/teasers";
 import { fetchJournalPosts } from "@/lib/journal/queries";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function Page() {
   const [featured, available, posts] = await Promise.all([

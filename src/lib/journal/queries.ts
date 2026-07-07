@@ -65,7 +65,7 @@ export async function fetchJournalPosts(limit?: number): Promise<JournalPost[]> 
     {
       // Long safety-net window; the admin invalidates the "journal" tag
       // on-demand after every mutation, so this rarely drives a refresh.
-      revalidate: 3600,
+      revalidate: 86400,
       tags: ["journal"],
     }
   );
@@ -89,7 +89,7 @@ export async function fetchJournalPost(slug: string): Promise<JournalPost | null
     },
     [`journal-post-by-slug-${slug}`],
     {
-      revalidate: 3600,
+      revalidate: 86400,
       tags: [`journal-${slug}`],
     }
   );
