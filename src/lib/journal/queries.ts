@@ -63,7 +63,9 @@ export async function fetchJournalPosts(limit?: number): Promise<JournalPost[]> 
     },
     cacheKey,
     {
-      revalidate: 15, // Cache for 15 seconds to keep edge transition speeds high
+      // Long safety-net window; the admin invalidates the "journal" tag
+      // on-demand after every mutation, so this rarely drives a refresh.
+      revalidate: 3600,
       tags: ["journal"],
     }
   );
@@ -87,7 +89,7 @@ export async function fetchJournalPost(slug: string): Promise<JournalPost | null
     },
     [`journal-post-by-slug-${slug}`],
     {
-      revalidate: 15,
+      revalidate: 3600,
       tags: [`journal-${slug}`],
     }
   );

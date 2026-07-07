@@ -74,7 +74,9 @@ export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]>
     },
     cacheKey,
     {
-      revalidate: 15, // Edge-cache for 15 seconds to ensure instantaneous transitions
+      // Long safety-net window; the admin invalidates the "watches" tag
+      // on-demand after every mutation, so this rarely drives a refresh.
+      revalidate: 3600,
       tags: ["watches"],
     }
   );
@@ -113,7 +115,7 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
     },
     [`watch-by-slug-${slug}`],
     {
-      revalidate: 15,
+      revalidate: 3600,
       tags: [`watch-${slug}`],
     }
   );

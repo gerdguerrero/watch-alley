@@ -9,8 +9,9 @@ import { resolveMetadataImageUrl } from "@/lib/metadata/images";
 import { SITE_URL } from "@/lib/seo/schema";
 
 // Pre-render every published slug at build; unknown slugs ISR at request time.
-// 60s revalidate so admin edits propagate within a minute.
-export const revalidate = 60;
+// Hourly safety-net window; the admin's on-demand revalidation (path + tag)
+// propagates edits instantly, so the timer only matters if that call fails.
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

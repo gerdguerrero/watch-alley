@@ -15,8 +15,9 @@ import { buildProductJsonLd, SITE_URL } from "@/lib/seo/schema";
 
 // ISR: every published slug is pre-rendered at build, unknown slugs fall
 // through to on-demand render (dynamicParams defaults to true). Admin edits
-// propagate within `revalidate` seconds without a redeploy.
-export const revalidate = 60;
+// propagate instantly via on-demand revalidation (path + tag); this hourly
+// window is just a fallback if that best-effort call ever fails.
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 interface DetailItem {

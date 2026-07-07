@@ -304,7 +304,7 @@ function setStatus(message, tone) {
  * the 60-second time-based window.
  */
 async function revalidateStorefront(slug) {
-  const paths = ['/available', '/sold', '/journal'];
+  const paths = ['/', '/available', '/sold', '/journal'];
   if (slug) paths.push(`/watch/${slug}`);
   try {
     // The route verifies this session token against the admin allowlist.

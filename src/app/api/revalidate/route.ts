@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { assertAdmin } from "@/lib/newsletter/admin";
@@ -63,6 +63,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ revalidated: [] });
   }
 
+  // Derive the cache tags backing each path. Page-level `revalidate` windows
+  // are now long (1h), so freshness relies on clearing the tagged `unstable_cache`
+  // data layer here — not the timer. Tags mirror those set in
+  // lib/inventory/queries.ts and lib/journal/queries.ts.
+  const tags = new Set<string>();
+  for (const path of paths) {
+    if (path === "/" || path === "/available" || path === "/sold") tags.add("watches");
+    const watchMatch = path.match(/^\/watch\/(.+)$/);
+    if (watchMatch) {
+      tags.add("watches");
+      tags.add(`watch-${watchMatch[1]}`);
+    }
+    if (path === "/journal") tags.add("journal");
+    const journalMatch = path.match(/^\/journal\/(.+)$/);
+    if (journalMatch) {
+      tags.add("journal");
+      tags.add(`journal-${journalMatch[1]}`);
+    }
+  }
+
   const results: { path: string; status: "ok" | "error"; error?: string }[] = [];
 
   for (const path of paths) {
@@ -74,5 +94,17 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ revalidated: results });
+  for (const tag of tags) {
+    try {
+      // Next 16: `{ expire: 0 }` forces immediate expiry so the admin's edit is
+      // visible on the very next request. This is the documented pattern for a
+      // Route Handler triggered by an external action (vs. `updateTag`, which is
+      // Server-Action-only, or `profile="max"`, which serves stale once).
+      revalidateTag(tag, { expire: 0 });
+    } catch {
+      // Best-effort: a bad tag shouldn't fail the whole revalidation.
+    }
+  }
+
+  return NextResponse.json({ revalidated: results, tags: [...tags] });
 }

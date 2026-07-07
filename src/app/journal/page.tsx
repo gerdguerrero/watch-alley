@@ -3,7 +3,7 @@ import { JournalCard } from "@/components/site/journal-card";
 import { PageTitle } from "@/components/site/page-title";
 import { fetchJournalPosts } from "@/lib/journal/queries";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Journal",
