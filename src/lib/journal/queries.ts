@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { JournalPost, JournalRow, JournalStatus } from "./types";
 
@@ -97,6 +98,23 @@ export async function fetchJournalPost(slug: string): Promise<JournalPost | null
   const data = await getCachedPost(slug);
   if (!data) return null;
   return normalizeRow(data);
+}
+
+/**
+ * Fetch a post by id REGARDLESS of status, bypassing RLS - for the signed
+ * draft-preview route only. Callers MUST verify the preview token first
+ * (lib/journal/preview.ts); never expose this through an unauthenticated
+ * path. Uncached on purpose: the whole point is seeing the latest draft.
+ */
+export async function fetchJournalPostForPreview(id: string): Promise<JournalPost | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("journal_posts")
+    .select(SELECT_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error || !data) return null;
+  return normalizeRow(data as unknown as JournalRow);
 }
 
 /**

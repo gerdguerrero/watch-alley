@@ -621,6 +621,11 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   border-color: transparent;
   border-bottom-color: oklch(0.76 0.12 75 / 0.5);
 }
+.admin-form .jblock-alt {
+  font-size: 10px;
+  color: var(--cream-60);
+  border-bottom-style: dotted;
+}
 .jblock-image-actions { display: flex; gap: 8px; }
 .admin-form .jblock-replace-btn {
   background: transparent;

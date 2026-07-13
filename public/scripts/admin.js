@@ -156,6 +156,7 @@ const els = {
   journalSaveBtn: document.getElementById('journal-save-btn'),
   journalPublishBtn: document.getElementById('journal-publish-btn'),
   journalPreviewBtn: document.getElementById('journal-preview-btn'),
+  journalDraftPreviewBtn: document.getElementById('journal-draft-preview-btn'),
   journalDeleteBtn: document.getElementById('journal-delete-btn'),
   journalCancelBtn: document.getElementById('journal-cancel-btn'),
   // Image uploader
@@ -4097,6 +4098,12 @@ function updateJournalPreviewBtnVisibility(post) {
   if (isPublished) {
     els.journalPreviewBtn.dataset.url = `/journal/${post.slug}`;
   }
+  // Unpublished posts get a signed share/preview link instead.
+  if (els.journalDraftPreviewBtn) {
+    const isDraft = post && post.id && post.status !== 'published';
+    els.journalDraftPreviewBtn.hidden = !isDraft;
+    els.journalDraftPreviewBtn.dataset.postId = isDraft ? post.id : '';
+  }
 }
 
 function updateJournalDeleteBtnVisibility(post) {
@@ -4532,6 +4539,14 @@ function buildJournalBlockEl(block, index) {
     caption.value = block.caption || '';
     caption.dataset.blockField = 'caption';
     body.appendChild(caption);
+    const alt = document.createElement('input');
+    alt.type = 'text';
+    alt.className = 'jblock-caption jblock-alt';
+    alt.placeholder = 'Alt text (screen readers + Google Images; optional)';
+    alt.maxLength = 200;
+    alt.value = block.alt || '';
+    alt.dataset.blockField = 'alt';
+    body.appendChild(alt);
     if (block.src) {
       const replaceRow = document.createElement('div');
       replaceRow.className = 'jblock-image-actions';
@@ -4961,6 +4976,37 @@ function closeJournalForm() {
   if (els.journalForm) els.journalForm.hidden = true;
   if (els.journalDetailEmpty) els.journalDetailEmpty.hidden = false;
   renderJournalList();
+}
+if (els.journalDraftPreviewBtn) {
+  els.journalDraftPreviewBtn.addEventListener('click', async () => {
+    if (!supabase) return;
+    const postId = els.journalDraftPreviewBtn.dataset.postId;
+    if (!postId) return;
+    // Open the tab synchronously so popup blockers allow it, then point it
+    // at the signed URL once the API responds.
+    const previewWindow = window.open('about:blank', '_blank');
+    els.journalDraftPreviewBtn.disabled = true;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('No active admin session. Sign in again.');
+      const resp = await fetch(`/api/admin/journal-preview-link?id=${encodeURIComponent(postId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = await resp.json();
+      if (!resp.ok || !payload.ok || !payload.url) {
+        throw new Error(payload.message || `Preview link failed (${resp.status}).`);
+      }
+      if (previewWindow) previewWindow.location.href = payload.url;
+      else window.open(payload.url, '_blank');
+      setStatus('Draft preview opened. The link works for 7 days - safe to share with the client.', 'success');
+    } catch (error) {
+      if (previewWindow) previewWindow.close();
+      setStatus(`Draft preview failed: ${error.message || error}`, 'error');
+    } finally {
+      els.journalDraftPreviewBtn.disabled = false;
+    }
+  });
 }
 if (els.journalPreviewBtn) {
   els.journalPreviewBtn.addEventListener('click', () => {
