@@ -80,6 +80,24 @@ export function renderMarkdown(input: string | null | undefined): string {
       continue;
     }
 
+    // Standalone image block, optionally followed by a `*caption*` line:
+    //   ![alt](src)
+    //   *Shot at the boutique, June 2026.*
+    // Renders as <figure> + <figcaption> so article photos get editorial
+    // framing instead of a bare inline <img> inside a paragraph.
+    const figureMatch = block.match(/^!\[([^\]]*)\]\(([^)]+)\)(?:\n\*([^*\n]+)\*)?$/);
+    if (figureMatch) {
+      const safeSrc = safeUrl(figureMatch[2]);
+      if (safeSrc) {
+        const alt = escapeHtml(figureMatch[1]);
+        const caption = (figureMatch[3] || "").trim();
+        const img = `<img src="${escapeHtml(safeSrc)}" alt="${alt}" loading="lazy" decoding="async">`;
+        const figcaption = caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : "";
+        out.push(`<figure class="article-figure">${img}${figcaption}</figure>`);
+        continue;
+      }
+    }
+
     const headingMatch = block.match(/^(#{2,3})\s+(.+)$/);
     if (headingMatch && !/\n/.test(block)) {
       const level = headingMatch[1].length;

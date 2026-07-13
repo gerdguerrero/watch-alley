@@ -77,6 +77,7 @@ export function normalizeWatchRow(row: WatchRow): Watch {
     featured: row.featured === true,
     lowStock: row.low_stock === true,
     displayOrder: typeof row.display_order === "number" ? row.display_order : null,
+    createdAt: row.created_at ?? "",
     published: row.published !== false,
     category: isValidCategory(row.category) ? row.category : null,
     badges: nonNullStringList(row.badges).map(normalizeDisplayText),

@@ -41,6 +41,8 @@ export interface Watch {
   featured: boolean;
   lowStock: boolean;
   displayOrder: number | null;
+  /** ISO timestamp the row was created - drives "Newest/Oldest Listed" sorts. */
+  createdAt: string;
   published: boolean;
   category: "brand-new" | "pre-owned" | null;
   badges: string[];
@@ -86,6 +88,7 @@ export interface WatchRow {
   featured: boolean | null;
   low_stock: boolean | null;
   display_order: number | null;
+  created_at: string | null;
   published: boolean | null;
   category: string | null;
   badges: string[] | null;

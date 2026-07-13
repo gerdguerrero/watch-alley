@@ -145,6 +145,14 @@ const els = {
   journalHeroStatus: document.getElementById('journal-hero-status'),
   journalFieldBody: document.getElementById('journal-field-body'),
   journalPreview: document.getElementById('journal-preview'),
+  journalModeVisualBtn: document.getElementById('journal-mode-visual-btn'),
+  journalModeMarkdownBtn: document.getElementById('journal-mode-markdown-btn'),
+  journalModeHint: document.getElementById('journal-mode-hint'),
+  journalVisualMode: document.getElementById('journal-visual-mode'),
+  journalMarkdownMode: document.getElementById('journal-markdown-mode'),
+  journalBlocks: document.getElementById('journal-blocks'),
+  journalAddBar: document.getElementById('journal-add-bar'),
+  journalBlocksFileInput: document.getElementById('journal-blocks-file-input'),
   journalSaveBtn: document.getElementById('journal-save-btn'),
   journalPublishBtn: document.getElementById('journal-publish-btn'),
   journalPreviewBtn: document.getElementById('journal-preview-btn'),
@@ -4059,6 +4067,8 @@ function loadJournalPostIntoForm(post) {
   updateJournalPreviewBtnVisibility(post);
   updateJournalDeleteBtnVisibility(post);
   updateJournalLivePreview();
+  // Re-enter the doc-style editor with the loaded markdown parsed to blocks.
+  setJournalEditorMode('visual');
   renderJournalList();
 }
 
@@ -4286,9 +4296,567 @@ if (els.journalHeroRemove) {
   });
 }
 
+// ── Doc-style visual block editor ────────────────────────────────────────
+// The article body is edited as an ordered list of blocks (paragraphs,
+// headings, quotes, lists, photos, dividers) that the client can reorder
+// with arrows or drag-and-drop - like a Google Doc. Blocks serialize to the
+// exact same narrow markdown the site's renderMarkdown() consumes, and the
+// hidden markdown textarea stays the single source of truth for saves, so
+// the "Markdown" mode and the storefront render pipeline are untouched.
+
+let journalBlocksState = [];
+let journalEditorMode = 'visual';
+let journalBlockSeq = 0;
+let draggingBlockId = null;
+
+const JOURNAL_TEXT_TYPES = ['text', 'h2', 'h3', 'quote', 'list', 'olist'];
+const JOURNAL_TYPE_LABELS = {
+  text: 'Paragraph',
+  h2: 'Heading',
+  h3: 'Sub-heading',
+  quote: 'Quote',
+  list: 'Bulleted list',
+  olist: 'Numbered list',
+  image: 'Photo',
+  divider: 'Divider',
+};
+
+function makeJournalBlock(type, props) {
+  journalBlockSeq += 1;
+  return Object.assign({ id: `jb-${journalBlockSeq}`, type }, props || {});
+}
+
+// Mirror of renderMarkdown's block classification (lib/markdown.mjs) so the
+// round trip markdown → blocks → markdown is stable.
+function parseMarkdownToJournalBlocks(md) {
+  const text = String(md || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+  const blocks = [];
+  if (text) {
+    for (const raw of text.split(/\n{2,}/)) {
+      const block = raw.replace(/^\n+|\n+$/g, '');
+      if (!block.trim()) continue;
+      if (/^---+$/.test(block.trim())) { blocks.push(makeJournalBlock('divider')); continue; }
+      const fig = block.match(/^!\[([^\]]*)\]\(([^)]+)\)(?:\n\*([^*\n]+)\*)?$/);
+      if (fig) {
+        blocks.push(makeJournalBlock('image', { src: fig[2], alt: fig[1] || '', caption: (fig[3] || '').trim() }));
+        continue;
+      }
+      const heading = block.match(/^(#{2,3})\s+(.+)$/);
+      if (heading && !/\n/.test(block)) {
+        blocks.push(makeJournalBlock(heading[1].length === 2 ? 'h2' : 'h3', { text: heading[2].trim() }));
+        continue;
+      }
+      const lines = block.split('\n');
+      if (lines.every((l) => /^>\s?/.test(l))) {
+        blocks.push(makeJournalBlock('quote', { text: lines.map((l) => l.replace(/^>\s?/, '')).join('\n') }));
+        continue;
+      }
+      if (lines.every((l) => /^[-*]\s+/.test(l))) {
+        blocks.push(makeJournalBlock('list', { text: lines.map((l) => l.replace(/^[-*]\s+/, '')).join('\n') }));
+        continue;
+      }
+      if (lines.every((l) => /^\d+\.\s+/.test(l))) {
+        blocks.push(makeJournalBlock('olist', { text: lines.map((l) => l.replace(/^\d+\.\s+/, '')).join('\n') }));
+        continue;
+      }
+      blocks.push(makeJournalBlock('text', { text: block }));
+    }
+  }
+  if (blocks.length === 0) blocks.push(makeJournalBlock('text', { text: '' }));
+  return blocks;
+}
+
+function serializeJournalBlocks() {
+  const parts = [];
+  for (const b of journalBlocksState) {
+    if (b.type === 'divider') { parts.push('---'); continue; }
+    if (b.type === 'image') {
+      if (!b.src) continue; // still uploading or failed - never persist a broken image
+      const alt = String(b.alt || b.caption || 'Journal photo').replace(/[[\]\n]/g, ' ').trim() || 'Journal photo';
+      const caption = String(b.caption || '').replace(/[*\n]/g, ' ').trim();
+      parts.push(`![${alt}](${b.src})${caption ? `\n*${caption}*` : ''}`);
+      continue;
+    }
+    const text = String(b.text || '').replace(/^\n+|\n+$/g, '');
+    if (!text.trim()) continue;
+    switch (b.type) {
+      case 'h2': parts.push(`## ${text.split('\n')[0].trim()}`); break;
+      case 'h3': parts.push(`### ${text.split('\n')[0].trim()}`); break;
+      case 'quote': parts.push(text.split('\n').map((l) => `> ${l}`).join('\n')); break;
+      case 'list': parts.push(text.split('\n').filter((l) => l.trim()).map((l) => `- ${l.trim()}`).join('\n')); break;
+      case 'olist': parts.push(text.split('\n').filter((l) => l.trim()).map((l, i) => `${i + 1}. ${l.trim()}`).join('\n')); break;
+      default: parts.push(text);
+    }
+  }
+  return parts.join('\n\n');
+}
+
+function syncJournalBlocksToTextarea() {
+  if (!els.journalFieldBody) return;
+  els.journalFieldBody.value = serializeJournalBlocks();
+  updateJournalLivePreview();
+}
+
+function setJournalEditorMode(mode) {
+  if (!els.journalVisualMode || !els.journalMarkdownMode) return;
+  const visual = mode === 'visual';
+  if (!visual && journalEditorMode === 'visual') {
+    syncJournalBlocksToTextarea();
+  }
+  journalEditorMode = visual ? 'visual' : 'markdown';
+  // Unhide before rendering so textarea autosize can measure scrollHeight.
+  els.journalVisualMode.hidden = !visual;
+  els.journalMarkdownMode.hidden = visual;
+  if (visual) {
+    journalBlocksState = parseMarkdownToJournalBlocks(els.journalFieldBody.value);
+    renderJournalBlocks();
+  }
+  if (els.journalModeVisualBtn) {
+    els.journalModeVisualBtn.classList.toggle('is-active', visual);
+    els.journalModeVisualBtn.setAttribute('aria-pressed', String(visual));
+  }
+  if (els.journalModeMarkdownBtn) {
+    els.journalModeMarkdownBtn.classList.toggle('is-active', !visual);
+    els.journalModeMarkdownBtn.setAttribute('aria-pressed', String(!visual));
+  }
+  if (els.journalModeHint) {
+    els.journalModeHint.textContent = visual
+      ? 'Write like a doc: add paragraphs, headings, quotes, and photos as blocks, then reorder them with the arrows or by dragging.'
+      : 'Raw Markdown for power editing. The preview on the right shows exactly how the article will render.';
+  }
+}
+
+function autosizeJournalBlockTextarea(el) {
+  el.style.height = 'auto';
+  const measured = el.scrollHeight;
+  // scrollHeight is 0 while the editor is hidden (e.g. tab not active);
+  // leave the CSS min-height in charge until the element is measurable.
+  el.style.height = measured > 0 ? `${Math.min(measured + 2, 800)}px` : '';
+}
+
+function journalBlockIndex(id) {
+  return journalBlocksState.findIndex((b) => b.id === id);
+}
+
+function buildJournalBlockRailButton(action, label, title) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'jblock-rail-btn';
+  btn.dataset.blockAction = action;
+  btn.title = title;
+  btn.setAttribute('aria-label', title);
+  btn.textContent = label;
+  return btn;
+}
+
+function buildJournalBlockEl(block, index) {
+  const wrap = document.createElement('div');
+  wrap.className = `jblock jblock-${block.type}`;
+  wrap.dataset.blockId = block.id;
+
+  // Left rail: drag handle + reorder / insert / delete controls.
+  const rail = document.createElement('div');
+  rail.className = 'jblock-rail';
+  const handle = buildJournalBlockRailButton('drag', '⠿', 'Drag to reorder');
+  handle.classList.add('jblock-handle');
+  rail.appendChild(handle);
+  const up = buildJournalBlockRailButton('up', '↑', 'Move up');
+  const down = buildJournalBlockRailButton('down', '↓', 'Move down');
+  up.disabled = index === 0;
+  down.disabled = index === journalBlocksState.length - 1;
+  rail.appendChild(up);
+  rail.appendChild(down);
+  rail.appendChild(buildJournalBlockRailButton('add-text', '＋¶', 'Add paragraph below'));
+  rail.appendChild(buildJournalBlockRailButton('add-photo', '＋📷', 'Add photos below'));
+  rail.appendChild(buildJournalBlockRailButton('delete', '✕', 'Delete block'));
+  wrap.appendChild(rail);
+
+  const main = document.createElement('div');
+  main.className = 'jblock-main';
+
+  // Type chip: a select for text-ish blocks (convert paragraph ⇄ heading ⇄
+  // quote ⇄ list in place), a static label for photos and dividers.
+  const chipRow = document.createElement('div');
+  chipRow.className = 'jblock-chip-row';
+  if (JOURNAL_TEXT_TYPES.includes(block.type)) {
+    const select = document.createElement('select');
+    select.className = 'jblock-type-select';
+    select.dataset.blockTypeSelect = block.id;
+    for (const t of JOURNAL_TEXT_TYPES) {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = JOURNAL_TYPE_LABELS[t];
+      if (t === block.type) opt.selected = true;
+      select.appendChild(opt);
+    }
+    chipRow.appendChild(select);
+  } else {
+    const label = document.createElement('span');
+    label.className = 'jblock-type-label';
+    label.textContent = JOURNAL_TYPE_LABELS[block.type] || block.type;
+    chipRow.appendChild(label);
+  }
+  main.appendChild(chipRow);
+
+  if (block.type === 'divider') {
+    const hr = document.createElement('hr');
+    hr.className = 'jblock-divider';
+    main.appendChild(hr);
+  } else if (block.type === 'image') {
+    const body = document.createElement('div');
+    body.className = 'jblock-image';
+    if (block.uploading) {
+      const ph = document.createElement('div');
+      ph.className = 'jblock-image-uploading';
+      ph.textContent = `Uploading ${block.fileName || 'photo'}…`;
+      body.appendChild(ph);
+    } else if (!block.src) {
+      const err = document.createElement('div');
+      err.className = 'jblock-image-error';
+      err.textContent = `Upload failed${block.error ? `: ${block.error}` : ''}. Delete this block and try again.`;
+      body.appendChild(err);
+    } else {
+      const img = document.createElement('img');
+      img.className = 'jblock-image-img';
+      img.src = block.src;
+      img.alt = block.alt || '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      body.appendChild(img);
+    }
+    const caption = document.createElement('input');
+    caption.type = 'text';
+    caption.className = 'jblock-caption';
+    caption.placeholder = 'Caption (optional) - shown under the photo';
+    caption.maxLength = 200;
+    caption.value = block.caption || '';
+    caption.dataset.blockField = 'caption';
+    body.appendChild(caption);
+    if (block.src) {
+      const replaceRow = document.createElement('div');
+      replaceRow.className = 'jblock-image-actions';
+      const replaceBtn = document.createElement('button');
+      replaceBtn.type = 'button';
+      replaceBtn.className = 'btn-ghost jblock-replace-btn';
+      replaceBtn.dataset.blockAction = 'replace-photo';
+      replaceBtn.textContent = 'Replace photo';
+      replaceRow.appendChild(replaceBtn);
+      body.appendChild(replaceRow);
+    }
+    main.appendChild(body);
+  } else if (block.type === 'h2' || block.type === 'h3') {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = `jblock-input jblock-input-${block.type}`;
+    input.placeholder = block.type === 'h2' ? 'Section heading' : 'Sub-heading';
+    input.maxLength = 200;
+    input.value = block.text || '';
+    input.dataset.blockField = 'text';
+    main.appendChild(input);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.className = `jblock-textarea jblock-textarea-${block.type}`;
+    ta.rows = 1;
+    ta.placeholder =
+      block.type === 'quote' ? 'Pull quote…'
+      : block.type === 'list' || block.type === 'olist' ? 'One item per line'
+      : 'Write… (**bold**, *italic*, and [links](https://…) work here)';
+    ta.value = block.text || '';
+    ta.dataset.blockField = 'text';
+    main.appendChild(ta);
+  }
+
+  wrap.appendChild(main);
+  return wrap;
+}
+
+function renderJournalBlocks(focusBlockId) {
+  const host = els.journalBlocks;
+  if (!host) return;
+  host.textContent = '';
+  journalBlocksState.forEach((block, index) => {
+    host.appendChild(buildJournalBlockEl(block, index));
+  });
+  host.querySelectorAll('textarea').forEach((ta) => autosizeJournalBlockTextarea(ta));
+  if (focusBlockId) {
+    const target = host.querySelector(`[data-block-id="${focusBlockId}"] textarea, [data-block-id="${focusBlockId}"] input[data-block-field]`);
+    if (target) target.focus({ preventScroll: false });
+  }
+}
+
+function insertJournalBlockAfter(afterId, type) {
+  if (type === 'image') {
+    if (!els.journalBlocksFileInput) return;
+    els.journalBlocksFileInput.dataset.afterId = afterId || '';
+    els.journalBlocksFileInput.dataset.replaceId = '';
+    els.journalBlocksFileInput.click();
+    return;
+  }
+  const block = makeJournalBlock(type, type === 'divider' ? {} : { text: '' });
+  const index = afterId ? journalBlockIndex(afterId) : journalBlocksState.length - 1;
+  journalBlocksState.splice((index < 0 ? journalBlocksState.length - 1 : index) + 1, 0, block);
+  renderJournalBlocks(block.id);
+  syncJournalBlocksToTextarea();
+}
+
+function moveJournalBlock(id, delta) {
+  const from = journalBlockIndex(id);
+  if (from < 0) return;
+  const to = from + delta;
+  if (to < 0 || to >= journalBlocksState.length) return;
+  const [block] = journalBlocksState.splice(from, 1);
+  journalBlocksState.splice(to, 0, block);
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
+function deleteJournalBlock(id) {
+  const index = journalBlockIndex(id);
+  if (index < 0) return;
+  const block = journalBlocksState[index];
+  const hasContent = block.type === 'image' ? Boolean(block.src) : Boolean((block.text || '').trim());
+  if (hasContent && !window.confirm('Delete this block?')) return;
+  journalBlocksState.splice(index, 1);
+  if (journalBlocksState.length === 0) journalBlocksState.push(makeJournalBlock('text', { text: '' }));
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
+async function addJournalPhotoBlocks(files, afterId) {
+  const list = Array.from(files || []).filter((f) => f && /^image\//.test(f.type));
+  if (list.length === 0) return;
+  let anchor = afterId ? journalBlockIndex(afterId) : journalBlocksState.length - 1;
+  if (anchor < 0) anchor = journalBlocksState.length - 1;
+  const placeholders = list.map((f) =>
+    makeJournalBlock('image', {
+      src: '',
+      alt: (f.name || 'photo').replace(/\.[^.]+$/, ''),
+      caption: '',
+      uploading: true,
+      fileName: f.name || 'photo',
+    })
+  );
+  journalBlocksState.splice(anchor + 1, 0, ...placeholders);
+  renderJournalBlocks();
+  await Promise.all(
+    list.map(async (file, i) => {
+      const ph = placeholders[i];
+      try {
+        const url = await uploadJournalImage(file);
+        if (!url) throw new Error('Upload returned no URL.');
+        ph.src = url;
+      } catch (error) {
+        ph.error = String(error.message || error);
+      } finally {
+        ph.uploading = false;
+      }
+    })
+  );
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
+async function replaceJournalPhoto(blockId, file) {
+  const block = journalBlocksState[journalBlockIndex(blockId)];
+  if (!block || block.type !== 'image' || !file) return;
+  block.uploading = true;
+  block.fileName = file.name || 'photo';
+  renderJournalBlocks();
+  try {
+    const url = await uploadJournalImage(file);
+    if (!url) throw new Error('Upload returned no URL.');
+    block.src = url;
+    block.error = '';
+  } catch (error) {
+    block.error = String(error.message || error);
+  } finally {
+    block.uploading = false;
+  }
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
+// Re-measure textarea heights when the layout width changes (window resize,
+// sidebar collapse, mobile rotation) - autosize depends on wrap width.
+let journalAutosizeTimer = 0;
+window.addEventListener('resize', () => {
+  if (!els.journalBlocks || journalEditorMode !== 'visual') return;
+  clearTimeout(journalAutosizeTimer);
+  journalAutosizeTimer = setTimeout(() => {
+    els.journalBlocks.querySelectorAll('textarea').forEach((ta) => autosizeJournalBlockTextarea(ta));
+  }, 150);
+});
+
+function clearJournalDropIndicators() {
+  if (!els.journalBlocks) return;
+  els.journalBlocks.querySelectorAll('.drop-before, .drop-after').forEach((el) => {
+    el.classList.remove('drop-before', 'drop-after');
+  });
+}
+
+if (els.journalModeVisualBtn) {
+  els.journalModeVisualBtn.addEventListener('click', () => setJournalEditorMode('visual'));
+}
+if (els.journalModeMarkdownBtn) {
+  els.journalModeMarkdownBtn.addEventListener('click', () => setJournalEditorMode('markdown'));
+}
+
+if (els.journalAddBar) {
+  els.journalAddBar.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-add-block]');
+    if (!btn) return;
+    insertJournalBlockAfter(null, btn.dataset.addBlock);
+  });
+}
+
+if (els.journalBlocksFileInput) {
+  els.journalBlocksFileInput.addEventListener('change', (event) => {
+    const input = event.target;
+    const files = input.files;
+    const replaceId = input.dataset.replaceId || '';
+    const afterId = input.dataset.afterId || '';
+    input.dataset.replaceId = '';
+    input.dataset.afterId = '';
+    if (replaceId && files && files[0]) {
+      replaceJournalPhoto(replaceId, files[0]);
+    } else if (files && files.length) {
+      addJournalPhotoBlocks(files, afterId || null);
+    }
+    input.value = '';
+  });
+}
+
+if (els.journalBlocks) {
+  const host = els.journalBlocks;
+
+  // Field edits: update state in place; no re-render needed while typing.
+  host.addEventListener('input', (event) => {
+    const field = event.target.dataset && event.target.dataset.blockField;
+    if (!field) return;
+    const wrap = event.target.closest('.jblock');
+    const block = journalBlocksState[journalBlockIndex(wrap && wrap.dataset.blockId)];
+    if (!block) return;
+    block[field] = event.target.value;
+    if (event.target.tagName === 'TEXTAREA') autosizeJournalBlockTextarea(event.target);
+    syncJournalBlocksToTextarea();
+  });
+
+  // Type conversion (paragraph ⇄ heading ⇄ quote ⇄ list …).
+  host.addEventListener('change', (event) => {
+    if (!event.target.matches('.jblock-type-select')) return;
+    const block = journalBlocksState[journalBlockIndex(event.target.dataset.blockTypeSelect)];
+    if (!block) return;
+    block.type = event.target.value;
+    renderJournalBlocks(block.id);
+    syncJournalBlocksToTextarea();
+  });
+
+  // Rail actions.
+  host.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-block-action]');
+    if (!btn) return;
+    const wrap = btn.closest('.jblock');
+    const id = wrap && wrap.dataset.blockId;
+    if (!id) return;
+    switch (btn.dataset.blockAction) {
+      case 'up': moveJournalBlock(id, -1); break;
+      case 'down': moveJournalBlock(id, 1); break;
+      case 'delete': deleteJournalBlock(id); break;
+      case 'add-text': insertJournalBlockAfter(id, 'text'); break;
+      case 'add-photo': insertJournalBlockAfter(id, 'image'); break;
+      case 'replace-photo':
+        els.journalBlocksFileInput.dataset.replaceId = id;
+        els.journalBlocksFileInput.dataset.afterId = '';
+        els.journalBlocksFileInput.click();
+        break;
+      default: break;
+    }
+  });
+
+  // Cmd/Ctrl+B and +I wrap the selection in the focused text block.
+  host.addEventListener('keydown', (event) => {
+    if (!(event.metaKey || event.ctrlKey)) return;
+    const el = event.target;
+    if (!el.matches('textarea[data-block-field="text"], input[data-block-field="text"]')) return;
+    const wrapWith = event.key === 'b' ? '**' : event.key === 'i' ? '*' : null;
+    if (!wrapWith) return;
+    event.preventDefault();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const selected = el.value.slice(start, end) || (event.key === 'b' ? 'bold text' : 'italic text');
+    el.value = el.value.slice(0, start) + wrapWith + selected + wrapWith + el.value.slice(end);
+    el.setSelectionRange(start + wrapWith.length, start + wrapWith.length + selected.length);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  // Drag to reorder: the ⠿ handle arms the block for dragging. Disarm on
+  // mouseup so a later text-selection drag inside the block can't move it.
+  host.addEventListener('mousedown', (event) => {
+    const handle = event.target.closest('.jblock-handle');
+    const wrap = handle && handle.closest('.jblock');
+    if (wrap) wrap.draggable = true;
+  });
+  document.addEventListener('mouseup', () => {
+    if (draggingBlockId) return; // dragend owns cleanup mid-drag
+    host.querySelectorAll('.jblock[draggable="true"]').forEach((b) => { b.draggable = false; });
+  });
+  host.addEventListener('dragstart', (event) => {
+    const wrap = event.target.closest('.jblock');
+    if (!wrap || !wrap.draggable) return;
+    draggingBlockId = wrap.dataset.blockId;
+    wrap.classList.add('is-dragging');
+    event.dataTransfer.effectAllowed = 'move';
+    try { event.dataTransfer.setData('text/plain', draggingBlockId); } catch { /* IE-era quirk; ignore */ }
+  });
+  host.addEventListener('dragend', (event) => {
+    const wrap = event.target.closest('.jblock');
+    if (wrap) { wrap.draggable = false; wrap.classList.remove('is-dragging'); }
+    draggingBlockId = null;
+    clearJournalDropIndicators();
+  });
+  host.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    if (!draggingBlockId) return; // file drags handled on drop
+    const target = event.target.closest('.jblock');
+    clearJournalDropIndicators();
+    if (!target || target.dataset.blockId === draggingBlockId) return;
+    const rect = target.getBoundingClientRect();
+    const before = event.clientY < rect.top + rect.height / 2;
+    target.classList.add(before ? 'drop-before' : 'drop-after');
+  });
+  host.addEventListener('drop', (event) => {
+    event.preventDefault();
+    if (draggingBlockId) {
+      const marked = host.querySelector('.drop-before, .drop-after');
+      const before = Boolean(marked && marked.classList.contains('drop-before'));
+      const from = journalBlockIndex(draggingBlockId);
+      clearJournalDropIndicators();
+      if (!marked || from < 0) return;
+      const [block] = journalBlocksState.splice(from, 1);
+      let to = journalBlockIndex(marked.dataset.blockId);
+      if (to < 0) { journalBlocksState.splice(from, 0, block); return; }
+      if (!before) to += 1;
+      journalBlocksState.splice(to, 0, block);
+      renderJournalBlocks();
+      syncJournalBlocksToTextarea();
+      return;
+    }
+    // Dropping image files from the desktop appends photo blocks.
+    const files = event.dataTransfer && event.dataTransfer.files;
+    if (files && files.length) addJournalPhotoBlocks(files, null);
+  });
+}
+
 // ── Save / Publish / Cancel / Delete / Preview ──────────────────────────
 async function saveJournalPost(forcedStatus) {
   if (!supabase) return;
+  if (journalEditorMode === 'visual') {
+    if (journalBlocksState.some((b) => b.uploading)) {
+      setStatus('Wait for photo uploads to finish before saving.', 'error');
+      return;
+    }
+    syncJournalBlocksToTextarea();
+  }
   const status = forcedStatus || els.journalFieldStatus.value;
   const title = els.journalFieldTitle.value.trim();
   const slug = els.journalFieldSlug.value.trim();

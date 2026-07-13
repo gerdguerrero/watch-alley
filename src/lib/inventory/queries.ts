@@ -17,7 +17,7 @@ const SELECT_COLUMNS = `
   condition_label, badge, movement, case_size, inclusion_set, material, edition,
   description, disclosure, provenance, primary_image, images,
   inquiry_subject, inquiry_body, sold_at, sold_price, has_box, has_papers,
-  service_history, featured, low_stock, display_order, published, category, badges
+  service_history, featured, low_stock, display_order, created_at, published, category, badges
 `;
 
 interface FetchOptions {
@@ -34,9 +34,11 @@ interface FetchOptions {
 export async function fetchWatches(options: FetchOptions = {}): Promise<Watch[]> {
   const { status = "all", category, badge, limit } = options;
 
-  // Generate a stable key for Next.js cache based on option inputs
+  // Generate a stable key for Next.js cache based on option inputs. The "v2"
+  // marks the row shape (created_at added); bump it whenever SELECT_COLUMNS
+  // changes so stale cached rows from a previous deploy can't miss columns.
   const cacheKey = [
-    "fetchWatches",
+    "fetchWatches-v2",
     status,
     category || "none",
     badge || "none",
