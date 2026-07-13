@@ -85,11 +85,14 @@ function PillDropdown({
   value,
   options,
   onChange,
+  leading,
 }: {
   label: string;
   value: string;
   options: ReadonlyArray<Option>;
   onChange: (value: string) => void;
+  /** Optional always-on prefix (e.g. "Sort") so the pill reads as a control. */
+  leading?: string;
 }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -135,7 +138,10 @@ function PillDropdown({
         onClick={() => setOpen((o) => !o)}
         className={isActive ? dropdownTriggerActiveClass : dropdownTriggerClass}
       >
-        <span>{selectedLabel}</span>
+        <span>
+          {leading ? <span className="opacity-60">{leading}: </span> : null}
+          {selectedLabel}
+        </span>
         <Caret open={open} />
       </button>
 
@@ -240,33 +246,35 @@ export function CatalogToolbar({
   ];
 
   return (
-    <div className="mx-auto mb-8 flex max-w-[1680px] flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:flex-nowrap lg:justify-start lg:gap-4">
-        {/* Category pills */}
-        {categories ? (
-          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
-            {categories.map((cat) => {
-              const isActive = category === cat.value || (!category && cat.value === "");
-              return (
-                <button
-                  key={cat.value}
-                  type="button"
-                  onClick={() => update("category", cat.value)}
-                  className={
-                    isActive
-                      ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
-                      : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
-                  }
-                >
-                  {cat.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
+    <div className="mx-auto mb-8 flex w-full max-w-[1680px] flex-col gap-3 sm:gap-4">
+      {/* Row 1 - category filter pills. Own line so they never collide with
+          the controls; centered on mobile, left-aligned from sm up. */}
+      {categories ? (
+        <div className="flex flex-wrap justify-center gap-1.5 sm:justify-start sm:gap-2">
+          {categories.map((cat) => {
+            const isActive = category === cat.value || (!category && cat.value === "");
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => update("category", cat.value)}
+                className={
+                  isActive
+                    ? `${pillBase} border border-amber-500 bg-amber-500 text-zinc-900`
+                    : `${pillBase} border border-zinc-700 bg-transparent text-zinc-400 hover:border-amber-500/50 hover:text-amber-400`
+                }
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
-        {/* Brand + sort custom dropdowns */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+      {/* Row 2 - brand + sort clustered on the left, search pushed to the
+          right with ml-auto (no justify-between, so nothing floats center). */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-start sm:gap-2">
           {brands.length > 1 ? (
             <PillDropdown
               label="All Brands"
@@ -277,6 +285,7 @@ export function CatalogToolbar({
           ) : null}
           <PillDropdown
             label="Sort"
+            leading="Sort"
             value={sort}
             options={sortOptions}
             onChange={(v) => update("sort", v)}
@@ -285,8 +294,8 @@ export function CatalogToolbar({
 
         {/* Search input + count */}
         {search ? (
-          <div className="flex w-full items-center gap-2 sm:w-auto lg:ml-auto">
-            <div className="relative flex-1 sm:w-auto sm:min-w-[200px] lg:min-w-[260px]">
+          <div className="flex w-full items-center gap-2 lg:ml-auto lg:w-auto">
+            <div className="relative flex-1 lg:w-auto lg:min-w-[280px]">
               <label htmlFor={searchId} className="sr-only">
                 Search available watches
               </label>
