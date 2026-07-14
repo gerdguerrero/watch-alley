@@ -317,6 +317,24 @@ button[disabled] { opacity: 0.5; cursor: progress; }
   line-height: 1;
 }
 
+/* Full-screen writing column. The canvas is wide, but the writing surface
+   stays a comfortable centered column (Notion / Medium style) so prose lines
+   don't stretch edge to edge. Markdown split-preview keeps a wider column so
+   both panes get room; the newsletter form centers at a middle width. */
+@media (min-width: 901px) {
+  #tabpanel-journal[data-sidebar="collapsed"] #journal-form {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+  #tabpanel-journal[data-sidebar="collapsed"] #journal-form[data-jmode="markdown"] {
+    max-width: 1240px;
+  }
+  #tabpanel-newsletter[data-sidebar="collapsed"] #newsletter-form {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
 /* Journal editor: split textarea + live preview. Toolbar above. */
 .journal-toolbar {
   display: flex;

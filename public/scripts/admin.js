@@ -1846,8 +1846,8 @@ function applySidebarState(tab, collapsed) {
     if (icon) icon.textContent = collapsed ? '⟩' : '⟨';
     if (label) label.textContent = collapsed ? 'Show list' : 'Hide list';
     btn.title = collapsed
-      ? 'Show the list again'
-      : 'Hide the list for full-screen editing';
+      ? 'Show the list again  (⌘\\ / Ctrl+\\)'
+      : 'Hide the list for full-screen editing  (⌘\\ / Ctrl+\\)';
   }
   updateEditingFullscreen();
   // The editing width changed, so re-measure auto-sizing block textareas.
@@ -4481,6 +4481,57 @@ function syncJournalBlocksToTextarea() {
   updateJournalLivePreview();
 }
 
+// ── Undo / redo history for the block editor ─────────────────────────────
+// Native textarea undo only covers typing inside one field; structural edits
+// (add / delete / move / convert / photo / drag) are JS-driven and need their
+// own history. Each entry is a deep-ish clone of journalBlocksState.
+let journalUndoStack = [];
+let journalRedoStack = [];
+let journalLastSnapshotAt = 0;
+const JOURNAL_HISTORY_LIMIT = 100;
+
+function cloneJournalBlocks(blocks) {
+  return blocks.map((b) => ({ ...b }));
+}
+
+function resetJournalHistory() {
+  journalUndoStack = [];
+  journalRedoStack = [];
+  journalLastSnapshotAt = 0;
+}
+
+// Push the CURRENT state before applying a mutation. `coalesceMs` lets a burst
+// of rapid text edits collapse into one undo step instead of one-per-keystroke.
+function snapshotJournalHistory(coalesceMs) {
+  const now = Date.now();
+  if (coalesceMs && journalUndoStack.length && now - journalLastSnapshotAt < coalesceMs) {
+    journalLastSnapshotAt = now;
+    return;
+  }
+  journalUndoStack.push(cloneJournalBlocks(journalBlocksState));
+  if (journalUndoStack.length > JOURNAL_HISTORY_LIMIT) journalUndoStack.shift();
+  journalRedoStack = [];
+  journalLastSnapshotAt = now;
+}
+
+function undoJournal() {
+  if (!journalUndoStack.length) return;
+  journalRedoStack.push(cloneJournalBlocks(journalBlocksState));
+  journalBlocksState = journalUndoStack.pop();
+  journalLastSnapshotAt = 0;
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
+function redoJournal() {
+  if (!journalRedoStack.length) return;
+  journalUndoStack.push(cloneJournalBlocks(journalBlocksState));
+  journalBlocksState = journalRedoStack.pop();
+  journalLastSnapshotAt = 0;
+  renderJournalBlocks();
+  syncJournalBlocksToTextarea();
+}
+
 function setJournalEditorMode(mode) {
   if (!els.journalVisualMode || !els.journalMarkdownMode) return;
   const visual = mode === 'visual';
@@ -4488,12 +4539,17 @@ function setJournalEditorMode(mode) {
     syncJournalBlocksToTextarea();
   }
   journalEditorMode = visual ? 'visual' : 'markdown';
+  // Drives the full-screen writing-column width (visual = narrow prose column,
+  // markdown = wider split-preview). See admin.css [data-jmode].
+  if (els.journalForm) els.journalForm.dataset.jmode = journalEditorMode;
   // Unhide before rendering so textarea autosize can measure scrollHeight.
   els.journalVisualMode.hidden = !visual;
   els.journalMarkdownMode.hidden = visual;
   if (visual) {
     journalBlocksState = parseMarkdownToJournalBlocks(els.journalFieldBody.value);
     renderJournalBlocks();
+    // A fresh parse is a new baseline - the block history starts here.
+    resetJournalHistory();
   }
   if (els.journalModeVisualBtn) {
     els.journalModeVisualBtn.classList.toggle('is-active', visual);
@@ -4684,6 +4740,7 @@ function insertJournalBlockAfter(afterId, type) {
     els.journalBlocksFileInput.click();
     return;
   }
+  snapshotJournalHistory();
   const block = makeJournalBlock(type, type === 'divider' ? {} : { text: '' });
   const index = afterId ? journalBlockIndex(afterId) : journalBlocksState.length - 1;
   journalBlocksState.splice((index < 0 ? journalBlocksState.length - 1 : index) + 1, 0, block);
@@ -4696,6 +4753,7 @@ function moveJournalBlock(id, delta) {
   if (from < 0) return;
   const to = from + delta;
   if (to < 0 || to >= journalBlocksState.length) return;
+  snapshotJournalHistory();
   const [block] = journalBlocksState.splice(from, 1);
   journalBlocksState.splice(to, 0, block);
   renderJournalBlocks();
@@ -4708,6 +4766,7 @@ function deleteJournalBlock(id) {
   const block = journalBlocksState[index];
   const hasContent = block.type === 'image' ? Boolean(block.src) : Boolean((block.text || '').trim());
   if (hasContent && !window.confirm('Delete this block?')) return;
+  snapshotJournalHistory();
   journalBlocksState.splice(index, 1);
   if (journalBlocksState.length === 0) journalBlocksState.push(makeJournalBlock('text', { text: '' }));
   renderJournalBlocks();
@@ -4719,6 +4778,7 @@ async function addJournalPhotoBlocks(files, afterId) {
   if (list.length === 0) return;
   let anchor = afterId ? journalBlockIndex(afterId) : journalBlocksState.length - 1;
   if (anchor < 0) anchor = journalBlocksState.length - 1;
+  snapshotJournalHistory();
   const placeholders = list.map((f) =>
     makeJournalBlock('image', {
       src: '',
@@ -4751,6 +4811,7 @@ async function addJournalPhotoBlocks(files, afterId) {
 async function replaceJournalPhoto(blockId, file) {
   const block = journalBlocksState[journalBlockIndex(blockId)];
   if (!block || block.type !== 'image' || !file) return;
+  snapshotJournalHistory();
   block.uploading = true;
   block.fileName = file.name || 'photo';
   renderJournalBlocks();
@@ -4828,6 +4889,8 @@ if (els.journalBlocks) {
     const wrap = event.target.closest('.jblock');
     const block = journalBlocksState[journalBlockIndex(wrap && wrap.dataset.blockId)];
     if (!block) return;
+    // Coalesce a burst of typing into a single undo step.
+    snapshotJournalHistory(700);
     block[field] = event.target.value;
     if (event.target.tagName === 'TEXTAREA') autosizeJournalBlockTextarea(event.target);
     syncJournalBlocksToTextarea();
@@ -4838,6 +4901,7 @@ if (els.journalBlocks) {
     if (!event.target.matches('.jblock-type-select')) return;
     const block = journalBlocksState[journalBlockIndex(event.target.dataset.blockTypeSelect)];
     if (!block) return;
+    snapshotJournalHistory();
     block.type = event.target.value;
     renderJournalBlocks(block.id);
     syncJournalBlocksToTextarea();
@@ -4924,6 +4988,7 @@ if (els.journalBlocks) {
       const from = journalBlockIndex(draggingBlockId);
       clearJournalDropIndicators();
       if (!marked || from < 0) return;
+      snapshotJournalHistory();
       const [block] = journalBlocksState.splice(from, 1);
       let to = journalBlockIndex(marked.dataset.blockId);
       if (to < 0) { journalBlocksState.splice(from, 0, block); return; }
@@ -4938,6 +5003,41 @@ if (els.journalBlocks) {
     if (files && files.length) addJournalPhotoBlocks(files, null);
   });
 }
+
+// ── Global editor keyboard shortcuts ─────────────────────────────────────
+// Cmd/Ctrl + \  toggles the list sidebar on the active editor tab (desktop).
+document.addEventListener('keydown', (event) => {
+  if (!(event.metaKey || event.ctrlKey) || event.key !== '\\') return;
+  if (window.innerWidth <= 900) return;
+  const activeTab = document.querySelector('.admin-tab.is-active');
+  const name = activeTab && activeTab.dataset.tab;
+  if (name !== 'journal' && name !== 'newsletter') return;
+  event.preventDefault();
+  toggleSidebar(name);
+});
+
+// Cmd/Ctrl+Z undoes, Cmd+Shift+Z (or Cmd+Y) redoes journal block edits.
+document.addEventListener('keydown', (event) => {
+  if (!(event.metaKey || event.ctrlKey)) return;
+  const key = event.key.toLowerCase();
+  const isUndo = key === 'z' && !event.shiftKey;
+  const isRedo = (key === 'z' && event.shiftKey) || key === 'y';
+  if (!isUndo && !isRedo) return;
+  // Only when the journal visual block editor is the active, open surface.
+  const activeTab = document.querySelector('.admin-tab.is-active');
+  if (!activeTab || activeTab.dataset.tab !== 'journal') return;
+  if (!els.journalVisualMode || els.journalVisualMode.hidden) return;
+  if (els.journalForm && els.journalForm.hidden) return;
+  // Let the browser's native per-field undo handle the meta text inputs
+  // (title, slug, summary, tags…); only take over inside the block editor.
+  const ae = document.activeElement;
+  const inBlocks = els.journalBlocks && els.journalBlocks.contains(ae);
+  const inMetaField = ae && ae.matches && ae.matches('input, textarea, select') && !inBlocks;
+  if (inMetaField) return;
+  event.preventDefault();
+  if (isRedo) redoJournal();
+  else undoJournal();
+});
 
 // ── Save / Publish / Cancel / Delete / Preview ──────────────────────────
 async function saveJournalPost(forcedStatus) {
