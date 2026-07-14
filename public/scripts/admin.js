@@ -145,6 +145,9 @@ const els = {
   journalHeroStatus: document.getElementById('journal-hero-status'),
   journalFieldBody: document.getElementById('journal-field-body'),
   journalPreview: document.getElementById('journal-preview'),
+  adminShell: document.querySelector('.admin-shell'),
+  journalSidebarToggle: document.getElementById('journal-sidebar-toggle'),
+  newsletterSidebarToggle: document.getElementById('newsletter-sidebar-toggle'),
   journalModeVisualBtn: document.getElementById('journal-mode-visual-btn'),
   journalModeMarkdownBtn: document.getElementById('journal-mode-markdown-btn'),
   journalModeHint: document.getElementById('journal-mode-hint'),
@@ -1804,6 +1807,80 @@ function activateTab(name, { focus = false } = {}) {
   if (name === 'newsletter') loadNewsletterTab();
   if (name === 'dashboard') loadDashboard();
   if (name === 'analytics') loadVercelAnalytics();
+  updateEditingFullscreen();
+}
+
+// ---------------- Collapsible list sidebar (full-screen editing) ----------
+// Journal + Newsletter share the same list|editor master-detail layout. The
+// operator can hide the list to write in a full-width canvas (like the focus
+// modes in Notion / VS Code), and the choice persists per tab.
+
+function sidebarPanelFor(tab) {
+  return tab === 'journal' ? els.tabpanelJournal : els.tabpanelNewsletter;
+}
+
+function sidebarToggleFor(tab) {
+  return tab === 'journal' ? els.journalSidebarToggle : els.newsletterSidebarToggle;
+}
+
+// Widen the whole admin shell only while the *active* tab is a collapsible
+// editor with its list hidden, so switching tabs never leaves it stretched.
+function updateEditingFullscreen() {
+  if (!els.adminShell) return;
+  const active = document.querySelector('.admin-tab.is-active');
+  const activeName = active && active.dataset.tab;
+  const panel = activeName === 'journal' || activeName === 'newsletter' ? sidebarPanelFor(activeName) : null;
+  const collapsed = Boolean(panel && panel.dataset.sidebar === 'collapsed');
+  els.adminShell.classList.toggle('is-editing-fullscreen', collapsed);
+}
+
+function applySidebarState(tab, collapsed) {
+  const panel = sidebarPanelFor(tab);
+  if (!panel) return;
+  panel.dataset.sidebar = collapsed ? 'collapsed' : 'expanded';
+  const btn = sidebarToggleFor(tab);
+  if (btn) {
+    btn.setAttribute('aria-pressed', String(collapsed));
+    const icon = btn.querySelector('.admin-sidebar-toggle-icon');
+    const label = btn.querySelector('.admin-sidebar-toggle-label');
+    if (icon) icon.textContent = collapsed ? '⟩' : '⟨';
+    if (label) label.textContent = collapsed ? 'Show list' : 'Hide list';
+    btn.title = collapsed
+      ? 'Show the list again'
+      : 'Hide the list for full-screen editing';
+  }
+  updateEditingFullscreen();
+  // The editing width changed, so re-measure auto-sizing block textareas.
+  // Use a DOM check (not the journalEditorMode `let`, which is in its temporal
+  // dead zone during the initial run of this module).
+  const visualOpen = els.journalVisualMode && !els.journalVisualMode.hidden;
+  if (tab === 'journal' && visualOpen && els.journalBlocks) {
+    els.journalBlocks.querySelectorAll('textarea').forEach((t) => autosizeJournalBlockTextarea(t));
+  }
+}
+
+function toggleSidebar(tab) {
+  const panel = sidebarPanelFor(tab);
+  if (!panel) return;
+  const collapsed = panel.dataset.sidebar !== 'collapsed';
+  applySidebarState(tab, collapsed);
+  try {
+    localStorage.setItem(`wa-admin-${tab}-sidebar-collapsed`, collapsed ? '1' : '0');
+  } catch {
+    /* private mode / storage disabled - state still applies for this session */
+  }
+}
+
+for (const tab of ['journal', 'newsletter']) {
+  const btn = sidebarToggleFor(tab);
+  if (btn) btn.addEventListener('click', () => toggleSidebar(tab));
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(`wa-admin-${tab}-sidebar-collapsed`) === '1';
+  } catch {
+    collapsed = false;
+  }
+  applySidebarState(tab, collapsed);
 }
 
 // ---------------- Vercel Analytics tab ----------------

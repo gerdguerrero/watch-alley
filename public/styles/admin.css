@@ -5,6 +5,14 @@
   margin: 0 auto;
   width: 100%;
   min-width: 0;
+  transition: max-width 0.25s ease;
+}
+/* When editing the journal/newsletter with the list collapsed, break out to a
+   wider canvas so the writing column truly fills the screen. */
+.admin-shell.is-editing-fullscreen {
+  /* Never narrower than the base 1280; widen up to 1780 on big screens,
+     leaving a small viewport gutter in between. */
+  max-width: clamp(1280px, 95vw, 1780px);
 }
 
 .admin-status {
@@ -259,6 +267,55 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 }
 #tabpanel-journal[hidden],
 #tabpanel-newsletter[hidden] { display: none; }
+
+/* Full-screen editing: collapsing the list sidebar lets the editor reclaim
+   the whole row. Desktop only - on mobile the master-detail swap already
+   gives the editor the full width, so the toggle is hidden there. */
+@media (min-width: 901px) {
+  #tabpanel-journal[data-sidebar="collapsed"],
+  #tabpanel-newsletter[data-sidebar="collapsed"] {
+    grid-template-columns: 1fr;
+  }
+  #tabpanel-journal[data-sidebar="collapsed"] > .admin-sidebar,
+  #tabpanel-newsletter[data-sidebar="collapsed"] > .admin-sidebar {
+    display: none;
+  }
+}
+
+/* Desktop-only bar above the editor holding the collapse toggle. */
+.admin-detail-toolbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) {
+  .admin-detail-toolbar { display: none; }
+}
+.admin-sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid oklch(0.91 0.018 78 / 0.15);
+  color: var(--cream-60);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.admin-sidebar-toggle:hover {
+  color: var(--gold);
+  border-color: oklch(0.76 0.12 75 / 0.30);
+  background: oklch(0.76 0.12 75 / 0.08);
+}
+.admin-sidebar-toggle-icon {
+  font-size: 13px;
+  line-height: 1;
+}
 
 /* Journal editor: split textarea + live preview. Toolbar above. */
 .journal-toolbar {
