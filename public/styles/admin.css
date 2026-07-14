@@ -260,10 +260,13 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 #tabpanel-journal,
 #tabpanel-newsletter {
   display: grid;
-  grid-template-columns: minmax(280px, 360px) 1fr;
+  /* Sidebar width is user-draggable (see .admin-sidebar-resizer); the var is
+     set per-panel by admin.js and persisted. */
+  grid-template-columns: var(--wa-sidebar-w, 320px) 1fr;
   gap: 24px;
   align-items: start;
   min-width: 0;
+  position: relative;
 }
 #tabpanel-journal[hidden],
 #tabpanel-newsletter[hidden] { display: none; }
@@ -315,6 +318,59 @@ button[disabled] { opacity: 0.5; cursor: progress; }
 .admin-sidebar-toggle-icon {
   font-size: 13px;
   line-height: 1;
+}
+
+/* Draggable divider between the list and the editor (desktop only). Sits in
+   the 24px grid gutter; grip line brightens on hover / drag. */
+.admin-sidebar-resizer { display: none; }
+@media (min-width: 901px) {
+  .admin-sidebar-resizer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--wa-sidebar-w, 320px);
+    width: 24px;
+    z-index: 6;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  .admin-sidebar-resizer::before {
+    content: '';
+    width: 3px;
+    height: 44px;
+    border-radius: 3px;
+    background: oklch(0.91 0.018 78 / 0.14);
+    transition: background-color 0.15s ease, height 0.15s ease;
+  }
+  .admin-sidebar-resizer:hover::before,
+  body.is-resizing-sidebar .admin-sidebar-resizer::before {
+    background: var(--gold);
+    height: 72px;
+  }
+  body.is-resizing-sidebar {
+    cursor: col-resize;
+    user-select: none;
+  }
+  /* Preview the collapse while dragging past the threshold. */
+  #tabpanel-journal.sidebar-precollapse > .admin-sidebar,
+  #tabpanel-newsletter.sidebar-precollapse > .admin-sidebar {
+    opacity: 0.35;
+    transition: opacity 0.1s ease;
+  }
+  /* Collapsed: park the divider as a grab strip at the far-left edge so it can
+     be dragged (or clicked) to bring the list back. */
+  #tabpanel-journal[data-sidebar="collapsed"] .admin-sidebar-resizer,
+  #tabpanel-newsletter[data-sidebar="collapsed"] .admin-sidebar-resizer {
+    left: -14px;
+    width: 22px;
+  }
+  #tabpanel-journal[data-sidebar="collapsed"] .admin-sidebar-resizer::before,
+  #tabpanel-newsletter[data-sidebar="collapsed"] .admin-sidebar-resizer::before {
+    height: 52px;
+  }
 }
 
 /* Full-screen writing column. The canvas is wide, but the writing surface

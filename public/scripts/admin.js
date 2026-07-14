@@ -1859,11 +1859,7 @@ function applySidebarState(tab, collapsed) {
   }
 }
 
-function toggleSidebar(tab) {
-  const panel = sidebarPanelFor(tab);
-  if (!panel) return;
-  const collapsed = panel.dataset.sidebar !== 'collapsed';
-  applySidebarState(tab, collapsed);
+function persistSidebarCollapsed(tab, collapsed) {
   try {
     localStorage.setItem(`wa-admin-${tab}-sidebar-collapsed`, collapsed ? '1' : '0');
   } catch {
@@ -1871,9 +1867,154 @@ function toggleSidebar(tab) {
   }
 }
 
+function toggleSidebar(tab) {
+  const panel = sidebarPanelFor(tab);
+  if (!panel) return;
+  const collapsed = panel.dataset.sidebar !== 'collapsed';
+  applySidebarState(tab, collapsed);
+  persistSidebarCollapsed(tab, collapsed);
+}
+
+// ── Drag-to-resize / drag-to-collapse the list sidebar ───────────────────
+// A divider in the gutter resizes the list like VS Code / Slack. Drag it far
+// enough left and the list collapses; when collapsed, a thin strip at the far
+// left drags (or clicks) it back. Width persists per tab. Desktop only - the
+// button + Cmd/Ctrl+\ remain the keyboard-accessible path.
+const SIDEBAR_MIN_W = 260;
+const SIDEBAR_MAX_W = 480;
+const SIDEBAR_DEFAULT_W = 320;
+const SIDEBAR_COLLAPSE_AT = 200; // drag narrower than this and release -> collapse
+const sidebarWidths = { journal: SIDEBAR_DEFAULT_W, newsletter: SIDEBAR_DEFAULT_W };
+
+function clampSidebarWidth(v) {
+  return Math.max(SIDEBAR_MIN_W, Math.min(SIDEBAR_MAX_W, v));
+}
+
+function readStoredSidebarWidth(tab) {
+  try {
+    const v = parseInt(localStorage.getItem(`wa-admin-${tab}-sidebar-width`), 10);
+    if (Number.isFinite(v)) return clampSidebarWidth(v);
+  } catch {
+    /* ignore */
+  }
+  return SIDEBAR_DEFAULT_W;
+}
+
+function applySidebarWidth(tab) {
+  const panel = sidebarPanelFor(tab);
+  if (panel) panel.style.setProperty('--wa-sidebar-w', `${sidebarWidths[tab]}px`);
+}
+
+function persistSidebarWidth(tab) {
+  try {
+    localStorage.setItem(`wa-admin-${tab}-sidebar-width`, String(sidebarWidths[tab]));
+  } catch {
+    /* ignore */
+  }
+}
+
+function initSidebarResizer(tab) {
+  const panel = sidebarPanelFor(tab);
+  const resizer = document.getElementById(`${tab}-sidebar-resizer`);
+  if (!panel || !resizer) return;
+
+  let dragging = false;
+  let moved = false;
+  let startX = 0;
+  let startW = 0;
+  let wasCollapsed = false;
+  let pendingCollapse = false;
+
+  resizer.addEventListener('pointerdown', (event) => {
+    if (window.innerWidth <= 900) return; // desktop only
+    dragging = true;
+    moved = false;
+    pendingCollapse = false;
+    wasCollapsed = panel.dataset.sidebar === 'collapsed';
+    startX = event.clientX;
+    startW = wasCollapsed ? 0 : sidebarWidths[tab];
+    document.body.classList.add('is-resizing-sidebar');
+    try {
+      resizer.setPointerCapture(event.pointerId);
+    } catch {
+      /* older browsers */
+    }
+    event.preventDefault();
+  });
+
+  resizer.addEventListener('pointermove', (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX;
+    if (Math.abs(dx) > 3) moved = true;
+    const desired = startW + dx;
+
+    if (wasCollapsed) {
+      if (desired < 32) return; // not dragged out far enough yet
+      if (panel.dataset.sidebar === 'collapsed') applySidebarState(tab, false);
+      sidebarWidths[tab] = clampSidebarWidth(desired);
+      applySidebarWidth(tab);
+      return;
+    }
+
+    if (desired < SIDEBAR_COLLAPSE_AT) {
+      pendingCollapse = true;
+      panel.classList.add('sidebar-precollapse');
+      sidebarWidths[tab] = SIDEBAR_MIN_W;
+    } else {
+      pendingCollapse = false;
+      panel.classList.remove('sidebar-precollapse');
+      sidebarWidths[tab] = clampSidebarWidth(desired);
+    }
+    applySidebarWidth(tab);
+  });
+
+  const endDrag = (event) => {
+    if (!dragging) return;
+    dragging = false;
+    document.body.classList.remove('is-resizing-sidebar');
+    panel.classList.remove('sidebar-precollapse');
+    try {
+      resizer.releasePointerCapture(event.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    if (wasCollapsed && !moved) {
+      // A plain click on the collapsed strip re-opens the list.
+      applySidebarState(tab, false);
+      persistSidebarCollapsed(tab, false);
+      return;
+    }
+    if (!wasCollapsed && pendingCollapse) {
+      applySidebarState(tab, true);
+      persistSidebarCollapsed(tab, true);
+      return;
+    }
+    persistSidebarWidth(tab);
+    if (wasCollapsed) persistSidebarCollapsed(tab, false);
+    // The editor width changed - re-measure auto-sizing block textareas.
+    const visualOpen = els.journalVisualMode && !els.journalVisualMode.hidden;
+    if (tab === 'journal' && visualOpen && els.journalBlocks) {
+      els.journalBlocks.querySelectorAll('textarea').forEach((t) => autosizeJournalBlockTextarea(t));
+    }
+  };
+  resizer.addEventListener('pointerup', endDrag);
+  resizer.addEventListener('pointercancel', endDrag);
+  // Double-click the divider to reset to the default width.
+  resizer.addEventListener('dblclick', () => {
+    if (panel.dataset.sidebar === 'collapsed') applySidebarState(tab, false);
+    sidebarWidths[tab] = SIDEBAR_DEFAULT_W;
+    applySidebarWidth(tab);
+    persistSidebarWidth(tab);
+    persistSidebarCollapsed(tab, false);
+  });
+}
+
 for (const tab of ['journal', 'newsletter']) {
   const btn = sidebarToggleFor(tab);
   if (btn) btn.addEventListener('click', () => toggleSidebar(tab));
+  sidebarWidths[tab] = readStoredSidebarWidth(tab);
+  applySidebarWidth(tab);
   let collapsed = false;
   try {
     collapsed = localStorage.getItem(`wa-admin-${tab}-sidebar-collapsed`) === '1';
@@ -1881,6 +2022,7 @@ for (const tab of ['journal', 'newsletter']) {
     collapsed = false;
   }
   applySidebarState(tab, collapsed);
+  initSidebarResizer(tab);
 }
 
 // ---------------- Vercel Analytics tab ----------------
