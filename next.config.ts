@@ -40,6 +40,19 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
+  async headers() {
+    // App Router metadata icons are served `max-age=0, must-revalidate`, so
+    // every navigation re-requests them. On mobile in-app browsers (Facebook
+    // and Instagram WebViews, most of our traffic) that revalidation came back
+    // as a full 200 rather than a 304, which made /favicon.ico the single
+    // most-requested path on the site. A week-long TTL with SWR keeps the
+    // icons refreshable without paying for them on every pageview.
+    const iconCacheControl = "public, max-age=604800, stale-while-revalidate=86400";
+    return ["/favicon.ico", "/icon.png", "/apple-icon.png"].map((source) => ({
+      source,
+      headers: [{ key: "Cache-Control", value: iconCacheControl }],
+    }));
+  },
   async rewrites() {
     return [
       { source: "/admin", destination: "/admin/index.html" },

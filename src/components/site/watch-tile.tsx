@@ -24,6 +24,13 @@ export function WatchTile({ watch }: WatchTileProps) {
   return (
     <Link
       href={`/watch/${watch.slug}`}
+      // Mobile-only grid of 200+ tiles: viewport prefetch would pull an RSC
+      // payload for every tile scrolled past. There is no hover on touch to
+      // gate it on (see {@link WatchCard}), and keeping this a Server
+      // Component rules out a touch handler, so opt out entirely. The watch
+      // pages are prerendered and CDN-cached, so the tap is still one fast
+      // cached fetch.
+      prefetch={false}
       className="group relative block overflow-hidden bg-black/40"
       style={{ aspectRatio: "4 / 5" }}
     >

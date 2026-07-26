@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { formatCategory, formatPhp } from "@/lib/inventory/format";
 import { thumbnailUrl } from "@/lib/inventory/image";
@@ -24,6 +25,21 @@ interface WatchCardProps {
 export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardProps) {
   const cardRef = useRef<HTMLAnchorElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
+  const href = `/watch/${watch.slug}`;
+
+  // /available renders 200+ of these. Next's default viewport prefetch pulls
+  // an RSC payload for every card a visitor scrolls past, which is where the
+  // bulk of our edge requests were going. Opt out of the viewport observer and
+  // prefetch on intent instead. Flipping `prefetch` back to `null` on hover
+  // does not re-arm the observer for a card that is already on screen, so warm
+  // the route imperatively (the "manual prefetch" pattern in the Next docs).
+  const prefetchedRef = useRef(false);
+  const prefetchOnIntent = () => {
+    if (prefetchedRef.current) return;
+    prefetchedRef.current = true;
+    router.prefetch(href);
+  };
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -51,11 +67,17 @@ export function WatchCard({ watch, index = 0, variant = "default" }: WatchCardPr
 
   return (
     <Link
-      href={`/watch/${watch.slug}`}
+      href={href}
       ref={cardRef}
+      prefetch={false}
       className="group relative block bg-black/25 rounded-3xl overflow-hidden border border-amber-400/10"
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onTouchStart={prefetchOnIntent}
+      onFocus={prefetchOnIntent}
+      onMouseEnter={() => {
+        prefetchOnIntent();
+        setIsHovered(true);
+      }}
       onMouseLeave={() => {
         setIsHovered(false);
         mouseX.set(0);
