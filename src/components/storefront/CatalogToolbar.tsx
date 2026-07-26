@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { SortKey } from "@/lib/inventory/sort";
 
@@ -15,8 +15,15 @@ interface CatalogToolbarProps {
   categories?: ReadonlyArray<Option>;
   selectedBrand?: string;
   selectedSort?: string;
+  selectedCategory?: string;
   onBrandChange?: (value: string) => void;
   onSortChange?: (value: string) => void;
+  /**
+   * Supply this to filter categories in the client (keeps the host page
+   * statically prerenderable). Without it the pills navigate, which
+   * re-renders the page on the server.
+   */
+  onCategoryChange?: (value: string) => void;
   search?: {
     value: string;
     onChange: (value: string) => void;
@@ -184,51 +191,57 @@ export function CatalogToolbar({
   categories,
   selectedBrand,
   selectedSort,
+  selectedCategory,
   onBrandChange,
   onSortChange,
+  onCategoryChange,
   search,
 }: CatalogToolbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const searchId = useId();
 
-  const category = searchParams.get("category") ?? "";
-  const brand = selectedBrand ?? searchParams.get("brand") ?? "";
-  const sort = selectedSort ?? searchParams.get("sort") ?? sortOptions[0]?.value ?? "";
+  // Deliberately no `useSearchParams()` here: reading it would opt every host
+  // page into client-side rendering (or a Suspense bailout that keeps the
+  // catalog grid out of the prerendered HTML). Callers own the selection state
+  // and pass it down; the URL is kept in sync below purely for shareability.
+  const category = selectedCategory ?? "";
+  const brand = selectedBrand ?? "";
+  const sort = selectedSort ?? sortOptions[0]?.value ?? "";
 
   const buildUrl = useCallback(
     (key: string, value: string) => {
-      const currentSearch =
-        typeof window === "undefined" ? searchParams.toString() : window.location.search;
-      const params = new URLSearchParams(currentSearch);
+      // Only ever called from event handlers, so `window` is available.
+      const params = new URLSearchParams(window.location.search);
       if (value) params.set(key, value);
       else params.delete(key);
       const qs = params.toString();
       return qs ? `${pathname}?${qs}` : pathname;
     },
-    [pathname, searchParams]
+    [pathname]
   );
 
   const update = useCallback(
     (key: string, value: string) => {
       const url = buildUrl(key, value);
+      const handler =
+        key === "brand"
+          ? onBrandChange
+          : key === "sort"
+            ? onSortChange
+            : key === "category"
+              ? onCategoryChange
+              : undefined;
 
-      if (key === "brand" && onBrandChange) {
-        onBrandChange(value);
-        window.history.replaceState(null, "", url);
-        return;
-      }
-
-      if (key === "sort" && onSortChange) {
-        onSortChange(value);
+      if (handler) {
+        handler(value);
         window.history.replaceState(null, "", url);
         return;
       }
 
       router.push(url, { scroll: false });
     },
-    [buildUrl, onBrandChange, onSortChange, router]
+    [buildUrl, onBrandChange, onSortChange, onCategoryChange, router]
   );
 
   const updateSearch = useCallback(

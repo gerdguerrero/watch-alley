@@ -39,7 +39,15 @@ export default async function SoldPage({
       />
 
       <section className="relative px-6 md:px-12 lg:px-20 pb-32">
-        <CatalogToolbar brands={brands} sortOptions={SOLD_SORTS} />
+        {/* Still server-filtered, so the toolbar navigates rather than
+            filtering in place; pass the active selection explicitly now that
+            it no longer reads the query string itself. */}
+        <CatalogToolbar
+          brands={brands}
+          sortOptions={SOLD_SORTS}
+          selectedBrand={brand ?? ""}
+          selectedSort={(sort as SortKey) || "recent"}
+        />
 
         {sold.length === 0 ? (
           <p className="py-12 text-center text-zinc-500 italic font-serif text-lg">

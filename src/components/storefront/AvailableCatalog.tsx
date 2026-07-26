@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { WatchCard } from "@/components/site/watch-card";
 import { WatchTile } from "@/components/site/watch-tile";
 import { formatCategory } from "@/lib/inventory/format";
@@ -17,9 +17,17 @@ interface AvailableCatalogProps {
   watches: Watch[];
   categories: ReadonlyArray<Option>;
   sortOptions: ReadonlyArray<{ value: SortKey; label: string }>;
-  initialBrand?: string;
-  initialSort?: string;
-  initialQuery?: string;
+}
+
+/** "limited-edition" is a badge on the row, not a value of `category`. */
+const LIMITED_EDITION = "limited-edition";
+
+function filterByCategory(watches: Watch[], category: string): Watch[] {
+  if (!category) return watches;
+  if (category === LIMITED_EDITION) {
+    return watches.filter((watch) => watch.badges.includes(LIMITED_EDITION));
+  }
+  return watches.filter((watch) => watch.category === category);
 }
 
 const SEARCHABLE_TEXT = new WeakMap<Watch, string>();
@@ -73,28 +81,42 @@ function searchWatches(watches: Watch[], query: string): Watch[] {
   });
 }
 
-export function AvailableCatalog({
-  watches,
-  categories,
-  sortOptions,
-  initialBrand = "",
-  initialSort = "featured",
-  initialQuery = "",
-}: AvailableCatalogProps) {
+export function AvailableCatalog({ watches, categories, sortOptions }: AvailableCatalogProps) {
   const brands = useMemo(() => collectBrands(watches), [watches]);
-  const [brand, setBrand] = useState(initialBrand);
-  const [sort, setSort] = useState(initialSort as SortKey);
-  const [query, setQuery] = useState(initialQuery);
+  const [brand, setBrand] = useState("");
+  const [sort, setSort] = useState<SortKey>("featured");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
   const deferredQuery = useDeferredValue(query);
 
+  // Every filter runs in the client so /available can stay a static prerender -
+  // reading `searchParams` on the server made the page dynamic, so each hit
+  // re-queried the whole catalog and never touched the CDN cache. Shared links
+  // still work: apply their params after mount rather than during render, which
+  // would desync from the prerendered HTML.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const nextBrand = params.get("brand");
+    const nextSort = params.get("sort");
+    const nextQuery = params.get("q");
+    const nextCategory = params.get("category");
+    if (nextBrand) setBrand(nextBrand);
+    if (nextSort) setSort(nextSort as SortKey);
+    if (nextQuery) setQuery(nextQuery);
+    if (nextCategory) setCategory(nextCategory);
+  }, []);
+
   const filtered = useMemo(() => {
-    const brandFiltered = brand ? watches.filter((watch) => watch.brand === brand) : watches;
+    const categoryFiltered = filterByCategory(watches, category);
+    const brandFiltered = brand
+      ? categoryFiltered.filter((watch) => watch.brand === brand)
+      : categoryFiltered;
     const searched = searchWatches(brandFiltered, deferredQuery);
     return sortWatches(searched, sort);
-  }, [watches, brand, sort, deferredQuery]);
+  }, [watches, category, brand, sort, deferredQuery]);
 
   const isSearching = query !== deferredQuery;
-  const hasActiveFilters = Boolean(brand || query.trim());
+  const hasActiveFilters = Boolean(brand || category || query.trim());
 
   return (
     <>
@@ -104,8 +126,10 @@ export function AvailableCatalog({
         categories={categories}
         selectedBrand={brand}
         selectedSort={sort}
+        selectedCategory={category}
         onBrandChange={setBrand}
         onSortChange={(value) => setSort(value as SortKey)}
+        onCategoryChange={setCategory}
         search={{
           value: query,
           onChange: setQuery,
