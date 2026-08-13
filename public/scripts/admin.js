@@ -1706,18 +1706,28 @@ function buildViberShareHref() {
       ? model
       : [brand, model].filter(Boolean).join(' ') || name || 'this watch';
   const condition = getField('conditionLabel').trim() || 'N/A';
+  // Story: prefer the form field, fall back to the loaded row's story
+  // column (rows created before the description rename). Never capped -
+  // the full text always goes into the payload.
+  const story =
+    getField('description').trim() ||
+    String(activeWatchSnapshot?.story || '').trim() ||
+    'Story coming soon.';
+  // Destination: an explicit link on the watch wins; otherwise the
+  // slug-based public URL; otherwise a preview fallback. buildPublicWatchUrl
+  // reuses the storefront canonical domain, so the line can never be empty.
   const slug = currentWatchSlug();
-  const description = getField('description').trim() || 'Story coming soon.';
-  const url = `https://watch-alley.com/watch/${encodeURIComponent(slug)}`;
-  // Client preference: no NEW ARRIVAL banner - the message opens with the
-  // watch name and ends with the deep link inside the text body, so the
-  // caption survives every target the forward reaches.
+  const destination =
+    String(activeWatchSnapshot?.destination_link || '').trim() ||
+    (slug
+      ? buildPublicWatchUrl(slug)
+      : `https://thewatchalley.com/watch/${activeId || 'preview'}`);
   const text = [
     listingName,
     `💰 Price: ₱${formatPrice(getField('price'))}`,
     `✨ Condition: ${condition}`,
-    `📖 ${description}`,
-    `🔗 View here: ${url}`,
+    `📖 ${story}`,
+    `🔗 View here: ${destination}`,
   ].join('\n');
   return `viber://forward?text=${encodeURIComponent(text)}`;
 }
