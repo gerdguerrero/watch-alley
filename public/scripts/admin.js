@@ -1705,17 +1705,14 @@ function buildViberShareHref() {
     brand && model.toLowerCase().includes(brand.toLowerCase())
       ? model
       : [brand, model].filter(Boolean).join(' ') || name || 'this watch';
-  const condition = getField('conditionLabel').trim() || 'N/A';
-  // Story: prefer the form field, fall back to the loaded row's story
-  // column (rows created before the description rename). Never capped -
-  // the full text always goes into the payload.
   const story =
     getField('description').trim() ||
     String(activeWatchSnapshot?.story || '').trim() ||
     'Story coming soon.';
   // Destination: an explicit link on the watch wins; otherwise the
-  // slug-based public URL; otherwise a preview fallback. buildPublicWatchUrl
-  // reuses the storefront canonical domain, so the line can never be empty.
+  // slug-based public URL; otherwise a preview fallback. The URL sits on
+  // line 2, right after the name, because viber://forward URIs get
+  // truncated by the OS at their tail - the link must never be last.
   const slug = currentWatchSlug();
   const destination =
     String(activeWatchSnapshot?.destination_link || '').trim() ||
@@ -1724,10 +1721,9 @@ function buildViberShareHref() {
       : `https://thewatchalley.com/watch/${activeId || 'preview'}`);
   const text = [
     listingName,
-    `💰 Price: ₱${formatPrice(getField('price'))}`,
-    `✨ Condition: ${condition}`,
+    `🔗 ${destination}`,
+    `💰 Price: ₱${formatPrice(getField('price'))} | ✨ Condition: ${getField('conditionLabel').trim() || 'N/A'}`,
     `📖 ${story}`,
-    `🔗 View here: ${destination}`,
   ].join('\n');
   return `viber://forward?text=${encodeURIComponent(text)}`;
 }
