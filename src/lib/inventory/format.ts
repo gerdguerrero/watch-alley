@@ -15,6 +15,15 @@ export function formatWatchMeta(parts: Array<string | undefined | null>): string
     .join(" · ");
 }
 
+export function formatWatchTitle(brand: string, name: string): string {
+  const cleanBrand = brand.replace(/\s+/g, " ").trim();
+  const cleanName = name.replace(/\s+/g, " ").trim();
+  if (!cleanBrand) return cleanName;
+  if (!cleanName) return cleanBrand;
+  if (cleanName.toLowerCase().startsWith(`${cleanBrand.toLowerCase()} `)) return cleanName;
+  return `${cleanBrand} ${cleanName}`;
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
   "brand-new": "Brand New",
   "pre-owned": "Pre-owned",

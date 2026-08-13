@@ -1,4 +1,5 @@
 import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { formatWatchTitle } from "@/lib/inventory/format";
 import type { Watch } from "@/lib/inventory/types";
 
 export const SITE_URL = "https://www.thewatchalley.com";
@@ -20,7 +21,7 @@ function cleanText(value: string | null | undefined): string | undefined {
 }
 
 function watchTitle(watch: Watch): string {
-  return `${watch.brand} ${watch.name}`.replace(/\s+/g, " ").trim();
+  return formatWatchTitle(watch.brand, watch.name);
 }
 
 function watchAvailability(watch: Watch): string {

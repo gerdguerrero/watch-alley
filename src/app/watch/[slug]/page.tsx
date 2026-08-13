@@ -7,7 +7,7 @@ import { UsdPriceMount } from "@/components/storefront/UsdPriceMount";
 import { WatchGallery } from "@/components/storefront/WatchGallery";
 import { WatchViewTracker } from "@/components/storefront/WatchViewTracker";
 import { WatchAlertForm } from "@/components/watch-list/WatchAlertForm";
-import { formatBadge, formatCategory, formatPhp } from "@/lib/inventory/format";
+import { formatBadge, formatCategory, formatPhp, formatWatchTitle } from "@/lib/inventory/format";
 import { fetchPublishedSlugs, fetchWatchBySlug } from "@/lib/inventory/queries";
 import type { Watch } from "@/lib/inventory/types";
 import { resolveMetadataImageUrl } from "@/lib/metadata/images";
@@ -44,12 +44,12 @@ export async function generateMetadata({
   if (!watch) {
     return { title: "Watch not found" };
   }
-  const title = `${watch.brand} ${watch.name}`;
+  const title = formatWatchTitle(watch.brand, watch.name);
   const description =
     watch.description ||
     `${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""} available from The Watch Alley in Manila.`;
   const imageUrl = resolveMetadataImageUrl(watch.primaryImage);
-  const image = imageUrl ? [{ url: imageUrl, alt: `${watch.brand} ${watch.name}` }] : undefined;
+  const image = imageUrl ? [{ url: imageUrl, alt: title }] : undefined;
   return {
     title,
     description,

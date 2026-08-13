@@ -14,8 +14,15 @@ const publishedWatch = {
   price: 28_500,
   conditionLabel: "Pre-owned 9/10",
   inclusionSet: "Watch only",
-  description:
-    "A compact blue diver with strong wrist presence, a shrouded case, and Seiko's dependable automatic movement.",
+  description: [
+    "Pre-owned",
+    "Seiko Prospex - Baby Tuna",
+    "SRPF81 / SRPF81K1 Blue - Diver's Watch",
+    "",
+    "Php 28,500",
+    "- complete set",
+    "- 9/10 condition",
+  ].join("\n"),
   status: "available",
 };
 
@@ -28,11 +35,15 @@ describe("savedPublicWatchForViber", () => {
     model: "Saved model",
     reference: "SAVED-REF",
     price: 12_345,
+    category: "pre-owned",
+    badge: "Rare",
+    badges: ["rare"],
     condition_label: "Saved condition",
     inclusion_set: "Saved inclusions",
     has_box: true,
     has_papers: false,
     description: "Saved public description",
+    edition: "Saved edition",
     status: "reserved",
     published: true,
   };
@@ -45,11 +56,15 @@ describe("savedPublicWatchForViber", () => {
       model: "Saved model",
       reference: "SAVED-REF",
       price: 12_345,
+      category: "pre-owned",
+      badge: "Rare",
+      badges: ["rare"],
       conditionLabel: "Saved condition",
       inclusionSet: "Saved inclusions",
       hasBox: true,
       hasPapers: false,
       description: "Saved public description",
+      edition: "Saved edition",
       status: "reserved",
     });
   });
@@ -74,39 +89,71 @@ describe("savedPublicWatchForViber", () => {
 });
 
 describe("buildViberSharePayload", () => {
-  it("builds a readable product message with the public link near the top", () => {
+  it("preserves the owner's saved sales copy and puts the bare item link last", () => {
     const payload = buildViberSharePayload(publishedWatch);
 
     expect(payload.message).toBe(
       [
-        "Seiko Prospex Baby Tuna SRPF81",
-        "View: https://thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81",
+        "Pre-owned",
+        "Seiko Prospex - Baby Tuna",
+        "SRPF81 / SRPF81K1 Blue - Diver's Watch",
         "",
-        "₱28,500 · Pre-owned 9/10",
-        "Available now. Reply to inquire or reserve.",
+        "Php 28,500",
+        "- complete set",
+        "- 9/10 condition",
+        "",
+        "https://www.thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81",
       ].join("\n")
     );
     expect(payload.href).toBe(`viber://forward?text=${encodeURIComponent(payload.message)}`);
     expect(payload.url).toBe(
-      "https://thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81"
+      "https://www.thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81"
     );
+    expect(payload.message.endsWith(payload.url)).toBe(true);
     expect(payload.message).toHaveLength(payload.messageLength);
     expect(payload.messageLength).toBeLessThanOrEqual(DEFAULT_VIBER_MESSAGE_BUDGET);
   });
 
-  it("uses the display name once instead of duplicating the brand", () => {
+  it("removes an old embedded item URL before appending one canonical final link", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
-      name: "",
-      brand: "Omega",
-      model: "Omega Seamaster Professional",
+      description: `${publishedWatch.description}\n🔗 https://thewatchalley.com/watch/old-slug`,
     });
 
-    expect(payload.message.split("\n")[0]).toBe("Omega Seamaster Professional");
-    expect(payload.message).not.toContain("Omega Omega");
+    expect(payload.message.match(/https:\/\/(?:www\.)?thewatchalley\.com\/watch\//g)).toHaveLength(1);
+    expect(payload.message.endsWith(payload.url)).toBe(true);
+    expect(payload.message).not.toContain("old-slug");
+    expect(payload.message).not.toContain("🔗");
   });
 
-  it("uses honest fallbacks for price and condition", () => {
+  it("synthesizes the owner's format when no saved sales copy exists", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: "",
+      category: "brand-new",
+      name: "Seiko Prospex Diver Scuba 1968 Heritage GMT Limited Edition",
+      reference: "SBEJ030",
+      edition: "1968 Heritage Diver GMT Limited to 500 pcs",
+      price: 116_000,
+      inclusionSet: "Complete Set",
+    });
+
+    expect(payload.message).toBe(
+      [
+        "Brand New",
+        "Seiko Prospex Diver Scuba 1968 Heritage GMT Limited Edition",
+        "",
+        "SBEJ030 - 1968 Heritage Diver GMT Limited to 500 pcs",
+        "",
+        "Php 116,000",
+        "- Complete Set",
+        "",
+        "https://www.thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81",
+      ].join("\n")
+    );
+  });
+
+  it("uses honest owner-style fallbacks for missing price and inclusions", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
       price: 0,
@@ -117,20 +164,18 @@ describe("buildViberSharePayload", () => {
       description: "",
     });
 
-    expect(payload.message).toContain("Price on request · Condition on request");
+    expect(payload.message).toContain("Price on request");
     expect(payload.message).not.toContain("Story coming soon");
   });
 
-  it("uses status-specific calls to action", () => {
-    expect(buildViberSharePayload({ ...publishedWatch, status: "reserved" }).message).toContain(
-      "Reserved. Reply to check availability or ask about similar pieces."
-    );
-    expect(buildViberSharePayload({ ...publishedWatch, status: "sold" }).message).toContain(
-      "Sold. Reply to ask about similar references."
-    );
+  it("adds SALE only when the saved listing explicitly carries a sale badge", () => {
+    const sale = buildViberSharePayload({ ...publishedWatch, description: "", badge: "SALE" });
+    const normal = buildViberSharePayload({ ...publishedWatch, description: "", badge: "Rare" });
+    expect(sale.message.startsWith("SALE!\n\nPre-owned")).toBe(true);
+    expect(normal.message.startsWith("SALE!")).toBe(false);
   });
 
-  it("percent-encodes slugs and keeps the decoded message within Viber's documented limit", () => {
+  it("percent-encodes slugs and keeps the canonical link as the final line", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
       slug: "limited edition / blue dial",
@@ -138,33 +183,66 @@ describe("buildViberSharePayload", () => {
     });
 
     expect(payload.message).toContain(
-      "https://thewatchalley.com/watch/limited%20edition%20%2F%20blue%20dial"
+      "https://www.thewatchalley.com/watch/limited%20edition%20%2F%20blue%20dial"
     );
     expect(payload.messageLength).toBeLessThanOrEqual(DEFAULT_VIBER_MESSAGE_BUDGET);
-    expect(payload.message).not.toContain("Collector-owned watch");
+    expect(payload.message.endsWith(payload.url)).toBe(true);
   });
 
   it("replaces malformed UTF-16 in shared fields instead of crashing URI encoding", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
       name: "Collector watch \ud800 with service history",
+      description: "",
     });
 
-    expect(payload.href).toContain("viber://forward?text=");
     expect(payload.message).toContain("Collector watch � with service history");
+    if (payload.href) {
+      const href = payload.href;
+      expect(() => decodeURIComponent(href)).not.toThrow();
+    }
   });
 
-  it("drops optional condition copy before shortening an unusually long title", () => {
-    const payload = buildViberSharePayload({
+  it("uses the legacy Viber URI only when the complete message fits 200 UTF-16 units", () => {
+    const short = buildViberSharePayload({
       ...publishedWatch,
-      name: "Seiko Prospex Limited Edition Automatic Diver With An Exceptionally Long Collector-Facing Display Name",
-      conditionLabel: "Pre-owned with a detailed condition report available on the public listing",
+      description: "Pre-owned\nSeiko Diver\n\nPhp 28,500",
+    });
+    const ownerLength = buildViberSharePayload({
+      ...publishedWatch,
+      description: [
+        "Brand New",
+        "Seiko Prospex Diver Scuba",
+        "1968 Heritage GMT Limited Edition",
+        "",
+        "SBEJ030 - 1968 Heritage",
+        "Diver GMT ‼️ Limited to",
+        "500 pcs‼️",
+        "",
+        "Php 116,000",
+        "- Complete Set",
+      ].join("\n"),
     });
 
+    expect(short.href).toBe(`viber://forward?text=${encodeURIComponent(short.message)}`);
+    expect(short.messageLength).toBeLessThanOrEqual(200);
+    expect(ownerLength.messageLength).toBeGreaterThan(200);
+    expect(ownerLength.href).toBeNull();
+    expect(ownerLength.message.endsWith(ownerLength.url)).toBe(true);
+  });
+
+  it("trims an unusually long saved caption while preserving the complete final URL", () => {
+    const payload = buildViberSharePayload(
+      {
+        ...publishedWatch,
+        description: "Collector details. ".repeat(300),
+      },
+      { messageBudget: 300 }
+    );
+
     expect(payload.messageLength).toBeLessThanOrEqual(DEFAULT_VIBER_MESSAGE_BUDGET);
-    expect(payload.message).toContain("₱28,500");
-    expect(payload.message).not.toContain("detailed condition report");
-    expect(payload.message).not.toContain("\n\n\n");
+    expect(payload.message.endsWith(payload.url)).toBe(true);
+    expect(payload.bodyTruncated).toBe(true);
   });
 
   it("never splits an emoji surrogate pair while cleaning or shortening copy", () => {
@@ -172,9 +250,13 @@ describe("buildViberSharePayload", () => {
       ...publishedWatch,
       name: `Seiko ${"⌚".repeat(180)}`,
       conditionLabel: "Excellent",
+      description: "",
     });
 
-    expect(() => decodeURIComponent(payload.href)).not.toThrow();
+    if (payload.href) {
+      const href = payload.href;
+      expect(() => decodeURIComponent(href)).not.toThrow();
+    }
     expect(payload.message).not.toContain("�");
     expect(payload.message).toHaveLength(payload.messageLength);
     expect(payload.messageLength).toBeLessThanOrEqual(DEFAULT_VIBER_MESSAGE_BUDGET);
