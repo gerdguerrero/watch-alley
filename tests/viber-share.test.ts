@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildViberSharePayload,
   DEFAULT_VIBER_MESSAGE_BUDGET,
+  LEGACY_VIBER_URI_BUDGET,
   savedPublicWatchForViber,
 } from "../public/scripts/lib/viber-share.mjs";
 
@@ -24,6 +25,24 @@ const publishedWatch = {
     "- 9/10 condition",
   ].join("\n"),
   status: "available",
+};
+
+const screenshotStyleWatch = {
+  slug: "seiko-quartz-chronograph-green-dial-ssb481-ssb481p1",
+  description: [
+    "Brand New",
+    "Seiko Quartz Chronograph",
+    "Green Dial - SSB481 / SSB481P1",
+    "",
+    "Php 20,800",
+    "- complete set",
+    "",
+    "8T63 Quartz Chronograph Movement",
+    "5 bar / 50m Water Resistance",
+    "Thickness: 12.6mm",
+    "Diameter: 38.7mm",
+    "Lug-to-lug: 44.6mm",
+  ].join("\n"),
 };
 
 describe("savedPublicWatchForViber", () => {
@@ -138,19 +157,10 @@ describe("buildViberSharePayload", () => {
       inclusionSet: "Complete Set",
     });
 
-    expect(payload.message).toBe(
-      [
-        "Brand New",
-        "Seiko Prospex Diver Scuba 1968 Heritage GMT Limited Edition",
-        "",
-        "SBEJ030 - 1968 Heritage Diver GMT Limited to 500 pcs",
-        "",
-        "Php 116,000",
-        "- Complete Set",
-        "",
-        "https://www.thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81",
-      ].join("\n")
-    );
+    expect(payload.message).toContain("Brand New\nSeiko Prospex Diver Scuba");
+    expect(payload.messageLength).toBeLessThanOrEqual(DEFAULT_VIBER_MESSAGE_BUDGET);
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.message.endsWith(payload.url)).toBe(true);
   });
 
   it("uses honest owner-style fallbacks for missing price and inclusions", () => {
@@ -203,7 +213,7 @@ describe("buildViberSharePayload", () => {
     }
   });
 
-  it("always provides a direct Viber app URI, including for a long owner-format post", () => {
+  it("keeps the direct Viber URI under the limit for long owner-format posts", () => {
     const short = buildViberSharePayload({
       ...publishedWatch,
       description: "Pre-owned\nSeiko Diver\n\nPhp 28,500",
@@ -225,12 +235,46 @@ describe("buildViberSharePayload", () => {
     });
 
     expect(short.href).toBe(`viber://forward?text=${encodeURIComponent(short.message)}`);
-    expect(short.messageLength).toBeLessThanOrEqual(200);
-    expect(ownerLength.messageLength).toBeGreaterThan(200);
+    expect(short.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(ownerLength.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(ownerLength.bodyTruncated).toBe(true);
     expect(ownerLength.href).toBe(
       `viber://forward?text=${encodeURIComponent(ownerLength.message)}`
     );
     expect(ownerLength.message.endsWith(ownerLength.url)).toBe(true);
+  });
+
+  it("reserves the final URL inside Viber's 200 UTF-16-unit ceiling", () => {
+    const payload = buildViberSharePayload(screenshotStyleWatch);
+    const decodedHrefMessage = decodeURIComponent(payload.href.slice("viber://forward?text=".length));
+
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(payload.message.endsWith(payload.url)).toBe(true);
+    expect(payload.message).not.toContain("Lug-to-lu");
+    expect(decodedHrefMessage).toBe(payload.message);
+  });
+
+  it("keeps a near-limit URL intact instead of adding an over-budget ellipsis", () => {
+    const payload = buildViberSharePayload(
+      { slug: "x", description: "This body cannot fit beside this URL." },
+      { origin: `https://${"a".repeat(181)}` }
+    );
+
+    expect(payload.message).toBe(payload.url);
+    expect(payload.messageLength).toBe(197);
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+  });
+
+  it("caps a caller-supplied message budget at Viber's legacy URI limit", () => {
+    const payload = buildViberSharePayload(
+      { ...publishedWatch, description: "Long saved copy. ".repeat(300) },
+      { messageBudget: 7_000 }
+    );
+
+    expect(DEFAULT_VIBER_MESSAGE_BUDGET).toBe(LEGACY_VIBER_URI_BUDGET);
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(payload.message.endsWith(payload.url)).toBe(true);
   });
 
   it("trims an unusually long saved caption while preserving the complete final URL", () => {

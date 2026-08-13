@@ -1,4 +1,8 @@
-export const DEFAULT_VIBER_MESSAGE_BUDGET = 7000;
+// Viber's legacy forward URI truncates decoded text at roughly 200 UTF-16
+// units. Keep the complete canonical URL inside that ceiling; otherwise the
+// app silently drops the link that makes the share useful.
+export const LEGACY_VIBER_URI_BUDGET = 200;
+export const DEFAULT_VIBER_MESSAGE_BUDGET = LEGACY_VIBER_URI_BUDGET;
 
 const DEFAULT_PUBLIC_ORIGIN = 'https://www.thewatchalley.com';
 const VIBER_URI_PREFIX = 'viber://forward?text=';
@@ -139,12 +143,16 @@ function buildOwnerStyleBody(listing) {
 }
 
 function messageLength(value) {
+  // JavaScript string length is UTF-16 code units, which matches the legacy
+  // Viber URI limit more closely than Array.from(value).length would.
   return value.length;
 }
 
 function truncateBody(value, budget, suffix = '...') {
+  if (budget <= messageLength(suffix)) return '';
   if (messageLength(value) <= budget) return value;
   const contentBudget = Math.max(0, budget - messageLength(suffix));
+  if (contentBudget === 0) return '';
   let raw = '';
   for (const character of Array.from(value)) {
     if (messageLength(raw) + messageLength(character) > contentBudget) break;
@@ -161,21 +169,32 @@ function truncateBody(value, budget, suffix = '...') {
 
 /**
  * Build a user-mediated Viber post. The saved owner-written sales copy is
- * preserved, and the canonical product URL is always the final line so Viber
- * can crawl its Open Graph image. The direct Viber URI remains the primary
+ * used whenever it fits, and shortened only when necessary. The canonical
+ * product URL is always the final line so Viber can crawl its Open Graph
+ * image. The direct Viber URI remains the primary
  * handoff so the installed desktop/mobile app opens from the user's click.
+ * The direct payload is capped at Viber's 200 UTF-16-unit ceiling, with the
+ * URL reserved before any sales copy is shortened.
  */
 export function buildViberSharePayload(listing, options = {}) {
-  const messageBudget = Number(options.messageBudget) || DEFAULT_VIBER_MESSAGE_BUDGET;
+  const requestedBudget = Number(options.messageBudget);
+  const messageBudget = Math.min(
+    Number.isFinite(requestedBudget) && requestedBudget > 0
+      ? requestedBudget
+      : DEFAULT_VIBER_MESSAGE_BUDGET,
+    LEGACY_VIBER_URI_BUDGET
+  );
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
   const url = publicWatchUrl(listing?.slug, origin);
   const completeBody = buildOwnerStyleBody(listing);
   const separator = '\n\n';
   const bodyBudget = messageBudget - messageLength(separator) - messageLength(url);
-  if (bodyBudget < 8) throw new Error('This listing URL is too long to share through Viber safely');
+  if (messageLength(url) > messageBudget) {
+    throw new Error('This listing URL is too long to share through Viber safely');
+  }
 
   const body = truncateBody(completeBody, bodyBudget);
-  const message = `${body}${separator}${url}`;
+  const message = body ? `${body}${separator}${url}` : url;
   if (messageLength(message) > messageBudget) {
     throw new Error('This listing is too long to hand off safely to Viber');
   }

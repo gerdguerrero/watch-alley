@@ -1763,7 +1763,7 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     }
     setViberShareStatus(
       payload.bodyTruncated
-        ? `Using the saved public listing. The sales copy was shortened for reliable Viber handoff (${payload.messageLength} characters).`
+        ? `Using the saved public listing. The sales copy was shortened to keep the complete link inside Viber's 200 UTF-16-unit limit (${payload.messageLength}/200).`
         : 'Using the last saved public listing.',
       payload.bodyTruncated ? 'notice' : undefined
     );

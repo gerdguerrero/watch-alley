@@ -7,7 +7,7 @@
 
 The `viber://forward?text=<encoded text>` approach appeared in Viber's first-party Share Button documentation and used `encodeURIComponent(...)`. However, as checked on 2026-08-13, that URL now serves Viber's generic developer landing page rather than the cited Share Button content. Treat the scheme and its former 200-character guidance as **legacy first-party behavior requiring device verification**, not as a currently reproducible API contract.[1]
 
-The Watch Alley admin uses the legacy URI as a user-clicked app handoff because the owner requires Viber to open directly. It keeps one bare canonical URL as the final line and retains copy-message/copy-link fallbacks. The former 200-character behavior remains a compatibility risk that must be tested on the owner's supported Viber clients; the UI must not claim delivery or attempt recipient preselection.[1]
+The Watch Alley admin uses the legacy URI as a user-clicked app handoff because the owner requires Viber to open directly. It reserves the complete bare canonical URL first, then shortens only the sales-copy body so the decoded payload stays at or below 200 UTF-16 units. Copy-message/copy-link fallbacks remain available, and the UI does not claim delivery or attempt recipient preselection.[1]
 
 For actual campaign delivery, the production choices are (a) a commercial Viber Bot for users who have subscribed to that bot, or (b) Viber Business Messages, obtained through Viber/official partners, for business-initiated messaging against an existing customer database.[3][4]
 
@@ -24,7 +24,7 @@ For actual campaign delivery, the production choices are (a) a commercial Viber 
 
 - Following the former sample, build the payload from Unicode text first and apply `encodeURIComponent` **once** to the entire payload. Do not manually replace spaces/newlines or encode an already encoded result.[1]
 - The former troubleshooting section said text longer than **200 characters** was trimmed so only the first 200 characters were inserted.[1]
-- Because the former sample concatenated message and URL before encoding, the safest compatibility rule is to budget the **entire decoded composer payload—including the URL—to 200 UTF-16 units** and put the URL early enough that trimming cannot remove it.[1]
+- Because the former sample concatenated message and URL before encoding, the safest compatibility rule is to budget the **entire decoded composer payload—including the URL—to 200 UTF-16 units**, reserve the URL before shortening the body, and keep that URL as the final line.[1]
 - The archived behavior did not define whether “character” meant Unicode code points, UTF-16 units, or bytes, and the current landing page publishes no browser/OS limits. Treat 200 UTF-16 units as a conservative ceiling and test the supported device matrix.
 
 ### Recipient selection and delivery guarantees
@@ -40,7 +40,7 @@ The legacy URI handoff exposes no message ID, delivery receipt, recipient list, 
 
 | Option | Recipient control | Important limits / requirements | Best use here |
 |---|---|---|---|
-| **Legacy Share Button / `viber://forward`** | Historically, the user chose recipients in Viber; the site could not preselect them.[1] | Formerly documented URI handoff; retain the 200-unit ceiling as a compatibility guard and verify on supported devices.[1] | Keep as progressive enhancement for one-off, operator-mediated sharing, with copy fallbacks. |
+| **Legacy Share Button / `viber://forward`** | Historically, the user chose recipients in Viber; the site could not preselect them.[1] | Formerly documented URI handoff; cap the complete decoded payload at 200 UTF-16 units and verify on supported devices.[1] | Keep for one-off, operator-mediated sharing, with copy fallbacks. |
 | **Bot deeplink** | Opens a specific bot’s one-to-one chat—not an arbitrary person/chat. Optional `context` reaches the bot; optional `text` pre-fills the composer and remains editable.[2] | `viber://pa?chatURI=<URI>&context=<...>&text=<...>`; context is bounded by URL length; Viber notes some browsers may not recognize the deeplink. Bot must exist.[2] | Entry point into a guided “ask about this watch” bot flow, with the listing slug in `context`. Not a broadcast mechanism. |
 | **Viber Bot REST API** | Server sends to stored Viber user IDs, but only after each user subscribes/messages the bot.[3] | New bots have been commercial-only since 2024. No API returns all subscriber IDs, so the service must retain IDs from callbacks. `send_message` requires one subscribed user ID; text supports up to 7,000 characters. `broadcast_message` supports up to 300 subscribed IDs/request, 30 KB request JSON, and 500 requests per 10 seconds.[3] | Opt-in audience, inventory alerts, or interactive sales assistance when The Watch Alley is ready to operate a paid bot and backend. |
 | **Viber Business Messages** | Business-initiated messages to existing customers; the Bot API directs phone-number/database use cases to this product and an official partner.[3] | Commercial onboarding. Viber advertises personalized one-to-one messaging, proactive conversations, an encrypted API/SMS fallback, promotional/transactional/OTP classes, catalogs, carousels, CTA buttons, and pay-per-delivered-message pricing.[4] | Best official route for CRM-driven new-arrival or product campaigns to a consented customer list. |
@@ -53,8 +53,8 @@ For phone-number-addressed delivery against an existing customer database, Viber
 
 ## 3. Recommended near-term admin behavior
 
-1. **Use the direct Viber URI behind an explicit owner click** so the installed Viber app opens, with the bare canonical item URL as the final line for link-preview eligibility.
-2. **Treat messages above 200 UTF-16 units as a known compatibility risk** and test the actual owner-supported Viber desktop/mobile clients because the old first-party guidance warned of trimming.[1] Example of a compact fallback:
+1. **Use the direct Viber URI behind an explicit owner click** so the installed Viber app opens. Reserve the complete bare canonical item URL as the final line for link-preview eligibility.
+2. **Cap the complete decoded payload at 200 UTF-16 units**. If the saved sales copy is longer, shorten the body with an ellipsis while preserving the URL intact.[1] Example of a compact fallback:
 
    ```text
    Rolex Submariner 126610LN — ₱745,000
@@ -62,8 +62,8 @@ For phone-number-addressed delivery against an existing customer database, Viber
    Reply for availability.
    ```
 
-   Ensure the complete decoded URI string remains safely below 200 characters.[1]
-3. **Offer fallbacks:** “Copy message” and “Copy listing link.” If a client trims the direct handoff, copy the complete post and paste it into Viber. Label the action “Open Viber app,” not “Broadcast.”
+   Ensure the complete decoded URI string, including the URL, remains within 200 UTF-16 units.[1]
+3. **Offer fallbacks:** “Copy message” and “Copy listing link.” Label the action “Open Viber app,” not “Broadcast.”
 4. **Do not preselect recipients or automate Send.** Let Viber own recipient selection and final confirmation.[1]
 5. **Track honest events only:** generated, copied, or Viber handoff requested. The legacy share URI exposes no sent/delivered callback.[1]
 6. **Escalate only when justified:** choose a commercial Bot for subscriber-led interactions; choose Business Messages for consented CRM/phone-number campaigns.[3][4]
