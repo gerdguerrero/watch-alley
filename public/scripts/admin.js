@@ -720,7 +720,11 @@ if (els.viberCopyLinkBtn) {
   els.viberCopyLinkBtn.addEventListener('click', copyViberListingLink);
 }
 if (els.viberShareBtn) {
-  els.viberShareBtn.addEventListener('click', shareViberPost);
+  els.viberShareBtn.addEventListener('click', () => {
+    setViberShareStatus(
+      'Opening Viber. Choose the conversation or community and review the post before sending.'
+    );
+  });
 }
 
 if (els.socialGeneratePreviewBtn) {
@@ -1755,8 +1759,7 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     if (els.viberSharePreview) els.viberSharePreview.value = payload.message;
     if (els.viberShareBtn) {
       els.viberShareBtn.hidden = false;
-      if (payload.href) els.viberShareBtn.dataset.legacyHref = payload.href;
-      else delete els.viberShareBtn.dataset.legacyHref;
+      els.viberShareBtn.href = payload.href;
     }
     setViberShareStatus(
       payload.bodyTruncated
@@ -1771,60 +1774,10 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     }
     if (els.viberShareBtn) {
       els.viberShareBtn.hidden = true;
-      delete els.viberShareBtn.dataset.legacyHref;
+      els.viberShareBtn.removeAttribute('href');
     }
     if (els.viberSharePreview) els.viberSharePreview.value = '';
     setViberShareStatus(error?.message || 'Could not prepare this Viber message.', 'error');
-  }
-}
-
-async function shareViberPost(event) {
-  event?.preventDefault();
-  const message = els.viberSharePreview?.value.trim();
-  if (!message) {
-    setViberShareStatus('Save and publish the listing before sharing it.', 'error');
-    return;
-  }
-
-  try {
-    if (typeof navigator.share === 'function') {
-      await navigator.share({ text: message });
-      setViberShareStatus(
-        'Share sheet closed. This page cannot confirm whether Viber sent or delivered the post.',
-        'success'
-      );
-      return;
-    }
-
-    const legacyHref = els.viberShareBtn?.dataset.legacyHref;
-    if (legacyHref) {
-      window.location.href = legacyHref;
-      setViberShareStatus(
-        'Viber handoff requested. Choose the conversation or community yourself.',
-        'success'
-      );
-      return;
-    }
-
-    await copyTextWithFallback(message);
-    setViberShareStatus(
-      'Native sharing is unavailable, so the full post was copied. Paste it into Viber to keep the item link and preview eligible.',
-      'notice'
-    );
-  } catch (error) {
-    if (error?.name === 'AbortError') {
-      setViberShareStatus('Share cancelled. Nothing was sent by this page.');
-      return;
-    }
-    try {
-      await copyTextWithFallback(message);
-      setViberShareStatus(
-        'Could not open the share sheet, so the full post was copied. Paste it into Viber.',
-        'notice'
-      );
-    } catch {
-      setViberShareStatus('Could not share or copy automatically. Select the preview and copy it manually.', 'error');
-    }
   }
 }
 

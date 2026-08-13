@@ -7,7 +7,7 @@
 
 The `viber://forward?text=<encoded text>` approach appeared in Viber's first-party Share Button documentation and used `encodeURIComponent(...)`. However, as checked on 2026-08-13, that URL now serves Viber's generic developer landing page rather than the cited Share Button content. Treat the scheme and its former 200-character guidance as **legacy first-party behavior requiring device verification**, not as a currently reproducible API contract.[1]
 
-Keep the legacy URI only as a lightweight progressive enhancement for complete decoded payloads of **200 characters or fewer**. Owner-format posts that exceed that ceiling should use the browser's native share sheet, with copy-message/copy-link fallbacks; keep one bare canonical URL as the final line so the destination client can fetch its Open Graph image.[1] Do not treat any handoff as a reliable broadcast API, do not claim delivery, and do not attempt recipient preselection with undocumented URI parameters.[1]
+The Watch Alley admin uses the legacy URI as a user-clicked app handoff because the owner requires Viber to open directly. It keeps one bare canonical URL as the final line and retains copy-message/copy-link fallbacks. The former 200-character behavior remains a compatibility risk that must be tested on the owner's supported Viber clients; the UI must not claim delivery or attempt recipient preselection.[1]
 
 For actual campaign delivery, the production choices are (a) a commercial Viber Bot for users who have subscribed to that bot, or (b) Viber Business Messages, obtained through Viber/official partners, for business-initiated messaging against an existing customer database.[3][4]
 
@@ -53,8 +53,8 @@ For phone-number-addressed delivery against an existing customer database, Viber
 
 ## 3. Recommended near-term admin behavior
 
-1. **Use the browser's native share sheet for the full owner-format post**, with its bare canonical item URL as the final line. This avoids silently losing the link when the post is longer than the legacy URI ceiling, while keeping the URL eligible for Viber's Open Graph preview.
-2. **Retain the legacy first-party scheme only as progressive enhancement** when the complete decoded payload is 200 UTF-16 units or fewer, behind a user click/tap and with device testing.[1] Example:
+1. **Use the direct Viber URI behind an explicit owner click** so the installed Viber app opens, with the bare canonical item URL as the final line for link-preview eligibility.
+2. **Treat messages above 200 UTF-16 units as a known compatibility risk** and test the actual owner-supported Viber desktop/mobile clients because the old first-party guidance warned of trimming.[1] Example of a compact fallback:
 
    ```text
    Rolex Submariner 126610LN — ₱745,000
@@ -63,7 +63,7 @@ For phone-number-addressed delivery against an existing customer database, Viber
    ```
 
    Ensure the complete decoded URI string remains safely below 200 characters.[1]
-3. **Offer fallbacks:** “Copy message” and “Copy listing link.” When native sharing is unavailable and the full post is too long for the legacy URI, copy the complete post rather than truncating its URL. Label the action “Share Viber post,” not “Broadcast.”
+3. **Offer fallbacks:** “Copy message” and “Copy listing link.” If a client trims the direct handoff, copy the complete post and paste it into Viber. Label the action “Open Viber app,” not “Broadcast.”
 4. **Do not preselect recipients or automate Send.** Let Viber own recipient selection and final confirmation.[1]
 5. **Track honest events only:** generated, copied, or Viber handoff requested. The legacy share URI exposes no sent/delivered callback.[1]
 6. **Escalate only when justified:** choose a commercial Bot for subscriber-led interactions; choose Business Messages for consented CRM/phone-number campaigns.[3][4]

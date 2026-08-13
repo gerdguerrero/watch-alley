@@ -1,5 +1,4 @@
 export const DEFAULT_VIBER_MESSAGE_BUDGET = 7000;
-export const LEGACY_VIBER_URI_BUDGET = 200;
 
 const DEFAULT_PUBLIC_ORIGIN = 'https://www.thewatchalley.com';
 const VIBER_URI_PREFIX = 'viber://forward?text=';
@@ -163,9 +162,8 @@ function truncateBody(value, budget, suffix = '...') {
 /**
  * Build a user-mediated Viber post. The saved owner-written sales copy is
  * preserved, and the canonical product URL is always the final line so Viber
- * can crawl its Open Graph image. The legacy direct Viber URI is exposed only
- * when the complete decoded message fits its historical 200-unit ceiling;
- * longer posts use the native share sheet or copy fallback in the admin UI.
+ * can crawl its Open Graph image. The direct Viber URI remains the primary
+ * handoff so the installed desktop/mobile app opens from the user's click.
  */
 export function buildViberSharePayload(listing, options = {}) {
   const messageBudget = Number(options.messageBudget) || DEFAULT_VIBER_MESSAGE_BUDGET;
@@ -183,10 +181,7 @@ export function buildViberSharePayload(listing, options = {}) {
   }
 
   return {
-    href:
-      messageLength(message) <= LEGACY_VIBER_URI_BUDGET
-        ? `${VIBER_URI_PREFIX}${encodeURIComponent(message)}`
-        : null,
+    href: `${VIBER_URI_PREFIX}${encodeURIComponent(message)}`,
     message,
     messageLength: messageLength(message),
     bodyTruncated: body !== completeBody,

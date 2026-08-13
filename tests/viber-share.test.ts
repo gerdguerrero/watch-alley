@@ -203,7 +203,7 @@ describe("buildViberSharePayload", () => {
     }
   });
 
-  it("uses the legacy Viber URI only when the complete message fits 200 UTF-16 units", () => {
+  it("always provides a direct Viber app URI, including for a long owner-format post", () => {
     const short = buildViberSharePayload({
       ...publishedWatch,
       description: "Pre-owned\nSeiko Diver\n\nPhp 28,500",
@@ -227,7 +227,9 @@ describe("buildViberSharePayload", () => {
     expect(short.href).toBe(`viber://forward?text=${encodeURIComponent(short.message)}`);
     expect(short.messageLength).toBeLessThanOrEqual(200);
     expect(ownerLength.messageLength).toBeGreaterThan(200);
-    expect(ownerLength.href).toBeNull();
+    expect(ownerLength.href).toBe(
+      `viber://forward?text=${encodeURIComponent(ownerLength.message)}`
+    );
     expect(ownerLength.message.endsWith(ownerLength.url)).toBe(true);
   });
 
