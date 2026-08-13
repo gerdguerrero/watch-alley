@@ -1700,12 +1700,12 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
  * Never adds an ellipsis to a story that already fits, and never
  * wipes the text when the first max characters contain no whitespace.
  */
-function truncateStory(story, max = 100) {
+function truncateStory(story, max = 24) {
   const clean = String(story || '').trim();
   if (!clean) return '';
   if (clean.length <= max) return clean;
-  const cut = clean.slice(0, max).replace(/\s+\S*$/, '').trim();
-  return `${cut || clean.slice(0, max).trim()}…`;
+  const cut = clean.slice(0, max).replace(/\s+\S*$/, '').trim().replace(/\.$/, '');
+  return `${cut || clean.slice(0, max).trim()}...`;
 }
 
 /**
@@ -1732,7 +1732,7 @@ function buildViberShareHref() {
   const text = [
     title,
     `🔗 ${url}`,
-    `💰 Price: ₱${formatPrice(listing.price)} | ✨ Condition: ${listing.conditionLabel.trim() || 'N/A'}`,
+    `💰 ₱${formatPrice(listing.price)} | ✨ ${listing.conditionLabel.trim() || 'N/A'}`,
     `📖 ${story}`,
   ].join('\n');
   return `viber://forward?text=${encodeURIComponent(text)}`;
