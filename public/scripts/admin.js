@@ -58,6 +58,7 @@ const els = {
   reserveToggleBtn: document.getElementById('reserve-toggle-btn'),
   publishWatchBtn: document.getElementById('publish-watch-btn'),
   viewListingBtn: document.getElementById('view-listing-btn'),
+  viberShareBtn: document.getElementById('viber-share-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
   socialGeneratePreviewBtn: document.getElementById('social-generate-preview-btn'),
   socialPrimaryImagePreview: document.getElementById('social-primary-image-preview'),
@@ -815,6 +816,7 @@ function hideForm() {
   if (els.reserveToggleBtn) els.reserveToggleBtn.hidden = true;
   if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
   if (els.viewListingBtn) els.viewListingBtn.hidden = true;
+  if (els.viberShareBtn) els.viberShareBtn.hidden = true;
   clearWatchValidation();
   activeId = null;
   activeWatchSnapshot = null;
@@ -1680,6 +1682,46 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
     els.reserveToggleBtn.textContent = currentStatus === 'reserved' ? 'Unreserve' : 'Reserve';
     els.reserveToggleBtn.dataset.targetStatus =
       currentStatus === 'reserved' ? 'available' : 'reserved';
+  }
+
+  syncViberShareButton();
+}
+
+/**
+ * Build the viber://forward deep link for the currently loaded listing.
+ * The whole message is encodeURIComponent'd so spaces, emojis, and the
+ * per-line breaks survive the trip into the Viber composer.
+ */
+function buildViberShareHref() {
+  const brand = getField('brand').trim();
+  const model = deriveModelValue().trim();
+  const name = getField('name').trim();
+  const listingName = [brand, model].filter(Boolean).join(' ') || name || 'this watch';
+  const condition = getField('conditionLabel').trim() || 'N/A';
+  const slug = currentWatchSlug();
+  const message = [
+    `🚨 **NEW ARRIVAL:** ${listingName}`,
+    `💰 Price: ₱${formatPrice(getField('price'))}`,
+    `✨ Condition: ${condition}`,
+    `🔗 View here: https://watch-alley.com/watch/${encodeURIComponent(slug)}`,
+  ].join('\n');
+  return `viber://forward?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Show the Broadcast-to-Viber button only for published listings that
+ * have a slug, and keep its deep link fresh with the form state.
+ */
+function syncViberShareButton() {
+  const btn = els.viberShareBtn;
+  if (!btn) return;
+  const isPublished = getCheckbox('published');
+  const slug = currentWatchSlug();
+  if (isPublished && slug) {
+    btn.hidden = false;
+    btn.href = buildViberShareHref();
+  } else {
+    btn.hidden = true;
   }
 }
 
