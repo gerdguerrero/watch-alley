@@ -1699,10 +1699,15 @@ function buildViberShareHref() {
   const listingName = [brand, model].filter(Boolean).join(' ') || name || 'this watch';
   const condition = getField('conditionLabel').trim() || 'N/A';
   const slug = currentWatchSlug();
+  const description = getField('description').trim() || 'Story coming soon.';
+  const snippet = description.length > 150
+    ? `${description.slice(0, 150).replace(/\s+\S*$/, '')}…`
+    : description;
   const message = [
     `🚨 **NEW ARRIVAL:** ${listingName}`,
     `💰 Price: ₱${formatPrice(getField('price'))}`,
     `✨ Condition: ${condition}`,
+    `📖 ${snippet}`,
     `🔗 View here: https://watch-alley.com/watch/${encodeURIComponent(slug)}`,
   ].join('\n');
   return `viber://forward?text=${encodeURIComponent(message)}`;
