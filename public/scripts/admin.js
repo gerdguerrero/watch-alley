@@ -7,6 +7,7 @@
 // ../scripts/vendor/supabase.min.js - zero external CDN dependencies.
 
 import { renderMarkdown } from './lib/markdown.mjs';
+import { buildViberSharePayload } from './lib/viber-share.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
 // Supabase project. Wired below for project: the-watch-alley
@@ -61,7 +62,12 @@ const els = {
   reserveToggleBtn: document.getElementById('reserve-toggle-btn'),
   publishWatchBtn: document.getElementById('publish-watch-btn'),
   viewListingBtn: document.getElementById('view-listing-btn'),
+  viberShareTools: document.getElementById('viber-share-tools'),
   viberShareBtn: document.getElementById('viber-share-btn'),
+  viberSharePreview: document.getElementById('viber-share-preview'),
+  viberCopyBtn: document.getElementById('viber-copy-btn'),
+  viberCopyLinkBtn: document.getElementById('viber-copy-link-btn'),
+  viberShareStatus: document.getElementById('viber-share-status'),
   soldFieldset: document.getElementById('sold-fieldset'),
   socialGeneratePreviewBtn: document.getElementById('social-generate-preview-btn'),
   socialPrimaryImagePreview: document.getElementById('social-primary-image-preview'),
@@ -707,6 +713,17 @@ const statusField = field('status');
 if (statusField) {
   statusField.addEventListener('change', () => syncListingActionButtons());
 }
+if (els.viberCopyBtn) {
+  els.viberCopyBtn.addEventListener('click', copyViberShareMessage);
+}
+if (els.viberCopyLinkBtn) {
+  els.viberCopyLinkBtn.addEventListener('click', copyViberListingLink);
+}
+if (els.viberShareBtn) {
+  els.viberShareBtn.addEventListener('click', () => {
+    setViberShareStatus('Viber handoff requested. Choose the conversation or community yourself.', 'success');
+  });
+}
 
 if (els.socialGeneratePreviewBtn) {
   els.socialGeneratePreviewBtn.addEventListener('click', () => {
@@ -819,7 +836,16 @@ function hideForm() {
   if (els.reserveToggleBtn) els.reserveToggleBtn.hidden = true;
   if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
   if (els.viewListingBtn) els.viewListingBtn.hidden = true;
-  if (els.viberShareBtn) els.viberShareBtn.hidden = true;
+  if (els.viberShareTools) {
+    els.viberShareTools.hidden = true;
+    delete els.viberShareTools.dataset.listingUrl;
+  }
+  if (els.viberShareBtn) {
+    els.viberShareBtn.hidden = true;
+    els.viberShareBtn.removeAttribute('href');
+  }
+  if (els.viberSharePreview) els.viberSharePreview.value = '';
+  setViberShareStatus('');
   clearWatchValidation();
   activeId = null;
   activeWatchSnapshot = null;
@@ -1692,67 +1718,115 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
       currentStatus === 'reserved' ? 'available' : 'reserved';
   }
 
-  syncViberShareButton();
+  syncViberShareTools(watch);
 }
 
 /**
- * Word-boundary snippet for payloads with an OS URI length limit.
- * Never adds an ellipsis to a story that already fits, and never
- * wipes the text when the first max characters contain no whitespace.
+ * Viber must always share the last saved public row, never unsaved form
+ * edits. Otherwise the message can promise details that do not exist at
+ * its public URL yet.
  */
-function truncateStory(story, max = 24) {
-  const clean = String(story || '').trim();
-  if (!clean) return '';
-  if (clean.length <= max) return clean;
-  const cut = clean.slice(0, max).replace(/\s+\S*$/, '').trim().replace(/\.$/, '');
-  return `${cut || clean.slice(0, max).trim()}...`;
+function savedWatchForViber(watch = activeWatchSnapshot) {
+  if (!watch?.slug || watch.published !== true) return null;
+  return {
+    slug: watch.slug,
+    name: watch.name,
+    brand: watch.brand,
+    model: watch.model,
+    reference: watch.reference,
+    price: watch.price,
+    conditionLabel: watch.condition_label,
+    inclusionSet: watch.inclusion_set,
+    hasBox: watch.has_box === true,
+    hasPapers: watch.has_papers === true,
+    description: watch.description,
+    status: watch.status,
+  };
+}
+
+function setViberShareStatus(message, tone) {
+  if (!els.viberShareStatus) return;
+  els.viberShareStatus.textContent = message || '';
+  if (tone) els.viberShareStatus.dataset.tone = tone;
+  else els.viberShareStatus.removeAttribute('data-tone');
 }
 
 /**
- * Build the viber://forward deep link for the currently loaded listing.
- * The whole message is encodeURIComponent'd so spaces, emojis, and the
- * per-line breaks survive the trip into the Viber composer.
+ * Show Viber tools only when the active listing has a saved public version.
+ * The copy action remains available when the browser cannot open custom URIs.
  */
-function buildViberShareHref() {
-  const listing = readSocialPreviewListingFromForm();
-  // Title: prefer a name/model that already carries the brand, otherwise
-  // brand + model joined (never duplicated). Falls back to the raw name,
-  // then a generic label so the payload never opens with an empty line.
-  const brand = listing.brand.trim();
-  const model = listing.model.trim();
-  const title =
-    brand && model.toLowerCase().includes(brand.toLowerCase())
-      ? model
-      : [brand, model].filter(Boolean).join(' ') || listing.name.trim() || 'this watch';
-  // Link on line 2 - viber://forward URIs get truncated by the OS at
-  // their tail, so the destination must sit near the top for Viber to
-  // parse it into the Open Graph preview card.
-  const url = buildPublicWatchUrl(listing.slug);
-  const story = truncateStory(listing.description) || 'Story coming soon.';
-  const text = [
-    title,
-    `🔗 ${url}`,
-    `💰 ₱${formatPrice(listing.price)} | ✨ ${listing.conditionLabel.trim() || 'N/A'}`,
-    `📖 ${story}`,
-  ].join('\n');
-  return `viber://forward?text=${encodeURIComponent(text)}`;
+function syncViberShareTools(watch = activeWatchSnapshot) {
+  const listing = savedWatchForViber(watch);
+  if (!listing) {
+    if (els.viberShareTools) {
+      els.viberShareTools.hidden = true;
+      delete els.viberShareTools.dataset.listingUrl;
+    }
+    if (els.viberSharePreview) els.viberSharePreview.value = '';
+    if (els.viberShareBtn) {
+      els.viberShareBtn.hidden = true;
+      els.viberShareBtn.removeAttribute('href');
+    }
+    setViberShareStatus('');
+    return;
+  }
+
+  try {
+    const payload = buildViberSharePayload(listing);
+    if (els.viberShareTools) {
+      els.viberShareTools.hidden = false;
+      els.viberShareTools.dataset.listingUrl = payload.url;
+    }
+    if (els.viberSharePreview) els.viberSharePreview.value = payload.message;
+    if (els.viberShareBtn) {
+      els.viberShareBtn.hidden = false;
+      els.viberShareBtn.href = payload.href;
+    }
+    setViberShareStatus(
+      payload.titleTruncated
+        ? `Using the saved public listing. The title was shortened to Viber's 200-character limit (${payload.messageLength}/200).`
+        : 'Using the last saved public listing.',
+      payload.titleTruncated ? 'notice' : undefined
+    );
+  } catch (error) {
+    if (els.viberShareTools) {
+      els.viberShareTools.hidden = false;
+      delete els.viberShareTools.dataset.listingUrl;
+    }
+    if (els.viberShareBtn) {
+      els.viberShareBtn.hidden = true;
+      els.viberShareBtn.removeAttribute('href');
+    }
+    if (els.viberSharePreview) els.viberSharePreview.value = '';
+    setViberShareStatus(error?.message || 'Could not prepare this Viber message.', 'error');
+  }
 }
 
-/**
- * Show the Broadcast-to-Viber button only for published listings that
- * have a slug, and keep its deep link fresh with the form state.
- */
-function syncViberShareButton() {
-  const btn = els.viberShareBtn;
-  if (!btn) return;
-  const isPublished = getCheckbox('published');
-  const slug = currentWatchSlug();
-  if (isPublished && slug) {
-    btn.hidden = false;
-    btn.href = buildViberShareHref();
-  } else {
-    btn.hidden = true;
-    btn.removeAttribute('href');
+async function copyViberShareMessage() {
+  const message = els.viberSharePreview?.value.trim();
+  if (!message) {
+    setViberShareStatus('Save and publish the listing before sharing it.', 'error');
+    return;
+  }
+  try {
+    await copyTextWithFallback(message);
+    setViberShareStatus('Viber message copied. Paste it into any conversation or community.', 'success');
+  } catch {
+    setViberShareStatus('Could not copy automatically. Select the preview and copy it manually.', 'error');
+  }
+}
+
+async function copyViberListingLink() {
+  const url = els.viberShareTools?.dataset.listingUrl;
+  if (!url) {
+    setViberShareStatus('Save and publish the listing before copying its public link.', 'error');
+    return;
+  }
+  try {
+    await copyTextWithFallback(url);
+    setViberShareStatus('Public listing link copied.', 'success');
+  } catch {
+    setViberShareStatus('Could not copy the public listing link automatically.', 'error');
   }
 }
 

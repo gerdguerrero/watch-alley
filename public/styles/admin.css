@@ -185,7 +185,8 @@
 .admin-form-actions .btn-secondary,
 .admin-form-actions .btn-ghost,
 .admin-form-actions .btn-danger,
-.admin-form-actions .btn-viber {
+.viber-share-actions .btn-viber,
+.viber-share-actions .btn-secondary {
   padding: 12px 24px;
   font-family: 'Geist Mono', monospace;
   font-size: 11px;
@@ -234,7 +235,7 @@
   background: oklch(0.74 0.13 28 / 0.1);
   border-color: oklch(0.74 0.13 28);
 }
-.admin-form-actions .btn-viber {
+.viber-share-actions .btn-viber {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -244,12 +245,83 @@
   font-weight: 600;
   text-decoration: none;
 }
-.admin-form-actions .btn-viber:hover {
+.viber-share-actions .btn-viber:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px oklch(0.55 0.19 296 / 0.35);
   filter: brightness(1.08);
   color: #fff;
 }
+.viber-share-tools {
+  margin-top: 24px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(115, 96, 242, 0.38);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(115, 96, 242, 0.12), rgba(18, 16, 31, 0.72));
+}
+.viber-share-header,
+.viber-share-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.viber-share-header h3 {
+  margin: 3px 0 0;
+  color: var(--cream);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(20px, 3vw, 26px);
+}
+.viber-share-saved-badge {
+  padding: 6px 9px;
+  border: 1px solid rgba(115, 96, 242, 0.45);
+  border-radius: 999px;
+  color: var(--cream-80);
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.viber-share-preview-label {
+  display: block;
+  margin: 18px 0 8px;
+  color: var(--cream-60);
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.viber-share-preview {
+  width: 100%;
+  min-height: 190px;
+  resize: vertical;
+  white-space: pre-wrap;
+  color: var(--cream);
+  background: rgba(5, 5, 8, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  padding: 14px;
+  font: 13px/1.6 'Geist', system-ui, sans-serif;
+}
+.viber-share-actions { justify-content: flex-start; margin-top: 14px; }
+.viber-share-actions .btn-secondary {
+  background: transparent;
+  color: var(--cream-80);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.viber-share-actions .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+.viber-share-actions .btn-viber,
+.viber-share-actions .btn-secondary { min-height: 44px; }
+.viber-share-actions .btn-viber:focus-visible,
+.viber-share-actions .btn-secondary:focus-visible,
+.viber-share-preview:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+#viber-share-status { margin-bottom: 0; }
+#viber-share-status[data-tone="success"] { color: var(--gold); }
+#viber-share-status[data-tone="notice"] { color: var(--cream-80); }
+#viber-share-status[data-tone="error"] { color: oklch(0.74 0.13 28); }
 
 button[disabled] { opacity: 0.5; cursor: progress; }
 
