@@ -970,6 +970,11 @@ function readSocialPreviewListingFromForm() {
     hasBox: getCheckbox('hasBox'),
     hasPapers: getCheckbox('hasPapers'),
     primaryImage,
+    // Story lives here so every consumer (social drafts, Viber payload)
+    // reads one adapter instead of re-deriving fields. Falls back to the
+    // loaded row's story column (rows created before the description rename).
+    description:
+      getField('description').trim() || String(activeWatchSnapshot?.story || '').trim(),
   };
 }
 
@@ -1691,38 +1696,43 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
 }
 
 /**
+ * Word-boundary snippet for payloads with an OS URI length limit.
+ * Never adds an ellipsis to a story that already fits, and never
+ * wipes the text when the first max characters contain no whitespace.
+ */
+function truncateStory(story, max = 100) {
+  const clean = String(story || '').trim();
+  if (!clean) return '';
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max).replace(/\s+\S*$/, '').trim();
+  return `${cut || clean.slice(0, max).trim()}…`;
+}
+
+/**
  * Build the viber://forward deep link for the currently loaded listing.
  * The whole message is encodeURIComponent'd so spaces, emojis, and the
  * per-line breaks survive the trip into the Viber composer.
  */
 function buildViberShareHref() {
-  const brand = getField('brand').trim();
-  const model = deriveModelValue().trim();
-  const name = getField('name').trim();
-  // Model may already carry the brand (name field = 'Patek Philippe Nautilus'),
-  // so only join brand + model when the brand is not already inside the model.
-  const listingName =
+  const listing = readSocialPreviewListingFromForm();
+  // Title: prefer a name/model that already carries the brand, otherwise
+  // brand + model joined (never duplicated). Falls back to the raw name,
+  // then a generic label so the payload never opens with an empty line.
+  const brand = listing.brand.trim();
+  const model = listing.model.trim();
+  const title =
     brand && model.toLowerCase().includes(brand.toLowerCase())
       ? model
-      : [brand, model].filter(Boolean).join(' ') || name || 'this watch';
-  const story =
-    getField('description').trim() ||
-    String(activeWatchSnapshot?.story || '').trim() ||
-    'Story coming soon.';
-  // Destination: an explicit link on the watch wins; otherwise the
-  // slug-based public URL; otherwise a preview fallback. The URL sits on
-  // line 2, right after the name, because viber://forward URIs get
-  // truncated by the OS at their tail - the link must never be last.
-  const slug = currentWatchSlug();
-  const destination =
-    String(activeWatchSnapshot?.destination_link || '').trim() ||
-    (slug
-      ? buildPublicWatchUrl(slug)
-      : `https://thewatchalley.com/watch/${activeId || 'preview'}`);
+      : [brand, model].filter(Boolean).join(' ') || listing.name.trim() || 'this watch';
+  // Link on line 2 - viber://forward URIs get truncated by the OS at
+  // their tail, so the destination must sit near the top for Viber to
+  // parse it into the Open Graph preview card.
+  const url = buildPublicWatchUrl(listing.slug);
+  const story = truncateStory(listing.description) || 'Story coming soon.';
   const text = [
-    listingName,
-    `🔗 ${destination}`,
-    `💰 Price: ₱${formatPrice(getField('price'))} | ✨ Condition: ${getField('conditionLabel').trim() || 'N/A'}`,
+    title,
+    `🔗 ${url}`,
+    `💰 Price: ₱${formatPrice(listing.price)} | ✨ Condition: ${listing.conditionLabel.trim() || 'N/A'}`,
     `📖 ${story}`,
   ].join('\n');
   return `viber://forward?text=${encodeURIComponent(text)}`;
