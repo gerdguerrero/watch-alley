@@ -184,7 +184,8 @@
 .admin-form-actions .btn-primary,
 .admin-form-actions .btn-secondary,
 .admin-form-actions .btn-ghost,
-.admin-form-actions .btn-danger {
+.admin-form-actions .btn-danger,
+.admin-form-actions .btn-viber {
   padding: 12px 24px;
   font-family: 'Geist Mono', monospace;
   font-size: 11px;
@@ -232,6 +233,22 @@
 .admin-form-actions .btn-danger:hover {
   background: oklch(0.74 0.13 28 / 0.1);
   border-color: oklch(0.74 0.13 28);
+}
+.admin-form-actions .btn-viber {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7360f2, #5a47d6);
+  color: #fff;
+  border: 1px solid oklch(0.7 0.15 295 / 0.6);
+  font-weight: 600;
+  text-decoration: none;
+}
+.admin-form-actions .btn-viber:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0.55 0.19 296 / 0.35);
+  filter: brightness(1.08);
+  color: #fff;
 }
 
 button[disabled] { opacity: 0.5; cursor: progress; }

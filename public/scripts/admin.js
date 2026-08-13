@@ -23,6 +23,9 @@ const supabase = isConfigured
     })
   : null;
 
+// ============================================================
+// ============================================================
+
 const els = {
   status: document.getElementById('admin-status'),
   authPanel: document.getElementById('auth-panel'),
@@ -58,6 +61,7 @@ const els = {
   reserveToggleBtn: document.getElementById('reserve-toggle-btn'),
   publishWatchBtn: document.getElementById('publish-watch-btn'),
   viewListingBtn: document.getElementById('view-listing-btn'),
+  viberShareBtn: document.getElementById('viber-share-btn'),
   soldFieldset: document.getElementById('sold-fieldset'),
   socialGeneratePreviewBtn: document.getElementById('social-generate-preview-btn'),
   socialPrimaryImagePreview: document.getElementById('social-primary-image-preview'),
@@ -815,6 +819,7 @@ function hideForm() {
   if (els.reserveToggleBtn) els.reserveToggleBtn.hidden = true;
   if (els.publishWatchBtn) els.publishWatchBtn.hidden = true;
   if (els.viewListingBtn) els.viewListingBtn.hidden = true;
+  if (els.viberShareBtn) els.viberShareBtn.hidden = true;
   clearWatchValidation();
   activeId = null;
   activeWatchSnapshot = null;
@@ -965,6 +970,11 @@ function readSocialPreviewListingFromForm() {
     hasBox: getCheckbox('hasBox'),
     hasPapers: getCheckbox('hasPapers'),
     primaryImage,
+    // Story lives here so every consumer (social drafts, Viber payload)
+    // reads one adapter instead of re-deriving fields. Falls back to the
+    // loaded row's story column (rows created before the description rename).
+    description:
+      getField('description').trim() || String(activeWatchSnapshot?.story || '').trim(),
   };
 }
 
@@ -1680,6 +1690,69 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
     els.reserveToggleBtn.textContent = currentStatus === 'reserved' ? 'Unreserve' : 'Reserve';
     els.reserveToggleBtn.dataset.targetStatus =
       currentStatus === 'reserved' ? 'available' : 'reserved';
+  }
+
+  syncViberShareButton();
+}
+
+/**
+ * Word-boundary snippet for payloads with an OS URI length limit.
+ * Never adds an ellipsis to a story that already fits, and never
+ * wipes the text when the first max characters contain no whitespace.
+ */
+function truncateStory(story, max = 24) {
+  const clean = String(story || '').trim();
+  if (!clean) return '';
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max).replace(/\s+\S*$/, '').trim().replace(/\.$/, '');
+  return `${cut || clean.slice(0, max).trim()}...`;
+}
+
+/**
+ * Build the viber://forward deep link for the currently loaded listing.
+ * The whole message is encodeURIComponent'd so spaces, emojis, and the
+ * per-line breaks survive the trip into the Viber composer.
+ */
+function buildViberShareHref() {
+  const listing = readSocialPreviewListingFromForm();
+  // Title: prefer a name/model that already carries the brand, otherwise
+  // brand + model joined (never duplicated). Falls back to the raw name,
+  // then a generic label so the payload never opens with an empty line.
+  const brand = listing.brand.trim();
+  const model = listing.model.trim();
+  const title =
+    brand && model.toLowerCase().includes(brand.toLowerCase())
+      ? model
+      : [brand, model].filter(Boolean).join(' ') || listing.name.trim() || 'this watch';
+  // Link on line 2 - viber://forward URIs get truncated by the OS at
+  // their tail, so the destination must sit near the top for Viber to
+  // parse it into the Open Graph preview card.
+  const url = buildPublicWatchUrl(listing.slug);
+  const story = truncateStory(listing.description) || 'Story coming soon.';
+  const text = [
+    title,
+    `🔗 ${url}`,
+    `💰 ₱${formatPrice(listing.price)} | ✨ ${listing.conditionLabel.trim() || 'N/A'}`,
+    `📖 ${story}`,
+  ].join('\n');
+  return `viber://forward?text=${encodeURIComponent(text)}`;
+}
+
+/**
+ * Show the Broadcast-to-Viber button only for published listings that
+ * have a slug, and keep its deep link fresh with the form state.
+ */
+function syncViberShareButton() {
+  const btn = els.viberShareBtn;
+  if (!btn) return;
+  const isPublished = getCheckbox('published');
+  const slug = currentWatchSlug();
+  if (isPublished && slug) {
+    btn.hidden = false;
+    btn.href = buildViberShareHref();
+  } else {
+    btn.hidden = true;
+    btn.removeAttribute('href');
   }
 }
 
