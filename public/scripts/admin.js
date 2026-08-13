@@ -23,6 +23,9 @@ const supabase = isConfigured
     })
   : null;
 
+// ============================================================
+// ============================================================
+
 const els = {
   status: document.getElementById('admin-status'),
   authPanel: document.getElementById('auth-panel'),
@@ -1696,21 +1699,27 @@ function buildViberShareHref() {
   const brand = getField('brand').trim();
   const model = deriveModelValue().trim();
   const name = getField('name').trim();
-  const listingName = [brand, model].filter(Boolean).join(' ') || name || 'this watch';
+  // Model may already carry the brand (name field = 'Patek Philippe Nautilus'),
+  // so only join brand + model when the brand is not already inside the model.
+  const listingName =
+    brand && model.toLowerCase().includes(brand.toLowerCase())
+      ? model
+      : [brand, model].filter(Boolean).join(' ') || name || 'this watch';
   const condition = getField('conditionLabel').trim() || 'N/A';
   const slug = currentWatchSlug();
   const description = getField('description').trim() || 'Story coming soon.';
-  const snippet = description.length > 150
-    ? `${description.slice(0, 150).replace(/\s+\S*$/, '')}…`
-    : description;
-  const message = [
-    `🚨 **NEW ARRIVAL:** ${listingName}`,
+  const url = `https://watch-alley.com/watch/${encodeURIComponent(slug)}`;
+  // Client preference: no NEW ARRIVAL banner - the message opens with the
+  // watch name and ends with the deep link inside the text body, so the
+  // caption survives every target the forward reaches.
+  const text = [
+    listingName,
     `💰 Price: ₱${formatPrice(getField('price'))}`,
     `✨ Condition: ${condition}`,
-    `📖 ${snippet}`,
-    `🔗 View here: https://watch-alley.com/watch/${encodeURIComponent(slug)}`,
+    `📖 ${description}`,
+    `🔗 View here: ${url}`,
   ].join('\n');
-  return `viber://forward?text=${encodeURIComponent(message)}`;
+  return `viber://forward?text=${encodeURIComponent(text)}`;
 }
 
 /**
@@ -1727,6 +1736,7 @@ function syncViberShareButton() {
     btn.href = buildViberShareHref();
   } else {
     btn.hidden = true;
+    btn.removeAttribute('href');
   }
 }
 
