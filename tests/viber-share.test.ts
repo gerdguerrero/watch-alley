@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildViberSharePayload,
   DEFAULT_VIBER_MESSAGE_BUDGET,
+  savedPublicWatchForViber,
 } from "../public/scripts/lib/viber-share.mjs";
 
 const publishedWatch = {
@@ -17,6 +18,60 @@ const publishedWatch = {
     "A compact blue diver with strong wrist presence, a shrouded case, and Seiko's dependable automatic movement.",
   status: "available",
 };
+
+describe("savedPublicWatchForViber", () => {
+  const savedRow = {
+    id: "watch-1",
+    slug: "saved-slug",
+    name: "Saved public name",
+    brand: "Seiko",
+    model: "Saved model",
+    reference: "SAVED-REF",
+    price: 12_345,
+    condition_label: "Saved condition",
+    inclusion_set: "Saved inclusions",
+    has_box: true,
+    has_papers: false,
+    description: "Saved public description",
+    status: "reserved",
+    published: true,
+  };
+
+  it("adapts only persisted public-row values", () => {
+    expect(savedPublicWatchForViber(savedRow)).toEqual({
+      slug: "saved-slug",
+      name: "Saved public name",
+      brand: "Seiko",
+      model: "Saved model",
+      reference: "SAVED-REF",
+      price: 12_345,
+      conditionLabel: "Saved condition",
+      inclusionSet: "Saved inclusions",
+      hasBox: true,
+      hasPapers: false,
+      description: "Saved public description",
+      status: "reserved",
+    });
+  });
+
+  it("rejects persisted drafts even if unsaved form state would say published", () => {
+    const formState = { published: true, name: "Unsaved public name", price: 99_999 };
+    expect(formState.published).toBe(true);
+    expect(savedPublicWatchForViber({ ...savedRow, published: false })).toBeNull();
+  });
+
+  it("keeps a persisted public row shareable despite unsaved form edits", () => {
+    const formState = { published: false, name: "Unsaved private name", price: 99_999 };
+    const listing = savedPublicWatchForViber(savedRow);
+    expect(formState.published).toBe(false);
+    expect(listing?.name).toBe("Saved public name");
+    expect(listing?.price).toBe(12_345);
+  });
+
+  it("rejects rows without a persisted public slug", () => {
+    expect(savedPublicWatchForViber({ ...savedRow, slug: "" })).toBeNull();
+  });
+});
 
 describe("buildViberSharePayload", () => {
   it("builds a readable product message with the public link near the top", () => {

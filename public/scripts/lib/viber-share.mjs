@@ -3,6 +3,29 @@ export const DEFAULT_VIBER_MESSAGE_BUDGET = 200;
 const DEFAULT_PUBLIC_ORIGIN = 'https://thewatchalley.com';
 const VIBER_URI_PREFIX = 'viber://forward?text=';
 
+/**
+ * Adapt the persisted admin row into the public-only fields allowed in a
+ * Viber share. Deliberately accepts no form state: an unsaved checkbox or
+ * edited price must never produce a message that disagrees with its URL.
+ */
+export function savedPublicWatchForViber(watch) {
+  if (!watch?.slug || watch.published !== true) return null;
+  return {
+    slug: watch.slug,
+    name: watch.name,
+    brand: watch.brand,
+    model: watch.model,
+    reference: watch.reference,
+    price: watch.price,
+    conditionLabel: watch.condition_label,
+    inclusionSet: watch.inclusion_set,
+    hasBox: watch.has_box === true,
+    hasPapers: watch.has_papers === true,
+    description: watch.description,
+    status: watch.status,
+  };
+}
+
 function wellFormed(value) {
   const text = String(value || '');
   return typeof text.toWellFormed === 'function'
@@ -84,9 +107,10 @@ function wordBoundaryExcerpt(value, maxCharacters, suffix = '...') {
 /**
  * Build a Viber share-picker URI from a saved public listing.
  *
- * Viber's official Share Button docs say payloads beyond 200 characters are
- * trimmed. Full description and inclusion details therefore belong on the
- * canonical product page, while this handoff stays compact and deterministic.
+ * Viber's legacy first-party Share Button guidance documented trimming beyond
+ * 200 characters. The original URL now serves a generic developer landing
+ * page, so the conservative cap remains a compatibility guard and should be
+ * device-tested. Full details belong on the canonical product page.
  */
 export function buildViberSharePayload(listing, options = {}) {
   const messageBudget = Number(options.messageBudget) || DEFAULT_VIBER_MESSAGE_BUDGET;

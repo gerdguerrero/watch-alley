@@ -7,7 +7,7 @@
 // ../scripts/vendor/supabase.min.js - zero external CDN dependencies.
 
 import { renderMarkdown } from './lib/markdown.mjs';
-import { buildViberSharePayload } from './lib/viber-share.mjs';
+import { buildViberSharePayload, savedPublicWatchForViber } from './lib/viber-share.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
 // Supabase project. Wired below for project: the-watch-alley
@@ -1721,29 +1721,6 @@ function syncListingActionButtons(watch = activeWatchSnapshot) {
   syncViberShareTools(watch);
 }
 
-/**
- * Viber must always share the last saved public row, never unsaved form
- * edits. Otherwise the message can promise details that do not exist at
- * its public URL yet.
- */
-function savedWatchForViber(watch = activeWatchSnapshot) {
-  if (!watch?.slug || watch.published !== true) return null;
-  return {
-    slug: watch.slug,
-    name: watch.name,
-    brand: watch.brand,
-    model: watch.model,
-    reference: watch.reference,
-    price: watch.price,
-    conditionLabel: watch.condition_label,
-    inclusionSet: watch.inclusion_set,
-    hasBox: watch.has_box === true,
-    hasPapers: watch.has_papers === true,
-    description: watch.description,
-    status: watch.status,
-  };
-}
-
 function setViberShareStatus(message, tone) {
   if (!els.viberShareStatus) return;
   els.viberShareStatus.textContent = message || '';
@@ -1756,7 +1733,7 @@ function setViberShareStatus(message, tone) {
  * The copy action remains available when the browser cannot open custom URIs.
  */
 function syncViberShareTools(watch = activeWatchSnapshot) {
-  const listing = savedWatchForViber(watch);
+  const listing = savedPublicWatchForViber(watch);
   if (!listing) {
     if (els.viberShareTools) {
       els.viberShareTools.hidden = true;
