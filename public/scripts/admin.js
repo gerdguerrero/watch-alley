@@ -841,6 +841,7 @@ function hideForm() {
   if (els.viberShareTools) {
     els.viberShareTools.hidden = true;
     delete els.viberShareTools.dataset.listingUrl;
+    delete els.viberShareTools.dataset.fullMessage;
   }
   if (els.viberShareBtn) {
     els.viberShareBtn.hidden = true;
@@ -1765,6 +1766,7 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     if (els.viberShareTools) {
       els.viberShareTools.hidden = true;
       delete els.viberShareTools.dataset.listingUrl;
+      delete els.viberShareTools.dataset.fullMessage;
     }
     if (els.viberSharePreview) els.viberSharePreview.value = '';
     if (els.viberShareBtn) {
@@ -1782,24 +1784,27 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     if (els.viberShareTools) {
       els.viberShareTools.hidden = false;
       els.viberShareTools.dataset.listingUrl = payload.url;
+      els.viberShareTools.dataset.fullMessage = fullMessage;
     }
-    // Preview and Copy message carry every field; the deep link keeps the
-    // link near the top and drops trailing lines only for very long titles.
-    if (els.viberSharePreview) els.viberSharePreview.value = fullMessage;
+    // The preview must be exactly what the Viber button sends, or the operator
+    // reviews one message and their buyers receive a different, shorter one.
+    // The complete write-up stays available through Copy message.
+    if (els.viberSharePreview) els.viberSharePreview.value = payload.message;
     if (els.viberShareBtn) {
       els.viberShareBtn.hidden = false;
       els.viberShareBtn.href = payload.href;
     }
     setViberShareStatus(
       payload.bodyTruncated
-        ? 'The Viber button sends a shortened caption to fit the 200-character limit. Copy message has the full text.'
-        : 'Using the last saved public listing.',
+        ? `This is the whole caption Viber will post (${payload.messageLength}/200 characters). The rest of the write-up did not fit — use Copy message to paste it in full instead.`
+        : `Viber will post this caption exactly (${payload.messageLength}/200 characters).`,
       payload.bodyTruncated ? 'notice' : undefined
     );
   } catch (error) {
     if (els.viberShareTools) {
       els.viberShareTools.hidden = false;
       delete els.viberShareTools.dataset.listingUrl;
+      delete els.viberShareTools.dataset.fullMessage;
     }
     if (els.viberShareBtn) {
       els.viberShareBtn.hidden = true;
@@ -1811,14 +1816,18 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
 }
 
 async function copyViberShareMessage() {
-  const message = els.viberSharePreview?.value.trim();
+  // Deliberately not the preview: that shows the shortened caption the Viber
+  // button posts, while pasting by hand has no character ceiling to respect.
+  const message = (
+    els.viberShareTools?.dataset.fullMessage || els.viberSharePreview?.value || ''
+  ).trim();
   if (!message) {
     setViberShareStatus('Save and publish the listing before sharing it.', 'error');
     return;
   }
   try {
     await copyTextWithFallback(message);
-    setViberShareStatus('Viber message copied. Paste it into any conversation or community.', 'success');
+    setViberShareStatus('Full write-up copied. Paste it into any conversation or community.', 'success');
   } catch {
     setViberShareStatus('Could not copy automatically. Select the preview and copy it manually.', 'error');
   }
