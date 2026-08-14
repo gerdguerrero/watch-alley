@@ -7,7 +7,7 @@
 // ../scripts/vendor/supabase.min.js - zero external CDN dependencies.
 
 import { renderMarkdown } from './lib/markdown.mjs';
-import { buildViberSharePayload, savedPublicWatchForViber } from './lib/viber-share.mjs';
+import { buildViberFullMessage, buildViberSharePayload, savedPublicWatchForViber } from './lib/viber-share.mjs';
 
 // Replace these two values with the real anon credentials from your Watch Alley
 // Supabase project. Wired below for project: the-watch-alley
@@ -1752,18 +1752,21 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
 
   try {
     const payload = buildViberSharePayload(listing);
+    const fullMessage = buildViberFullMessage(listing);
     if (els.viberShareTools) {
       els.viberShareTools.hidden = false;
       els.viberShareTools.dataset.listingUrl = payload.url;
     }
-    if (els.viberSharePreview) els.viberSharePreview.value = payload.message;
+    // Preview and Copy message carry every field; the deep link keeps the
+    // link near the top and drops trailing lines only for very long titles.
+    if (els.viberSharePreview) els.viberSharePreview.value = fullMessage;
     if (els.viberShareBtn) {
       els.viberShareBtn.hidden = false;
       els.viberShareBtn.href = payload.href;
     }
     setViberShareStatus(
       payload.bodyTruncated
-        ? `Using the saved public listing. The sales copy was shortened to keep the complete link inside Viber's 200 UTF-16-unit limit (${payload.messageLength}/200).`
+        ? 'The Viber button sends a shortened caption to fit the 200-character limit. Copy message has the full text.'
         : 'Using the last saved public listing.',
       payload.bodyTruncated ? 'notice' : undefined
     );

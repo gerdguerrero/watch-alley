@@ -48,7 +48,9 @@ export async function generateMetadata({
   const description =
     watch.description ||
     `${watch.brand} ${watch.name}${watch.reference ? ` (${watch.reference})` : ""} available from The Watch Alley in Manila.`;
-  const imageUrl = resolveMetadataImageUrl(watch.primaryImage);
+  const imageUrl = resolveMetadataImageUrl(
+    `${SITE_URL}/og-image/${encodeURIComponent(watch.slug)}`
+  );
   const image = imageUrl ? [{ url: imageUrl, alt: title }] : undefined;
   return {
     title,

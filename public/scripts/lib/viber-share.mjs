@@ -1,12 +1,11 @@
 // Viber's legacy forward URI truncates decoded text at roughly 200 UTF-16
-// units. Keep the complete canonical URL inside that ceiling; otherwise the
-// app silently drops the link that makes the share useful.
+// units. Keep the complete canonical link near the top of the message and
+// whole caption lines inside that ceiling; otherwise the app silently drops
+// the link that makes the share useful.
 export const LEGACY_VIBER_URI_BUDGET = 200;
-export const DEFAULT_VIBER_MESSAGE_BUDGET = LEGACY_VIBER_URI_BUDGET;
 
 const DEFAULT_PUBLIC_ORIGIN = 'https://www.thewatchalley.com';
 const VIBER_URI_PREFIX = 'viber://forward?text=';
-const WATCH_URL_PATTERN = /https:\/\/(?:www\.)?thewatchalley\.com\/watch\/\S+/gi;
 
 /**
  * Adapt the persisted admin row into the public-only fields allowed in a
@@ -51,21 +50,21 @@ function cleanInline(value, maxLength = 240) {
   return Array.from(clean).slice(0, maxLength).join('').trim();
 }
 
-function cleanSavedBody(value) {
-  return wellFormed(value)
-    .replace(/\r\n?/g, '\n')
-    .replace(WATCH_URL_PATTERN, '')
-    .split('\n')
-    .map((line) => line.trimEnd())
-    .filter((line) => !/^\s*🔗\s*$/.test(line))
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
 function listingTitle(listing) {
-  const name = cleanInline(listing?.name, 240);
-  if (name) return name;
+  let name = cleanInline(listing?.name, 240);
+  if (name) {
+    // Names often end with "- Ref. XXX"; drop that trailing mention so the
+    // reference is not printed twice (it already sits in the share URL).
+    const reference = cleanInline(listing?.reference, 100);
+    if (reference) {
+      const bareRef = reference.replace(/^Ref\.\s*/i, '');
+      const escaped = bareRef.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const trailing = new RegExp(`(?:\\s*[-·|]\\s*(?:Ref\\.\\s*)?${escaped})\\s*$`, 'i');
+      const stripped = name.replace(trailing, '').trim();
+      if (stripped) name = stripped;
+    }
+    return name;
+  }
   const brand = cleanInline(listing?.brand, 80);
   const model = cleanInline(listing?.model, 180);
   if (brand && model.toLowerCase().includes(brand.toLowerCase())) return model;
@@ -85,32 +84,13 @@ function publicWatchUrl(slug, origin) {
   return `${cleanOrigin}/watch/${encodeURIComponent(cleanSlug)}`;
 }
 
-function conditionHeading(listing) {
-  if (listing?.category === 'brand-new') return 'Brand New';
-  if (listing?.category === 'pre-owned') return 'Pre-owned';
-  const condition = cleanInline(listing?.conditionLabel, 100);
-  if (/\bbrand[ -]?new\b/i.test(condition)) return 'Brand New';
-  if (/\bpre[ -]?owned\b/i.test(condition)) return 'Pre-owned';
-  return condition || '';
-}
-
-function conditionDetail(listing) {
-  if (listing?.category === 'brand-new') return '';
-  const condition = cleanInline(listing?.conditionLabel, 100)
-    .replace(/^brand[ -]?new\b\s*/i, '')
-    .replace(/^pre[ -]?owned\b\s*/i, '')
-    .trim();
-  if (!condition) return '';
-  return /condition$/i.test(condition) ? condition : `${condition} condition`;
-}
-
-function inclusionText(listing) {
-  const explicit = cleanInline(listing?.inclusionSet, 160);
-  if (explicit) return explicit;
-  if (listing?.hasBox && listing?.hasPapers) return 'complete set';
-  if (listing?.hasBox) return 'with original box';
-  if (listing?.hasPapers) return 'with papers / warranty';
-  return '';
+function inclusionLine(listing) {
+  const set = cleanInline(listing?.inclusionSet, 160);
+  if (set) return `Includes: ${set}`;
+  const parts = [];
+  if (listing?.hasBox) parts.push('original box');
+  if (listing?.hasPapers) parts.push('papers / warranty');
+  return parts.length ? `Includes: ${parts.join(' / ')}` : '';
 }
 
 function hasSaleBadge(listing) {
@@ -118,28 +98,29 @@ function hasSaleBadge(listing) {
     .some((value) => /\bsale\b/i.test(String(value || '')));
 }
 
-function buildOwnerStyleBody(listing) {
-  const savedBody = cleanSavedBody(listing?.description);
-  if (savedBody) return savedBody;
-
+function headParts(listing) {
+  const parts = [];
+  if (hasSaleBadge(listing)) parts.push('SALE!');
   const title = listingTitle(listing);
-  const condition = conditionHeading(listing);
-  const reference = cleanInline(listing?.reference, 100);
-  const edition = cleanInline(listing?.edition, 220);
-  const referenceLine = [reference, edition].filter(Boolean).join(' - ');
-  const inclusion = inclusionText(listing);
-  const conditionLine = conditionDetail(listing);
-  // Reinsert deliberate paragraph gaps after filtering optional sections.
-  const paragraphs = [];
-  if (hasSaleBadge(listing)) paragraphs.push('SALE!');
-  paragraphs.push([condition, title].filter(Boolean).join('\n'));
-  if (referenceLine) paragraphs.push(referenceLine);
-  paragraphs.push([
-    formatPhp(listing?.price),
-    inclusion ? `- ${inclusion}` : '',
-    conditionLine ? `- ${conditionLine}` : '',
-  ].filter(Boolean).join('\n'));
-  return paragraphs.filter(Boolean).join('\n\n');
+  if (title) parts.push(title);
+  return parts;
+}
+
+function detailParts(listing) {
+  const parts = [];
+  const condition = cleanInline(listing?.conditionLabel, 100);
+  if (condition) parts.push(condition);
+  const inclusion = inclusionLine(listing);
+  if (inclusion) parts.push(inclusion);
+  const price = formatPhp(listing?.price);
+  if (price) parts.push(price);
+  return parts;
+}
+
+function buildOwnerStyleBody(listing) {
+  const head = headParts(listing).join('\n\n');
+  const details = detailParts(listing).join('\n');
+  return [head, details].filter(Boolean).join('\n\n');
 }
 
 function messageLength(value) {
@@ -148,62 +129,79 @@ function messageLength(value) {
   return value.length;
 }
 
-function truncateBody(value, budget, suffix = '...') {
-  if (budget <= messageLength(suffix)) return '';
-  if (messageLength(value) <= budget) return value;
-  const contentBudget = Math.max(0, budget - messageLength(suffix));
-  if (contentBudget === 0) return '';
-  let raw = '';
-  for (const character of Array.from(value)) {
-    if (messageLength(raw) + messageLength(character) > contentBudget) break;
-    raw += character;
+/**
+ * Fit the head block - the optional SALE! banner plus the title - alongside
+ * the canonical link. The link is never shortened, because it is the whole
+ * point of the share, so an unusually long title drops trailing whole words
+ * instead. Nothing is ever cut mid-word, and a title that cannot keep even a
+ * single word is dropped so the bare link still goes out intact.
+ */
+function headWithUrlWithinBudget(parts, url) {
+  const fits = (value) => messageLength(value) <= LEGACY_VIBER_URI_BUDGET;
+  const compose = (title) => {
+    const lines = [...parts.slice(0, -1), title].filter(Boolean);
+    return lines.length ? `${lines.join('\n\n')}\n${url}` : url;
+  };
+
+  const title = parts.length ? parts[parts.length - 1] : '';
+  const words = title.split(' ').filter(Boolean);
+  for (let keep = words.length; keep > 0; keep -= 1) {
+    const candidate = compose(words.slice(0, keep).join(' '));
+    if (fits(candidate)) return candidate;
   }
-  const lineBoundary = raw.lastIndexOf('\n');
-  const wordBoundary = raw.lastIndexOf(' ');
-  const boundary = Math.max(lineBoundary, wordBoundary);
-  const excerpt = (boundary > contentBudget - 40 ? raw.slice(0, boundary) : raw)
-    .trim()
-    .replace(/[.,;:!?-]+$/, '');
-  return `${excerpt || raw.trim()}${suffix}`;
+  const bare = compose('');
+  return fits(bare) ? bare : url;
 }
 
 /**
- * Build a user-mediated Viber post. The saved owner-written sales copy is
- * used whenever it fits, and shortened only when necessary. The canonical
- * product URL is always the final line so Viber can crawl its Open Graph
- * image. The direct Viber URI remains the primary
- * handoff so the installed desktop/mobile app opens from the user's click.
- * The direct payload is capped at Viber's 200 UTF-16-unit ceiling, with the
- * URL reserved before any sales copy is shortened.
+ * Build the viber://forward payload. The canonical link sits right after the
+ * title so it survives Viber's tail truncation and its crawler can render the
+ * Open Graph photo preview. Caption detail lines follow and are kept whole -
+ * never mid-word ellipses - dropping trailing lines only when a very long
+ * title would otherwise exceed Viber's 200 UTF-16-unit URI ceiling.
  */
 export function buildViberSharePayload(listing, options = {}) {
-  const requestedBudget = Number(options.messageBudget);
-  const messageBudget = Math.min(
-    Number.isFinite(requestedBudget) && requestedBudget > 0
-      ? requestedBudget
-      : DEFAULT_VIBER_MESSAGE_BUDGET,
-    LEGACY_VIBER_URI_BUDGET
-  );
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
   const url = publicWatchUrl(listing?.slug, origin);
-  const completeBody = buildOwnerStyleBody(listing);
-  const separator = '\n\n';
-  const bodyBudget = messageBudget - messageLength(separator) - messageLength(url);
-  if (messageLength(url) > messageBudget) {
+  if (messageLength(url) > LEGACY_VIBER_URI_BUDGET) {
     throw new Error('This listing URL is too long to share through Viber safely');
   }
 
-  const body = truncateBody(completeBody, bodyBudget);
-  const message = body ? `${body}${separator}${url}` : url;
-  if (messageLength(message) > messageBudget) {
-    throw new Error('This listing is too long to hand off safely to Viber');
+  const parts = headParts(listing);
+  const completeHeadWithUrl = parts.length ? `${parts.join('\n\n')}\n${url}` : url;
+  const headWithUrl = headWithUrlWithinBudget(parts, url);
+  const details = detailParts(listing);
+
+  let message = headWithUrl;
+  let bodyTruncated = headWithUrl !== completeHeadWithUrl;
+  for (let keep = details.length; keep >= 0; keep -= 1) {
+    const detailText = details.slice(0, keep).join('\n');
+    const candidate = detailText ? `${headWithUrl}\n\n${detailText}` : headWithUrl;
+    if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
+      message = candidate;
+      bodyTruncated = bodyTruncated || keep < details.length;
+      break;
+    }
   }
 
   return {
     href: `${VIBER_URI_PREFIX}${encodeURIComponent(message)}`,
     message,
     messageLength: messageLength(message),
-    bodyTruncated: body !== completeBody,
+    bodyTruncated,
     url,
   };
+}
+
+/**
+ * Build the full, untruncated message for the copy-paste handoff. Viber's
+ * composer accepts far more than the 200 UTF-16-unit URI ceiling, so the
+ * copy path can carry every field with its paragraph spacing. The URL stays
+ * the final line so pasting still triggers the Open Graph preview card.
+ */
+export function buildViberFullMessage(listing, options = {}) {
+  const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
+  const url = publicWatchUrl(listing?.slug, origin);
+  const body = buildOwnerStyleBody(listing);
+  return body ? `${body}\n\n${url}` : url;
 }
