@@ -6,6 +6,7 @@ export const LEGACY_VIBER_URI_BUDGET = 200;
 
 const DEFAULT_PUBLIC_ORIGIN = 'https://www.thewatchalley.com';
 const VIBER_URI_PREFIX = 'viber://forward?text=';
+const WATCH_URL_PATTERN = /https:\/\/(?:www\.)?thewatchalley\.com\/watch\/\S+/gi;
 
 /**
  * Adapt the persisted admin row into the public-only fields allowed in a
@@ -15,6 +16,7 @@ const VIBER_URI_PREFIX = 'viber://forward?text=';
 export function savedPublicWatchForViber(watch) {
   if (!watch?.slug || watch.published !== true) return null;
   return {
+    id: watch.id,
     slug: watch.slug,
     name: watch.name,
     brand: watch.brand,
@@ -50,6 +52,18 @@ function cleanInline(value, maxLength = 240) {
   return Array.from(clean).slice(0, maxLength).join('').trim();
 }
 
+function cleanSavedBody(value) {
+  return wellFormed(value)
+    .replace(/\r\n?/g, '\n')
+    .replace(WATCH_URL_PATTERN, '')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => !/^\s*🔗\s*$/.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function listingTitle(listing) {
   let name = cleanInline(listing?.name, 240);
   if (name) {
@@ -82,6 +96,13 @@ function publicWatchUrl(slug, origin) {
   if (!cleanSlug) throw new Error('A saved public listing slug is required');
   const cleanOrigin = String(origin || DEFAULT_PUBLIC_ORIGIN).replace(/\/+$/, '');
   return `${cleanOrigin}/watch/${encodeURIComponent(cleanSlug)}`;
+}
+
+function publicShortUrl(listing, origin) {
+  const cleanOrigin = String(origin || DEFAULT_PUBLIC_ORIGIN).replace(/\/+$/, '');
+  const id = cleanInline(listing?.id, 40);
+  if (id) return `${cleanOrigin}/w/${encodeURIComponent(id)}`;
+  return publicWatchUrl(listing?.slug, cleanOrigin);
 }
 
 function inclusionLine(listing) {
@@ -130,56 +151,30 @@ function messageLength(value) {
 }
 
 /**
- * Fit the head block - the optional SALE! banner plus the title - alongside
- * the canonical link. The link is never shortened, because it is the whole
- * point of the share, so an unusually long title drops trailing whole words
- * instead. Nothing is ever cut mid-word, and a title that cannot keep even a
- * single word is dropped so the bare link still goes out intact.
- */
-function headWithUrlWithinBudget(parts, url) {
-  const fits = (value) => messageLength(value) <= LEGACY_VIBER_URI_BUDGET;
-  const compose = (title) => {
-    const lines = [...parts.slice(0, -1), title].filter(Boolean);
-    return lines.length ? `${lines.join('\n\n')}\n${url}` : url;
-  };
-
-  const title = parts.length ? parts[parts.length - 1] : '';
-  const words = title.split(' ').filter(Boolean);
-  for (let keep = words.length; keep > 0; keep -= 1) {
-    const candidate = compose(words.slice(0, keep).join(' '));
-    if (fits(candidate)) return candidate;
-  }
-  const bare = compose('');
-  return fits(bare) ? bare : url;
-}
-
-/**
- * Build the viber://forward payload. The canonical link sits right after the
- * title so it survives Viber's tail truncation and its crawler can render the
- * Open Graph photo preview. Caption detail lines follow and are kept whole -
- * never mid-word ellipses - dropping trailing lines only when a very long
- * title would otherwise exceed Viber's 200 UTF-16-unit URI ceiling.
+ * Build the viber://forward payload. Uses the short /w/<id> link so the
+ * saved description (title, price, condition, and the start of the specs)
+ * fits inside Viber's 200 UTF-16-unit URI ceiling. Whole lines are kept -
+ * never mid-word ellipses - and trailing lines drop first when a description
+ * is very long. The link stays the final line and is always intact.
  */
 export function buildViberSharePayload(listing, options = {}) {
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
-  const url = publicWatchUrl(listing?.slug, origin);
-  if (messageLength(url) > LEGACY_VIBER_URI_BUDGET) {
+  const shortUrl = publicShortUrl(listing, origin);
+  const canonicalUrl = publicWatchUrl(listing?.slug, origin);
+  if (messageLength(shortUrl) > LEGACY_VIBER_URI_BUDGET) {
     throw new Error('This listing URL is too long to share through Viber safely');
   }
 
-  const parts = headParts(listing);
-  const completeHeadWithUrl = parts.length ? `${parts.join('\n\n')}\n${url}` : url;
-  const headWithUrl = headWithUrlWithinBudget(parts, url);
-  const details = detailParts(listing);
-
-  let message = headWithUrl;
-  let bodyTruncated = headWithUrl !== completeHeadWithUrl;
-  for (let keep = details.length; keep >= 0; keep -= 1) {
-    const detailText = details.slice(0, keep).join('\n');
-    const candidate = detailText ? `${headWithUrl}\n\n${detailText}` : headWithUrl;
+  const body = cleanSavedBody(listing?.description) || buildOwnerStyleBody(listing);
+  const lines = body.split('\n');
+  let message = shortUrl;
+  let bodyTruncated = lines.length > 0;
+  for (let keep = lines.length; keep >= 0; keep -= 1) {
+    const excerpt = lines.slice(0, keep).join('\n').trim();
+    const candidate = excerpt ? `${excerpt}\n\n${shortUrl}` : shortUrl;
     if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
       message = candidate;
-      bodyTruncated = bodyTruncated || keep < details.length;
+      bodyTruncated = keep < lines.length;
       break;
     }
   }
@@ -189,19 +184,20 @@ export function buildViberSharePayload(listing, options = {}) {
     message,
     messageLength: messageLength(message),
     bodyTruncated,
-    url,
+    url: canonicalUrl,
   };
 }
 
 /**
  * Build the full, untruncated message for the copy-paste handoff. Viber's
  * composer accepts far more than the 200 UTF-16-unit URI ceiling, so the
- * copy path can carry every field with its paragraph spacing. The URL stays
- * the final line so pasting still triggers the Open Graph preview card.
+ * copy path can carry the complete saved description with its paragraph
+ * spacing. The canonical URL stays the final line so pasting still triggers
+ * the Open Graph preview card.
  */
 export function buildViberFullMessage(listing, options = {}) {
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
   const url = publicWatchUrl(listing?.slug, origin);
-  const body = buildOwnerStyleBody(listing);
+  const body = cleanSavedBody(listing?.description) || buildOwnerStyleBody(listing);
   return body ? `${body}\n\n${url}` : url;
 }
