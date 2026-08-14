@@ -166,15 +166,28 @@ export function buildViberSharePayload(listing, options = {}) {
   }
 
   const body = cleanSavedBody(listing?.description) || buildOwnerStyleBody(listing);
-  const lines = body.split('\n');
-  let message = shortUrl;
-  let bodyTruncated = lines.length > 0;
-  for (let keep = lines.length; keep >= 0; keep -= 1) {
-    const excerpt = lines.slice(0, keep).join('\n').trim();
-    const candidate = excerpt ? `${excerpt}\n\n${shortUrl}` : shortUrl;
+  const paragraphs = body.split('\n\n');
+  const title = paragraphs[0] || '';
+  const rest = paragraphs.slice(1).join('\n\n');
+  const head = title ? `${title}\n${shortUrl}` : shortUrl;
+
+  // If the title + link still overflow, fall back to the bare link.
+  let base = head;
+  let droppedTitle = false;
+  if (messageLength(base) > LEGACY_VIBER_URI_BUDGET) {
+    base = shortUrl;
+    droppedTitle = true;
+  }
+
+  const restLines = rest.split('\n');
+  let message = base;
+  let droppedRest = 0;
+  for (let keep = restLines.length; keep > 0; keep -= 1) {
+    const excerpt = restLines.slice(0, keep).join('\n').trim();
+    const candidate = excerpt ? `${base}\n\n${excerpt}` : base;
     if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
       message = candidate;
-      bodyTruncated = keep < lines.length;
+      droppedRest = restLines.length - keep;
       break;
     }
   }
@@ -183,7 +196,7 @@ export function buildViberSharePayload(listing, options = {}) {
     href: `${VIBER_URI_PREFIX}${encodeURIComponent(message)}`,
     message,
     messageLength: messageLength(message),
-    bodyTruncated,
+    bodyTruncated: droppedTitle || droppedRest > 0,
     url: canonicalUrl,
   };
 }
@@ -192,12 +205,16 @@ export function buildViberSharePayload(listing, options = {}) {
  * Build the full, untruncated message for the copy-paste handoff. Viber's
  * composer accepts far more than the 200 UTF-16-unit URI ceiling, so the
  * copy path can carry the complete saved description with its paragraph
- * spacing. The canonical URL stays the final line so pasting still triggers
+ * spacing. The canonical URL sits right after the title so pasting triggers
  * the Open Graph preview card.
  */
 export function buildViberFullMessage(listing, options = {}) {
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
   const url = publicWatchUrl(listing?.slug, origin);
   const body = cleanSavedBody(listing?.description) || buildOwnerStyleBody(listing);
-  return body ? `${body}\n\n${url}` : url;
+  const paragraphs = body.split('\n\n');
+  const title = paragraphs[0] || '';
+  const rest = paragraphs.slice(1).join('\n\n');
+  const head = title ? `${title}\n${url}` : url;
+  return rest ? `${head}\n\n${rest}` : head;
 }
