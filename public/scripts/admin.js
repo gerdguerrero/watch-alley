@@ -1730,6 +1730,31 @@ function setViberShareStatus(message, tone) {
   else els.viberShareStatus.removeAttribute('data-tone');
 }
 
+// Pinned to the www host on purpose: the og:image meta tag the crawler reads
+// is built from SITE_URL in src/lib/seo/schema.ts, and the edge cache is keyed
+// per host, so warming the apex would fill the wrong entry.
+const PUBLIC_SITE_ORIGIN = 'https://www.thewatchalley.com';
+const warmedOgImages = new Set();
+
+/**
+ * Pull the listing's og:image through the CDN before the operator shares it.
+ *
+ * Viber crawls the link the moment the message is sent. On a cold edge cache
+ * that fetch takes seconds and the crawler gives up, which is why the photo
+ * preview showed up only some of the time. Warming it while the operator is
+ * still reading the message means the crawler hits a cached image instead.
+ */
+function warmViberPreviewImage(listing) {
+  const slug = String(listing?.slug || '').trim();
+  if (!slug || warmedOgImages.has(slug)) return;
+  warmedOgImages.add(slug);
+  const url = `${PUBLIC_SITE_ORIGIN}/og-image/${encodeURIComponent(slug)}`;
+  // Fire and forget, and deliberately cacheable: a no-store request would
+  // revalidate past the edge copy instead of filling it. A failure here costs
+  // nothing but a slower first crawl.
+  fetch(url, { mode: 'no-cors' }).catch(() => {});
+}
+
 /**
  * Show Viber tools only when the active listing has a saved public version.
  * The copy action remains available when the browser cannot open custom URIs.
@@ -1753,6 +1778,7 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
   try {
     const payload = buildViberSharePayload(listing);
     const fullMessage = buildViberFullMessage(listing);
+    warmViberPreviewImage(listing);
     if (els.viberShareTools) {
       els.viberShareTools.hidden = false;
       els.viberShareTools.dataset.listingUrl = payload.url;
