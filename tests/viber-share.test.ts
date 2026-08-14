@@ -7,31 +7,36 @@ import {
 } from "../public/scripts/lib/viber-share.mjs";
 
 const publishedWatch = {
-  slug: "seiko-prospex-baby-tuna-srpf81",
-  name: "Seiko Prospex Baby Tuna SRPF81",
-  brand: "Seiko",
-  model: "Prospex Baby Tuna SRPF81",
-  reference: "SRPF81K1",
-  price: 28_500,
-  conditionLabel: "Pre-owned 9/10",
-  inclusionSet: "Watch only",
+  id: "twa-220",
+  slug: "breitling-colt-chronometre-36mm-divers-watch-ref-a7438911bd82",
+  name: "Breitling Colt Chronometre 36mm Divers Watch",
+  brand: "Breitling",
+  model: "Colt Chronometre",
+  reference: "A7438911/BD82",
+  price: 69_800,
+  conditionLabel: "Pre-owned 8.8-9/10",
+  inclusionSet: "Complete set",
   description: [
     "Pre-owned",
-    "Seiko Prospex - Baby Tuna",
-    "SRPF81 / SRPF81K1 Blue - Diver's Watch",
+    "Breitling Colt - Chronometre",
+    "36mm Divers Watch - Ref. A7438911/BD82",
     "",
-    "Php 28,500",
+    "Php 69,800",
     "- complete set",
-    "- 9/10 condition",
+    "- 8.8-9/10 condition",
+    "",
+    "Discontinued Model",
   ].join("\n"),
   status: "available",
 };
 
-const watchUrl = "https://www.thewatchalley.com/watch/seiko-prospex-baby-tuna-srpf81";
+const shortUrl = "https://www.thewatchalley.com/w/twa-220";
+const canonicalUrl =
+  "https://www.thewatchalley.com/watch/breitling-colt-chronometre-36mm-divers-watch-ref-a7438911bd82";
 
 describe("savedPublicWatchForViber", () => {
   const savedRow = {
-    id: "watch-1",
+    id: "twa-001",
     slug: "saved-slug",
     name: "Saved public name",
     brand: "Seiko",
@@ -53,6 +58,7 @@ describe("savedPublicWatchForViber", () => {
 
   it("adapts only persisted public-row values", () => {
     expect(savedPublicWatchForViber(savedRow)).toEqual({
+      id: "twa-001",
       slug: "saved-slug",
       name: "Saved public name",
       brand: "Seiko",
@@ -92,57 +98,78 @@ describe("savedPublicWatchForViber", () => {
 });
 
 describe("buildViberSharePayload", () => {
-  it("puts the canonical link directly under the title, ahead of the detail lines", () => {
+  it("carries the saved sales copy with the short link under the title", () => {
     const payload = buildViberSharePayload(publishedWatch);
 
     expect(payload.message).toBe(
       [
-        "Seiko Prospex Baby Tuna SRPF81",
-        watchUrl,
+        "Pre-owned",
+        "Breitling Colt - Chronometre",
+        "36mm Divers Watch - Ref. A7438911/BD82",
+        shortUrl,
         "",
-        "Pre-owned 9/10",
-        "Includes: Watch only",
-        "Php 28,500",
+        "Php 69,800",
+        "- complete set",
+        "- 8.8-9/10 condition",
+        "",
+        "Discontinued Model",
       ].join("\n")
     );
     expect(payload.href).toBe(`viber://forward?text=${encodeURIComponent(payload.message)}`);
-    expect(payload.url).toBe(watchUrl);
     expect(payload.bodyTruncated).toBe(false);
-    expect(payload.message).toHaveLength(payload.messageLength);
     expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(payload.message).toHaveLength(payload.messageLength);
   });
 
-  it("builds the caption from structured fields, never the saved admin description", () => {
-    const payload = buildViberSharePayload({
-      ...publishedWatch,
-      description: `${publishedWatch.description}\n🔗 https://thewatchalley.com/watch/old-slug`,
-    });
+  it("reports the canonical URL even though the deep link carries the short one", () => {
+    const payload = buildViberSharePayload(publishedWatch);
 
-    expect(payload.message.match(/https:\/\/(?:www\.)?thewatchalley\.com\/watch\//g)).toHaveLength(1);
-    expect(payload.message).not.toContain("old-slug");
-    expect(payload.message).not.toContain("🔗");
-    expect(payload.message).not.toContain("- complete set");
+    expect(payload.url).toBe(canonicalUrl);
+    expect(payload.message).toContain(shortUrl);
+    expect(payload.message).not.toContain("/watch/");
   });
 
-  it("drops a reference the name already repeats so it is not printed twice", () => {
-    const payload = buildViberSharePayload({
-      ...publishedWatch,
-      name: "Seiko Prospex Baby Tuna - Ref. SRPF81K1",
-    });
+  it("frees enough budget that the whole saved description survives", () => {
+    const short = buildViberSharePayload(publishedWatch);
+    const long = buildViberSharePayload({ ...publishedWatch, id: undefined });
 
-    expect(payload.message.startsWith("Seiko Prospex Baby Tuna\n")).toBe(true);
-    expect(payload.message).not.toContain("Ref. SRPF81K1");
+    // Same listing, canonical link instead of /w/<id>: the copy no longer fits.
+    expect(short.bodyTruncated).toBe(false);
+    expect(long.bodyTruncated).toBe(true);
+    expect(long.message).toContain(canonicalUrl);
+  });
+
+  it("falls back to the canonical link when the row has no short id", () => {
+    const payload = buildViberSharePayload({ ...publishedWatch, id: "" });
+
+    expect(payload.message).toContain(canonicalUrl);
+    expect(payload.url).toBe(canonicalUrl);
+  });
+
+  it("synthesizes an owner-style caption when no saved copy exists", () => {
+    const payload = buildViberSharePayload({ ...publishedWatch, description: "" });
+
+    expect(payload.message).toBe(
+      [
+        "Breitling Colt Chronometre 36mm Divers Watch",
+        shortUrl,
+        "",
+        "Pre-owned 8.8-9/10",
+        "Includes: Complete set",
+        "Php 69,800",
+      ].join("\n")
+    );
   });
 
   it("uses honest owner-style fallbacks for missing price and inclusions", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
+      description: "",
       price: 0,
       conditionLabel: "",
       inclusionSet: "",
       hasBox: true,
       hasPapers: true,
-      description: "",
     });
 
     expect(payload.message).toContain("Includes: original box / papers / warranty");
@@ -150,97 +177,80 @@ describe("buildViberSharePayload", () => {
     expect(payload.message).not.toContain("Story coming soon");
   });
 
-  it("adds SALE only when the saved listing explicitly carries a sale badge", () => {
-    const sale = buildViberSharePayload({ ...publishedWatch, badge: "SALE" });
-    const normal = buildViberSharePayload({ ...publishedWatch, badge: "Rare" });
+  it("adds SALE only when a synthesized caption carries a sale badge", () => {
+    const sale = buildViberSharePayload({ ...publishedWatch, description: "", badge: "SALE" });
+    const normal = buildViberSharePayload({ ...publishedWatch, description: "", badge: "Rare" });
 
-    expect(sale.message.startsWith("SALE!\n\nSeiko Prospex Baby Tuna SRPF81\n")).toBe(true);
+    expect(sale.message.startsWith("SALE!\n")).toBe(true);
     expect(normal.message.startsWith("SALE!")).toBe(false);
   });
 
-  it("percent-encodes slugs so the shared link stays a single valid URL", () => {
+  it("strips an old embedded item URL so only one link ships", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
-      slug: "limited edition / blue dial",
+      description: `Pre-owned\n\n🔗\nhttps://thewatchalley.com/watch/old-slug\n\nPhp 69,800`,
     });
 
-    expect(payload.url).toBe(
-      "https://www.thewatchalley.com/watch/limited%20edition%20%2F%20blue%20dial"
-    );
-    expect(payload.message).toContain(payload.url);
+    expect(payload.message).not.toContain("old-slug");
+    expect(payload.message).not.toContain("🔗");
+    expect(payload.message.match(/https:\/\/www\.thewatchalley\.com\//g)).toHaveLength(1);
+  });
+
+  it("drops whole trailing lines rather than the link, never mid-word", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: [
+        "Pre-owned",
+        "Breitling Colt - Chronometre",
+        "",
+        "Php 69,800",
+        "- complete set",
+        "8T63 Quartz Chronograph Movement",
+        "5 bar / 50m Water Resistance",
+        "Thickness: 12.6mm",
+        "Diameter: 38.7mm",
+        "Lug-to-lug: 44.6mm",
+      ].join("\n"),
+    });
+
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+    expect(payload.message).toContain(shortUrl);
+    expect(payload.message).not.toContain("Lug-to-lu");
+    expect(payload.message).not.toContain("...");
+  });
+
+  it("flags truncation even when not one detail line survives", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: `${"T".repeat(150)}\n\n${"x".repeat(120)}`,
+    });
+
+    expect(payload.message).toBe(`${"T".repeat(150)}\n${shortUrl}`);
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+  });
+
+  it("falls back to the bare link when the title alone cannot fit beside it", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: "T".repeat(180),
+    });
+
+    expect(payload.message).toBe(shortUrl);
+    expect(payload.bodyTruncated).toBe(true);
     expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
   });
 
   it("replaces malformed UTF-16 in shared fields instead of crashing URI encoding", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
-      name: "Collector watch \ud800 with service history",
+      description: "Collector watch \ud800 with service history",
     });
 
     expect(payload.message).toContain("Collector watch � with service history");
     const href = payload.href;
     expect(() => decodeURIComponent(href)).not.toThrow();
-  });
-
-  it("drops trailing detail lines, not the link, when the caption overflows", () => {
-    const payload = buildViberSharePayload({
-      ...publishedWatch,
-      name: "Seiko Prospex Diver Scuba 1968 Heritage GMT Limited Edition Save the Ocean Special Edition",
-      price: 116_000,
-      inclusionSet: "Complete Set",
-    });
-
-    expect(payload.bodyTruncated).toBe(true);
-    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
-    expect(payload.message).toContain(payload.url);
-    expect(payload.message).toContain("Includes: Complete Set");
-    expect(payload.message).not.toContain("Php 116,000");
-    expect(payload.message).not.toContain("...");
-  });
-
-  it("keeps the complete link when a long slug leaves no room for the whole title", () => {
-    const payload = buildViberSharePayload({
-      ...publishedWatch,
-      slug: "a".repeat(150),
-      name: "The Watch Alley Chronograph Limited",
-    });
-
-    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
-    expect(payload.message).toContain(payload.url);
-    expect(payload.bodyTruncated).toBe(true);
-    // Whole words only - the title is shortened at a space, never mid-word.
-    expect(payload.message.split("\n")[0]).toBe("The Watch");
-  });
-
-  it("keeps a near-limit URL intact instead of shipping a stub title", () => {
-    const payload = buildViberSharePayload(
-      { slug: "x" },
-      { origin: `https://${"a".repeat(181)}` }
-    );
-
-    expect(payload.message).toBe(payload.url);
-    expect(payload.messageLength).toBe(197);
-    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
-  });
-
-  it("rejects a URL that cannot fit inside Viber's ceiling at all", () => {
-    expect(() =>
-      buildViberSharePayload({ slug: "x" }, { origin: `https://${"a".repeat(200)}` })
-    ).toThrow("too long to share through Viber safely");
-  });
-
-  it("never splits an emoji surrogate pair while shortening the title", () => {
-    const payload = buildViberSharePayload({
-      ...publishedWatch,
-      name: `Seiko ${"⌚".repeat(180)}`,
-      conditionLabel: "Excellent",
-    });
-
-    const href = payload.href;
-    expect(() => decodeURIComponent(href)).not.toThrow();
-    expect(payload.message).not.toContain("�");
-    expect(payload.message).toHaveLength(payload.messageLength);
-    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
   });
 
   it("keeps the decoded href identical to the message it advertises", () => {
@@ -251,23 +261,26 @@ describe("buildViberSharePayload", () => {
   });
 
   it("rejects missing slugs instead of creating a misleading homepage share", () => {
-    expect(() => buildViberSharePayload({ ...publishedWatch, slug: "" })).toThrow(
+    expect(() => buildViberSharePayload({ ...publishedWatch, id: "", slug: "" })).toThrow(
       "A saved public listing slug is required"
     );
   });
 });
 
 describe("buildViberFullMessage", () => {
-  it("carries every field with the link last for the copy-paste handoff", () => {
+  it("carries the complete saved copy with the canonical link under the title", () => {
     expect(buildViberFullMessage(publishedWatch)).toBe(
       [
-        "Seiko Prospex Baby Tuna SRPF81",
+        "Pre-owned",
+        "Breitling Colt - Chronometre",
+        "36mm Divers Watch - Ref. A7438911/BD82",
+        canonicalUrl,
         "",
-        "Pre-owned 9/10",
-        "Includes: Watch only",
-        "Php 28,500",
+        "Php 69,800",
+        "- complete set",
+        "- 8.8-9/10 condition",
         "",
-        watchUrl,
+        "Discontinued Model",
       ].join("\n")
     );
   });
@@ -275,15 +288,21 @@ describe("buildViberFullMessage", () => {
   it("is not capped by the URI budget that constrains the deep link", () => {
     const listing = {
       ...publishedWatch,
-      name: "Seiko Prospex Diver Scuba 1968 Heritage GMT Limited Edition Save the Ocean Special Edition",
-      price: 116_000,
-      inclusionSet: "Complete Set",
+      description: [
+        publishedWatch.description,
+        "",
+        "8T63 Quartz Chronograph Movement",
+        "5 bar / 50m Water Resistance",
+        "Thickness: 12.6mm",
+      ].join("\n"),
     };
     const full = buildViberFullMessage(listing);
+    const deepLink = buildViberSharePayload(listing);
 
     expect(full.length).toBeGreaterThan(LEGACY_VIBER_URI_BUDGET);
-    expect(full).toContain("Php 116,000");
-    expect(full.endsWith(watchUrl)).toBe(true);
+    expect(full).toContain("Thickness: 12.6mm");
+    expect(deepLink.message).not.toContain("Thickness: 12.6mm");
+    expect(deepLink.bodyTruncated).toBe(true);
   });
 
   it("rejects missing slugs like the deep-link payload does", () => {

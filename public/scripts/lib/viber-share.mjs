@@ -153,9 +153,10 @@ function messageLength(value) {
 /**
  * Build the viber://forward payload. Uses the short /w/<id> link so the
  * saved description (title, price, condition, and the start of the specs)
- * fits inside Viber's 200 UTF-16-unit URI ceiling. Whole lines are kept -
- * never mid-word ellipses - and trailing lines drop first when a description
- * is very long. The link stays the final line and is always intact.
+ * fits inside Viber's 200 UTF-16-unit URI ceiling. The link sits directly
+ * under the title so it survives Viber's tail truncation. Whole lines are
+ * kept - never mid-word ellipses - and trailing lines drop first when a
+ * description is very long. The link is always intact.
  */
 export function buildViberSharePayload(listing, options = {}) {
   const origin = options.origin || DEFAULT_PUBLIC_ORIGIN;
@@ -182,7 +183,9 @@ export function buildViberSharePayload(listing, options = {}) {
   const restLines = rest.split('\n');
   let message = base;
   let droppedRest = 0;
-  for (let keep = restLines.length; keep > 0; keep -= 1) {
+  // keep === 0 is a real candidate: when not one detail line fits, the share
+  // is the head alone and the operator still needs to be told copy was cut.
+  for (let keep = restLines.length; keep >= 0; keep -= 1) {
     const excerpt = restLines.slice(0, keep).join('\n').trim();
     const candidate = excerpt ? `${base}\n\n${excerpt}` : base;
     if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
