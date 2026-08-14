@@ -151,6 +151,24 @@ function messageLength(value) {
 }
 
 /**
+ * Tidy the tail of a shortened caption. Dropping whole lines can leave the
+ * excerpt ending on a blank line, or worse on a section label whose contents
+ * were cut - a caption that stops at "Specifications:" reads like a bug. Drop
+ * a trailing label only when something after it was actually removed.
+ */
+function trimDanglingTail(lines, droppedSomething) {
+  const kept = [...lines];
+  while (kept.length) {
+    const last = kept[kept.length - 1].trim();
+    const isBlank = last === '';
+    const isDanglingLabel = droppedSomething && /:$/.test(last);
+    if (!isBlank && !isDanglingLabel) break;
+    kept.pop();
+  }
+  return kept;
+}
+
+/**
  * Build the viber://forward payload. Uses the short /w/<id> link so the
  * saved description (title, price, condition, and the start of the specs)
  * fits inside Viber's 200 UTF-16-unit URI ceiling. The link sits directly
@@ -186,11 +204,12 @@ export function buildViberSharePayload(listing, options = {}) {
   // keep === 0 is a real candidate: when not one detail line fits, the share
   // is the head alone and the operator still needs to be told copy was cut.
   for (let keep = restLines.length; keep >= 0; keep -= 1) {
-    const excerpt = restLines.slice(0, keep).join('\n').trim();
+    const kept = trimDanglingTail(restLines.slice(0, keep), keep < restLines.length);
+    const excerpt = kept.join('\n').trim();
     const candidate = excerpt ? `${base}\n\n${excerpt}` : base;
     if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
       message = candidate;
-      droppedRest = restLines.length - keep;
+      droppedRest = restLines.length - kept.length;
       break;
     }
   }

@@ -220,6 +220,50 @@ describe("buildViberSharePayload", () => {
     expect(payload.message).not.toContain("...");
   });
 
+  it("does not end on a section label whose contents were cut", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: [
+        "Brand New",
+        "Seiko Presage Classic Series - HCC008 / HCC008J1",
+        "“Tomioka Silk” Limited Edition 2,000pcs - Rose Gold Case",
+        "",
+        "₱68,800 — Complete Set",
+        "",
+        "Specifications:",
+        "▸ Limited Edition of 2,000 pieces only",
+        "▸ 6R51 Automatic Movement",
+      ].join("\n"),
+    });
+
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.message.endsWith("₱68,800 — Complete Set")).toBe(true);
+    expect(payload.message).not.toContain("Specifications:");
+    expect(payload.messageLength).toBeLessThanOrEqual(LEGACY_VIBER_URI_BUDGET);
+  });
+
+  it("keeps a section label when everything under it still fits", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: ["Pre-owned Breitling", "", "Specifications:", "▸ 36mm"].join("\n"),
+    });
+
+    expect(payload.bodyTruncated).toBe(false);
+    expect(payload.message).toContain("Specifications:");
+    expect(payload.message.endsWith("▸ 36mm")).toBe(true);
+  });
+
+  it("never leaves a blank line dangling at the end of a shortened caption", () => {
+    const payload = buildViberSharePayload({
+      ...publishedWatch,
+      description: ["Pre-owned Breitling", "", "Php 69,800", "", "x".repeat(160)].join("\n"),
+    });
+
+    expect(payload.bodyTruncated).toBe(true);
+    expect(payload.message).toBe(payload.message.trimEnd());
+    expect(payload.message.endsWith("Php 69,800")).toBe(true);
+  });
+
   it("flags truncation even when not one detail line survives", () => {
     const payload = buildViberSharePayload({
       ...publishedWatch,
