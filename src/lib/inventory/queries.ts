@@ -128,6 +128,22 @@ export async function fetchWatchBySlug(slug: string): Promise<Watch | null> {
 }
 
 /**
+ * Resolve a published watch's canonical slug from its short id. Feeds the
+ * /w/[id] redirect used by the compact Viber share links.
+ */
+export async function fetchSlugById(id: string): Promise<string | null> {
+  const supabase = createSupabasePublicClient();
+  const { data, error } = await supabase
+    .from("watches")
+    .select("slug")
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+  if (error || !data) return null;
+  return typeof data.slug === "string" && data.slug.length > 0 ? data.slug : null;
+}
+
+/**
  * Every published slug - feeds `generateStaticParams` so each watch page is
  * pre-rendered at build time. Unknown slugs fall through to on-demand ISR.
  */
