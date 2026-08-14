@@ -21,8 +21,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!slug) {
     return new NextResponse("Watch not found", { status: 404 });
   }
-  return NextResponse.redirect(
+  const redirect = NextResponse.redirect(
     new URL(`/watch/${encodeURIComponent(slug)}`, resolveBase(request)),
     308
   );
+  // A saved watch keeps its slug, so this hop is stable. Caching it at the
+  // edge keeps the extra round trip off the crawler's budget on re-shares.
+  redirect.headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+  return redirect;
 }
