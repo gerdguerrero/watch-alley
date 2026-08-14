@@ -1766,7 +1766,7 @@ function syncViberShareTools(watch = activeWatchSnapshot) {
     }
     setViberShareStatus(
       payload.bodyTruncated
-        ? 'A caption line was omitted to fit Viber\'s 200-character limit.'
+        ? 'The Viber button sends a shortened caption to fit the 200-character limit. Copy message has the full text.'
         : 'Using the last saved public listing.',
       payload.bodyTruncated ? 'notice' : undefined
     );

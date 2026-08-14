@@ -130,6 +130,30 @@ function messageLength(value) {
 }
 
 /**
+ * Fit the head block - the optional SALE! banner plus the title - alongside
+ * the canonical link. The link is never shortened, because it is the whole
+ * point of the share, so an unusually long title drops trailing whole words
+ * instead. Nothing is ever cut mid-word, and a title that cannot keep even a
+ * single word is dropped so the bare link still goes out intact.
+ */
+function headWithUrlWithinBudget(parts, url) {
+  const fits = (value) => messageLength(value) <= LEGACY_VIBER_URI_BUDGET;
+  const compose = (title) => {
+    const lines = [...parts.slice(0, -1), title].filter(Boolean);
+    return lines.length ? `${lines.join('\n\n')}\n${url}` : url;
+  };
+
+  const title = parts.length ? parts[parts.length - 1] : '';
+  const words = title.split(' ').filter(Boolean);
+  for (let keep = words.length; keep > 0; keep -= 1) {
+    const candidate = compose(words.slice(0, keep).join(' '));
+    if (fits(candidate)) return candidate;
+  }
+  const bare = compose('');
+  return fits(bare) ? bare : url;
+}
+
+/**
  * Build the viber://forward payload. The canonical link sits right after the
  * title so it survives Viber's tail truncation and its crawler can render the
  * Open Graph photo preview. Caption detail lines follow and are kept whole -
@@ -143,18 +167,19 @@ export function buildViberSharePayload(listing, options = {}) {
     throw new Error('This listing URL is too long to share through Viber safely');
   }
 
-  const head = headParts(listing).join('\n\n');
-  const headWithUrl = head ? `${head}\n${url}` : url;
+  const parts = headParts(listing);
+  const completeHeadWithUrl = parts.length ? `${parts.join('\n\n')}\n${url}` : url;
+  const headWithUrl = headWithUrlWithinBudget(parts, url);
   const details = detailParts(listing);
 
   let message = headWithUrl;
-  let bodyTruncated = details.length > 0;
+  let bodyTruncated = headWithUrl !== completeHeadWithUrl;
   for (let keep = details.length; keep >= 0; keep -= 1) {
     const detailText = details.slice(0, keep).join('\n');
     const candidate = detailText ? `${headWithUrl}\n\n${detailText}` : headWithUrl;
     if (messageLength(candidate) <= LEGACY_VIBER_URI_BUDGET) {
       message = candidate;
-      bodyTruncated = keep < details.length;
+      bodyTruncated = bodyTruncated || keep < details.length;
       break;
     }
   }
