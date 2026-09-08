@@ -9,6 +9,7 @@ import {
   WATCH_LIST_CONSENT_VERSION,
 } from "@/lib/watch-list/constants";
 import { COUNTRIES, countryCodeToFlag } from "@/lib/watch-list/countries";
+import { normalizeWhatsApp } from "@/lib/watch-list/phone";
 import { CountrySelect } from "./CountrySelect";
 
 interface WatchListSignupFormProps {
@@ -107,9 +108,10 @@ export function WatchListSignupForm({
         }
       : undefined;
 
-    // Combine phone prefix + number for WhatsApp
-    const rawPhone = getText(formData, "whatsapp") || "";
-    const whatsApp = rawPhone ? `${phonePrefix}${rawPhone.replace(/^0+/, "")}` : undefined;
+    // Combine phone prefix + number for WhatsApp. Punctuation, a typed "+63",
+    // "0063" or a trunk zero are all tolerated; anything unreadable is dropped
+    // so an optional field can never fail the signup.
+    const whatsApp = normalizeWhatsApp(getText(formData, "whatsapp"), phonePrefix);
 
     const payload = {
       email: getText(formData, "email"),
