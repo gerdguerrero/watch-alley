@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { WATCH_LIST_CONSENT_TEXT, WATCH_LIST_CONSENT_VERSION } from "./constants";
+import { normalizeWhatsApp } from "./phone";
 
 const emailSchema = z.string().trim().toLowerCase().email().max(254);
 const optionalText = (max: number) =>
@@ -54,7 +55,13 @@ export const signupSchema = z
     email: emailSchema,
     firstName: optionalText(120),
     country: optionalText(100),
-    whatsApp: optionalText(32),
+    // Server-side normalisation as well as client-side: the RPC enforces strict
+    // E.164 and used to raise on "+63 912 345 6789", losing the whole signup.
+    // An unreadable number becomes undefined; the signup itself is never rejected.
+    whatsApp: z
+      .string()
+      .optional()
+      .transform((value) => normalizeWhatsApp(value?.slice(0, 64))),
     preferences: preferencesSchema,
   })
   .merge(consentSchema)
