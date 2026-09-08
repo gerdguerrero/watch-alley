@@ -1,33 +1,28 @@
 import { NextResponse } from "next/server";
+import { thumbnailUrl } from "@/lib/inventory/image";
 import { fetchWatchBySlug } from "@/lib/inventory/queries";
 
 export const runtime = "nodejs";
 export const revalidate = 3600;
 
-const OBJECT_PATH = "/storage/v1/object/public/";
-const RENDER_PATH = "/storage/v1/render/image/public/";
-const PREVIEW_WIDTH = 1200;
-const PREVIEW_QUALITY = 60;
-
 /**
- * Ask Supabase Storage to resize on the fly. The stored watch photos run
- * 240 KB - 1.2 MB, and on a cold CDN cache that took ~3s to proxy, which is
- * long enough for Viber's crawler to give up - the reason link previews
- * appeared only intermittently. A 1200px JPEG is a fifth of the bytes and is
- * still larger than any preview card renders.
+ * Serve the pre-generated ~900px WebP sibling that every watch photo already
+ * has (made at upload time, see lib/inventory/image.ts), and fall back to the
+ * original object if the sibling is missing.
+ *
+ * This used to ask Supabase Storage to resize on the fly
+ * (/storage/v1/render/image/... ?width=1200&quality=60). Every distinct photo
+ * the crawlers touched counted as one "origin image" against the Pro plan's
+ * 100 per billing cycle; with 370 listings the meter sat at 375% and the
+ * spend cap was about to refuse transforms. The sibling costs nothing extra,
+ * is a fraction of the original's bytes, and is still larger than any preview
+ * card renders, so Viber's crawler keeps its fast response.
  */
-function previewSourceUrl(imageUrl: string): string {
-  if (!imageUrl.includes(OBJECT_PATH)) return imageUrl;
-  const resized = imageUrl.replace(OBJECT_PATH, RENDER_PATH);
-  return `${resized}?width=${PREVIEW_WIDTH}&quality=${PREVIEW_QUALITY}`;
-}
-
-/** Prefer the resized render; fall back to the original object if it fails. */
 async function fetchPreview(imageUrl: string): Promise<Response | null> {
-  const resized = previewSourceUrl(imageUrl);
-  if (resized !== imageUrl) {
-    const transformed = await fetch(resized);
-    if (transformed.ok && transformed.body) return transformed;
+  const sibling = thumbnailUrl(imageUrl);
+  if (sibling && sibling !== imageUrl) {
+    const thumb = await fetch(sibling);
+    if (thumb.ok && thumb.body) return thumb;
   }
   const original = await fetch(imageUrl);
   return original.ok && original.body ? original : null;
