@@ -1,36 +1,68 @@
 import { readFile, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 
-const CANVAS_SIZE = 512;
-const COMPASS_SOURCE_SIZE = 360;
-const COMPASS_CENTER = { x: 178.86, y: 181.39 };
-const COMPASS_RENDER_SIZE = 452;
-const BACKGROUND = "#050504";
-const GOLD = "#BD9A32";
+/**
+ * Site icon generator.
+ *
+ * Source of truth is public/brand/twa-watch-icon.svg — the watch mark, drawn
+ * transparent so the browser's own tab colour shows through.
+ *
+ * Two shapes come out of it, because the platforms want different things:
+ *
+ *   favicon.ico + icon.png   transparent. The tab strip and the manifest's
+ *                            `purpose: "any"` slot both composite over whatever
+ *                            ground they have, and the mark is designed for it.
+ *
+ *   apple-icon.png           opaque walnut, mark inset to the maskable safe
+ *                            zone. iOS fills a transparent apple-touch-icon
+ *                            with black, and an Android maskable icon is
+ *                            cropped to a platform shape, so a transparent one
+ *                            renders as a hole. Both want a real background and
+ *                            the artwork kept inside the inner 80%.
+ *
+ * The drafting-compass lockup (twa-logo-icon.svg) is untouched and still owns
+ * the nav, footer, letterhead and social marks.
+ *
+ * Run: pnpm run brand:generate-site-icons
+ */
+
+const CANVAS = 512;
+const WALNUT = "#13110F";
+/** Maskable safe zone is the inner 80%; keep the mark comfortably inside it. */
+const MASKABLE_SCALE = 0.62;
+
+const SOURCE = "public/brand/twa-watch-icon.svg";
 
 const outputTargets = {
-  png: ["src/app/icon.png", "src/app/apple-icon.png", "public/icon.png", "public/apple-touch-icon.png"],
+  transparentPng: ["src/app/icon.png", "public/icon.png"],
+  maskablePng: ["src/app/apple-icon.png", "public/apple-touch-icon.png"],
   ico: ["src/app/favicon.ico", "public/favicon.ico"],
 };
 
-function svgDataUri(svg) {
-  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+const markSvg = await readFile(SOURCE, "utf8");
+
+/** The mark alone, transparent, at `size` px. */
+function renderTransparent(size) {
+  return sharp(Buffer.from(markSvg), { density: 384 })
+    .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
 }
 
-async function renderIcon(size) {
-  const compassSvg = await readFile("public/brand/twa-logo-icon.svg", "utf8");
-  const renderScale = COMPASS_RENDER_SIZE / COMPASS_SOURCE_SIZE;
-  const x = CANVAS_SIZE / 2 - COMPASS_CENTER.x * renderScale;
-  const y = CANVAS_SIZE / 2 - COMPASS_CENTER.y * renderScale;
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}">
-  <rect width="${CANVAS_SIZE}" height="${CANVAS_SIZE}" rx="96" fill="${BACKGROUND}" />
-  <image href="${svgDataUri(compassSvg.replaceAll("#BD9A32", GOLD))}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${COMPASS_RENDER_SIZE}" height="${COMPASS_RENDER_SIZE}" />
-</svg>`;
-
-  return sharp(Buffer.from(svg)).resize(size, size).png().toBuffer();
+/** The mark inset on an opaque walnut square, for iOS and Android maskable. */
+async function renderMaskable(size) {
+  const inner = Math.round(size * MASKABLE_SCALE);
+  const mark = await renderTransparent(inner);
+  const offset = Math.round((size - inner) / 2);
+  return sharp({
+    create: { width: size, height: size, channels: 4, background: WALNUT },
+  })
+    .composite([{ input: mark, top: offset, left: offset }])
+    .png()
+    .toBuffer();
 }
 
+/** Minimal multi-size .ico container around 32-bit PNG frames. */
 function makeIco(images) {
   const headerSize = 6;
   const directorySize = images.length * 16;
@@ -57,15 +89,25 @@ function makeIco(images) {
   return Buffer.concat([header, ...images.map((image) => image.buffer)]);
 }
 
-const png512 = await renderIcon(512);
-for (const target of outputTargets.png) {
-  await writeFile(target, png512);
+const transparent512 = await renderTransparent(CANVAS);
+for (const target of outputTargets.transparentPng) {
+  await writeFile(target, transparent512);
 }
 
-const icoImages = await Promise.all([16, 32, 48].map(async (size) => ({ size, buffer: await renderIcon(size) })));
+const maskable512 = await renderMaskable(CANVAS);
+for (const target of outputTargets.maskablePng) {
+  await writeFile(target, maskable512);
+}
+
+const icoImages = await Promise.all(
+  [16, 32, 48].map(async (size) => ({ size, buffer: await renderTransparent(size) }))
+);
 const ico = makeIco(icoImages);
 for (const target of outputTargets.ico) {
   await writeFile(target, ico);
 }
 
-console.log(`Generated ${outputTargets.png.length} PNG icons and ${outputTargets.ico.length} ICO files.`);
+console.log(
+  `Generated ${outputTargets.transparentPng.length} transparent PNG, ` +
+    `${outputTargets.maskablePng.length} maskable PNG and ${outputTargets.ico.length} ICO files from ${SOURCE}.`
+);
