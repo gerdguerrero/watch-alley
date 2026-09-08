@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="The Watch Alley">
+  <title>The Watch Alley</title>
+  <!--
+    The Watch Alley icon mark.
+
+    Transparent by design: the tab strip supplies the ground, and the two brand
+    values cover for each other across themes. On light chrome the walnut dial
+    carries the silhouette (18.8:1) while the gold ring is soft (2.7:1); on dark
+    chrome the gold ring carries it (6.0:1) while the dial recedes. The strap and
+    crown are the one part with no such partner, so they take the steel mid-tone,
+    which clears 2.8:1 on every ground a favicon lands on.
+
+    Hands sit at 10:10, the position every watch is photographed in. Cream on the
+    walnut dial is 16:1, so that V is the last legible detail at 16px.
+
+    The drafting-compass lockup (twa-logo-icon.svg) is unchanged and still owns
+    the nav, footer, letterhead and social marks. This is the tab and home screen.
+  -->
+  <rect x="18" y="3" width="28" height="10" rx="2" fill="#7F7974"/>
+  <rect x="18" y="51" width="28" height="10" rx="2" fill="#7F7974"/>
+  <rect x="54.8" y="28.4" width="5.2" height="7.2" rx="1.4" fill="#7F7974"/>
+  <circle cx="32" cy="32" r="24" fill="#BD9A32"/>
+  <circle cx="32" cy="32" r="18.5" fill="#13110F"/>
+  <g stroke="#F1ECE0" stroke-width="3" stroke-linecap="round">
+    <line x1="32" y1="32" x2="43.7" y2="25.25"/>
+    <line x1="32" y1="32" x2="23.8" y2="27.25"/>
+  </g>
+  <circle cx="32" cy="32" r="2.2" fill="#BD9A32"/>
+</svg>
