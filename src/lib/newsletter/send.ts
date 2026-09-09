@@ -99,6 +99,15 @@ function wrapHtmlEmail({
         background-color: #13110f !important;
         text-align: left;
       }
+      /* Any image an author pastes into an issue body has to be fluid. Without
+         this a full-width photograph keeps its intrinsic pixel width on a
+         phone, pushing the container wider than the screen and giving the whole
+         email a horizontal scrollbar. Inline styles on a well-formed issue
+         already handle it; this is the floor for the ones that are not. */
+      .content img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
       @media screen and (max-width: 480px) {
         .container {
           padding: 28px 16px !important;
