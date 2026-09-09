@@ -69,12 +69,18 @@ describe("run limits", () => {
 });
 
 describe("nudgeAgeWindowHours", () => {
-  it("defaults wide enough to reach subscribers the old 24-48h window stranded", () => {
+  it("defaults to the historical window so a deploy alone mails nobody new", () => {
     const w = nudgeAgeWindowHours();
     expect(w.min).toBe(DEFAULT_NUDGE_MIN_AGE_HOURS);
     expect(w.max).toBe(DEFAULT_NUDGE_MAX_AGE_HOURS);
-    // A subscriber from June 2026 is ~2000 hours old and must still be reachable.
-    expect(w.max).toBeGreaterThan(2000);
+    expect(w.max).toBe(48);
+  });
+
+  it("can be opened up to reach the backlog the old window stranded", () => {
+    // A subscriber from June 2026 is ~2000 hours old. Unreachable by default,
+    // reachable the moment an operator widens the window.
+    process.env.NEWSLETTER_NUDGE_MAX_AGE_HOURS = "43800";
+    expect(nudgeAgeWindowHours().max).toBe(43800);
   });
 
   it("never returns a crossed window, which would silently select nobody", () => {
