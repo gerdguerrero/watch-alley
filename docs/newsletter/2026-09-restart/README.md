@@ -1,5 +1,8 @@
 # The Watch List — 2026-09 restart issue
 
+> Composed with `node scripts/compose-newsletter-issue.mjs docs/newsletter/2026-09-restart/issue.json`.
+> Edit `issue.json` and re-run; never hand-edit `body.html`, it is generated.
+
 The first email after 68 days of silence. Everything here was read from the
 live database on 2026-09-09 before it was written.
 
@@ -7,7 +10,8 @@ live database on 2026-09-09 before it was written.
 |---|---|
 | **Subject** | We went quiet for two months. 143 watches arrived while we did. |
 | **Preheader** | Sixty-eight days of silence, 143 pieces in, 79 out, and an easy way off this list if it is not for you. |
-| **Body** | [2026-09-restart-body.html](./2026-09-restart-body.html) — paste into the admin issue editor |
+| **Body** | [body.html](./body.html) / [body.txt](./body.txt) — generated, do not hand-edit |
+| **Spec** | [issue.json](./issue.json) — edit this, then re-run the composer |
 | **Audience** | 543 active subscribers, roughly 458 of whom have never received an issue |
 | **Assets** | `public/newsletter/2026-09-restart/` |
 

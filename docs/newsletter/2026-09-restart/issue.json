@@ -1,0 +1,55 @@
+{
+  "slug": "2026-09-restart",
+  "internalTitle": "2026-09 restart — re-permission issue",
+  "subject": "We went quiet for two months. 143 watches arrived while we did.",
+  "preheader": "Sixty-eight days of silence, 143 pieces in, 79 out, and an easy way off this list if it is not for you.",
+  "eyebrow": "The Watch List · September 2026",
+  "headline": "You heard nothing from us for two months. Here is what you missed.",
+  "heroImageUrl": "https://www.thewatchalley.com/newsletter/2026-09-restart/banner.jpg",
+  "introHtml": "<p>You subscribed to The Watch List, and then we went quiet. That was ours, not yours, and it is fixed.</p>\n\n<p>While we were silent, <strong>143 watches came into the alley and 79 of them found owners.</strong> You were told about none of them. That is the part that bothers us, so here are four still on the bench.</p>",
+  "introText": "You subscribed to The Watch List, and then we went quiet. That was ours, not yours, and it is fixed.\n\nWhile we were silent, 143 watches came into the alley and 79 of them found owners. You were told about none of them. That is the part that bothers us, so here are four still on the bench.",
+  "outroHtml": "<p><strong>273 pieces are available right now</strong>, from ₱4,800 to ₱298,000. Seiko, Citizen, Orient, Casio, JDM references that never officially left Japan, and a small number of Philippine microbrands.</p>\n\n<p><a class=\"btn-outline\" href=\"/available\">Browse the collection</a></p>\n\n<h3 class=\"accent-heading\">One honest thing before you go</h3>\n\n<p>If The Watch List is not for you, use the unsubscribe link at the bottom. One click, no hard feelings, and we will not write to you again. We would rather write for two hundred people who want this than five hundred who tolerate it.</p>\n\n<p>If you would like to stay, you need do nothing at all. The next issue lands in two weeks, and it will be shorter than this one.</p>\n\n<p class=\"muted\">— The Watch Alley, Manila</p>\n\n<hr />\n\n<p class=\"muted\">P.S. One hundred and forty-three. We did not plan the number, but you know what it means here, so take it as sent.</p>",
+  "outroText": "273 pieces are available right now, from ₱4,800 to ₱298,000. Seiko, Citizen, Orient, Casio, JDM references that never officially left Japan, and a small number of Philippine microbrands.\n\nBrowse the collection: https://www.thewatchalley.com/available\n\nONE HONEST THING BEFORE YOU GO\n\nIf The Watch List is not for you, use the unsubscribe link at the bottom. One click, no hard feelings, and we will not write to you again. We would rather write for two hundred people who want this than five hundred who tolerate it.\n\nIf you would like to stay, you need do nothing at all. The next issue lands in two weeks, and it will be shorter than this one.\n\n— The Watch Alley, Manila\n\nP.S. One hundred and forty-three. We did not plan the number, but you know what it means here, so take it as sent.",
+  "watches": [
+    {
+      "slug": "seiko-prospex-marinemaster-300-sla068-sla068j1-hanuman-mm300-thailand-limited-edition-2023-500pcs",
+      "image": "hanuman",
+      "title": "Prospex Marinemaster 300 “Hanuman” SLA068",
+      "badge": "500 pieces worldwide",
+      "note": "A Thailand-only run from 2023 on the 8L35, the movement Seiko builds in the same workshop as Grand Seiko. Full set, box and papers.",
+      "brandLabel": "Seiko",
+      "conditionLabel": "Brand new",
+      "alt": "Seiko Prospex Marinemaster 300 SLA068 Hanuman"
+    },
+    {
+      "slug": "de-guzman-co-dg013-dress-automatic-2025-obsidian-black-art-deco-inspired-automatic-dress-watch-philippine-microbrand",
+      "image": "deguzman",
+      "title": "DG013 Obsidian Art Deco Automatic",
+      "badge": "Philippine microbrand",
+      "note": "A Filipino brand doing art deco properly rather than as a costume. The most interesting ten thousand pesos on the site, and the only one here made at home.",
+      "brandLabel": "De Guzman & Co.",
+      "conditionLabel": "Pre-owned 9.2/10",
+      "alt": "De Guzman and Co. DG013 Obsidian art deco automatic dress watch"
+    },
+    {
+      "slug": "casio-g-shock-x-coca-cola-collaboration-model-140th-anniversary-limited-edition-ga-2100cc-3a",
+      "image": "gshock",
+      "title": "G-SHOCK × Coca-Cola 140th Anniversary GA-2100CC-3A",
+      "badge": "Limited edition",
+      "note": "The collaboration on the CasiOak case. Sealed, box and papers, and the one piece here you can wear to absolutely anything.",
+      "brandLabel": "Casio G-SHOCK",
+      "conditionLabel": "Brand new",
+      "alt": "Casio G-SHOCK x Coca-Cola 140th Anniversary GA-2100CC-3A"
+    },
+    {
+      "slug": "seiko-presage-japanese-garden-srpf53-srpf53j1-light-blue-textured-dial-us-exclusive-automatic-dress-watch",
+      "image": "presage",
+      "title": "Presage “Japanese Garden” SRPF53",
+      "badge": "U.S. exclusive",
+      "note": "A textured light blue dial that photographs badly and looks superb in person. We are not going to pretend otherwise: come and see it in daylight.",
+      "brandLabel": "Seiko",
+      "conditionLabel": "Pre-owned 9/10",
+      "alt": "Seiko Presage Japanese Garden SRPF53 light blue textured dial"
+    }
+  ]
+}

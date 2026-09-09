@@ -47,13 +47,13 @@ export function renderWatchCardHtml(
   return `
     <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
       ${watchImageHtml(watch)}
-      <h3 style="font-family: ${SERIF}; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3;">
-        <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(title)}</a>
+      <h3 class="heading" style="font-family: ${SERIF}; font-size: 22px; font-weight: normal; margin: 0 0 8px 0; line-height: 1.3;">
+        <a href="/watch/${watch.slug}" style="text-decoration: none;">${escapeHtml(title)}</a>
       </h3>
-      <div style="font-family: ${SANS}; font-size: 11px; letter-spacing: 0.1em; color: #BD9A32; text-transform: uppercase; margin-bottom: 12px; font-weight: bold;">
+      <div class="eyebrow" style="margin-bottom: 12px;">
         Ref: ${escapeHtml(watch.reference || "N/A")} · ${escapeHtml(watch.conditionLabel || "Excellent")} · ₱${priceLabel(watch.price)}
       </div>
-      <p style="font-family: ${BODY_SERIF}; font-size: 15px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0;">
+      <p class="muted" style="font-family: ${BODY_SERIF}; font-size: 15px; line-height: 1.7; margin: 0 0 20px 0;">
         ${escapeHtml(summary)}
       </p>
       <div style="text-align: left;">
@@ -68,16 +68,16 @@ export function renderSoldHighlightHtml(
 ) {
   return `
     <div style="margin-bottom: 40px; border-bottom: 1px solid rgba(189, 154, 50, 0.1); padding-bottom: 30px;">
-      <div style="font-family: ${SANS}; font-size: 11px; letter-spacing: 0.2em; color: #BD9A32; text-transform: uppercase; margin-bottom: 20px; font-weight: bold; text-align: center;">From the Sold Archive</div>
+      <div class="eyebrow" style="margin-bottom: 20px; text-align: center;">From the Sold Archive</div>
       ${watchImageHtml(watch, { dimmed: true })}
-      <h3 style="font-family: ${SERIF}; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; color: #F1ECE0; line-height: 1.3; text-align: center;">
-        <a href="/watch/${watch.slug}" style="color: #F1ECE0; text-decoration: none;">${escapeHtml(title)}</a>
+      <h3 class="heading" style="font-family: ${SERIF}; font-size: 20px; font-weight: normal; margin: 0 0 8px 0; line-height: 1.3; text-align: center;">
+        <a href="/watch/${watch.slug}" style="text-decoration: none;">${escapeHtml(title)}</a>
       </h3>
-      <p style="font-family: ${BODY_SERIF}; font-size: 14px; line-height: 1.7; color: #d1d1cd; margin: 0 0 20px 0; text-align: center;">
+      <p class="muted" style="font-family: ${BODY_SERIF}; font-size: 14px; line-height: 1.7; margin: 0 0 20px 0; text-align: center;">
         ${escapeHtml(summary)}
       </p>
       <div style="text-align: center;">
-        <a href="/watch-list#sourcing" style="display: inline-block; border: 1px solid #BD9A32; color: #BD9A32; font-family: ${SANS}; font-size: 11px; font-weight: bold; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; padding: 12px 24px; border-radius: 0px; text-align: center;">Request a similar piece</a>
+        <a class="btn-outline" href="/watch-list#sourcing">Request a similar piece</a>
       </div>
     </div>`;
 }
@@ -86,14 +86,14 @@ export function renderSoldHighlightHtml(
 export function renderNoteBoxHtml({ title, innerHtml }: { title: string; innerHtml: string }) {
   return `
     <div style="margin-bottom: 40px; padding: 24px; border: 1px solid rgba(189, 154, 50, 0.2); background-color: rgba(189, 154, 50, 0.03);">
-      <h3 style="font-family: ${SERIF}; font-size: 20px; font-weight: normal; margin: 0 0 16px 0; color: #BD9A32; line-height: 1.3;">
+      <h3 class="accent-heading" style="font-family: ${SERIF}; font-size: 20px; font-weight: normal; margin: 0 0 16px 0; line-height: 1.3;">
         ${escapeHtml(title)}
       </h3>
-      <div style="font-family: ${BODY_SERIF}; font-size: 15px; line-height: 1.7; color: #d1d1cd;">
+      <div class="muted" style="font-family: ${BODY_SERIF}; font-size: 15px; line-height: 1.7;">
         ${innerHtml}
       </div>
     </div>`;
 }
 
 export const SOURCING_CTA_HTML = `
-    <p style="margin-top: 32px; text-align: center;"><a href="https://www.thewatchalley.com/watch-list#sourcing" style="font-family: ${SANS}; font-size: 12px; font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; color: #BD9A32; text-decoration: none; border-bottom: 1px solid #BD9A32;">Send a sourcing request</a></p>`;
+    <p style="margin-top: 32px; text-align: center;"><a class="btn-outline" href="https://www.thewatchalley.com/watch-list#sourcing">Send a sourcing request</a></p>`;
