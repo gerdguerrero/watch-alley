@@ -38,3 +38,23 @@ describe("newsletter shell stays responsive", () => {
     expect(style).toMatch(/\.content img\s*\{[^}]*height:\s*auto/);
   });
 });
+
+describe("issue banner", () => {
+  it("renders hero_image_url, which the shell used to ignore entirely", () => {
+    // `newsletter_issues.hero_image_url` has existed since the table was
+    // created and the public archive reads it, but the email never did, so an
+    // issue with a banner shipped without one and nobody could see why.
+    expect(source).toContain("heroImageUrl");
+    expect(source).toMatch(/heroImageUrl\s*\?[\s\S]{0,200}<img src="\$\{escapeHtml\(heroImageUrl\)\}"/);
+  });
+
+  it("passes the banner from both issue-based sends", () => {
+    // Test send and broadcast. Welcome and profile-nudge are transactional and
+    // have no issue, so they stay bannerless on purpose.
+    expect((source.match(/heroImageUrl: issue\.hero_image_url/g) || []).length).toBe(2);
+  });
+
+  it("keeps the banner fluid so it cannot overflow a phone", () => {
+    expect(source).toMatch(/heroImageUrl[\s\S]{0,300}max-width: 100%/);
+  });
+});

@@ -53,11 +53,18 @@ function wrapHtmlEmail({
   preheader,
   bodyHtml,
   unsubscribeUrl,
+  heroImageUrl,
 }: {
   subject: string;
   preheader: string;
   bodyHtml: string;
   unsubscribeUrl: string;
+  /**
+   * Banner shown under the logo. `newsletter_issues.hero_image_url` has existed
+   * since the table was created and the public archive reads it, but the email
+   * never rendered it, so every issue with a banner shipped without one.
+   */
+  heroImageUrl?: string | null;
 }) {
   const safeSubject = escapeHtml(subject);
   const safePreheader = escapeHtml(preheader);
@@ -292,6 +299,11 @@ function wrapHtmlEmail({
                 <img class="email-logo" src="${logoUrl}" width="170" height="126" alt="The Watch Alley" style="border: 0; display: block; height: auto; margin: 0 auto; max-width: 170px; outline: none; text-decoration: none; width: 170px;" />
               </a>
             </div>
+            ${
+              heroImageUrl
+                ? `<div class="hero"><img src="${escapeHtml(heroImageUrl)}" alt="" width="552" style="border: 0; display: block; height: auto; margin: 0 auto 28px auto; max-width: 100%; outline: none; text-decoration: none; width: 100%;" /></div>`
+                : ""
+            }
             <div class="content">
               ${safeBodyHtml}
             </div>
@@ -395,6 +407,7 @@ export async function sendTestEmail(issueId: string, recipient: string) {
     preheader: issue.preheader || "",
     bodyHtml: issue.body_html || "",
     unsubscribeUrl,
+    heroImageUrl: issue.hero_image_url,
   });
   const from = getFromEmail();
 
@@ -515,6 +528,7 @@ export async function sendNewsletterBroadcast(issueId: string, options?: { maxEm
           preheader: issue.preheader || "",
           bodyHtml: issue.body_html || "",
           unsubscribeUrl,
+          heroImageUrl: issue.hero_image_url,
         }),
         text: appendTextFooter(issue.body_text || issue.subject, unsubscribeUrl),
         headers: {

@@ -213,6 +213,7 @@ const els = {
   newsletterCount: document.getElementById('newsletter-count'),
   newsletterNewBtn: document.getElementById('newsletter-new-btn'),
   newsletterFilter: document.getElementById('newsletter-filter'),
+  newsletterStatusFilter: document.getElementById('newsletter-status-filter'),
   newsletterList: document.getElementById('newsletter-list'),
   newsletterDetailEmpty: document.getElementById('newsletter-detail-empty'),
   newsletterForm: document.getElementById('newsletter-form'),
@@ -5503,6 +5504,58 @@ if (els.journalPreviewBtn) {
 let currentNewsletters = [];
 let selectedNewsletter = null;
 
+/**
+ * Which statuses the dispatch list is showing. Null means all.
+ *
+ * The panel lists every issue ever created in one flat list — at the time of
+ * writing 1 draft among 5 awaiting review, 6 rejected and 13 sent — so finding
+ * the one being worked on meant reading the whole thing. The RPC now returns
+ * them ordered by what needs attention; this narrows to one state in a click.
+ */
+let newsletterStatusFilter = null;
+
+/** Working states first, in the same order the RPC sorts them. */
+const NEWSLETTER_STATUS_ORDER = [
+  'sending',
+  'scheduled',
+  'draft',
+  'needs_review',
+  'failed',
+  'sent',
+  'rejected',
+];
+
+function renderNewsletterStatusFilter() {
+  const host = els.newsletterStatusFilter;
+  if (!host) return;
+
+  const counts = new Map();
+  for (const n of currentNewsletters) {
+    counts.set(n.status, (counts.get(n.status) || 0) + 1);
+  }
+
+  const buttons = [['', 'All', currentNewsletters.length]];
+  for (const status of NEWSLETTER_STATUS_ORDER) {
+    if (counts.has(status)) {
+      buttons.push([status, status.replaceAll('_', ' '), counts.get(status)]);
+    }
+  }
+
+  host.innerHTML = '';
+  for (const [value, label, count] of buttons) {
+    const active = (value || null) === newsletterStatusFilter;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    btn.innerHTML = `${escapeHtml(label)}<span class="n">${count}</span>`;
+    btn.addEventListener('click', () => {
+      newsletterStatusFilter = value || null;
+      renderNewsletterList();
+    });
+    host.appendChild(btn);
+  }
+}
+
 async function loadNewsletterTab() {
   if (!supabase) return;
   setStatus('Loading dispatches...', 'pending');
@@ -5525,13 +5578,19 @@ function renderNewsletterList() {
   if (!list) return;
   list.innerHTML = '';
 
+  renderNewsletterStatusFilter();
+
   const filterVal = els.newsletterFilter.value.trim().toLowerCase();
-  const filtered = currentNewsletters.filter(n =>
-    !filterVal ||
-    (n.public_title && n.public_title.toLowerCase().includes(filterVal)) ||
-    (n.subject && n.subject.toLowerCase().includes(filterVal)) ||
-    (n.slug && n.slug.toLowerCase().includes(filterVal))
-  );
+  const filtered = currentNewsletters.filter(n => {
+    if (newsletterStatusFilter && n.status !== newsletterStatusFilter) return false;
+    if (!filterVal) return true;
+    return (
+      (n.public_title && n.public_title.toLowerCase().includes(filterVal)) ||
+      (n.internal_title && n.internal_title.toLowerCase().includes(filterVal)) ||
+      (n.subject && n.subject.toLowerCase().includes(filterVal)) ||
+      (n.slug && n.slug.toLowerCase().includes(filterVal))
+    );
+  });
 
   els.newsletterCount.textContent = `${filtered.length} dispatch${filtered.length === 1 ? '' : 'es'}`;
 
@@ -5546,11 +5605,17 @@ function renderNewsletterList() {
       li.classList.add('is-active');
     }
 
+    const day = (value) =>
+      new Date(value).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+    // An unsent issue used to show the literal word "Draft" here, so the newest
+    // draft looked identical to the oldest. Show when it was last touched.
     const formattedDate = n.sent_at
-      ? new Date(n.sent_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
+      ? day(n.sent_at)
       : n.scheduled_at
-        ? `Sched: ${new Date(n.scheduled_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}`
-        : 'Draft';
+        ? `Sched: ${day(n.scheduled_at)}`
+        : n.updated_at || n.created_at
+          ? `Edited ${day(n.updated_at || n.created_at)}`
+          : '—';
 
     li.innerHTML = `
       <button type="button" data-newsletter-id="${escapeAttr(n.id)}">

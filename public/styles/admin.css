@@ -3508,3 +3508,37 @@ code {
 .admin-modal-actions .btn-ghost:hover {
   color: var(--gold);
 }
+
+/* Status filter for the dispatch list. The panel lists every issue ever made
+   in one flat list, so the one being worked on was a needle in it. */
+.admin-status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.admin-status-filter button {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border: 1px solid rgba(189, 154, 50, 0.28);
+  background: transparent;
+  color: rgba(241, 236, 224, 0.72);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.admin-status-filter button:hover {
+  border-color: rgba(189, 154, 50, 0.55);
+  color: #f1ece0;
+}
+.admin-status-filter button[aria-pressed="true"] {
+  background: #bd9a32;
+  border-color: #bd9a32;
+  color: #13110f;
+}
+.admin-status-filter button .n {
+  opacity: 0.7;
+  margin-left: 5px;
+}
