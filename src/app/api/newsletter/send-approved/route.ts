@@ -42,13 +42,18 @@ export async function POST(request: NextRequest) {
       payload: {
         issueId,
         provider: "resend",
-        status: "sent",
+        status: result.capped ? "partial" : "sent",
         recipientCount: result.sent,
         metadata: { mode: "send-approved", result },
       },
     });
     return jsonOk({
-      sent: true,
+      // A budgeted run is a real send that is not finished. Saying "sent" flat
+      // would tell the operator the issue is done when several hundred people
+      // are still waiting for the next run.
+      sent: !result.capped,
+      capped: result.capped,
+      remaining: result.remaining,
       recipientCount: result.sent,
       message: result.message,
     });

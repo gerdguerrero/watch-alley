@@ -2,6 +2,7 @@ import "server-only";
 import { createHmac } from "node:crypto";
 import { Resend } from "resend";
 import { escapeHtml, sanitizeNewsletterHtml } from "@/lib/newsletter/html";
+import { broadcastRunLimit, isRateLimitError } from "@/lib/newsletter/limits";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createUnsubscribeToken } from "@/lib/watch-list/unsubscribe";
 
@@ -405,7 +406,7 @@ export async function sendTestEmail(issueId: string, recipient: string) {
   return sendData;
 }
 
-export async function sendNewsletterBroadcast(issueId: string) {
+export async function sendNewsletterBroadcast(issueId: string, options?: { maxEmails?: number }) {
   const supabase = createSupabaseAdminClient();
 
   // 1. Fetch issue
@@ -445,7 +446,7 @@ export async function sendNewsletterBroadcast(issueId: string) {
       issue_id: issueId,
       new_status: "approved",
     });
-    return { sent: 0, message: "No active subscribers found." };
+    return { sent: 0, capped: false, remaining: 0, message: "No active subscribers found." };
   }
 
   const from = getFromEmail();
@@ -477,8 +478,18 @@ export async function sendNewsletterBroadcast(issueId: string) {
   // are not.
   const BATCH_SIZE = 50;
 
-  for (let offset = 0; offset < pending.length; offset += BATCH_SIZE) {
-    const chunk = pending.slice(offset, offset + BATCH_SIZE);
+  // Resend's free tier allows 100 emails a day against a list of 500+, so one
+  // issue is several days of sending. Take only this run's slice; the rest
+  // stay pending, and the next run rebuilds `pending` from the delivery log
+  // and carries on exactly where this one stopped.
+  // The caller may hand down what is left of a shared daily allowance; the
+  // cron sends several issues in one run and they draw on the same quota.
+  const runLimit = Math.max(0, options?.maxEmails ?? broadcastRunLimit());
+  const budgeted = pending.slice(0, runLimit);
+  let rateLimited = false;
+
+  for (let offset = 0; offset < budgeted.length; offset += BATCH_SIZE) {
+    const chunk = budgeted.slice(offset, offset + BATCH_SIZE);
 
     for (const recipient of chunk) {
       await logDeliveryEvent(supabase, { issueId, hash: recipient.hash, status: "sending" });
@@ -507,6 +518,15 @@ export async function sendNewsletterBroadcast(issueId: string) {
     const { data: batchData, error: batchError } = await resend.batch.send(payloads);
 
     if (batchError) {
+      // A rate or quota refusal means "not now", not "not ever": the provider
+      // never accepted these addresses. Writing them off as failed would be a
+      // lie, and since the duplicate guard only matches `sent`, that lie is
+      // how a subscriber silently misses an issue for good. Stop the run and
+      // leave them pending instead.
+      if (isRateLimitError(batchError)) {
+        rateLimited = true;
+        break;
+      }
       for (const recipient of chunk) {
         await logDeliveryEvent(supabase, {
           issueId,
@@ -520,25 +540,90 @@ export async function sendNewsletterBroadcast(issueId: string) {
     }
 
     const messageIds = batchData?.data ?? [];
+    if (messageIds.length !== chunk.length) {
+      // The emails were accepted; only the audit trail came back short. Say so
+      // rather than storing an undefined provider id against a real delivery.
+      console.warn(
+        `Resend returned ${messageIds.length} message ids for a batch of ${chunk.length} on issue ${issueId}.`
+      );
+    }
     for (let i = 0; i < chunk.length; i++) {
+      const providerMessageId = messageIds[i]?.id;
       await logDeliveryEvent(supabase, {
         issueId,
         hash: chunk[i].hash,
         status: "sent",
-        providerMessageId: messageIds[i]?.id,
+        providerMessageId,
+        metadata: providerMessageId ? undefined : { providerIdMissing: true },
       });
       sentCount += 1;
     }
   }
 
-  if (errors.length > 0) {
-    // Set status to failed
+  // Recipients that were never delivered stay pending: a `failed` event does
+  // not satisfy the duplicate guard, so the next run retries them alongside
+  // whatever the budget deferred.
+  const remaining = pending.length - sentCount;
+
+  if (errors.length > 0 && sentCount === 0) {
+    // Nothing got through at all: an unverified domain, a bad key, a provider
+    // outage. That is a real failure and wants a human, so it stays `failed`,
+    // which the cron deliberately does not reclaim.
     await supabase.rpc("service_update_newsletter_status", {
       issue_id: issueId,
       new_status: "failed",
       new_metadata: { errors },
     });
-    throw new Error(`Broadcast partially failed. Sent: ${sentCount}. Errors: ${errors.join(", ")}`);
+    throw new Error(`Broadcast failed before any delivery. Errors: ${errors.join(", ")}`);
+  }
+
+  if (errors.length > 0) {
+    // Some went out and some did not. Marking the whole issue `failed` here
+    // would strand it forever with half the list served, and a multi-day send
+    // gives a transient provider blip six chances to cause exactly that. Park
+    // it as `sending` so the next run retries only the undelivered addresses.
+    // The retry is bounded: the cron stops reclaiming an interrupted send
+    // after seven days, so a permanently bad address cannot loop indefinitely.
+    await supabase.rpc("service_update_newsletter_status", {
+      issue_id: issueId,
+      new_status: "sending",
+      new_metadata: {
+        errors,
+        lastRunSent: sentCount,
+        remaining,
+        rateLimited,
+        lastRunAt: new Date().toISOString(),
+      },
+    });
+    return {
+      sent: sentCount,
+      capped: true,
+      remaining,
+      message: `Delivered ${sentCount}; ${remaining} remain after errors. Errors: ${errors.join(", ")}`,
+    };
+  }
+
+  if (remaining > 0) {
+    // Budgeted out, not finished. The issue stays `sending`, which is the
+    // truth, and the next run reclaims it and continues from the delivery log.
+    await supabase.rpc("service_update_newsletter_status", {
+      issue_id: issueId,
+      new_status: "sending",
+      new_metadata: {
+        lastRunSent: sentCount,
+        remaining,
+        rateLimited,
+        lastRunAt: new Date().toISOString(),
+      },
+    });
+    return {
+      sent: sentCount,
+      capped: true,
+      remaining,
+      message: rateLimited
+        ? `Provider rate limit reached. Sent ${sentCount}; ${remaining} remain for the next run.`
+        : `Run budget reached. Sent ${sentCount}; ${remaining} remain for the next run.`,
+    };
   }
 
   // 5. Update issue status to sent/archived
@@ -549,7 +634,12 @@ export async function sendNewsletterBroadcast(issueId: string) {
     new_archive_visible: true,
   });
 
-  return { sent: sentCount, message: "Broadcast completed successfully." };
+  return {
+    sent: sentCount,
+    capped: false,
+    remaining: 0,
+    message: "Broadcast completed successfully.",
+  };
 }
 
 export async function sendWelcomeEmail(email: string, firstName?: string, country?: string) {

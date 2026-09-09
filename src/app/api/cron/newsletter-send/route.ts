@@ -1,4 +1,5 @@
 import { jsonError, jsonOk, requireCronSecret } from "@/lib/newsletter/api";
+import { broadcastRunLimit } from "@/lib/newsletter/limits";
 import { sendNewsletterBroadcast } from "@/lib/newsletter/send";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -32,25 +33,48 @@ export async function GET(request: Request) {
     });
   }
 
-  let sentCount = 0;
+  let completed = 0;
+  let emailsSent = 0;
+  let capped = false;
   const errors: string[] = [];
 
+  // One allowance for the whole run, spent across however many issues are due.
+  // Counting per issue instead would let three due issues send three times the
+  // daily quota, and the emails past it come back refused.
+  let budget = broadcastRunLimit();
+
   for (const issue of due) {
+    if (budget <= 0) {
+      capped = true;
+      break;
+    }
+
     try {
-      await sendNewsletterBroadcast(issue.id);
-      sentCount++;
+      const result = await sendNewsletterBroadcast(issue.id, { maxEmails: budget });
+      emailsSent += result.sent;
+      budget -= result.sent;
+      if (result.capped) {
+        capped = true;
+      } else {
+        completed++;
+      }
     } catch (err) {
+      // The broadcast only throws when nothing was delivered, so the budget is
+      // untouched and the next due issue can still have it.
       errors.push(err instanceof Error ? err.message : String(err));
     }
   }
 
+  const summary = capped
+    ? `Budget reached after ${emailsSent} emails. ${completed} issues finished; the rest resume on the next run.`
+    : `Successfully sent ${completed} scheduled issues (${emailsSent} emails).`;
+
   return jsonOk({
-    sent: sentCount,
+    sent: completed,
+    emailsSent,
+    capped,
     due: due.length,
     configured: true,
-    message:
-      errors.length > 0
-        ? `Completed with errors. Sent ${sentCount} of ${due.length} issues. Errors: ${errors.join(", ")}`
-        : `Successfully sent ${sentCount} scheduled issues.`,
+    message: errors.length > 0 ? `${summary} Errors: ${errors.join(", ")}` : summary,
   });
 }
