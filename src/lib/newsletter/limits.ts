@@ -32,8 +32,21 @@ export const DEFAULT_BROADCAST_RUN_LIMIT = 90;
  */
 export const DEFAULT_NUDGE_RUN_LIMIT = 20;
 
-/** Oldest signup the nudge will chase, in hours. Five years: effectively "any". */
-export const DEFAULT_NUDGE_MAX_AGE_HOURS = 24 * 365 * 5;
+/**
+ * Oldest signup the nudge will chase, in hours.
+ *
+ * Deliberately left at the historical 48 so deploying the widened window
+ * changes nothing on its own. The window used to be hardcoded, which meant a
+ * subscriber was reachable for exactly one day of their life and 495 of 550
+ * could never be asked for their preferences again. That is now fixable, but
+ * fixing it means mailing hundreds of people who have heard nothing for two
+ * months, and the first thing they hear should not be a request for more data.
+ *
+ * Set `NEWSLETTER_NUDGE_MAX_AGE_HOURS` to something large (43800 is five years)
+ * once the re-permission email has gone out. The nudge then works through the
+ * backlog at `NEWSLETTER_NUDGE_MAX_PER_RUN` a day.
+ */
+export const DEFAULT_NUDGE_MAX_AGE_HOURS = 48;
 
 /** Youngest signup the nudge will chase. A day's grace before asking for more. */
 export const DEFAULT_NUDGE_MIN_AGE_HOURS = 24;
